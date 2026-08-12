@@ -1,15 +1,15 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": null,
-  "featureSlug": null,
-  "phase": "idle",
+  "activeIssue": 260,
+  "featureSlug": "p0-5-ci-golden-set",
+  "phase": "done",
   "branch": "main",
   "prUrl": null,
-  "milestoneFilter": "vertical-slice-strangler",
+  "milestoneFilter": "visudev-honest-core-phase0",
   "paused": false,
   "runMode": "loop",
-  "queue": [],
+  "queue": [260, 261, 262, 263, 264, 265, 266, 267, 268],
   "completedIssues": [
     67, 68, 69, 70, 71, 72, 73, 74, 75, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 105, 106, 107, 108,
     109, 110, 111, 112, 113, 123, 124, 125, 126, 127, 128, 129, 130, 133, 134, 135, 136, 137, 138,
@@ -64,9 +64,9 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 2,
-  "updatedAt": "2026-07-22T18:44:19.000Z",
-  "notes": "vertical-slice-strangler queue empty: #243-#250 merged",
+  "issuesProcessedInSession": 0,
+  "updatedAt": "2026-08-12T07:29:54.000Z",
+  "notes": "phase0 honest-core: issues #260-#268 created; starting loop",
   "currentIssue": null,
   "lastCompletedIssue": 250
 }

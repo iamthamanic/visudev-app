@@ -22,7 +22,7 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: process.env.CI
     ? {
-        // Build runs in .github/workflows/e2e.yml before `npm run e2e`
+        // Build runs in the e2e-demo job before `npm run e2e`.
         command: "npx vite preview --port 3000 --host 127.0.0.1",
         url: "http://127.0.0.1:3000",
         reuseExistingServer: false,

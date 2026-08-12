@@ -1,0 +1,23 @@
+{
+  "_comment": "min = floor(measured * 0.9). measured stammt aus dem Lauf in PR #<nummer>. Bei Verbesserungen wird min im selben PR angehoben.",
+  "nodes": {
+    "measured": 18,
+    "min": 16
+  },
+  "edges": {
+    "measured": 23,
+    "min": 20
+  },
+  "routes": {
+    "measured": 9,
+    "min": 8
+  },
+  "tables": {
+    "measured": 2,
+    "min": 1
+  },
+  "files": {
+    "measured": 13,
+    "min": 11
+  }
+}

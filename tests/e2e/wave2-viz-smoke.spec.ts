@@ -284,15 +284,7 @@ async function openBlueprintView(page: import("@playwright/test").Page, viewId: 
   await page.goto("/");
   await page.waitForLoadState("networkidle");
 
-  if (
-    await page
-      .getByText(/Melde dich an/i)
-      .isVisible()
-      .catch(() => false)
-  ) {
-    test.skip(true, "Auth mock insufficient — login screen still shown");
-    return;
-  }
+  await expect(page.getByText(/Melde dich an/i)).toBeHidden();
 
   const projectCard = page.getByText("browo/hr-tool").first();
   if (await projectCard.isVisible().catch(() => false)) {

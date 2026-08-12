@@ -5,8 +5,14 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { installWave2Mocks, seedSupabaseSession } from "./wave2-test-helpers.js";
 
 test.describe("VisuDEV critical paths", () => {
+  test.beforeEach(async ({ page }) => {
+    await seedSupabaseSession(page);
+    await installWave2Mocks(page, "proj-critical-paths", "critical-paths-1");
+  });
+
   test("shows login or shell when app loads", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
@@ -28,73 +34,50 @@ test.describe("VisuDEV critical paths", () => {
   test("when logged in, projects screen is reachable", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    const loginHeading = page.getByRole("heading", { name: /VisuDEV/i });
-    const isLoginScreen = await loginHeading.isVisible().catch(() => false);
-    if (isLoginScreen) {
-      test.skip();
-      return;
-    }
     const nav = page.getByRole("navigation");
     await expect(nav).toBeVisible();
-    const projectsLink = page
-      .getByRole("button", { name: /Projekte/i })
-      .or(page.getByText("Projekte").first());
-    if (await projectsLink.isVisible().catch(() => false)) {
-      await projectsLink.click();
-      await expect(page.locator("main")).toBeVisible();
-    }
+    const projectsLink = page.getByRole("button", {
+      name: "Zu Projekte wechseln",
+    });
+    await expect(projectsLink).toBeVisible();
+    await projectsLink.click();
+    await expect(page.locator("main")).toBeVisible();
   });
 
   test("app flow screen shows header or empty state when project selected", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    const loginHeading = page.getByRole("heading", { name: /VisuDEV/i });
-    if (await loginHeading.isVisible().catch(() => false)) {
-      test.skip();
-      return;
-    }
-    const appFlowNav = page
-      .getByRole("button", { name: /App Flow/i })
-      .or(page.getByText("App Flow").first());
-    if (await appFlowNav.isVisible().catch(() => false)) {
-      await appFlowNav.click();
-      await page.waitForTimeout(500);
-      const hasAppFlowTitle = await page
-        .getByRole("heading", { name: /App Flow/i })
-        .isVisible()
-        .catch(() => false);
-      const hasEmptyState = await page
-        .getByText(/Kein Projekt ausgewählt|Noch keine Flows|Sitemap/i)
-        .isVisible()
-        .catch(() => false);
-      expect(hasAppFlowTitle || hasEmptyState).toBeTruthy();
-    }
+    const appFlowNav = page.getByRole("button", {
+      name: "Zu App Flow wechseln",
+    });
+    await expect(appFlowNav).toBeVisible();
+    await appFlowNav.click();
+    await page.waitForTimeout(500);
+    const hasAppFlowTitle = await page
+      .getByRole("heading", { name: /App Flow/i })
+      .isVisible()
+      .catch(() => false);
+    const hasEmptyState = await page
+      .getByText(/Kein Projekt ausgewählt|Noch keine Flows|Sitemap/i)
+      .isVisible()
+      .catch(() => false);
+    expect(hasAppFlowTitle || hasEmptyState).toBeTruthy();
   });
 
   test("scan button exists on app flow when project has no data", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    const loginHeading = page.getByRole("heading", { name: /VisuDEV/i });
-    if (await loginHeading.isVisible().catch(() => false)) {
-      test.skip();
-      return;
-    }
-    const appFlowNav = page
-      .getByRole("button", { name: /App Flow/i })
-      .or(page.getByText("App Flow").first());
-    if (!(await appFlowNav.isVisible().catch(() => false))) {
-      test.skip();
-      return;
-    }
+    const appFlowNav = page.getByRole("button", {
+      name: "Zu App Flow wechseln",
+    });
+    await expect(appFlowNav).toBeVisible();
     await appFlowNav.click();
     await page.waitForTimeout(600);
-    const scanButton = page.getByRole("button", { name: /Scan starten|Neu analysieren/i });
-    const hasScanButton = await scanButton.isVisible().catch(() => false);
-    const hasExportOrTabs = await page
-      .getByRole("button", { name: /Export|Sitemap|Integrations/i })
-      .isVisible()
-      .catch(() => false);
-    expect(hasScanButton || hasExportOrTabs).toBeTruthy();
+    await expect(
+      page.getByRole("button", {
+        name: /Scan starten|Neu analysieren|Analysiere/i,
+      }),
+    ).toBeVisible();
   });
 
   test("app flow screen cards show either loaded iframe or clear failure reason (per-screen resilience)", async ({
@@ -102,18 +85,10 @@ test.describe("VisuDEV critical paths", () => {
   }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    const loginHeading = page.getByRole("heading", { name: /VisuDEV/i });
-    if (await loginHeading.isVisible().catch(() => false)) {
-      test.skip();
-      return;
-    }
-    const appFlowNav = page
-      .getByRole("button", { name: /App Flow/i })
-      .or(page.getByText("App Flow").first());
-    if (!(await appFlowNav.isVisible().catch(() => false))) {
-      test.skip();
-      return;
-    }
+    const appFlowNav = page.getByRole("button", {
+      name: "Zu App Flow wechseln",
+    });
+    await expect(appFlowNav).toBeVisible();
     await appFlowNav.click();
     await page.waitForTimeout(800);
     const liveFlowLabel = page.getByText("Live App Flow");
