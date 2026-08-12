@@ -13,24 +13,24 @@
   "pages": {
     "schema_version": 1,
     "kind": "memory-live-doc-pages",
-    "status": "not_enabled",
-    "reason": "GitHub Pages unavailable: private repo on a plan that does not include Pages (API 422). Viewer files exist under docs/memory-live-doc/viewer/.",
+    "status": "memory_viewer_active",
+    "reason": "Pages /docs is active and local docs/memory-live-doc/viewer exists. After push, viewer URL should work. No Pages config change needed.",
     "repo": "iamthamanic/visudev-app",
     "default_branch": "main",
-    "has_pages": false,
-    "build_type": null,
+    "has_pages": true,
+    "build_type": "legacy",
     "source": {
-      "branch": null,
-      "path": null
+      "branch": "main",
+      "path": "/docs"
     },
-    "html_url": null,
-    "github_pages_status": null,
+    "html_url": "https://iamthamanic.github.io/visudev-app/",
+    "github_pages_status": "building",
     "viewer_url": "https://iamthamanic.github.io/visudev-app/memory-live-doc/viewer/",
     "local_viewer_present": true,
     "can_enable": false,
     "can_change_pages": false,
-    "action_taken": "blocked_plan_private",
-    "private_note": "private_repo \u2014 enable Pages requires public repo or GitHub Pro/Team with Pages, or host viewer elsewhere"
+    "action_taken": "none",
+    "private_note": null
   },
   "history_coverage": {
     "status": "complete",
