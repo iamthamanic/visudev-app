@@ -89,12 +89,12 @@ nach dem ersten eine **frisch erzeugte, garantiert noch nie verwendete** ID.
 
 ### Der Ablauf im Detail
 
-| Aufruf | `stableUniqueId` liefert | `state.scopes.has(...)` | Ergebnis |
-|---|---|---|---|
-| 1. Datei | `domain:backend` | `false` | Scope `domain:backend` + Knoten `domain:backend` |
-| 2. Datei | `domain:backend~1` | `false` | Scope `domain:backend` erneut + Knoten `domain:backend~1` |
-| 3. Datei | `domain:backend~2` | `false` | Scope erneut + Knoten `domain:backend~2` |
-| … | … | `false` | … |
+| Aufruf   | `stableUniqueId` liefert | `state.scopes.has(...)` | Ergebnis                                                  |
+| -------- | ------------------------ | ----------------------- | --------------------------------------------------------- |
+| 1. Datei | `domain:backend`         | `false`                 | Scope `domain:backend` + Knoten `domain:backend`          |
+| 2. Datei | `domain:backend~1`       | `false`                 | Scope `domain:backend` erneut + Knoten `domain:backend~1` |
+| 3. Datei | `domain:backend~2`       | `false`                 | Scope erneut + Knoten `domain:backend~2`                  |
+| …        | …                        | `false`                 | …                                                         |
 
 Bei 499 verarbeiteten Dateien entstehen 499 Domänen-Knoten, 499
 Schicht-Knoten und rund 499 Modul-Knoten. Zusammen etwa 1497 — plus die
@@ -166,10 +166,10 @@ Die Änderung liegt vollständig im Node-seitigen Graph-Builder. Deno ist nicht
 betroffen. Es gibt keine Schnittstellenänderung nach außen — die ausgegebenen
 Knoten-IDs werden lediglich korrekt statt suffigiert.
 
-| Schicht | Datei | Änderung |
-|---|---|---|
-| Node, Graph-Builder | `_file-context.ts` | Deterministische IDs statt `stableUniqueId` |
-| Node, Graph-Builder | `_ids.ts` | Neue Hilfsfunktion zum Registrieren einer bekannten ID |
+| Schicht             | Datei              | Änderung                                               |
+| ------------------- | ------------------ | ------------------------------------------------------ |
+| Node, Graph-Builder | `_file-context.ts` | Deterministische IDs statt `stableUniqueId`            |
+| Node, Graph-Builder | `_ids.ts`          | Neue Hilfsfunktion zum Registrieren einer bekannten ID |
 
 **Wichtig:** Die IDs im Ausgabegraphen ändern sich (`domain:backend~1`
 verschwindet). Snapshots und gespeicherte Auswahlzustände, die alte IDs
@@ -285,28 +285,28 @@ gegenprüfen, damit die Änderung nicht nur für browo-hr passt.
 
 ### Zu ändern
 
-| Datei | Was passiert |
-|---|---|
-| `local-engine/src/services/software-graph/_file-context.ts` | Deterministische IDs statt `stableUniqueId` für alle vier Container |
-| `local-engine/src/services/software-graph/_ids.ts` | Neue Funktion `registerKnownId` ergänzen. `stableUniqueId` bleibt unverändert |
-| `scripts/golden-set/run.mjs` | Kennzahl `duplicateNodeIds` |
-| `tests/fixtures/golden-repo/expected-metrics.json` | `duplicateNodeIds` mit `max: 0` |
+| Datei                                                       | Was passiert                                                                  |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `local-engine/src/services/software-graph/_file-context.ts` | Deterministische IDs statt `stableUniqueId` für alle vier Container           |
+| `local-engine/src/services/software-graph/_ids.ts`          | Neue Funktion `registerKnownId` ergänzen. `stableUniqueId` bleibt unverändert |
+| `scripts/golden-set/run.mjs`                                | Kennzahl `duplicateNodeIds`                                                   |
+| `tests/fixtures/golden-repo/expected-metrics.json`          | `duplicateNodeIds` mit `max: 0`                                               |
 
 ### Neu anzulegen
 
-| Datei | Zweck |
-|---|---|
+| Datei                                                            | Zweck                                                       |
+| ---------------------------------------------------------------- | ----------------------------------------------------------- |
 | `local-engine/src/services/software-graph/_file-context.test.ts` | Tests aus Abschnitt 8, falls die Datei noch nicht existiert |
 
 ### Nicht anfassen
 
-| Datei / Bereich | Grund |
-|---|---|
-| `_heuristics.ts` | Dass es nur zwei Domänen gibt, ist P0-10. Dieses Issue behebt die Vervielfachung, nicht die Erkennung |
-| `_scopes.ts` | Die Scope-Fabriken sind korrekt. Der Fehler liegt bei den Aufrufern |
-| Die Funktion `stableUniqueId` selbst | Sie ist für echte Entitäten richtig |
-| `graph-export-cap.ts` | Der Fakten-Deckel ist P0-8 |
-| Alles unter `src/modules/blueprint/` | Die Änderung wirkt allein über die Daten |
+| Datei / Bereich                      | Grund                                                                                                 |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `_heuristics.ts`                     | Dass es nur zwei Domänen gibt, ist P0-10. Dieses Issue behebt die Vervielfachung, nicht die Erkennung |
+| `_scopes.ts`                         | Die Scope-Fabriken sind korrekt. Der Fehler liegt bei den Aufrufern                                   |
+| Die Funktion `stableUniqueId` selbst | Sie ist für echte Entitäten richtig                                                                   |
+| `graph-export-cap.ts`                | Der Fakten-Deckel ist P0-8                                                                            |
+| Alles unter `src/modules/blueprint/` | Die Änderung wirkt allein über die Daten                                                              |
 
 ## 11. Umsetzungsschritte
 

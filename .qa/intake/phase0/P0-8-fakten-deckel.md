@@ -51,12 +51,12 @@ bleiben rund 350 Plätze bei 6000 Kandidaten.
 
 ### Was dadurch konkret verloren geht
 
-| Fakt-Typ | intern extrahiert | exportiert | Folge |
-|---|---|---|---|
-| `auth-check` | 402 | ~8 | Security-Matrix kann Auth nicht bestätigen → P0-6 |
-| `validation-deny-400` | 148 | wenige | dieselbe Wirkung für Validierung |
-| `ast-import` | mehrere hundert | 64 | zu wenige Kandidaten für Abhängigkeitskanten → P0-9 |
-| übrige | rund 5000 | Rest | Execution-Pipeline, Infrastruktur, Diagnostics |
+| Fakt-Typ              | intern extrahiert | exportiert | Folge                                               |
+| --------------------- | ----------------- | ---------- | --------------------------------------------------- |
+| `auth-check`          | 402               | ~8         | Security-Matrix kann Auth nicht bestätigen → P0-6   |
+| `validation-deny-400` | 148               | wenige     | dieselbe Wirkung für Validierung                    |
+| `ast-import`          | mehrere hundert   | 64         | zu wenige Kandidaten für Abhängigkeitskanten → P0-9 |
+| übrige                | rund 5000         | Rest       | Execution-Pipeline, Infrastruktur, Diagnostics      |
 
 **Für 340 von 372 Routen kommt gar keine Evidenz an.** Das ist der Grund, warum
 die Security-Matrix überall raten muss — und warum die 19 inhaltlich
@@ -116,12 +116,12 @@ Schnittstelle für ein Problem, das mit Priorisierung erledigt ist.
 Die Änderung liegt vollständig im Deno-Export. Der Node-Teil sieht nur mehr und
 besser verteilte Fakten sowie zwei neue Zählfelder.
 
-| Schicht | Datei | Änderung |
-|---|---|---|
-| Deno, Export | `internal/graph-export-cap.ts` | Priorisierung, Abdeckungsverteilung, Zählung |
-| Deno, DTO | `dto/blueprint/blueprint-document.dto.ts` | Feld `factSelection` mit den Zählern |
-| shared | `shared/visudev-api.types.ts` | `factSelection` durchreichen |
-| Node | `local-engine/src/providers/legacy-visudev-analysis.provider.ts` | `factSelection` nicht verwerfen |
+| Schicht      | Datei                                                            | Änderung                                     |
+| ------------ | ---------------------------------------------------------------- | -------------------------------------------- |
+| Deno, Export | `internal/graph-export-cap.ts`                                   | Priorisierung, Abdeckungsverteilung, Zählung |
+| Deno, DTO    | `dto/blueprint/blueprint-document.dto.ts`                        | Feld `factSelection` mit den Zählern         |
+| shared       | `shared/visudev-api.types.ts`                                    | `factSelection` durchreichen                 |
+| Node         | `local-engine/src/providers/legacy-visudev-analysis.provider.ts` | `factSelection` nicht verwerfen              |
 
 ## 5. Edge Cases
 
@@ -216,29 +216,29 @@ dem der Deckel nicht greift.
 
 ### Zu ändern
 
-| Datei | Was passiert |
-|---|---|
-| `.../blueprint/internal/graph-export-cap.ts` | Priorisierung, Verteilung, Zählung |
-| `.../blueprint/dto/blueprint-document.dto.ts` | Typ `FactSelectionReport` |
-| `shared/visudev-api.types.ts` | `factSelection` in `RawBlueprintScan` |
-| `local-engine/src/providers/legacy-visudev-analysis.provider.ts` | Feld durchreichen |
+| Datei                                                            | Was passiert                          |
+| ---------------------------------------------------------------- | ------------------------------------- |
+| `.../blueprint/internal/graph-export-cap.ts`                     | Priorisierung, Verteilung, Zählung    |
+| `.../blueprint/dto/blueprint-document.dto.ts`                    | Typ `FactSelectionReport`             |
+| `shared/visudev-api.types.ts`                                    | `factSelection` in `RawBlueprintScan` |
+| `local-engine/src/providers/legacy-visudev-analysis.provider.ts` | Feld durchreichen                     |
 
 ### Neu anzulegen
 
-| Datei | Zweck |
-|---|---|
+| Datei                                             | Zweck                        |
+| ------------------------------------------------- | ---------------------------- |
 | `.../blueprint/internal/graph-export-cap.test.ts` | Tests, falls nicht vorhanden |
 
 ### Nicht anfassen
 
-| Datei / Bereich | Grund |
-|---|---|
-| `isPrismaSchemaModelFact`, `isInfraServiceExportFact` | Funktionieren nachweislich |
-| `MAX_PRESERVED_INFRA_SERVICE_FACTS` | Unverändert bei 16 |
-| `graph-export-trim.ts`, `graph-export-sanitize.ts` | Andere Aufgabe |
-| `fact-metadata-sanitizer.ts` | Gehört zu P0-9 |
-| `shared/blueprint-graph-inference.ts` | Gehört zu P0-6 |
-| Alles unter `src/modules/` | Die Anzeige des Berichts ist P0-1 |
+| Datei / Bereich                                       | Grund                             |
+| ----------------------------------------------------- | --------------------------------- |
+| `isPrismaSchemaModelFact`, `isInfraServiceExportFact` | Funktionieren nachweislich        |
+| `MAX_PRESERVED_INFRA_SERVICE_FACTS`                   | Unverändert bei 16                |
+| `graph-export-trim.ts`, `graph-export-sanitize.ts`    | Andere Aufgabe                    |
+| `fact-metadata-sanitizer.ts`                          | Gehört zu P0-9                    |
+| `shared/blueprint-graph-inference.ts`                 | Gehört zu P0-6                    |
+| Alles unter `src/modules/`                            | Die Anzeige des Berichts ist P0-1 |
 
 ## 11. Umsetzungsschritte
 

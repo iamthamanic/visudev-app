@@ -14,11 +14,13 @@ unterliegen diesen Regeln nicht.
 ## Zwei Leitfragen
 
 **Verständlichkeit:**
+
 > Versteht jemand, der dieses Projekt nicht kennt, in zwei Jahren allein aus
 > diesem Issue, **warum** es geschrieben wurde, **was** genau falsch war und
 > **woran** man erkennt, dass es behoben ist?
 
 **Ausführbarkeit:**
+
 > Kann ein schwächeres Modell (Composer, Sonnet, Haiku) dieses Issue umsetzen
 > und dabei dasselbe Ergebnis liefern wie ein starkes Modell?
 
@@ -60,7 +62,7 @@ und dem tatsächlichen Codeausschnitt als Codeblock.** Ein Zeilenverweis allein
 reicht nicht: Zeilennummern verschieben sich, der Codeblock bleibt
 wiedererkennbar.
 
-Zusätzlich: Was ist die *Auswirkung*? Ein Problem ohne beschriebene Auswirkung
+Zusätzlich: Was ist die _Auswirkung_? Ein Problem ohne beschriebene Auswirkung
 lässt sich nicht priorisieren.
 
 ### 3. Lösung
@@ -169,15 +171,15 @@ muss ohne Vorwissen verstehen, was er sieht.
 Jedes UI-Element, das leer sein kann, benennt **genau einen** dieser sieben
 Zustände. Der Grund wird immer genannt, nie nur die Abwesenheit:
 
-| Zustand | Bedeutung | Muss zusätzlich nennen |
-|---|---|---|
-| `not-scanned` | Projekt wurde noch nie analysiert | Was der Scan tut, wie lange er dauert |
-| `partial-scan` | Analysiert, aber abgeschnitten | Wo abgebrochen wurde, wie man den Umfang erweitert |
-| `unsupported-stack` | Dieser Stack wird noch nicht gelesen | Welcher Stack erkannt wurde |
-| `nothing-found` | Vollständig analysiert, es gibt wirklich nichts | **Wonach konkret gesucht wurde** |
-| `filtered-out` | Daten vorhanden, aber Filter blenden sie aus | Aktive Filter und Trefferzahl („0 von 412") |
-| `not-built-yet` | Funktion existiert noch nicht | Phase und Issue-Nummer |
-| `analysis-failed` | Analyse ist fehlgeschlagen | Fehlergrund und nächster Schritt |
+| Zustand             | Bedeutung                                       | Muss zusätzlich nennen                             |
+| ------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| `not-scanned`       | Projekt wurde noch nie analysiert               | Was der Scan tut, wie lange er dauert              |
+| `partial-scan`      | Analysiert, aber abgeschnitten                  | Wo abgebrochen wurde, wie man den Umfang erweitert |
+| `unsupported-stack` | Dieser Stack wird noch nicht gelesen            | Welcher Stack erkannt wurde                        |
+| `nothing-found`     | Vollständig analysiert, es gibt wirklich nichts | **Wonach konkret gesucht wurde**                   |
+| `filtered-out`      | Daten vorhanden, aber Filter blenden sie aus    | Aktive Filter und Trefferzahl („0 von 412")        |
+| `not-built-yet`     | Funktion existiert noch nicht                   | Phase und Issue-Nummer                             |
+| `analysis-failed`   | Analyse ist fehlgeschlagen                      | Fehlergrund und nächster Schritt                   |
 
 **`nothing-found` ist eine echte Aussage und darf nicht wie ein Fehler
 aussehen.** „Dieses Projekt hat keine Worker" ist Information, kein Mangel.
@@ -211,11 +213,11 @@ noch nicht im Register, wird er dort ergänzt — im selben PR.
 
 **Drei Ebenen, klar getrennt:**
 
-| Ebene | Auslöser | Inhalt | Baustein |
-|---|---|---|---|
-| 1 | Hover, 300 ms | Ein Satz: *was ist das* | Radix Tooltip |
-| 2 | Hover, 500 ms, oder Klick | Was es tut, **warum es in diesem Projekt ist**, Beleg-Link | Radix HoverCard |
-| 3 | Klick | Details, Code, Nachbarknoten, Diagnosen | Seitenpanel |
+| Ebene | Auslöser                  | Inhalt                                                     | Baustein        |
+| ----- | ------------------------- | ---------------------------------------------------------- | --------------- |
+| 1     | Hover, 300 ms             | Ein Satz: _was ist das_                                    | Radix Tooltip   |
+| 2     | Hover, 500 ms, oder Klick | Was es tut, **warum es in diesem Projekt ist**, Beleg-Link | Radix HoverCard |
+| 3     | Klick                     | Details, Code, Nachbarknoten, Diagnosen                    | Seitenpanel     |
 
 Ebene 2 ist die entscheidende. „Nginx verteilt Anfragen" ist Ebene 1. „…und
 steht in diesem Projekt vor deinem API-Container" ist Ebene 2 und nur aus dem
@@ -265,6 +267,7 @@ Vorweggenommene falsche Abzweigungen. Format: „Man könnte annehmen, dass X.
 Das ist falsch, weil Y. Richtig ist Z."
 
 Hier gehören besonders hinein:
+
 - Begriffe, die ähnlich klingen, aber Verschiedenes bedeuten
 - Angrenzende Bugs, die auffallen werden, aber nicht Teil des Issues sind
 - Vorhandener Code, der falsch aussieht, aber Absicht ist
@@ -320,13 +323,13 @@ Diese Regeln stehen in jedem Issue und gelten ohne Ausnahme.
 
 ## Anti-Muster (aus den Gapclose-Wellen gelernt)
 
-| Anti-Muster | Warum es geschadet hat |
-|---|---|
-| „Fix X in Component Y" ohne Kontext | Nach sechs Monaten weiß niemand, was X war |
-| Issue endet an der Schichtgrenze | Brücke Deno→Node→UI fehlt, Folge-Issue nötig |
-| Akzeptanz gegen Demo-Graph | Grün, obwohl echte Repos kaputt sind |
-| Repo-spezifische Regex als Lösung | Jedes neue Zielrepo kostet eine weitere Regel |
-| Platzhalterwert, „bis echte Daten da sind" | Der Platzhalter bleibt und lügt |
-| Schließen bei PARTIAL | Problem verschwindet aus dem Blick, nicht aus dem Code |
-| „Entscheidung bei der Umsetzung" | Wird von jedem Umsetzer anders entschieden |
-| Fehlende Scope-Grenze | Umsetzer repariert Angrenzendes mit, PR wird unprüfbar |
+| Anti-Muster                                | Warum es geschadet hat                                 |
+| ------------------------------------------ | ------------------------------------------------------ |
+| „Fix X in Component Y" ohne Kontext        | Nach sechs Monaten weiß niemand, was X war             |
+| Issue endet an der Schichtgrenze           | Brücke Deno→Node→UI fehlt, Folge-Issue nötig           |
+| Akzeptanz gegen Demo-Graph                 | Grün, obwohl echte Repos kaputt sind                   |
+| Repo-spezifische Regex als Lösung          | Jedes neue Zielrepo kostet eine weitere Regel          |
+| Platzhalterwert, „bis echte Daten da sind" | Der Platzhalter bleibt und lügt                        |
+| Schließen bei PARTIAL                      | Problem verschwindet aus dem Blick, nicht aus dem Code |
+| „Entscheidung bei der Umsetzung"           | Wird von jedem Umsetzer anders entschieden             |
+| Fehlende Scope-Grenze                      | Umsetzer repariert Angrenzendes mit, PR wird unprüfbar |

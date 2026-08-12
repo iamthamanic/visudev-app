@@ -251,6 +251,7 @@ npm run e2e
 ```
 
 Der PR enthält:
+
 1. Die Ausgabe von `npm run golden-set` im Normalfall.
 2. Die Ausgabe von `npm run golden-set` mit `FILE_LIMIT = 10`.
 3. Eine Liste aller zuvor roten E2E-Tests mit Entscheidung „repariert" oder
@@ -268,40 +269,40 @@ Herleitung.
 
 ### Zu ändern
 
-| Datei | Was passiert |
-|---|---|
-| `package.json` | Neues Skript `golden-set` ergänzen |
-| `tsconfig.json` | `tests/fixtures/**` in `exclude` aufnehmen |
-| `eslint.config.js` (oder `.mjs`/`.cjs`, je nach Vorhandensein) | `tests/fixtures/**` ignorieren |
-| `vitest.config.ts` | `tests/fixtures/**` aus dem Testlauf ausschließen |
-| `.gitattributes` | Anlegen falls nicht vorhanden; `tests/fixtures/golden-repo/** text eol=lf` |
+| Datei                                                          | Was passiert                                                               |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `package.json`                                                 | Neues Skript `golden-set` ergänzen                                         |
+| `tsconfig.json`                                                | `tests/fixtures/**` in `exclude` aufnehmen                                 |
+| `eslint.config.js` (oder `.mjs`/`.cjs`, je nach Vorhandensein) | `tests/fixtures/**` ignorieren                                             |
+| `vitest.config.ts`                                             | `tests/fixtures/**` aus dem Testlauf ausschließen                          |
+| `.gitattributes`                                               | Anlegen falls nicht vorhanden; `tests/fixtures/golden-repo/** text eol=lf` |
 
 ### Neu anzulegen
 
-| Datei | Inhalt |
-|---|---|
-| `.github/workflows/ci.yml` | Drei Jobs, exakter Inhalt in Abschnitt 12 |
-| `scripts/golden-set/run.mjs` | Analyse + Schwellwertvergleich |
-| `scripts/checks/ci-config.test.ts` | Metatest über `ci.yml` |
-| `tests/fixtures/golden-repo/` | Fixture-Projekt, Struktur in Abschnitt 12 |
-| `tests/fixtures/golden-repo/expected-metrics.json` | Untergrenzen |
+| Datei                                              | Inhalt                                    |
+| -------------------------------------------------- | ----------------------------------------- |
+| `.github/workflows/ci.yml`                         | Drei Jobs, exakter Inhalt in Abschnitt 12 |
+| `scripts/golden-set/run.mjs`                       | Analyse + Schwellwertvergleich            |
+| `scripts/checks/ci-config.test.ts`                 | Metatest über `ci.yml`                    |
+| `tests/fixtures/golden-repo/`                      | Fixture-Projekt, Struktur in Abschnitt 12 |
+| `tests/fixtures/golden-repo/expected-metrics.json` | Untergrenzen                              |
 
 ### Zu löschen
 
-| Datei | Grund |
-|---|---|
+| Datei                       | Grund                            |
+| --------------------------- | -------------------------------- |
 | `.github/workflows/e2e.yml` | Geht vollständig in `ci.yml` auf |
 
 ### Nicht anfassen
 
-| Datei / Bereich | Grund |
-|---|---|
-| `shared/demo-graph-seed.ts` | Bleibt bestehen; nur sein CI-Status ändert sich |
-| `preview-runner/lib/blueprint-local.js` | Wird nur gelesen. `FILE_LIMIT` gehört zu P0-1 |
-| `src/modules/blueprint/**` | Kein Produktcode in diesem Issue |
-| `local-engine/**` | Kein Produktcode in diesem Issue |
-| `scripts/checks/run.sh` | Die Diff-Logik bleibt für den lokalen Gebrauch |
-| `.env.example` | Die Zwei-Schalter-Frage wird hier nicht gelöst, nur in der CI umgangen |
+| Datei / Bereich                         | Grund                                                                  |
+| --------------------------------------- | ---------------------------------------------------------------------- |
+| `shared/demo-graph-seed.ts`             | Bleibt bestehen; nur sein CI-Status ändert sich                        |
+| `preview-runner/lib/blueprint-local.js` | Wird nur gelesen. `FILE_LIMIT` gehört zu P0-1                          |
+| `src/modules/blueprint/**`              | Kein Produktcode in diesem Issue                                       |
+| `local-engine/**`                       | Kein Produktcode in diesem Issue                                       |
+| `scripts/checks/run.sh`                 | Die Diff-Logik bleibt für den lokalen Gebrauch                         |
+| `.env.example`                          | Die Zwei-Schalter-Frage wird hier nicht gelöst, nur in der CI umgangen |
 
 ## 11. Umsetzungsschritte
 
@@ -462,7 +463,7 @@ e2e-demo job is explicitly named as demo path
 
 **„Der Demo-Graph ist das Problem und sollte gelöscht werden."**
 Falsch. Der Demo ist ein legitimer Pfad für Präsentationen und für
-UI-Entwicklung ohne laufende Analyse. Das Problem ist, dass er der *einzige*
+UI-Entwicklung ohne laufende Analyse. Das Problem ist, dass er der _einzige_
 war, den die CI geprüft hat. `shared/demo-graph-seed.ts` bleibt unverändert.
 
 **„Das Fixture-Repo ist auch nur ein Demo."**

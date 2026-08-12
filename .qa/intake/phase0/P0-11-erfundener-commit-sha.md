@@ -119,12 +119,12 @@ einfacher und ehrlicher.
 
 ## 4. Architektur
 
-| Schicht | Datei | Änderung |
-|---|---|---|
-| Preview-Runner | `preview-runner/lib/blueprint-local.js` | `localCommitSha` entfernen, Git-Daten verwenden |
-| Node | `local-engine/src/services/analysis.service.ts` | Herkunft weitergeben, Log korrigieren |
-| Node | `local-engine/src/services/software-graph/_snapshots.ts` | Snapshot-ID um Zeitstempel ergänzen |
-| shared | `shared/software-graph.types.ts` | `SoftwareGraphSnapshot` um `sourceKind` und `dirty` |
+| Schicht        | Datei                                                    | Änderung                                            |
+| -------------- | -------------------------------------------------------- | --------------------------------------------------- |
+| Preview-Runner | `preview-runner/lib/blueprint-local.js`                  | `localCommitSha` entfernen, Git-Daten verwenden     |
+| Node           | `local-engine/src/services/analysis.service.ts`          | Herkunft weitergeben, Log korrigieren               |
+| Node           | `local-engine/src/services/software-graph/_snapshots.ts` | Snapshot-ID um Zeitstempel ergänzen                 |
+| shared         | `shared/software-graph.types.ts`                         | `SoftwareGraphSnapshot` um `sourceKind` und `dirty` |
 
 `git-summary.ts` wird gelesen, aber nicht geändert.
 
@@ -225,6 +225,7 @@ zeigt. Zusätzlich einen Ordner ohne Git anlegen und prüfen, dass dort kein
 Commit erscheint.
 
 Der PR enthält:
+
 1. Screenshot der Evolution-Ansicht nach zwei Scans, mit zwei Einträgen.
 2. Screenshot der Herkunftsangabe mit echtem Commit und Branch.
 3. Screenshot eines Ordners ohne Git, ohne Commit-Anzeige.
@@ -237,28 +238,28 @@ Der PR enthält:
 
 ### Zu ändern
 
-| Datei | Was passiert |
-|---|---|
-| `preview-runner/lib/blueprint-local.js` | `localCommitSha` entfernen, Git-Daten verwenden, `branch: "local"` ersetzen |
-| `local-engine/src/services/analysis.service.ts` | Herkunft weitergeben, Log-Ausgabe korrigieren |
-| `local-engine/src/services/software-graph/_snapshots.ts` | Snapshot-ID um Zeitstempel |
-| `shared/software-graph.types.ts` | `sourceKind`, `dirty` in `SoftwareGraphSnapshot` |
+| Datei                                                    | Was passiert                                                                |
+| -------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `preview-runner/lib/blueprint-local.js`                  | `localCommitSha` entfernen, Git-Daten verwenden, `branch: "local"` ersetzen |
+| `local-engine/src/services/analysis.service.ts`          | Herkunft weitergeben, Log-Ausgabe korrigieren                               |
+| `local-engine/src/services/software-graph/_snapshots.ts` | Snapshot-ID um Zeitstempel                                                  |
+| `shared/software-graph.types.ts`                         | `sourceKind`, `dirty` in `SoftwareGraphSnapshot`                            |
 
 ### Neu anzulegen
 
-| Datei | Zweck |
-|---|---|
+| Datei                                                         | Zweck                        |
+| ------------------------------------------------------------- | ---------------------------- |
 | `local-engine/src/services/software-graph/_snapshots.test.ts` | Tests, falls nicht vorhanden |
 
 ### Nicht anfassen
 
-| Datei / Bereich | Grund |
-|---|---|
-| `git-summary.ts` | Liest Commit und Branch bereits korrekt; wird nur verwendet |
-| `MAX_SNAPSHOTS` | Bleibt bei 20 |
-| `mergeGraphSnapshots` — die Dedup-Logik | Ist korrekt. Der Fehler war die konstante ID, nicht das Entfernen von Duplikaten |
-| `evolution-tabs.ts`, `EvolutionView.tsx` | Die toten Bedienelemente sind P0-3 |
-| `shared/demo-graph-seed.ts` | Demo-Snapshots bleiben unverändert |
+| Datei / Bereich                          | Grund                                                                            |
+| ---------------------------------------- | -------------------------------------------------------------------------------- |
+| `git-summary.ts`                         | Liest Commit und Branch bereits korrekt; wird nur verwendet                      |
+| `MAX_SNAPSHOTS`                          | Bleibt bei 20                                                                    |
+| `mergeGraphSnapshots` — die Dedup-Logik  | Ist korrekt. Der Fehler war die konstante ID, nicht das Entfernen von Duplikaten |
+| `evolution-tabs.ts`, `EvolutionView.tsx` | Die toten Bedienelemente sind P0-3                                               |
+| `shared/demo-graph-seed.ts`              | Demo-Snapshots bleiben unverändert                                               |
 
 ## 11. Umsetzungsschritte
 
@@ -324,12 +325,12 @@ unterschiedlichem Arbeitsbaum verschiedene Zustände sind.
 
 Wörtlich, deutsch:
 
-| Fall | Herkunftsangabe im UI |
-|---|---|
-| Git, sauber | `Commit {sha} · Branch {branch}` |
-| Git, verändert | `Commit {sha} · Branch {branch} · ungespeicherte Änderungen` |
-| Git, detached HEAD | `Commit {sha} · kein Branch` |
-| kein Git | `Kein Git-Repository · Stand {datum} {zeit}` |
+| Fall               | Herkunftsangabe im UI                                        |
+| ------------------ | ------------------------------------------------------------ |
+| Git, sauber        | `Commit {sha} · Branch {branch}`                             |
+| Git, verändert     | `Commit {sha} · Branch {branch} · ungespeicherte Änderungen` |
+| Git, detached HEAD | `Commit {sha} · kein Branch`                                 |
+| kein Git           | `Kein Git-Repository · Stand {datum} {zeit}`                 |
 
 Log-Ausgabe: `Analyzed commit {sha}` nur bei `sourceKind === "git"`. Sonst
 `Analyzed local folder at {timestamp} (no git repository)`.
@@ -340,8 +341,8 @@ Log-Ausgabe: `Analyzed commit {sha}` nur bei `sourceKind === "git"`. Sonst
 ist kein Fehler, sieht aber wie einer aus. Erforderlicher Text, wörtlich:
 
 > `Nur ein Zeitpunkt vorhanden. Für einen Vergleich braucht VisuDEV mindestens
-> zwei Analysen. Scanne das Projekt später erneut, dann erscheint hier, was sich
-> verändert hat.`
+zwei Analysen. Scanne das Projekt später erneut, dann erscheint hier, was sich
+verändert hat.`
 
 Das ist der wichtigste Teil dieses Issues für den Nutzer: Er muss erfahren, dass
 der Verlauf durch wiederholtes Scannen entsteht. Ohne diesen Satz hält er die

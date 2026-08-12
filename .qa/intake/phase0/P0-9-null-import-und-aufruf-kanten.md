@@ -14,8 +14,8 @@ Die Dependencies-Ansicht ist im Original-Konzept mit der Aufgabe beschrieben:
 
 > „Imports, Funktionsaufrufe, API-Zugriffe, DB-Zugriffe und Events"
 
-Der Nutzer hat als wichtigste Frage an das Werkzeug bestätigt: *„Was hängt an
-dieser Datei, wenn ich sie ändere?"* Diese Frage lässt sich ausschließlich über
+Der Nutzer hat als wichtigste Frage an das Werkzeug bestätigt: _„Was hängt an
+dieser Datei, wenn ich sie ändere?"_ Diese Frage lässt sich ausschließlich über
 Import- und Aufrufkanten beantworten. Ohne sie hat VisuDEV keinen
 Anwendungsfall.
 
@@ -104,7 +104,7 @@ browo-hr verwendet durchgängig ESM-konforme Importe mit `.js`-Endung auf
 `.ts`-Dateien — das ist bei `moduleResolution: NodeNext` vorgeschrieben:
 
 ```ts
-import { LeavesController } from './leaves.controller.js';
+import { LeavesController } from "./leaves.controller.js";
 ```
 
 Der Resolver bildet `base = ".../leaves.controller.js"` und probiert dann
@@ -196,13 +196,13 @@ mit Daten.
 
 ## 4. Architektur
 
-| Schicht | Datei | Ursache | Änderung |
-|---|---|---|---|
-| Deno, Export | `internal/fact-metadata-sanitizer.ts` | 1 | Allowlist, Pfadbehandlung |
-| Deno, Graph | `graph/import-resolver.ts` | 2 | Endungsauflösung |
-| Deno, Graph | `graph/ast-call-graph.ts` | 3 | Fehlerzählung |
-| Deno, DTO | `dto/blueprint/blueprint-document.dto.ts` | 3 | Feld `astParseReport` |
-| shared | `shared/visudev-api.types.ts` | 3 | Bericht durchreichen |
+| Schicht      | Datei                                     | Ursache | Änderung                  |
+| ------------ | ----------------------------------------- | ------- | ------------------------- |
+| Deno, Export | `internal/fact-metadata-sanitizer.ts`     | 1       | Allowlist, Pfadbehandlung |
+| Deno, Graph  | `graph/import-resolver.ts`                | 2       | Endungsauflösung          |
+| Deno, Graph  | `graph/ast-call-graph.ts`                 | 3       | Fehlerzählung             |
+| Deno, DTO    | `dto/blueprint/blueprint-document.dto.ts` | 3       | Feld `astParseReport`     |
+| shared       | `shared/visudev-api.types.ts`             | 3       | Bericht durchreichen      |
 
 `_dependency-edges.ts` auf der Node-Seite ist **korrekt** und wird nicht
 geändert. Es liest die richtigen Felder; sie kamen nur nie an.
@@ -322,14 +322,14 @@ in Importen, damit die Änderung dort nichts verschlechtert.
 
 ### Zu ändern
 
-| Datei | Was passiert |
-|---|---|
+| Datei                                               | Was passiert               |
+| --------------------------------------------------- | -------------------------- |
 | `.../blueprint/internal/fact-metadata-sanitizer.ts` | Allowlist + Pfadbehandlung |
-| `.../blueprint/graph/import-resolver.ts` | Endungsauflösung |
-| `.../blueprint/graph/ast-call-graph.ts` | Fehlerzählung |
-| `.../blueprint/dto/blueprint-document.dto.ts` | `AstParseReport` |
-| `shared/visudev-api.types.ts` | Bericht durchreichen |
-| `scripts/golden-set/run.mjs` | Kennzahl `importEdges` |
+| `.../blueprint/graph/import-resolver.ts`            | Endungsauflösung           |
+| `.../blueprint/graph/ast-call-graph.ts`             | Fehlerzählung              |
+| `.../blueprint/dto/blueprint-document.dto.ts`       | `AstParseReport`           |
+| `shared/visudev-api.types.ts`                       | Bericht durchreichen       |
+| `scripts/golden-set/run.mjs`                        | Kennzahl `importEdges`     |
 
 ### Neu anzulegen
 
@@ -337,13 +337,13 @@ Die drei Testdateien aus Abschnitt 8, sofern nicht vorhanden.
 
 ### Nicht anfassen
 
-| Datei / Bereich | Grund |
-|---|---|
+| Datei / Bereich                                                 | Grund                                   |
+| --------------------------------------------------------------- | --------------------------------------- |
 | `local-engine/src/services/software-graph/_dependency-edges.ts` | Ist korrekt; liest die richtigen Felder |
-| `call-graph.builder.ts` und `MAX_FILES` | Nicht die Ursache |
-| Die Funktion `redactPiiInText` | Sicherheitsmaßnahme, bleibt wirksam |
-| `graph-export-cap.ts` | Ist P0-8 |
-| Der Parser-Austausch | Eigenes Vorhaben; hier wird nur gezählt |
+| `call-graph.builder.ts` und `MAX_FILES`                         | Nicht die Ursache                       |
+| Die Funktion `redactPiiInText`                                  | Sicherheitsmaßnahme, bleibt wirksam     |
+| `graph-export-cap.ts`                                           | Ist P0-8                                |
+| Der Parser-Austausch                                            | Eigenes Vorhaben; hier wird nur gezählt |
 
 ## 11. Umsetzungsschritte
 
@@ -425,8 +425,16 @@ vorhandenes `x.js`.
 
 ```ts
 const EXTENSIONS = [
-  ".ts", ".tsx", ".js", ".jsx", ".mts", ".cts",
-  "/index.ts", "/index.tsx", "/index.js", "/index.jsx",
+  ".ts",
+  ".tsx",
+  ".js",
+  ".jsx",
+  ".mts",
+  ".cts",
+  "/index.ts",
+  "/index.tsx",
+  "/index.js",
+  "/index.jsx",
 ];
 ```
 
@@ -447,10 +455,10 @@ export interface AstParseReport {
 **Leerzustand:** Wenn eine Datei keine Abhängigkeiten hat, muss der Inspector
 unterscheiden. Zwei Texte, wörtlich:
 
-| Fall | Text |
-|---|---|
+| Fall                   | Text                                                                                           |
+| ---------------------- | ---------------------------------------------------------------------------------------------- |
 | geparst, keine Importe | `Keine Abhängigkeiten gefunden. Diese Datei importiert nichts und wird von nichts importiert.` |
-| nicht geparst | `Diese Datei konnte nicht analysiert werden. Über ihre Abhängigkeiten ist nichts bekannt.` |
+| nicht geparst          | `Diese Datei konnte nicht analysiert werden. Über ihre Abhängigkeiten ist nichts bekannt.`     |
 
 Diese Unterscheidung ist der Kern des Issues auf der Oberfläche. Ein „0" ohne
 Angabe, ob gemessen oder nicht gemessen, ist eine Falschaussage.

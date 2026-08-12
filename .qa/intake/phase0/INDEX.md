@@ -22,16 +22,16 @@ Layout-Familien-Check über Test-Repos (Domänenzuerst vs. Schichtzuerst)
 
 ## Belegte Ausgangslage (browo-hr, Enrichment OFF, SHA 24dd57cb)
 
-| Behauptet | Grundwahrheit | Urteil |
-|---|---|---|
-| 372 Routen | 490 Registrierungen | alle 372 **echt**, Datei+Zeile+Methode 372/372 exakt; 118 fehlen |
+| Behauptet    | Grundwahrheit                 | Urteil                                                                                |
+| ------------ | ----------------------------- | ------------------------------------------------------------------------------------- |
+| 372 Routen   | 490 Registrierungen           | alle 372 **echt**, Datei+Zeile+Methode 372/372 exakt; 118 fehlen                      |
 | 127 Tabellen | 125 Prisma-Modelle + 17 Enums | 125/125 **korrekt**, Enums richtig ausgeschlossen; 2 Infra-Dienste falsch einsortiert |
-| 2499 Knoten | 544 echte Entitäten | **1955 Duplikate**; nur 45 verschiedene Dateien |
-| 2997 Kanten | ≥ 919 auflösbare Imports | **0 `imports`, 0 `calls`** — der Graph ist ein reiner Enthaltensein-Baum |
-| 427 Findings | — | **199 von 200 `missing-auth` widerlegbar** |
-| 483 Facts | 6204 intern extrahiert | **92 % verworfen** vor dem Export |
-| 400 Dateien | 1706 Quelldateien | Frontend (1128 Dateien) **vollständig** unanalysiert |
-| 2 Domains | 45 Fachmodule | Domänen-Erkennung nimmt das erste Pfadsegment |
+| 2499 Knoten  | 544 echte Entitäten           | **1955 Duplikate**; nur 45 verschiedene Dateien                                       |
+| 2997 Kanten  | ≥ 919 auflösbare Imports      | **0 `imports`, 0 `calls`** — der Graph ist ein reiner Enthaltensein-Baum              |
+| 427 Findings | —                             | **199 von 200 `missing-auth` widerlegbar**                                            |
+| 483 Facts    | 6204 intern extrahiert        | **92 % verworfen** vor dem Export                                                     |
+| 400 Dateien  | 1706 Quelldateien             | Frontend (1128 Dateien) **vollständig** unanalysiert                                  |
+| 2 Domains    | 45 Fachmodule                 | Domänen-Erkennung nimmt das erste Pfadsegment                                         |
 
 ---
 
@@ -240,7 +240,7 @@ Snapshot-ID darauf gründen, damit die Timeline wächst.
 
 Zwei Limits, beide unsichtbar: `FILE_LIMIT = 400`
 (`blueprint-local.js:36`) und das Knotenbudget aus P0-7. Der Graph meldet
-korrekt `condensed: true` und `nodeCount: 4538` als *versucht* — die UI wertet
+korrekt `condensed: true` und `nodeCount: 4538` als _versucht_ — die UI wertet
 es nicht aus. Die Coverage-Heuristik `modulesFromNodes / nodes.length`
 (`atlas-stats.ts:35-41`) ist zudem invers: je schlechter die Analyse, desto
 höher der Wert.
@@ -335,14 +335,14 @@ bereits eine `selected`-Klasse und ist der Ansatzpunkt.
 
 **Vier Kanäle, zwei bewusst frei:**
 
-| Kanal | Information |
-|---|---|
-| Ort / Distrikt | Zugehörigkeit (Domain → Layer), mit Fallback-Kaskade |
-| Höhe, 5 Klassen | Fan-in — „wie viele benutzen das?" |
-| Grundfläche, 3 Klassen | Umfang (Zeilen) |
-| Farbton + Silhouette | Rolle: Oberfläche · Logik · Daten · Zugang · Fremdsystem |
-| Findings | additives Overlay (Dachschild + Bodenring), **nie** Fassadenfarbe |
-| Sättigung / Helligkeit / Animation | **nichts** — gehört Shading und UI-Zustand |
+| Kanal                              | Information                                                       |
+| ---------------------------------- | ----------------------------------------------------------------- |
+| Ort / Distrikt                     | Zugehörigkeit (Domain → Layer), mit Fallback-Kaskade              |
+| Höhe, 5 Klassen                    | Fan-in — „wie viele benutzen das?"                                |
+| Grundfläche, 3 Klassen             | Umfang (Zeilen)                                                   |
+| Farbton + Silhouette               | Rolle: Oberfläche · Logik · Daten · Zugang · Fremdsystem          |
+| Findings                           | additives Overlay (Dachschild + Bodenring), **nie** Fassadenfarbe |
+| Sättigung / Helligkeit / Animation | **nichts** — gehört Shading und UI-Zustand                        |
 
 Grau bedeutet ausschließlich „keine Daten". Container werden Distriktplatten,
 keine Gebäude. Alle Größen quantisiert, nicht proportional. Label-Budget von

@@ -95,12 +95,12 @@ getrenntes frontend-Modulverzeichnis), darf nichts erzwungen werden.
 
 ## 4. Architektur
 
-| Schicht | Datei | Änderung |
-|---|---|---|
-| Node | `_segment-spread.ts` | nur nutzen (P0-13) |
-| Node | `_heuristics.ts` | `detectDomain` / `detectModule` + Index-Parameter |
-| Node | `_file-context.ts` | Index einmal bauen, an Heuristiken durchreichen |
-| Node | Graph-Builder-Einstieg | Dateipfadliste vor `ensureFileContext`-Schleife |
+| Schicht | Datei                  | Änderung                                          |
+| ------- | ---------------------- | ------------------------------------------------- |
+| Node    | `_segment-spread.ts`   | nur nutzen (P0-13)                                |
+| Node    | `_heuristics.ts`       | `detectDomain` / `detectModule` + Index-Parameter |
+| Node    | `_file-context.ts`     | Index einmal bauen, an Heuristiken durchreichen   |
+| Node    | Graph-Builder-Einstieg | Dateipfadliste vor `ensureFileContext`-Schleife   |
 
 Vertrag: `detectDomain(filePath)` ohne Index bleibt für Tests möglich und
 verhält sich wie bisher **oder** dokumentiert Breaking Change — **Entscheidung:
@@ -180,7 +180,7 @@ npm run golden-set
 Tabelle im PR:
 
 | Repo | Domänen vorher | nachher | domainSource path % | none % |
-|---|---|---|---|---|
+| ---- | -------------- | ------- | ------------------- | ------ |
 
 Screenshots Architecture browo-hr vorher/nachher.
 
@@ -192,12 +192,12 @@ Screenshots Architecture browo-hr vorher/nachher.
 
 ### Zu ändern
 
-| Datei | Was |
-|---|---|
-| `local-engine/src/services/software-graph/_heuristics.ts` | Signatur + Logik Domain/Modul |
-| `local-engine/src/services/software-graph/_file-context.ts` | Index durchreichen |
+| Datei                                                                          | Was                                 |
+| ------------------------------------------------------------------------------ | ----------------------------------- |
+| `local-engine/src/services/software-graph/_heuristics.ts`                      | Signatur + Logik Domain/Modul       |
+| `local-engine/src/services/software-graph/_file-context.ts`                    | Index durchreichen                  |
 | Graph-Builder-Orchestrierung (Datei, die `ensureFileContext` in Schleife ruft) | Index einmal vor der Schleife bauen |
-| Tests / Golden-Set | siehe 8 |
+| Tests / Golden-Set                                                             | siehe 8                             |
 
 ### Neu anzulegen
 
@@ -205,12 +205,12 @@ Keine (P0-13 liefert das Modul).
 
 ### Nicht anfassen
 
-| Datei | Grund |
-|---|---|
-| `_segment-spread.ts` Konstanten | Kalibrierung ist P0-13; hier nur lesen |
-| Dateinamen-Parsing | P0-14 |
-| `detectLayer` / `inferRuntime` | unverändert |
-| UI-Banner-Implementierung | Text aus 13 darf minimal in Architecture; volles Banner-Design ist Welle D |
+| Datei                           | Grund                                                                      |
+| ------------------------------- | -------------------------------------------------------------------------- |
+| `_segment-spread.ts` Konstanten | Kalibrierung ist P0-13; hier nur lesen                                     |
+| Dateinamen-Parsing              | P0-14                                                                      |
+| `detectLayer` / `inferRuntime`  | unverändert                                                                |
+| UI-Banner-Implementierung       | Text aus 13 darf minimal in Architecture; volles Banner-Design ist Welle D |
 
 ## 11. Umsetzungsschritte
 
@@ -239,16 +239,9 @@ export interface DomainDetection {
   domainSource: DomainSource;
 }
 
-export function detectDomain(
-  filePath: string,
-  spread?: SegmentSpreadIndex,
-): string;
+export function detectDomain(filePath: string, spread?: SegmentSpreadIndex): string;
 
-export function detectModule(
-  filePath: string,
-  domain: string,
-  spread?: SegmentSpreadIndex,
-): string;
+export function detectModule(filePath: string, domain: string, spread?: SegmentSpreadIndex): string;
 
 /** Preferred entry for production. */
 export function detectDomainAndModule(
@@ -300,7 +293,7 @@ Wenn ≥ 30 % der Dateiknoten `domainSource: "none"` haben, zeigt Architecture
 (oder Atlas) einen Hinweis, wörtlich:
 
 > `In diesem Projekt stecken die Fachbereiche kaum in Ordnernamen. VisuDEV hat
-> sie deshalb noch nicht aus dem Pfad abgeleitet.`
+sie deshalb noch nicht aus dem Pfad abgeleitet.`
 
 Nach P0-14 darf der Text auf Dateinamen-Ableitung verweisen. In diesem Issue
 reicht der obige Satz.
@@ -333,7 +326,7 @@ rg -n "STRUCTURAL_SEGMENTS|SURFACE_SEGMENTS|LAYER_SEGMENTS" \
 # erwartet: keine Treffer
 
 git diff -- local-engine/src/services/software-graph/_heuristics.ts \
-  | rg "detectLayer|inferRuntime" 
+  | rg "detectLayer|inferRuntime"
 # erwartet: keine inhaltliche Änderung an diesen Funktionen
 
 npm run typecheck

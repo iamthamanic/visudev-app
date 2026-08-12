@@ -41,11 +41,15 @@ expliziten Guard im Aufruf selbst.
 Beispiel `backend/app/modules/gamification/gamification.routes.ts:73`:
 
 ```ts
-router.patch('/achievements/:id', authorize('hr.admin.benefits.manage'), asyncHandler(controller.updateAchievement.bind(controller)));
+router.patch(
+  "/achievements/:id",
+  authorize("hr.admin.benefits.manage"),
+  asyncHandler(controller.updateAchievement.bind(controller)),
+);
 ```
 
-VisuDEV meldet dazu: *„Route PATCH /api/gamification/achievements/:id appears
-to lack an auth guard."* In derselben Datei steht zusätzlich
+VisuDEV meldet dazu: _„Route PATCH /api/gamification/achievements/:id appears
+to lack an auth guard."_ In derselben Datei steht zusätzlich
 `router.use(authMiddleware)`.
 
 Die einzige Route ohne Guard ist `POST /2fa/verify`, und dort ist es Absicht —
@@ -144,11 +148,11 @@ Eine Route ist prüfbar, wenn alle drei Bedingungen erfüllt sind:
 
 Daraus ergibt sich:
 
-| Evidenz | Prüfbar | Ergebnis |
-|---|---|---|
-| ja | – | `confirmed` |
-| nein | ja | `missing` |
-| nein | nein | `unknown` |
+| Evidenz | Prüfbar | Ergebnis    |
+| ------- | ------- | ----------- |
+| ja      | –       | `confirmed` |
+| nein    | ja      | `missing`   |
+| nein    | nein    | `unknown`   |
 
 Die Methode (`POST` gegen `GET`) fließt **nicht mehr** in die Entscheidung ein.
 Sie war nie ein Indiz für das Fehlen eines Guards, sondern nur ein Indiz dafür,
@@ -178,12 +182,12 @@ Aussagen macht.
 Betroffen ist die geteilte Inferenzschicht und ihre beiden Verbraucher — Deno
 und Node nutzen dieselbe Datei.
 
-| Schicht | Datei | Änderung |
-|---|---|---|
-| shared | `shared/blueprint-graph-inference.ts` | Zustandsermittlung, Prüfbarkeit, engere Evidenz |
-| shared | `shared/blueprint-graph-types.ts` | `ProjectedCodeFact` um `kind` erweitern, falls nicht vorhanden |
-| Deno | `.../blueprint/internal/fact-extractors.ts` | Fakt-Typen `auth-check` / `validation-deny-400` unverändert durchreichen |
-| Node | `local-engine/src/services/blueprint-enrichment.service.ts` | Prüfbarkeits-Information an die Inferenz übergeben |
+| Schicht | Datei                                                       | Änderung                                                                 |
+| ------- | ----------------------------------------------------------- | ------------------------------------------------------------------------ |
+| shared  | `shared/blueprint-graph-inference.ts`                       | Zustandsermittlung, Prüfbarkeit, engere Evidenz                          |
+| shared  | `shared/blueprint-graph-types.ts`                           | `ProjectedCodeFact` um `kind` erweitern, falls nicht vorhanden           |
+| Deno    | `.../blueprint/internal/fact-extractors.ts`                 | Fakt-Typen `auth-check` / `validation-deny-400` unverändert durchreichen |
+| Node    | `local-engine/src/services/blueprint-enrichment.service.ts` | Prüfbarkeits-Information an die Inferenz übergeben                       |
 
 Quelle der Wahrheit für „prüfbar" ist der Analyzer, nicht die Inferenz. Die
 Inferenz darf nicht raten, ob eine Datei geparst wurde.
@@ -297,6 +301,7 @@ Danach vollständiger Lauf gegen browo-hr mit Enrichment OFF und Auszählung:
 ```
 
 Der PR enthält:
+
 1. Die Zahl der `missing-auth`-Findings vorher (200) und nachher.
 2. Für jedes verbleibende Finding die zitierte Codestelle als Beleg.
 3. Die Zahl der Routen mit Zustand `unknown` und die Begründung dafür.
@@ -314,13 +319,13 @@ Referenz für den Vorher-Zustand.
 
 ### Zu ändern
 
-| Datei | Was passiert |
-|---|---|
-| `shared/blueprint-graph-inference.ts` | Kern der Änderung: Prüfbarkeit, Zustandsermittlung, Evidenz über Fakt-Typ |
-| `shared/blueprint-graph-inference.test.ts` | Neue Tests, bestehende anpassen |
-| `local-engine/src/services/blueprint-enrichment.service.ts` | Prüfbarkeits-Information an die Inferenz durchreichen |
-| `scripts/golden-set/run.mjs` | Obergrenze für `missing-auth` ergänzen |
-| `tests/fixtures/golden-repo/expected-metrics.json` | Neue Kennzahl `missingAuthFindings` mit `max` |
+| Datei                                                       | Was passiert                                                              |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `shared/blueprint-graph-inference.ts`                       | Kern der Änderung: Prüfbarkeit, Zustandsermittlung, Evidenz über Fakt-Typ |
+| `shared/blueprint-graph-inference.test.ts`                  | Neue Tests, bestehende anpassen                                           |
+| `local-engine/src/services/blueprint-enrichment.service.ts` | Prüfbarkeits-Information an die Inferenz durchreichen                     |
+| `scripts/golden-set/run.mjs`                                | Obergrenze für `missing-auth` ergänzen                                    |
+| `tests/fixtures/golden-repo/expected-metrics.json`          | Neue Kennzahl `missingAuthFindings` mit `max`                             |
 
 ### Neu anzulegen
 
@@ -328,14 +333,14 @@ Keine neuen Dateien.
 
 ### Nicht anfassen
 
-| Datei / Bereich | Grund |
-|---|---|
-| `graph-export-cap.ts` | Der Fakten-Deckel ist P0-8 |
-| `ast-call-graph.ts`, `import-resolver.ts`, `fact-metadata-sanitizer.ts` | Gehören zu P0-9 |
-| `_ids.ts`, `_file-context.ts` | Knoten-Duplikate sind P0-7 |
-| `_heuristics.ts` | Domänen-Erkennung ist P0-10 |
-| Alle Dateien unter `src/modules/blueprint/components/` | Die UI-Darstellung der Matrix ist nicht Teil dieses Issues. Ausnahme: der Befundtext aus Abschnitt 12.4, falls er dort liegt |
-| `shared/demo-graph-seed.ts` | Der Demo bleibt unverändert |
+| Datei / Bereich                                                         | Grund                                                                                                                        |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `graph-export-cap.ts`                                                   | Der Fakten-Deckel ist P0-8                                                                                                   |
+| `ast-call-graph.ts`, `import-resolver.ts`, `fact-metadata-sanitizer.ts` | Gehören zu P0-9                                                                                                              |
+| `_ids.ts`, `_file-context.ts`                                           | Knoten-Duplikate sind P0-7                                                                                                   |
+| `_heuristics.ts`                                                        | Domänen-Erkennung ist P0-10                                                                                                  |
+| Alle Dateien unter `src/modules/blueprint/components/`                  | Die UI-Darstellung der Matrix ist nicht Teil dieses Issues. Ausnahme: der Befundtext aus Abschnitt 12.4, falls er dort liegt |
+| `shared/demo-graph-seed.ts`                                             | Der Demo bleibt unverändert                                                                                                  |
 
 ## 11. Umsetzungsschritte
 
@@ -428,11 +433,11 @@ validation-deny-400
 
 Wörtlich, deutsch:
 
-| Zustand | Titel | Beschreibung |
-|---|---|---|
-| `missing` (Auth) | `Kein Auth-Guard erkannt` | `In {file}:{line} wurde bei der Registrierung dieser Route kein Auth-Guard gefunden. Wenn die Route absichtlich offen ist, ist das kein Fehler.` |
-| `missing` (Validation) | `Keine Eingabeprüfung erkannt` | `In {file}:{line} wurde keine Validierung der Eingabedaten gefunden.` |
-| `unknown` | `Nicht prüfbar` | `Für {file} liegen keine Analysedaten vor. Diese Route wurde nicht geprüft.` |
+| Zustand                | Titel                          | Beschreibung                                                                                                                                     |
+| ---------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `missing` (Auth)       | `Kein Auth-Guard erkannt`      | `In {file}:{line} wurde bei der Registrierung dieser Route kein Auth-Guard gefunden. Wenn die Route absichtlich offen ist, ist das kein Fehler.` |
+| `missing` (Validation) | `Keine Eingabeprüfung erkannt` | `In {file}:{line} wurde keine Validierung der Eingabedaten gefunden.`                                                                            |
+| `unknown`              | `Nicht prüfbar`                | `Für {file} liegen keine Analysedaten vor. Diese Route wurde nicht geprüft.`                                                                     |
 
 Verboten sind die Wörter „Sicherheitslücke", „unsicher" und „vulnerable" in
 Befunden, die aus dem Fehlen von Evidenz entstehen.

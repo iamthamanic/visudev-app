@@ -14,11 +14,11 @@ P0-10 liefert Domänen nur, wenn der **Pfad** Domänen-Kandidaten nach
 Segmentstreuung (P0-13) enthält. Bei **schichtzuerst**-Layouts steckt die
 Fachlichkeit im Dateinamen:
 
-| Repo | Beispiel | Domäne steckt in |
-|---|---|---|
-| discourse | `app/models/topic.rb`, `app/controllers/topics_controller.rb` | Stamm `topic` / `topics` |
-| mastodon | `app/services/follow_service.rb` | Stamm `follow` |
-| immich | `server/src/services/album.service.ts`, `…/album.controller.ts` | Stamm `album` |
+| Repo      | Beispiel                                                        | Domäne steckt in         |
+| --------- | --------------------------------------------------------------- | ------------------------ |
+| discourse | `app/models/topic.rb`, `app/controllers/topics_controller.rb`   | Stamm `topic` / `topics` |
+| mastodon  | `app/services/follow_service.rb`                                | Stamm `follow`           |
+| immich    | `server/src/services/album.service.ts`, `…/album.controller.ts` | Stamm `album`            |
 
 Ohne dieses Issue bleiben diese Repos nach P0-10 bei `domainSource: "none"` —
 ehrlich, aber Architecture und Atlas ohne Distrikte. Der Nutzer hat bestätigt:
@@ -72,11 +72,11 @@ nicht Vercel-lokal, nicht erklärbar.
 
 ## 4. Architektur
 
-| Schicht | Datei | Änderung |
-|---|---|---|
-| Node | neu: `_domain-from-filename.ts` | Stamm, Index, Apply |
-| Node | `_heuristics.ts` | `detectLayer` nur lesen |
-| Node | Graph-Builder nach File-Contexts | zweiten Pass: Domänen für `none` nachziehen |
+| Schicht              | Datei                                              | Änderung                                    |
+| -------------------- | -------------------------------------------------- | ------------------------------------------- |
+| Node                 | neu: `_domain-from-filename.ts`                    | Stamm, Index, Apply                         |
+| Node                 | `_heuristics.ts`                                   | `detectLayer` nur lesen                     |
+| Node                 | Graph-Builder nach File-Contexts                   | zweiten Pass: Domänen für `none` nachziehen |
 | shared / Graph-Typen | Metadaten `domainSource` um `"filename"` erweitern |
 
 Zwei Pässe sind Pflicht: Pass 1 = P0-10 (Pfad). Pass 2 = dieses Issue
@@ -147,7 +147,7 @@ npm run test:run -- software-graph
 PR-Tabelle:
 
 | Repo | path-Domänen | filename-Domänen | none % |
-|---|---|---|---|
+| ---- | ------------ | ---------------- | ------ |
 
 Screenshots Architecture discourse + browo-hr.
 
@@ -159,26 +159,26 @@ Screenshots Architecture discourse + browo-hr.
 
 ### Zu ändern
 
-| Datei | Was |
-|---|---|
-| Graph-Builder-Orchestrierung | Pass 2 nach allen `ensureFileContext` |
-| Domain-Knoten / File-Metadaten | `domainSource: "filename"` |
-| Architecture/Atlas-Hinweistext | Abschnitt 13 |
+| Datei                          | Was                                   |
+| ------------------------------ | ------------------------------------- |
+| Graph-Builder-Orchestrierung   | Pass 2 nach allen `ensureFileContext` |
+| Domain-Knoten / File-Metadaten | `domainSource: "filename"`            |
+| Architecture/Atlas-Hinweistext | Abschnitt 13                          |
 
 ### Neu anzulegen
 
-| Datei | Zweck |
-|---|---|
+| Datei                                                               | Zweck |
+| ------------------------------------------------------------------- | ----- |
 | `local-engine/src/services/software-graph/_domain-from-filename.ts` | Logik |
-| `…/_domain-from-filename.test.ts` | Tests |
+| `…/_domain-from-filename.test.ts`                                   | Tests |
 
 ### Nicht anfassen
 
-| Datei | Grund |
-|---|---|
-| `_segment-spread.ts` Schwellen | P0-13 |
-| Pfad-Algorithmus in `_heuristics.ts` | P0-10 |
-| Import-Cluster | out of scope |
+| Datei                                | Grund        |
+| ------------------------------------ | ------------ |
+| `_segment-spread.ts` Schwellen       | P0-13        |
+| Pfad-Algorithmus in `_heuristics.ts` | P0-10        |
+| Import-Cluster                       | out of scope |
 
 ## 11. Umsetzungsschritte
 
@@ -270,10 +270,30 @@ Label = häufigste Original-Schreibweise des Stamms vor Lowercase (wie P0-13).
 
 ```ts
 export const GENERIC_FILENAME_STEMS = new Set([
-  "index", "main", "mod", "app", "init", "server", "client",
-  "config", "settings", "utils", "util", "helpers", "helper",
-  "types", "type", "constants", "constant", "test", "tests",
-  "spec", "mock", "mocks", "fixture", "fixtures",
+  "index",
+  "main",
+  "mod",
+  "app",
+  "init",
+  "server",
+  "client",
+  "config",
+  "settings",
+  "utils",
+  "util",
+  "helpers",
+  "helper",
+  "types",
+  "type",
+  "constants",
+  "constant",
+  "test",
+  "tests",
+  "spec",
+  "mock",
+  "mocks",
+  "fixture",
+  "fixtures",
 ]);
 ```
 
@@ -299,11 +319,11 @@ P0-10-Typ um `"filename"` erweitern.
 
 Hinweistexte wörtlich:
 
-| Lage | Text |
-|---|---|
-| Mehrheit `path` | (kein Extra-Banner nötig) |
+| Lage                | Text                                                                                                                        |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Mehrheit `path`     | (kein Extra-Banner nötig)                                                                                                   |
 | Mehrheit `filename` | `Fachbereiche wurden aus Dateinamen abgeleitet — dieses Projekt ist nach Schichten organisiert, nicht nach Ordner-Domänen.` |
-| Mehrheit `none` | `VisuDEV konnte keine Fachbereiche erkennen. Gruppierung folgt Schichten bzw. Verzeichnissen.` |
+| Mehrheit `none`     | `VisuDEV konnte keine Fachbereiche erkennen. Gruppierung folgt Schichten bzw. Verzeichnissen.`                              |
 
 Glossareintrag „Domäne" muss beide Quellen nennen (Ordner vs. Dateiname).
 

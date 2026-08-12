@@ -26,13 +26,13 @@ spart, weil jede Aussage manuell gegengeprüft werden muss.
 
 ## 2. Anwendungsfälle (alle fünf bestätigt)
 
-| Use Case | Anforderung an den Graphen |
-|---|---|
+| Use Case                                     | Anforderung an den Graphen            |
+| -------------------------------------------- | ------------------------------------- |
 | Eigenes gewachsenes Projekt wieder verstehen | vollständig + navigierbar über Ebenen |
-| Blast Radius vor einer Änderung | kantenkorrekt + Provenance |
-| Karte für Agenten/LLM statt blindem Suchen | maschinenlesbar + Confidence |
-| Fremde Codebase bewerten (Audit/Übernahme) | stackbreit (nicht nur TS/JS) |
-| System jemandem zeigen | ehrlich (keine Attrappen) |
+| Blast Radius vor einer Änderung              | kantenkorrekt + Provenance            |
+| Karte für Agenten/LLM statt blindem Suchen   | maschinenlesbar + Confidence          |
+| Fremde Codebase bewerten (Audit/Übernahme)   | stackbreit (nicht nur TS/JS)          |
+| System jemandem zeigen                       | ehrlich (keine Attrappen)             |
 
 **Konsequenz:** Alle fünf konsumieren dasselbe Artefakt. Es gibt keinen
 Zielkonflikt. Der Graph ist das Produkt; die sieben Blueprint-Views sind Linsen.
@@ -78,19 +78,19 @@ drei Schichten vorher gelöscht wurden.
 Belegt durch Code-Bestandsaufnahme. Alle Einträge: UI existiert, Datenanbindung
 fehlt.
 
-| Ort | Beweis | Problem |
-|---|---|---|
-| Infrastruktur-Ressourcen-Meter | `infrastructure-resource-meters.ts:2-11` | Feste Werte 42/68/31/24 |
-| Infrastruktur „Physische Topologie" | `InfrastructureView.tsx:35,100` | `activeView` steuert keinen Filter |
-| Evolution „Branch Compare" | `evolution-tabs.ts:8`, `EvolutionView.tsx:30,77` | `activeTab` ohne Wirkung |
-| Evolution „Working Tree" | Git-Daten vorhanden (`git-summary.ts:76-90`) | Tab ohne UI |
-| Diagnostics-Subtabs | `DiagnosticsView.tsx:155-182` | Nur Security real, 3 Platzhalter |
-| Blueprint-Footer „Keine kritischen Probleme" | `BlueprintFooterStatusBar.tsx:39-42` | Statischer String |
-| Execution-Timings | `_projection.ts:193-198` | Fallback `(index+1)*12`; Code-Kommentar: „not live telemetry" |
-| `isExecutionLive` | `_projection.ts:286-312` | Aus Metadaten abgeleitet, „active scan stub" |
-| Atlas Coverage-% | `atlas-stats.ts:35-41` | Heuristik `modules/nodes` wenn keine echte Messung |
-| Atlas Tech-Chips | `atlas-cluster-profiles.ts:6-27` | Hartkodierte Profile per Cluster-Name |
-| FILE_LIMIT ~400 | Analyse-Pipeline | Abschneiden ist im UI unsichtbar |
+| Ort                                          | Beweis                                           | Problem                                                       |
+| -------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------- |
+| Infrastruktur-Ressourcen-Meter               | `infrastructure-resource-meters.ts:2-11`         | Feste Werte 42/68/31/24                                       |
+| Infrastruktur „Physische Topologie"          | `InfrastructureView.tsx:35,100`                  | `activeView` steuert keinen Filter                            |
+| Evolution „Branch Compare"                   | `evolution-tabs.ts:8`, `EvolutionView.tsx:30,77` | `activeTab` ohne Wirkung                                      |
+| Evolution „Working Tree"                     | Git-Daten vorhanden (`git-summary.ts:76-90`)     | Tab ohne UI                                                   |
+| Diagnostics-Subtabs                          | `DiagnosticsView.tsx:155-182`                    | Nur Security real, 3 Platzhalter                              |
+| Blueprint-Footer „Keine kritischen Probleme" | `BlueprintFooterStatusBar.tsx:39-42`             | Statischer String                                             |
+| Execution-Timings                            | `_projection.ts:193-198`                         | Fallback `(index+1)*12`; Code-Kommentar: „not live telemetry" |
+| `isExecutionLive`                            | `_projection.ts:286-312`                         | Aus Metadaten abgeleitet, „active scan stub"                  |
+| Atlas Coverage-%                             | `atlas-stats.ts:35-41`                           | Heuristik `modules/nodes` wenn keine echte Messung            |
+| Atlas Tech-Chips                             | `atlas-cluster-profiles.ts:6-27`                 | Hartkodierte Profile per Cluster-Name                         |
+| FILE_LIMIT ~400                              | Analyse-Pipeline                                 | Abschneiden ist im UI unsichtbar                              |
 
 **Entscheidung des Nutzers:** Attrappen werden entfernt, nicht markiert.
 „Unbekannt" ist ein legitimer Anzeigezustand.
@@ -129,13 +129,13 @@ fehlt.
 
 ## 7. Prior Art (aus 215 Stars gemined)
 
-| Repo | Lizenz | Verwendung | Adressiert |
-|---|---|---|---|
-| [graphify](https://github.com/Graphify-Labs/graphify) | Apache-2.0 | inspirieren | Per-Edge `EXTRACTED`/`INFERRED` — billigster Weg zu ehrlicher Evidence |
-| [skott](https://github.com/antoine-coulon/skott) | MIT | übernehmen | Entrypoint-getriebene Traversierung statt FILE_LIMIT |
-| [Understand-Anything](https://github.com/Egonex-AI/Understand-Anything) | MIT | inspirieren | Fertiges ELK-Layout-Design für große Graphen; config-getriebene Language-Registry |
-| [CodeBoarding](https://github.com/CodeBoarding/CodeBoarding) | MIT | inspirieren | LSP-Server statt eigener Extraktoren (TS-Adapter = 52 Zeilen); Content-Hash-Inkrementalität |
-| [mindwalk](https://github.com/cosmtrek/mindwalk) | MIT | inspirieren | Deterministisches Citymap-Layout; Evidence-zitierende Findings |
+| Repo                                                                    | Lizenz     | Verwendung  | Adressiert                                                                                  |
+| ----------------------------------------------------------------------- | ---------- | ----------- | ------------------------------------------------------------------------------------------- |
+| [graphify](https://github.com/Graphify-Labs/graphify)                   | Apache-2.0 | inspirieren | Per-Edge `EXTRACTED`/`INFERRED` — billigster Weg zu ehrlicher Evidence                      |
+| [skott](https://github.com/antoine-coulon/skott)                        | MIT        | übernehmen  | Entrypoint-getriebene Traversierung statt FILE_LIMIT                                        |
+| [Understand-Anything](https://github.com/Egonex-AI/Understand-Anything) | MIT        | inspirieren | Fertiges ELK-Layout-Design für große Graphen; config-getriebene Language-Registry           |
+| [CodeBoarding](https://github.com/CodeBoarding/CodeBoarding)            | MIT        | inspirieren | LSP-Server statt eigener Extraktoren (TS-Adapter = 52 Zeilen); Content-Hash-Inkrementalität |
+| [mindwalk](https://github.com/cosmtrek/mindwalk)                        | MIT        | inspirieren | Deterministisches Citymap-Layout; Evidence-zitierende Findings                              |
 
 Lücke: Für Rails, Frappe und Meteor existiert keine Prior Art in den Stars —
 das ist Eigenarbeit, idealerweise über den LSP-Weg.

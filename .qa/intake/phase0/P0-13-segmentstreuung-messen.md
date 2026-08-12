@@ -14,10 +14,10 @@ VisuDEV muss mit **allen** Projektlayouts klar kommen — nicht nur mit
 Repositories, die Fachbereiche als Ordner unter `modules/` ablegen. In den
 Test-Repos liegen mindestens zwei Familien:
 
-| Familie | Beispiele | Domäne steckt in |
-|---|---|---|
-| **Domänenzuerst** | browo-hr, erpnext | Pfad (`modules/leaves/`, `erpnext/accounts/`) |
-| **Schichtzuerst** | discourse, mastodon, immich | Dateiname (`topic.rb`, `album.service.ts`) |
+| Familie           | Beispiele                   | Domäne steckt in                              |
+| ----------------- | --------------------------- | --------------------------------------------- |
+| **Domänenzuerst** | browo-hr, erpnext           | Pfad (`modules/leaves/`, `erpnext/accounts/`) |
+| **Schichtzuerst** | discourse, mastodon, immich | Dateiname (`topic.rb`, `album.service.ts`)    |
 
 Ein früherer Entwurf von P0-10 versuchte Domänen über eine **feste
 Namensliste** zu finden (`STRUCTURAL_SEGMENTS`, `SURFACE_SEGMENTS`,
@@ -103,12 +103,12 @@ nicht abnehmbar.
 
 ## 4. Architektur
 
-| Schicht | Datei | Änderung |
-|---|---|---|
-| Node, Graph-Builder | neu: `_segment-spread.ts` | Index + Konstanten |
-| Node | `_heuristics.ts` | **nicht** ändern (P0-10) |
-| Tests | `_segment-spread.test.ts` | Unit + Fixture |
-| Evidence | `visudev-test-repos/evidence/segment-spread-calibration-YYYY-MM-DD.md` | Messtabelle |
+| Schicht             | Datei                                                                  | Änderung                 |
+| ------------------- | ---------------------------------------------------------------------- | ------------------------ |
+| Node, Graph-Builder | neu: `_segment-spread.ts`                                              | Index + Konstanten       |
+| Node                | `_heuristics.ts`                                                       | **nicht** ändern (P0-10) |
+| Tests               | `_segment-spread.test.ts`                                              | Unit + Fixture           |
+| Evidence            | `visudev-test-repos/evidence/segment-spread-calibration-YYYY-MM-DD.md` | Messtabelle              |
 
 Quelle der Wahrheit: der Index aus den **analysierten** Dateipfaden (dieselbe
 Menge, die der Graph-Builder sieht), nicht aus einem kompletten `find` über das
@@ -203,19 +203,19 @@ falls ein Barrel existiert. Bevorzugt: direkter Import ohne Barrel.
 
 ### Neu anzulegen
 
-| Datei | Zweck |
-|---|---|
-| `local-engine/src/services/software-graph/_segment-spread.ts` | Index + Konstanten |
-| `local-engine/src/services/software-graph/_segment-spread.test.ts` | Tests |
-| `visudev-test-repos/evidence/segment-spread-calibration-2026-08-12.md` | Messtabelle |
+| Datei                                                                  | Zweck              |
+| ---------------------------------------------------------------------- | ------------------ |
+| `local-engine/src/services/software-graph/_segment-spread.ts`          | Index + Konstanten |
+| `local-engine/src/services/software-graph/_segment-spread.test.ts`     | Tests              |
+| `visudev-test-repos/evidence/segment-spread-calibration-2026-08-12.md` | Messtabelle        |
 
 ### Nicht anfassen
 
-| Datei / Bereich | Grund |
-|---|---|
-| `_heuristics.ts` | Anwendung der Messung ist P0-10 |
-| `_file-context.ts` | P0-7 |
-| UI / Atlas | Darstellung ist später |
+| Datei / Bereich    | Grund                           |
+| ------------------ | ------------------------------- |
+| `_heuristics.ts`   | Anwendung der Messung ist P0-10 |
+| `_file-context.ts` | P0-7                            |
+| UI / Atlas         | Darstellung ist später          |
 
 ## 11. Umsetzungsschritte
 
