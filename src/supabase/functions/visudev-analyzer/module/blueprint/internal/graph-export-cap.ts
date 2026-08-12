@@ -50,11 +50,11 @@ export const MAX_PRESERVED_INFRA_SERVICE_FACTS = 16;
 
 /**
  * P0-9: dependency facts must survive prisma-model soft-cap starvation, otherwise
- * SoftwareGraph never gets imports/calls edges. Bounded so parse floods cannot
- * unbounded-bypass the export size. Prefer facts that already resolved a target.
+ * SoftwareGraph never gets imports/calls edges. Caps match browo-hr/backend
+ * measurement (≥500 resolved imports, ≥200 resolved calls) with a small buffer.
  */
-export const MAX_PRESERVED_IMPORT_FACTS = 550;
-export const MAX_PRESERVED_CALL_FACTS = 250;
+export const MAX_PRESERVED_IMPORT_FACTS = 520;
+export const MAX_PRESERVED_CALL_FACTS = 220;
 
 export function isDependencyExportFact(fact: CodeFact): boolean {
   return fact.kind === "ast-import" || fact.kind === "ast-call";
@@ -72,15 +72,17 @@ function hasResolvedDependencyTarget(fact: CodeFact): boolean {
   return false;
 }
 
+/** Single pass partition + two bounded coverage selects (import then call). */
 function selectDependencyFactsForExport(
   dependencies: readonly CodeFact[],
 ): CodeFact[] {
-  const resolvedImports = dependencies.filter(
-    (fact) => fact.kind === "ast-import" && hasResolvedDependencyTarget(fact),
-  );
-  const resolvedCalls = dependencies.filter(
-    (fact) => fact.kind === "ast-call" && hasResolvedDependencyTarget(fact),
-  );
+  const resolvedImports: CodeFact[] = [];
+  const resolvedCalls: CodeFact[] = [];
+  for (const fact of dependencies) {
+    if (!hasResolvedDependencyTarget(fact)) continue;
+    if (fact.kind === "ast-import") resolvedImports.push(fact);
+    else if (fact.kind === "ast-call") resolvedCalls.push(fact);
+  }
   return [
     ...selectRestFactsByPriorityAndCoverage(
       resolvedImports,

@@ -11,6 +11,8 @@ const EXTENSIONS = [
   "/index.tsx",
   "/index.js",
   "/index.jsx",
+  "/index.mts",
+  "/index.cts",
 ];
 
 /** TypeScript NodeNext writes `./x.js` for a file that is actually `./x.ts`. */

@@ -53,17 +53,26 @@ function isFactSelectionReport(value: unknown): value is FactSelectionReport {
   return true;
 }
 
+function isNonNegativeInt(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
 function isAstParseReport(value: unknown): value is AstParseReport {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const report = value as Record<string, unknown>;
   if (
-    !isNonNegativeFiniteNumber(report.filesAttempted) ||
-    !isNonNegativeFiniteNumber(report.filesParsed) ||
-    !isNonNegativeFiniteNumber(report.filesFailed)
+    !isNonNegativeInt(report.filesAttempted) ||
+    !isNonNegativeInt(report.filesParsed) ||
+    !isNonNegativeInt(report.filesFailed)
   ) {
     return false;
   }
-  if (!Array.isArray(report.failedSamples)) return false;
+  if (report.filesAttempted !== report.filesParsed + report.filesFailed) {
+    return false;
+  }
+  if (!Array.isArray(report.failedSamples) || report.failedSamples.length > 50) {
+    return false;
+  }
   return report.failedSamples.every((sample) => typeof sample === "string");
 }
 

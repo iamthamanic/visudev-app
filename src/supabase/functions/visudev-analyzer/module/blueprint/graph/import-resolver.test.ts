@@ -43,3 +43,11 @@ Deno.test("resolves extensionless specifier", () => {
   const known = new Set(["dir/util.ts"]);
   assertEquals(resolveImport("./util", "dir/from.ts", known), "dir/util.ts");
 });
+
+Deno.test("resolves extensionless specifier to index.mts", () => {
+  const known = new Set(["pkg/handlers/index.mts"]);
+  assertEquals(
+    resolveImport("./handlers", "pkg/from.ts", known),
+    "pkg/handlers/index.mts",
+  );
+});
