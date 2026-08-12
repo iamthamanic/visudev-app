@@ -1,25 +1,25 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 260,
-  "featureSlug": "p0-5-ci-golden-set",
-  "phase": "done",
-  "branch": "main",
+  "activeIssue": 261,
+  "featureSlug": "p0-7-node-duplicates",
+  "phase": "implement",
+  "branch": "issue-261-p0-7-node-duplicates",
   "prUrl": null,
   "milestoneFilter": "visudev-honest-core-phase0",
   "paused": false,
   "runMode": "loop",
-  "queue": [260, 261, 262, 263, 264, 265, 266, 267, 268],
+  "queue": [261, 262, 263, 264, 265, 266, 267, 268],
   "completedIssues": [
     67, 68, 69, 70, 71, 72, 73, 74, 75, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 105, 106, 107, 108,
     109, 110, 111, 112, 113, 123, 124, 125, 126, 127, 128, 129, 130, 133, 134, 135, 136, 137, 138,
     139, 140, 141, 142, 149, 150, 151, 152, 153, 154, 195, 196, 197, 198, 203, 204, 205, 209, 210,
-    213, 243, 244, 245, 246, 247, 248, 249, 250
+    213, 243, 244, 245, 246, 247, 248, 249, 250, 260
   ],
   "mergedIssues": [
     105, 106, 107, 108, 109, 110, 111, 112, 113, 123, 124, 125, 126, 127, 128, 129, 130, 133, 134,
     135, 136, 137, 138, 139, 140, 141, 142, 149, 150, 151, 152, 153, 154, 195, 196, 197, 198, 203,
-    204, 205, 209, 210, 213, 243, 244, 245, 246, 247, 248, 249, 250
+    204, 205, 209, 210, 213, 243, 244, 245, 246, 247, 248, 249, 250, 260
   ],
   "prUrls": {
     "195": "https://github.com/iamthamanic/visudev-app/pull/199",
@@ -47,7 +47,8 @@
     "247": "https://github.com/iamthamanic/visudev-app/pull/255",
     "248": "https://github.com/iamthamanic/visudev-app/pull/256",
     "249": "https://github.com/iamthamanic/visudev-app/pull/257",
-    "250": "https://github.com/iamthamanic/visudev-app/pull/258"
+    "250": "https://github.com/iamthamanic/visudev-app/pull/258",
+    "260": "https://github.com/iamthamanic/visudev-app/pull/269"
   },
   "retries": {
     "implement": 0,
@@ -64,9 +65,9 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 0,
-  "updatedAt": "2026-08-12T07:29:54.000Z",
-  "notes": "phase0 honest-core: issues #260-#268 created; starting loop",
-  "currentIssue": null,
-  "lastCompletedIssue": 250
+  "issuesProcessedInSession": 1,
+  "updatedAt": "2026-08-12T08:19:13.195831+00:00",
+  "notes": "P0-5 #260 merged via PR #269; continuing loop",
+  "currentIssue": 261,
+  "lastCompletedIssue": 260
 }

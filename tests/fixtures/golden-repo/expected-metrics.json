@@ -19,5 +19,9 @@
   "files": {
     "measured": 13,
     "min": 11
+  },
+  "duplicateNodeIds": {
+    "measured": 0,
+    "max": 0
   }
 }
