@@ -145,6 +145,11 @@ export interface BlueprintDocument {
   factSelection?: FactSelectionReport;
   /** Present when JS/TS AST extraction ran during this analysis. */
   astParseReport?: AstParseReport;
+  /**
+   * Repo-relative walk paths for segment-spread / Softort (may exceed the
+   * fact-export file subset). Capped + diversified in the pipeline.
+   */
+  pathCatalog?: string[];
   concepts: TechnicalConcept[];
   graph?: VisuDevGraph;
   filesAnalyzed: number;

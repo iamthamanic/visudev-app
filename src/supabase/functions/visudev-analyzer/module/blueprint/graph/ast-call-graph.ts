@@ -9,6 +9,7 @@ import type {
 } from "../../dto/blueprint/blueprint-document.dto.ts";
 import { resolveImport } from "./import-resolver.ts";
 import type { FileIndexEntry } from "./call-graph.builder.ts";
+import { toExportSamplePath } from "../internal/path-export.util.ts";
 
 const MAX_FAILED_PARSE_SAMPLES = 50;
 
@@ -34,7 +35,8 @@ function recordAstParseAttempt(
   }
   report.filesFailed += 1;
   if (report.failedSamples.length < MAX_FAILED_PARSE_SAMPLES) {
-    report.failedSamples.push(filePath);
+    // UI-bound: never push absolute host paths into failedSamples.
+    report.failedSamples.push(toExportSamplePath(filePath));
   }
 }
 

@@ -184,6 +184,11 @@ export type RawBlueprintScan = {
   facts: RawBlueprintFact[];
   factSelection?: FactSelectionReport;
   astParseReport?: AstParseReport;
+  /**
+   * Walk catalog for domain segment-spread (P0-10). Optional for older scans;
+   * when absent the builder falls back to fact/route paths only.
+   */
+  pathCatalog?: string[];
   filesAnalyzed: number;
   /** Captured at scan time by the provider; avoids re-reading git after analysis. */
   analysisOrigin?: AnalysisOrigin;

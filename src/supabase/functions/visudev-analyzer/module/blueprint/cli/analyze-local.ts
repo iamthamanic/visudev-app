@@ -12,6 +12,8 @@ interface CliInput {
   repo?: string;
   branch?: string;
   files?: Array<{ path: string; content: string }>;
+  /** Repo-relative walk paths (may exceed files[] content set). */
+  pathCatalog?: string[];
   fileLimit?: number;
 }
 
@@ -46,13 +48,18 @@ async function main(): Promise<void> {
   const files = Array.isArray(input.files) ? input.files : [];
   const localPath = String(input.localPath ?? "").trim();
   const projectId = String(input.projectId ?? "").trim();
+  const pathCatalog = Array.isArray(input.pathCatalog)
+    ? input.pathCatalog.filter((p): p is string => typeof p === "string")
+    : undefined;
 
   const blueprint = analyzeFromFileEntries({
     projectId: projectId || undefined,
+    localPath: localPath || undefined,
     repo: input.repo?.trim() || (localPath ? `local:${localPath}` : "local"),
     branch: input.branch?.trim() || "local",
     commitSha: "local",
     fileEntries: files,
+    pathCatalog,
     fileLimit: input.fileLimit,
   });
 

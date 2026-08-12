@@ -198,6 +198,50 @@ describe("buildSoftwareGraph", () => {
     expect(importEdge?.metadata.evidenceFactId).toBe("fact:import");
   });
 
+  it("uses pathCatalog for segment-spread when facts are thin (erpnext)", () => {
+    const pathCatalog = [
+      "erpnext/accounts/doctype/account/account.py",
+      "erpnext/buying/doctype/supplier/supplier.py",
+      "erpnext/crm/doctype/lead/lead.py",
+      "erpnext/stock/doctype/item/item.py",
+      "erpnext/selling/doctype/customer/customer.py",
+      "erpnext/accounts/doctype/payment/payment.py",
+      "erpnext/buying/doctype/purchase_order/purchase_order.py",
+      "erpnext/crm/doctype/opportunity/opportunity.py",
+      "erpnext/stock/doctype/warehouse/warehouse.py",
+      "erpnext/selling/doctype/quotation/quotation.py",
+    ];
+    // Thin facts: one file per module — without pathCatalog, sibling stats
+    // would be too weak; with catalog, accounts/buying resolve as domains.
+    const scan = makeScan({
+      filesAnalyzed: 2,
+      pathCatalog,
+      facts: [
+        {
+          id: "fact:accounts",
+          kind: "db-read",
+          filePath: "erpnext/accounts/doctype/account/account.py",
+          line: 1,
+          snippet: "pass",
+          metadata: {},
+        },
+        {
+          id: "fact:buying",
+          kind: "db-read",
+          filePath: "erpnext/buying/doctype/supplier/supplier.py",
+          line: 1,
+          snippet: "pass",
+          metadata: {},
+        },
+      ],
+    });
+
+    const graph = buildSoftwareGraph(scan);
+    const domains = graph.nodes.filter((n) => n.kind === "domain").map((n) => n.label);
+    expect(domains).toEqual(expect.arrayContaining(["accounts", "buying"]));
+    expect(domains).not.toContain("doctype");
+  });
+
   it("classifies api and event edges from facts", () => {
     const scan = makeScan({
       filesAnalyzed: 1,

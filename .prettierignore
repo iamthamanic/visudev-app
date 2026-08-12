@@ -5,3 +5,5 @@ src/supabase/functions/
 supabase/
 docs/AI_REVIEW_WHY_NEW_ERRORS_AFTER_FIXES.md
 .qa/queue/runs/
+# Queue runner mutates this between agent turns — not a product source file.
+.qa/queue/state.json
