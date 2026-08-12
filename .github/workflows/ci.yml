@@ -10,6 +10,9 @@ jobs:
   quality:
     name: Quality (lint, typecheck, unit)
     runs-on: ubuntu-latest
+    env:
+      # Unit tests import supabase info; placeholder JWT only — no DEMO_ENRICHMENT.
+      VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjIwOTAxMjUyODV9.e2e-ci-placeholder-signature
     steps:
       - uses: actions/checkout@v4
 
