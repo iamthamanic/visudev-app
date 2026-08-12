@@ -1,6 +1,25 @@
 /** Resolves relative TS/JS imports to repo-relative file paths. */
 
-const EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", "/index.ts", "/index.tsx"];
+const EXTENSIONS = [
+  ".ts",
+  ".tsx",
+  ".js",
+  ".jsx",
+  ".mts",
+  ".cts",
+  "/index.ts",
+  "/index.tsx",
+  "/index.js",
+  "/index.jsx",
+];
+
+/** TypeScript NodeNext writes `./x.js` for a file that is actually `./x.ts`. */
+const JS_TO_TS_REWRITE: ReadonlyArray<[RegExp, readonly string[]]> = [
+  [/\.js$/, [".ts", ".tsx"]],
+  [/\.jsx$/, [".tsx"]],
+  [/\.mjs$/, [".mts"]],
+  [/\.cjs$/, [".cts"]],
+];
 
 export function extractImports(
   content: string,
@@ -38,10 +57,23 @@ export function resolveImport(
   );
 
   const candidates: string[] = [];
+  // 1) base + known extensions (covers extensionless and directory index forms)
   for (const ext of EXTENSIONS) {
     candidates.push(ext.startsWith("/") ? `${base}${ext}` : `${base}${ext}`);
   }
+  // 2) exact base — must win over JS→TS rewrite when both .js and .ts exist
   candidates.push(base);
+  // 3) NodeNext .js/.mjs/.cjs → real TS sources (and index under stem)
+  for (const [pattern, replacements] of JS_TO_TS_REWRITE) {
+    if (!pattern.test(base)) continue;
+    for (const replacement of replacements) {
+      candidates.push(base.replace(pattern, replacement));
+    }
+    const stem = base.replace(pattern, "");
+    for (const replacement of replacements) {
+      candidates.push(`${stem}/index${replacement}`);
+    }
+  }
 
   if (knownPaths) {
     for (const candidate of candidates) {

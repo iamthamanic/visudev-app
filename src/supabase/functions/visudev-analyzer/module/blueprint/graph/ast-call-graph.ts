@@ -3,9 +3,40 @@
 import * as acorn from "acorn";
 // acorn-typescript default export is callable at runtime; npm types are incomplete.
 import acornTypescript from "acorn-typescript";
-import type { CodeFact } from "../../dto/blueprint/blueprint-document.dto.ts";
+import type {
+  AstParseReport,
+  CodeFact,
+} from "../../dto/blueprint/blueprint-document.dto.ts";
 import { resolveImport } from "./import-resolver.ts";
 import type { FileIndexEntry } from "./call-graph.builder.ts";
+
+const MAX_FAILED_PARSE_SAMPLES = 50;
+
+export function createEmptyAstParseReport(): AstParseReport {
+  return {
+    filesAttempted: 0,
+    filesParsed: 0,
+    filesFailed: 0,
+    failedSamples: [],
+  };
+}
+
+function recordAstParseAttempt(
+  report: AstParseReport | undefined,
+  filePath: string,
+  outcome: "parsed" | "failed",
+): void {
+  if (!report) return;
+  report.filesAttempted += 1;
+  if (outcome === "parsed") {
+    report.filesParsed += 1;
+    return;
+  }
+  report.filesFailed += 1;
+  if (report.failedSamples.length < MAX_FAILED_PARSE_SAMPLES) {
+    report.failedSamples.push(filePath);
+  }
+}
 
 const Parser = acorn.Parser.extend(
   (acornTypescript as unknown as () => Parameters<
@@ -59,6 +90,7 @@ export function parseAstModuleGraph(
   content: string,
   filePath: string,
   knownPaths?: ReadonlySet<string>,
+  parseReport?: AstParseReport,
 ): AstModuleGraph | null {
   if (!isAstParsableFile(filePath)) return null;
 
@@ -68,7 +100,9 @@ export function parseAstModuleGraph(
       ecmaVersion: "latest",
       sourceType: "module",
     }) as unknown as AstNode;
+    recordAstParseAttempt(parseReport, filePath, "parsed");
   } catch {
+    recordAstParseAttempt(parseReport, filePath, "failed");
     return null;
   }
 
@@ -158,9 +192,12 @@ export function extractAstFactsFromFile(
   filePath: string,
   content: string,
   fileIndex?: ReadonlyMap<string, FileIndexEntry>,
+  parseReport?: AstParseReport,
+  resolutionPaths?: ReadonlySet<string>,
 ): CodeFact[] {
-  const knownPaths = fileIndex ? new Set(fileIndex.keys()) : undefined;
-  const graph = parseAstModuleGraph(content, filePath, knownPaths);
+  const knownPaths = resolutionPaths ??
+    (fileIndex ? new Set(fileIndex.keys()) : undefined);
+  const graph = parseAstModuleGraph(content, filePath, knownPaths, parseReport);
   if (!graph) return [];
   return buildAstFactsFromGraph(filePath, content, graph);
 }
@@ -170,6 +207,7 @@ export function collectAstCallTargets(
   filePath: string,
   knownPaths?: ReadonlySet<string>,
 ): string[] {
+  // BFS expansion only — do not double-count into the export astParseReport.
   const graph = parseAstModuleGraph(content, filePath, knownPaths);
   if (!graph) return [];
   const targets = new Set<string>();

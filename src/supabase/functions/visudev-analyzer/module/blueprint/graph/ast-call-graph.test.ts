@@ -5,6 +5,7 @@ import { buildRouteFactsIndex } from "../internal/route-facts-index.ts";
 import { buildVisuDevGraphFromFacts } from "./fact-graph.mapper.ts";
 import {
   collectAstCallTargets,
+  createEmptyAstParseReport,
   extractAstFactsFromFile,
   parseAstModuleGraph,
 } from "./ast-call-graph.ts";
@@ -116,4 +117,17 @@ Deno.test("parseAstModuleGraph returns null on invalid syntax and regex path rem
   const facts = extractFactsFromFile(ROUTE_FILE, broken);
   assertEquals(Array.isArray(facts), true);
   assertEquals(collectAstCallTargets(broken, ROUTE_FILE).length, 0);
+});
+
+Deno.test("reports parse failures instead of swallowing them", () => {
+  const broken = "import { x from './y'; {{{";
+  const report = createEmptyAstParseReport();
+  assertEquals(
+    parseAstModuleGraph(broken, ROUTE_FILE, undefined, report),
+    null,
+  );
+  assertEquals(report.filesAttempted, 1);
+  assertEquals(report.filesParsed, 0);
+  assertEquals(report.filesFailed, 1);
+  assertEquals(report.failedSamples, [ROUTE_FILE]);
 });

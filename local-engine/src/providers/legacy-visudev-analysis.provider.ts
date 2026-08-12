@@ -8,6 +8,7 @@
 import type {
   BlueprintAnalysisProviderId,
   BlueprintDocument,
+  AstParseReport,
   FactSelectionReport,
   RawBlueprintRoute,
   RawBlueprintScan,
@@ -50,6 +51,20 @@ function isFactSelectionReport(value: unknown): value is FactSelectionReport {
     }
   }
   return true;
+}
+
+function isAstParseReport(value: unknown): value is AstParseReport {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const report = value as Record<string, unknown>;
+  if (
+    !isNonNegativeFiniteNumber(report.filesAttempted) ||
+    !isNonNegativeFiniteNumber(report.filesParsed) ||
+    !isNonNegativeFiniteNumber(report.filesFailed)
+  ) {
+    return false;
+  }
+  if (!Array.isArray(report.failedSamples)) return false;
+  return report.failedSamples.every((sample) => typeof sample === "string");
 }
 
 export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
@@ -128,6 +143,9 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
     const factSelection = isFactSelectionReport(blueprint.factSelection)
       ? blueprint.factSelection
       : undefined;
+    const astParseReport = isAstParseReport(blueprint.astParseReport)
+      ? blueprint.astParseReport
+      : undefined;
 
     return {
       providerId: this.id,
@@ -137,6 +155,7 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
       routes,
       facts,
       factSelection,
+      astParseReport,
       filesAnalyzed:
         typeof payload.data.filesAnalyzed === "number" ? payload.data.filesAnalyzed : routes.length,
       analysisOrigin: scanOrigin,

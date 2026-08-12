@@ -1,5 +1,5 @@
 {
-  "_comment": "min = floor(measured * 0.9). measured stammt aus dem Lauf in PR #<nummer>. Bei Verbesserungen wird min im selben PR angehoben. missingAuthFindings is an upper bound (P0-6).",
+  "_comment": "min = floor(measured * 0.9). measured stammt aus dem Lauf in PR #<nummer>. Bei Verbesserungen wird min im selben PR angehoben. missingAuthFindings is an upper bound (P0-6). importEdges counts exported ast-import facts with a real resolvedPath (P0-9).",
   "nodes": {
     "measured": 18,
     "min": 16
@@ -27,5 +27,9 @@
   "missingAuthFindings": {
     "measured": 1,
     "max": 1
+  },
+  "importEdges": {
+    "measured": 19,
+    "min": 17
   }
 }

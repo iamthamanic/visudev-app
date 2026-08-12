@@ -1,6 +1,9 @@
 /** Line-based fact extractors for Blueprint Engine v1 (Hono, Next, Express, Meteor, Mongo, Supabase, Zod, Auth, Django, Prisma). */
 
-import type { CodeFact } from "../../dto/blueprint/blueprint-document.dto.ts";
+import type {
+  AstParseReport,
+  CodeFact,
+} from "../../dto/blueprint/blueprint-document.dto.ts";
 import { extractAstFactsFromFile } from "../graph/ast-call-graph.ts";
 import type { FileIndexEntry } from "../graph/call-graph.builder.ts";
 
@@ -41,6 +44,8 @@ export function extractFactsFromFile(
   filePath: string,
   content: string,
   fileIndex?: ReadonlyMap<string, FileIndexEntry>,
+  parseReport?: AstParseReport,
+  resolutionPaths?: ReadonlySet<string>,
 ): CodeFact[] {
   if (isPrismaFile(filePath)) {
     return extractPrismaFacts(filePath, content);
@@ -54,7 +59,13 @@ export function extractFactsFromFile(
 
   const regexFacts = extractRegexFactsFromFile(filePath, content);
   const astFacts = isJsTsFile(filePath)
-    ? extractAstFactsFromFile(filePath, content, fileIndex)
+    ? extractAstFactsFromFile(
+      filePath,
+      content,
+      fileIndex,
+      parseReport,
+      resolutionPaths,
+    )
     : [];
   return mergeFacts(regexFacts, astFacts);
 }
