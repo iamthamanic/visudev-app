@@ -1,13 +1,17 @@
 /**
  * Ensures domain/layer/module/file scope hierarchy exists for a file path.
+ * Location: local-engine/src/services/software-graph/_file-context.ts
  */
 
 import {
   detectDomain,
+  detectDomainAndModule,
   detectLayer,
   detectModule,
   inferRuntime,
   normalizePath,
+  UNASSIGNED_DOMAIN,
+  type DomainSource,
 } from "./_heuristics.js";
 import { createId, registerKnownId, stableUniqueId } from "./_ids.js";
 import { addEdge, addNode, addScope, type GraphBuilderState } from "./_state.js";
@@ -17,8 +21,6 @@ import {
   createLayerScope,
   createModuleScope,
 } from "./_scopes.js";
-
-const UNASSIGNED = "unassigned";
 
 export interface FileContext {
   domainId: string;
@@ -32,9 +34,23 @@ export function ensureFileContext(
   projectId: string,
   state: GraphBuilderState,
 ): FileContext {
-  const domain = detectDomain(filePath) || UNASSIGNED;
-  const layerName = detectLayer(filePath) || UNASSIGNED;
-  const moduleName = detectModule(filePath, domain) || UNASSIGNED;
+  const spread = state.segmentSpread;
+  let domain: string;
+  let moduleName: string;
+  let domainSource: DomainSource;
+
+  if (spread) {
+    const detected = detectDomainAndModule(filePath, spread);
+    domain = detected.domain || UNASSIGNED_DOMAIN;
+    moduleName = detected.module || UNASSIGNED_DOMAIN;
+    domainSource = detected.domainSource;
+  } else {
+    domain = detectDomain(filePath) || UNASSIGNED_DOMAIN;
+    moduleName = detectModule(filePath, domain) || UNASSIGNED_DOMAIN;
+    domainSource = "path";
+  }
+
+  const layerName = detectLayer(filePath) || UNASSIGNED_DOMAIN;
   const appId = `app:${projectId}`;
   const domainId = `domain:${domain}`;
   const layerId = `layer:${domain}:${layerName}`;
@@ -44,7 +60,13 @@ export function ensureFileContext(
   if (!state.scopes.has(domainId)) {
     addScope(state, createDomainScope(domain, projectId));
     registerKnownId(state.registry, "node", domainId);
-    addNode(state, { id: domainId, kind: "domain", label: domain, scopeId: appId, metadata: {} });
+    addNode(state, {
+      id: domainId,
+      kind: "domain",
+      label: domain,
+      scopeId: appId,
+      metadata: { domainSource },
+    });
     addEdge(state, {
       id: stableUniqueId(state.registry, "edge", createId("edge", appId, domainId)),
       kind: "contains",
@@ -101,7 +123,11 @@ export function ensureFileContext(
       label: filePath.split("/").pop() || filePath,
       scopeId: moduleId,
       filePath,
-      metadata: { runtime: inferRuntime(filePath), layer: layerName },
+      metadata: {
+        runtime: inferRuntime(filePath),
+        layer: layerName,
+        domainSource,
+      },
     });
     addEdge(state, {
       id: stableUniqueId(state.registry, "edge", createId("edge", moduleId, fileId)),

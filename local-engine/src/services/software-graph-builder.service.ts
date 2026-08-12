@@ -22,6 +22,7 @@ import { partitionInfraServiceFacts } from "./software-graph/_infra-services.js"
 import { addRouteNodes } from "./software-graph/_route-nodes.js";
 import { buildRuntimeGroups, dropDanglingEdges } from "./software-graph/_runtime-groups.js";
 import { createApplicationScope, createOrganizationScope } from "./software-graph/_scopes.js";
+import { buildSegmentSpreadIndex } from "./software-graph/_segment-spread.js";
 import {
   addEdge,
   addNode,
@@ -66,6 +67,24 @@ export function buildSoftwareGraph(scan: RawBlueprintScan): SoftwareGraph {
   const facts = scan.facts
     .map(normalizeFact)
     .filter((fact): fact is RawBlueprintFact => fact !== null);
+
+  // P0-10: one spread index for the whole scan (paths the builder will see,
+  // including dependency targets preserved by P0-9).
+  const catalogPaths = new Set<string>();
+  const addPath = (value: unknown): void => {
+    if (typeof value === "string" && value.trim().length > 0) {
+      catalogPaths.add(value.trim());
+    }
+  };
+  for (const fact of facts) {
+    addPath(fact.filePath);
+    addPath(fact.metadata?.resolvedPath);
+    addPath(fact.metadata?.targetFile);
+  }
+  for (const route of routes) {
+    addPath(route.filePath);
+  }
+  state.segmentSpread = buildSegmentSpreadIndex([...catalogPaths]);
 
   // P2-1: promote all Prisma schema models to table nodes BEFORE route flood
   // consumes the soft node budget (browo: 473 routes starved LeaveRequest @ idx 36).

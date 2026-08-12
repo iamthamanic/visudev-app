@@ -9,18 +9,18 @@
   "milestoneFilter": "visudev-honest-core-phase0",
   "paused": false,
   "runMode": "loop",
-  "queue": [266, 267, 268],
+  "queue": [267, 268],
   "completedIssues": [
     67, 68, 69, 70, 71, 72, 73, 74, 75, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 105, 106, 107, 108,
     109, 110, 111, 112, 113, 123, 124, 125, 126, 127, 128, 129, 130, 133, 134, 135, 136, 137, 138,
     139, 140, 141, 142, 149, 150, 151, 152, 153, 154, 195, 196, 197, 198, 203, 204, 205, 209, 210,
-    213, 243, 244, 245, 246, 247, 248, 249, 250, 260, 261, 262, 263, 264, 273, 265
+    213, 243, 244, 245, 246, 247, 248, 249, 250, 260, 261, 262, 263, 264, 273, 265, 266
   ],
   "mergedIssues": [
     105, 106, 107, 108, 109, 110, 111, 112, 113, 123, 124, 125, 126, 127, 128, 129, 130, 133, 134,
     135, 136, 137, 138, 139, 140, 141, 142, 149, 150, 151, 152, 153, 154, 195, 196, 197, 198, 203,
     204, 205, 209, 210, 213, 243, 244, 245, 246, 247, 248, 249, 250, 260, 261, 262, 263, 264, 273,
-    265
+    265, 266
   ],
   "prUrls": {
     "260": "https://github.com/iamthamanic/visudev-app/pull/269",
@@ -29,7 +29,8 @@
     "263": "https://github.com/iamthamanic/visudev-app/pull/272",
     "273": "https://github.com/iamthamanic/visudev-app/pull/274",
     "264": "https://github.com/iamthamanic/visudev-app/pull/275",
-    "265": "https://github.com/iamthamanic/visudev-app/pull/276"
+    "265": "https://github.com/iamthamanic/visudev-app/pull/276",
+    "266": "https://github.com/iamthamanic/visudev-app/pull/277"
   },
   "retries": {
     "implement": 0,
@@ -56,7 +57,7 @@
   "issuesProcessedInSession": 7,
   "updatedAt": "2026-08-12T11:20:00.000Z",
   "notes": "Policy: fix Critical+Important+Minor before merge. Next #265 P0-9.",
-  "currentIssue": 266,
-  "lastCompletedIssue": 265,
-  "activeBranch": "issue-266-p0-13-segment-spread"
+  "currentIssue": 267,
+  "lastCompletedIssue": 266,
+  "activeBranch": "issue-267-p0-10-path-domains"
 }

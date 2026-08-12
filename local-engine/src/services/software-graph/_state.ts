@@ -8,6 +8,7 @@ import type {
   SoftwareGraphScope,
 } from "../../types/api.types.js";
 import { stableUniqueId } from "./_ids.js";
+import type { SegmentSpreadIndex } from "./_segment-spread.js";
 import type { IdRegistry } from "./_types.js";
 
 export interface GraphBuilderState {
@@ -21,6 +22,8 @@ export interface GraphBuilderState {
   attemptedNodes: number;
   attemptedEdges: number;
   condensed: boolean;
+  /** Built once per scan (P0-10); absent → legacy first-segment domains. */
+  segmentSpread?: SegmentSpreadIndex;
 }
 
 export const DEFAULT_LIMITS = { maxNodes: 2500, maxEdges: 5000 };

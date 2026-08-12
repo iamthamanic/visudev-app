@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   detectDomain,
+  detectDomainAndModule,
   detectLayer,
   detectModule,
   inferRuntime,
   normalizePath,
+  UNASSIGNED_DOMAIN,
 } from "./_heuristics.js";
+import { buildSegmentSpreadIndex } from "./_segment-spread.js";
 
 describe("software graph heuristics", () => {
   it("normalizes leading slashes", () => {
@@ -48,5 +51,61 @@ describe("software graph heuristics", () => {
 
   it("detects data layer for repositories folder", () => {
     expect(detectLayer("src/repositories/user-repo.ts")).toBe("data");
+  });
+
+  it("without index, legacy first-segment behavior remains", () => {
+    expect(detectDomain("backend/app/modules/leaves/x.ts")).toBe("backend");
+  });
+
+  it("with spread index, nested module directory yields business domain", () => {
+    const paths = [
+      "backend/app/modules/leaves/a.ts",
+      "backend/app/modules/leaves/b.ts",
+      "backend/app/modules/payroll/c.ts",
+      "backend/app/modules/auth/d.ts",
+      "backend/app/modules/documents/e.ts",
+    ];
+    const spread = buildSegmentSpreadIndex(paths);
+    const detected = detectDomainAndModule("backend/app/modules/leaves/x.ts", spread);
+    expect(detected.domain).toBe("leaves");
+    expect(detected.domainSource).toBe("path");
+    expect(detected.domain).not.toBe("modules");
+  });
+
+  it("layer-first app tree yields none", () => {
+    const paths = [
+      "app/models/a.rb",
+      "app/models/b.rb",
+      "app/controllers/a.rb",
+      "plugins/x/models/c.rb",
+    ];
+    const spread = buildSegmentSpreadIndex(paths);
+    const detected = detectDomainAndModule("app/models/topic.rb", spread);
+    expect(detected.domain).toBe(UNASSIGNED_DOMAIN);
+    expect(detected.domainSource).toBe("none");
+  });
+
+  it("erpnext accounts path yields accounts", () => {
+    const paths = [
+      "apps/erpnext/erpnext/accounts/a.py",
+      "apps/erpnext/erpnext/accounts/b.py",
+      "apps/erpnext/erpnext/buying/c.py",
+      "apps/erpnext/erpnext/crm/d.py",
+      "apps/erpnext/erpnext/stock/e.py",
+    ];
+    const spread = buildSegmentSpreadIndex(paths);
+    // Under monorepo prefix apps/erpnext, scan remaining for candidates.
+    const detected = detectDomainAndModule("apps/erpnext/erpnext/accounts/gl.py", spread);
+    expect(detected.domain).toBe("accounts");
+    expect(detected.domainSource).toBe("path");
+  });
+
+  it("no STRUCTURAL list required", async () => {
+    const source = await import("node:fs/promises").then((fs) =>
+      fs.readFile(new URL("./_heuristics.ts", import.meta.url), "utf8"),
+    );
+    expect(source.includes("STRUCTURAL_SEGMENTS")).toBe(false);
+    expect(source.includes("SURFACE_SEGMENTS")).toBe(false);
+    expect(source.includes("LAYER_SEGMENTS")).toBe(false);
   });
 });
