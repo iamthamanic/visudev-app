@@ -1,36 +1,36 @@
 {
   "schema_version": 1,
-  "as_of": "2026-07-19",
-  "commit": "42d12fe7391ff2dad2c284b947ef4b5da747be63",
+  "as_of": "2026-08-12",
+  "commit": "36fff3da21a385a387c9ba1adcb29ee531884534",
   "branch": "main",
   "product_status": {
-    "de": "VisuDEV seit 01.2026: Figma-Make → Live App Flow → gesicherte APIs → Blueprint Multi-View inkl. Shell-/Wave-Umbauten, Softort-Ehrlichkeit, Meteor/Infra-Extractors und stack-agnostischem Access Control. Living Memory auf GitHub Pages.",
-    "en": "VisuDEV since 01.2026: Figma Make → live App Flow → hardened APIs → Blueprint multi-view including shell/wave rebuilds, Softort honesty, Meteor/infra extractors, and stack-agnostic access control. Living memory on GitHub Pages."
+    "de": "VisuDEV: Vertical-Slice-Frontend + Phase-0 Honest Core gemerged. Domänen aus Pfad- und Dateinamen-Stämmen, ehrliche Edges/Security/CI-Golden-Set. Living Memory Catch-up bis HEAD.",
+    "en": "VisuDEV: vertical-slice frontend + Phase 0 honest core merged. Domains from path and filename stems, honest edges/security/CI golden set. Living memory catch-up through HEAD."
   },
   "active_focus": {
     "de": [
-      "Living documentation Timeline seit Projektstart pflegen",
-      "Access-Control Evidence weiter schärfen",
-      "Gapclose / Screenshot-Qualität"
+      "Memory-Claims reviewen (needs-review)",
+      "Architecture-Banner Screenshot nachziehen",
+      "Nächste Phase / Gapclose nach leerer Queue"
     ],
     "en": [
-      "Keep living documentation timeline since project start",
-      "Sharpen access-control evidence",
-      "Gapclose / screenshot quality"
+      "Review memory claims (needs-review)",
+      "Capture Architecture banner screenshot",
+      "Next phase / gapclose after empty queue"
     ]
   },
   "known_gaps": {
     "de": [
-      "Juli-Umbau-Eras (Shell, Softort, Wave 3/5, Extractors) nachgezogen — Einzelfixes nicht alle als Events",
-      "Screenshots im Memory-Viewer fehlen noch",
-      "Viele Einträge noch needs-review"
+      "Screenshot für domainSource-Banner fehlt",
+      "Viele Memory-Einträge noch needs-review",
+      "Queue Phase 0 leer — Folge-Intake offen"
     ],
     "en": [
-      "July rebuild eras (shell, Softort, Wave 3/5, extractors) backfilled — not every fix is its own event",
-      "Memory viewer screenshots still missing",
-      "Many entries still needs-review"
+      "Screenshot for domainSource banner missing",
+      "Many memory entries still needs-review",
+      "Phase 0 queue empty — follow-up intake open"
     ]
   },
   "review_status": "needs-review",
-  "confidence": 0.55
+  "confidence": 0.7
 }

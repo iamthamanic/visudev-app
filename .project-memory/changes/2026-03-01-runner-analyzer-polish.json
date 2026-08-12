@@ -21,16 +21,32 @@
     "en": "Fewer empty or stuck previews in daily use."
   },
   "user_impact": {
-    "de": ["Stabilere Preview", "Klarere Screen-Karten"],
-    "en": ["More stable preview", "Clearer screen cards"]
+    "de": [
+      "Stabilere Preview",
+      "Klarere Screen-Karten"
+    ],
+    "en": [
+      "More stable preview",
+      "Clearer screen cards"
+    ]
   },
   "developer_impact": {
-    "de": ["preview-runner cleanup", "analyzer heuristics"],
-    "en": ["preview-runner cleanup", "analyzer heuristics"]
+    "de": [
+      "preview-runner cleanup",
+      "analyzer heuristics"
+    ],
+    "en": [
+      "preview-runner cleanup",
+      "analyzer heuristics"
+    ]
   },
   "operational_impact": {
-    "de": ["Pre-push Single-Commit-Regel"],
-    "en": ["Pre-push single-commit rule"]
+    "de": [
+      "Pre-push Single-Commit-Regel"
+    ],
+    "en": [
+      "Pre-push single-commit rule"
+    ]
   },
   "git": {
     "base": "2026-03",
@@ -38,9 +54,18 @@
     "branch": "main",
     "pull_request": null
   },
-  "packages": ["preview-runner", "src"],
-  "affected_features": ["preview-runner", "appflow"],
-  "affected_components": ["preview-runner", "src/modules/appflow"],
+  "packages": [
+    "preview-runner",
+    "src"
+  ],
+  "affected_features": [
+    "preview-runner",
+    "appflow"
+  ],
+  "affected_components": [
+    "preview-runner",
+    "src/modules/appflow"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "security_relevant": false,

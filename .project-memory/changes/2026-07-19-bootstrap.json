@@ -32,8 +32,12 @@
     ]
   },
   "operational_impact": {
-    "de": ["GitHub Pages kann docs/memory-live-doc/viewer/ hosten (optional)."],
-    "en": ["GitHub Pages can host docs/memory-live-doc/viewer/ (optional)."]
+    "de": [
+      "GitHub Pages kann docs/memory-live-doc/viewer/ hosten (optional)."
+    ],
+    "en": [
+      "GitHub Pages can host docs/memory-live-doc/viewer/ (optional)."
+    ]
   },
   "git": {
     "base": "527e2cb2d17cf6826b3d8fbd163b713cee5a1efc",
@@ -41,7 +45,12 @@
     "branch": "main",
     "pull_request": null
   },
-  "packages": ["src", "local-engine", "preview-runner", "shared"],
+  "packages": [
+    "src",
+    "local-engine",
+    "preview-runner",
+    "shared"
+  ],
   "affected_features": [
     "projects",
     "appflow",

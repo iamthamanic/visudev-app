@@ -1,23 +1,22 @@
 # Project status (VisuDEV)
 
-> Generated from `.project-memory/` — claims: **needs-review**. As of 2026-07-19 (`527e2cb2`).
+> Generated from `.project-memory/` — claims: **needs-review**. As of: 2026-08-12 (`36fff3da`).
 
 ## Summary
 
-VisuDEV visualizes deterministic flows from UI through code/API to database and security. Blueprint v2 (multi-view + Software Graph) and the stack-agnostic access-control model are merged in the repo.
+VisuDEV visualizes deterministic flows from UI through code/API to database and security. Frontend behind product-slice public entries; Phase 0 honest core delivers path and filename domains, honest edges/security, and a CI golden set against the real analyzer.
 
 ## Current focus
 
-- Gapclose / quality and screenshot pipeline
-- Access-control evidence bridging polish
-- Living documentation review
+- Review memory claims (`needs-review`)
+- Capture Architecture banner screenshot
+- Next phase / gapclose (Phase 0 queue empty)
 
 ## Known gaps
 
+- Screenshot for `domainSource` banner missing
+- Many memory entries still needs-review
 - Data scan: primarily PostgreSQL/SQLite
-- Memory viewer screenshots missing
-- Project profile / expectations often still defaults
-- README “Recent changes” not fully updated for the access-control epic
 
 ## Architecture
 
@@ -25,4 +24,4 @@ See [`.project-memory/architecture/overview.mermaid`](../../.project-memory/arch
 
 ## Next step
 
-Review claims in `.project-memory/` (`review_status: accepted`) and add missing screenshots under `docs/memory-live-doc/assets/2026-07-19-bootstrap/`.
+Review `.project-memory/` claims and add missing screenshots under `docs/memory-live-doc/assets/2026-08-12-phase0-honest-core/`.

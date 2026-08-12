@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "status": "recorded",
+  "packages": [
+    "src"
+  ],
+  "breaking_changes": [],
+  "migration_required": false,
+  "screenshots": [],
+  "confidence": 0.75,
+  "review_status": "needs-review",
+  "operational_impact": {
+    "de": [
+      "CI prüft Slice-Grenzen (keine neuen Deep/Reverse-Imports)."
+    ],
+    "en": [
+      "CI enforces slice boundaries (no new deep/reverse imports)."
+    ]
+  },
+  "id": "2026-07-22-vertical-slice-strangler",
+  "date": "2026-07-22",
+  "type": "architecture",
+  "title": {
+    "de": "Vertical-Slice-Strangler: Produkt-Slices hinter Public Entries",
+    "en": "Vertical-slice strangler: product slices behind public entries"
+  },
+  "summary": {
+    "de": "Foundation + Slice-Migration (logs, data, appflow, projects, settings, blueprint): Hooks/Services laufen über Slice-Public-Entries; Facade-Reverse-Imports abgebaut; Boundary-Check in CI.",
+    "en": "Foundation + slice migration (logs, data, appflow, projects, settings, blueprint): hooks/services go through slice public entries; facade reverse imports removed; boundary check in CI."
+  },
+  "plain_language": {
+    "de": "Der Frontend-Code ist in klare Produktbereiche (Slices) sortiert. Andere Teile dürfen nur über die offizielle Tür eines Slices zugreifen — nicht wild quer durch Ordner.",
+    "en": "Frontend code is sorted into clear product areas (slices). Other parts may only enter through each slice’s public door — not by reaching into folders arbitrarily."
+  },
+  "why_it_matters": {
+    "de": "Änderungen bleiben lokal, Refactors werden sicherer, und die App lässt sich Feature für Feature weiterentwickeln.",
+    "en": "Changes stay local, refactors get safer, and the app can evolve feature by feature."
+  },
+  "user_impact": {
+    "de": [
+      "Keine sichtbare Feature-Änderung; stabilere Wartung der gleichen Surfaces."
+    ],
+    "en": [
+      "No visible feature change; more maintainable same surfaces."
+    ]
+  },
+  "developer_impact": {
+    "de": [
+      "Slice-Public-Entries Pflicht",
+      "project-rules / CI blockt neue Deep-Imports",
+      "Issues #243–#250 / PRs #251–#259"
+    ],
+    "en": [
+      "Slice public entries required",
+      "project-rules / CI blocks new deep imports",
+      "Issues #243–#250 / PRs #251–#259"
+    ]
+  },
+  "security_relevant": false,
+  "git": {
+    "base": "dc16f5dc",
+    "head": "1d130a00",
+    "branch": "main",
+    "pull_request": "https://github.com/iamthamanic/visudev-app/pull/251"
+  },
+  "affected_features": [
+    "projects",
+    "appflow",
+    "blueprint-views",
+    "data-erd",
+    "logs",
+    "settings-connections"
+  ],
+  "affected_components": [
+    "src/modules",
+    ".qa/architecture",
+    "scripts/checks/project-rules.sh"
+  ],
+  "evidence": [
+    {
+      "kind": "compare",
+      "path": "dc16f5dc...1d130a00",
+      "url": "https://github.com/iamthamanic/visudev-app/compare/dc16f5dc...1d130a00"
+    },
+    {
+      "kind": "commit",
+      "path": "1d130a00",
+      "sha": "1d130a00",
+      "url": "https://github.com/iamthamanic/visudev-app/commit/1d130a00"
+    },
+    {
+      "kind": "pr",
+      "path": "https://github.com/iamthamanic/visudev-app/pull/251",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/251"
+    },
+    {
+      "kind": "file",
+      "path": "src/modules",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/1d130a00/src/modules"
+    },
+    {
+      "kind": "file",
+      "path": ".qa/architecture",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/1d130a00/.qa/architecture"
+    },
+    {
+      "kind": "file",
+      "path": "scripts/checks/project-rules.sh",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/1d130a00/scripts/checks/project-rules.sh"
+    },
+    {
+      "kind": "pr",
+      "path": "258",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/258"
+    }
+  ]
+}

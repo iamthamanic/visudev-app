@@ -1,7 +1,10 @@
 {
   "schema_version": 1,
   "status": "recorded",
-  "packages": ["src", "local-engine"],
+  "packages": [
+    "src",
+    "local-engine"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "screenshots": [],
@@ -31,12 +34,24 @@
     "en": "Closes the gap between design targets and what you see in the product."
   },
   "user_impact": {
-    "de": ["Stabilere View-Umschaltung", "Reichere Execution/Atlas/Diagnostics"],
-    "en": ["More stable view switching", "Richer execution/atlas/diagnostics"]
+    "de": [
+      "Stabilere View-Umschaltung",
+      "Reichere Execution/Atlas/Diagnostics"
+    ],
+    "en": [
+      "More stable view switching",
+      "Richer execution/atlas/diagnostics"
+    ]
   },
   "developer_impact": {
-    "de": ["Wave 3 viz parity", "shell runner badge rules"],
-    "en": ["Wave 3 viz parity", "shell runner badge rules"]
+    "de": [
+      "Wave 3 viz parity",
+      "shell runner badge rules"
+    ],
+    "en": [
+      "Wave 3 viz parity",
+      "shell runner badge rules"
+    ]
   },
   "security_relevant": false,
   "git": {
@@ -45,8 +60,13 @@
     "branch": "main",
     "pull_request": "https://github.com/iamthamanic/visudev-app/pull/155"
   },
-  "affected_features": ["blueprint-views"],
-  "affected_components": ["src/modules/blueprint", "src/modules/shell"],
+  "affected_features": [
+    "blueprint-views"
+  ],
+  "affected_components": [
+    "src/modules/blueprint",
+    "src/modules/shell"
+  ],
   "evidence": [
     {
       "kind": "compare",

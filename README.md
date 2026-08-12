@@ -59,6 +59,8 @@ Der Vite-Dev-Server und `npm run preview` laufen fest auf **Port 3005** (`vite.c
 
 ## Recent changes
 
+- **2026-08-12** — Phase 0 Honest Core: Pfad-/Dateinamen-Domänen, Edges, Security-Ehrlichkeit, CI Golden-Set ([CHANGELOG](docs/CHANGELOG.md))
+- **2026-07-22** — Vertical-Slice-Strangler: Product-Slices hinter Public Entries ([CHANGELOG](docs/CHANGELOG.md))
 - **2026-07-19** — Living documentation Bootstrap (`.project-memory/`, Status/Features/Changelog, Memory-Viewer)
 - **2026-07-07** — Local Blueprint: `visudev-blueprint` basePath + Gastmodus; lokale Projekte mit `local_path` (`issue/7-blueprint-local-runner`)
 - **2026-07-07** — `npm run dev` Fast-Start: Vite parallel zu Edge Functions (kein blockierender Health-Wait) (`issue/1-blueprint-engine-core`)

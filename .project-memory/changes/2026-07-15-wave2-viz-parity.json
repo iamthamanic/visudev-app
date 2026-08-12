@@ -21,12 +21,24 @@
     "en": "The UI feels finished and trustworthy, not like a prototype."
   },
   "user_impact": {
-    "de": ["Vollere Blueprint-Views", "Stabilere Darstellung"],
-    "en": ["Richer Blueprint views", "More stable rendering"]
+    "de": [
+      "Vollere Blueprint-Views",
+      "Stabilere Darstellung"
+    ],
+    "en": [
+      "Richer Blueprint views",
+      "More stable rendering"
+    ]
   },
   "developer_impact": {
-    "de": ["Playwright Wave 2/3 gates", "demo enrichment"],
-    "en": ["Playwright Wave 2/3 gates", "demo enrichment"]
+    "de": [
+      "Playwright Wave 2/3 gates",
+      "demo enrichment"
+    ],
+    "en": [
+      "Playwright Wave 2/3 gates",
+      "demo enrichment"
+    ]
   },
   "operational_impact": {
     "de": [],
@@ -38,9 +50,17 @@
     "branch": "main",
     "pull_request": null
   },
-  "packages": ["src", "tests"],
-  "affected_features": ["blueprint-views"],
-  "affected_components": ["src/modules/blueprint", "tests/e2e"],
+  "packages": [
+    "src",
+    "tests"
+  ],
+  "affected_features": [
+    "blueprint-views"
+  ],
+  "affected_components": [
+    "src/modules/blueprint",
+    "tests/e2e"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "security_relevant": false,

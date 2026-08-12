@@ -21,16 +21,34 @@
     "en": "A dead sitemap becomes real product understanding."
   },
   "user_impact": {
-    "de": ["Live-Vorschau in App Flow", "Sitemap und Flow Graph"],
-    "en": ["Live preview in App Flow", "Sitemap and flow graph"]
+    "de": [
+      "Live-Vorschau in App Flow",
+      "Sitemap und Flow Graph"
+    ],
+    "en": [
+      "Live preview in App Flow",
+      "Sitemap and flow graph"
+    ]
   },
   "developer_impact": {
-    "de": ["preview-runner", "visudev-preview Edge Function", "LiveFlowCanvas"],
-    "en": ["preview-runner", "visudev-preview Edge Function", "LiveFlowCanvas"]
+    "de": [
+      "preview-runner",
+      "visudev-preview Edge Function",
+      "LiveFlowCanvas"
+    ],
+    "en": [
+      "preview-runner",
+      "visudev-preview Edge Function",
+      "LiveFlowCanvas"
+    ]
   },
   "operational_impact": {
-    "de": ["Lokaler Runner-Port (z. B. 4000)"],
-    "en": ["Local runner port (e.g. 4000)"]
+    "de": [
+      "Lokaler Runner-Port (z. B. 4000)"
+    ],
+    "en": [
+      "Local runner port (e.g. 4000)"
+    ]
   },
   "git": {
     "base": "f2fff86a",
@@ -38,9 +56,18 @@
     "branch": "main",
     "pull_request": null
   },
-  "packages": ["src", "preview-runner"],
-  "affected_features": ["appflow", "preview-runner"],
-  "affected_components": ["preview-runner", "src/modules/appflow"],
+  "packages": [
+    "src",
+    "preview-runner"
+  ],
+  "affected_features": [
+    "appflow",
+    "preview-runner"
+  ],
+  "affected_components": [
+    "preview-runner",
+    "src/modules/appflow"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "security_relevant": false,

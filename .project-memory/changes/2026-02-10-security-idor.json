@@ -21,16 +21,30 @@
     "en": "Protects user data and enforces cleaner code before deploy."
   },
   "user_impact": {
-    "de": ["Fremde Projekte sind nicht mehr zugreifbar (IDOR-Schutz)"],
-    "en": ["Other users’ projects are no longer accessible (IDOR protection)"]
+    "de": [
+      "Fremde Projekte sind nicht mehr zugreifbar (IDOR-Schutz)"
+    ],
+    "en": [
+      "Other users’ projects are no longer accessible (IDOR protection)"
+    ]
   },
   "developer_impact": {
-    "de": ["requireProjectOwner auf vielen Routes", "npm run checks / AI review"],
-    "en": ["requireProjectOwner on many routes", "npm run checks / AI review"]
+    "de": [
+      "requireProjectOwner auf vielen Routes",
+      "npm run checks / AI review"
+    ],
+    "en": [
+      "requireProjectOwner on many routes",
+      "npm run checks / AI review"
+    ]
   },
   "operational_impact": {
-    "de": ["Pre-Push-Hooks und Review-Scores"],
-    "en": ["Pre-push hooks and review scores"]
+    "de": [
+      "Pre-Push-Hooks und Review-Scores"
+    ],
+    "en": [
+      "Pre-push hooks and review scores"
+    ]
   },
   "git": {
     "base": "856dd23c",
@@ -38,9 +52,18 @@
     "branch": "main",
     "pull_request": null
   },
-  "packages": ["src", "supabase/functions"],
-  "affected_features": ["projects", "settings-connections"],
-  "affected_components": ["visudev-server", "visudev-projects"],
+  "packages": [
+    "src",
+    "supabase/functions"
+  ],
+  "affected_features": [
+    "projects",
+    "settings-connections"
+  ],
+  "affected_components": [
+    "visudev-server",
+    "visudev-projects"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "security_relevant": true,

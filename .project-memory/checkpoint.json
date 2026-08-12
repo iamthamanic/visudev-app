@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "last_processed_commit": "527e2cb2d17cf6826b3d8fbd163b713cee5a1efc",
-  "processed_at": "2026-07-19T08:32:27Z",
-  "mode": "bootstrap"
+  "last_processed_commit": "36fff3da21a385a387c9ba1adcb29ee531884534",
+  "processed_at": "2026-08-12T14:45:00Z",
+  "mode": "incremental"
 }

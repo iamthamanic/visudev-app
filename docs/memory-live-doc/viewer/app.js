@@ -215,8 +215,10 @@
 
   function initMermaid() {
     if (typeof mermaid === "undefined") return;
-    const vars = (state.theme && state.theme.mermaid && state.theme.mermaid.themeVariables) || {};
-    const themeName = (state.theme && state.theme.mermaid && state.theme.mermaid.theme) || "dark";
+    const vars =
+      (state.theme && state.theme.mermaid && state.theme.mermaid.themeVariables) || {};
+    const themeName =
+      (state.theme && state.theme.mermaid && state.theme.mermaid.theme) || "dark";
     mermaid.initialize({
       startOnLoad: false,
       theme: themeName,
@@ -228,17 +230,25 @@
 
   async function boot() {
     try {
-      const [project, features, changes, current, decisions, architecture, archHistory, theme] =
-        await Promise.all([
-          loadJson("./data/project.json"),
-          loadJson("./data/features.json"),
-          loadJson("./data/changes.json"),
-          loadJson("./data/current-state.json"),
-          loadJson("./data/decisions.json").catch(() => ({ decisions: [] })),
-          loadJson("./data/architecture.json").catch(() => ({ mermaid: "" })),
-          loadJson("./data/architecture-history.json").catch(() => ({ versions: [] })),
-          loadJson("./data/theme.json").catch(() => null),
-        ]);
+      const [
+        project,
+        features,
+        changes,
+        current,
+        decisions,
+        architecture,
+        archHistory,
+        theme,
+      ] = await Promise.all([
+        loadJson("./data/project.json"),
+        loadJson("./data/features.json"),
+        loadJson("./data/changes.json"),
+        loadJson("./data/current-state.json"),
+        loadJson("./data/decisions.json").catch(() => ({ decisions: [] })),
+        loadJson("./data/architecture.json").catch(() => ({ mermaid: "" })),
+        loadJson("./data/architecture-history.json").catch(() => ({ versions: [] })),
+        loadJson("./data/theme.json").catch(() => null),
+      ]);
       applyTheme(theme);
       initMermaid();
       state.project = project;
@@ -525,9 +535,7 @@
 
   function repoBaseUrl() {
     const url = (state.project && state.project.repository && state.project.repository.url) || "";
-    return String(url)
-      .replace(/\.git$/i, "")
-      .replace(/\/$/, "");
+    return String(url).replace(/\.git$/i, "").replace(/\/$/, "");
   }
 
   function githubCommitUrl(sha) {
@@ -545,9 +553,7 @@
 
   function githubPathUrl(ref, filePath) {
     const base = repoBaseUrl();
-    const p = String(filePath || "")
-      .replace(/^\.\//, "")
-      .replace(/^\/+/, "");
+    const p = String(filePath || "").replace(/^\.\//, "").replace(/^\/+/, "");
     if (!base || !p) return null;
     const sha =
       ref ||
@@ -732,7 +738,8 @@
       return;
     }
 
-    const selected = versions.find((v) => v.id === state.selectedArchId) || versions[0];
+    const selected =
+      versions.find((v) => v.id === state.selectedArchId) || versions[0];
     state.selectedArchId = selected.id;
     const source = (selected.mermaid || "").trim();
     const title = bi(selected.title) || t("architecture");

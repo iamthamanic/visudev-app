@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "2026-08-12-architecture-update",
+  "date": "2026-08-12",
+  "title": {
+    "de": "Architektur-Stand",
+    "en": "Architecture snapshot"
+  },
+  "summary": {
+    "de": "Automatischer Snapshot von overview.mermaid",
+    "en": "Automatic snapshot of overview.mermaid"
+  },
+  "commit": "36fff3da21a385a387c9ba1adcb29ee531884534",
+  "mermaid": "%% VisuDEV architecture overview (needs-review)\nflowchart TB\n  subgraph ui [Frontend Vite React — product slices]\n    Shell[Shell]\n    Projects[Projects slice]\n    AppFlow[Appflow slice]\n    Blueprint[Blueprint slice]\n    Data[Data slice]\n    Logs[Logs slice]\n    Settings[Settings slice]\n  end\n\n  subgraph analysis [Analysis]\n    LocalEngine[Local Engine]\n    Graph[Software Graph]\n    Domains[Path + filename domains]\n    AC[Access Control Analyzers]\n    Enrich[Blueprint Enrichment]\n  end\n\n  subgraph runtime [Runtime]\n    Preview[Preview Runner]\n    Supabase[Supabase Edge + Auth]\n  end\n\n  Shell --> Projects\n  Shell --> AppFlow\n  Shell --> Blueprint\n  Shell --> Data\n  Shell --> Logs\n  Shell --> Settings\n  Projects --> LocalEngine\n  Projects --> Supabase\n  LocalEngine --> Graph\n  Graph --> Domains\n  Graph --> Enrich\n  Graph --> AC\n  Enrich --> Blueprint\n  AC --> Blueprint\n  Domains --> Blueprint\n  AppFlow --> Preview",
+  "content_hash": "b16851d09a4fee1dc8ed2708e46868c9f13e1f5e0a476e1499c9225a67d160b5",
+  "change_ids": [],
+  "review_status": "needs-review"
+}

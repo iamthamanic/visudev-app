@@ -21,16 +21,30 @@
     "en": "Without login and GitHub there are no real project analyses."
   },
   "user_impact": {
-    "de": ["Anmelden", "GitHub in den Einstellungen verbinden"],
-    "en": ["Sign in", "Connect GitHub in settings"]
+    "de": [
+      "Anmelden",
+      "GitHub in den Einstellungen verbinden"
+    ],
+    "en": [
+      "Sign in",
+      "Connect GitHub in settings"
+    ]
   },
   "developer_impact": {
-    "de": ["Auth-Modul, GitHub secrets docs"],
-    "en": ["Auth module, GitHub secrets docs"]
+    "de": [
+      "Auth-Modul, GitHub secrets docs"
+    ],
+    "en": [
+      "Auth module, GitHub secrets docs"
+    ]
   },
   "operational_impact": {
-    "de": ["Supabase Auth / Edge Secrets nötig"],
-    "en": ["Supabase Auth / Edge secrets required"]
+    "de": [
+      "Supabase Auth / Edge Secrets nötig"
+    ],
+    "en": [
+      "Supabase Auth / Edge secrets required"
+    ]
   },
   "git": {
     "base": "6ae11c0a",
@@ -38,9 +52,18 @@
     "branch": "main",
     "pull_request": null
   },
-  "packages": ["src", "supabase/functions"],
-  "affected_features": ["settings-connections", "projects"],
-  "affected_components": ["src/modules/settings", "AuthGate"],
+  "packages": [
+    "src",
+    "supabase/functions"
+  ],
+  "affected_features": [
+    "settings-connections",
+    "projects"
+  ],
+  "affected_components": [
+    "src/modules/settings",
+    "AuthGate"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "security_relevant": true,

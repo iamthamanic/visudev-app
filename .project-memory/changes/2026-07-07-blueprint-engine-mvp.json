@@ -21,16 +21,32 @@
     "en": "VisuDEV grows from a screen tool into an architecture/security X-ray."
   },
   "user_impact": {
-    "de": ["Blueprint-Workspace", "Lokale Projekte analysieren"],
-    "en": ["Blueprint workspace", "Analyze local projects"]
+    "de": [
+      "Blueprint-Workspace",
+      "Lokale Projekte analysieren"
+    ],
+    "en": [
+      "Blueprint workspace",
+      "Analyze local projects"
+    ]
   },
   "developer_impact": {
-    "de": ["visudev-analyzer blueprint", "local runner"],
-    "en": ["visudev-analyzer blueprint", "local runner"]
+    "de": [
+      "visudev-analyzer blueprint",
+      "local runner"
+    ],
+    "en": [
+      "visudev-analyzer blueprint",
+      "local runner"
+    ]
   },
   "operational_impact": {
-    "de": ["npm run dev startet lokales Supabase + Runner"],
-    "en": ["npm run dev starts local Supabase + runner"]
+    "de": [
+      "npm run dev startet lokales Supabase + Runner"
+    ],
+    "en": [
+      "npm run dev starts local Supabase + runner"
+    ]
   },
   "git": {
     "base": "",
@@ -38,9 +54,19 @@
     "branch": "main",
     "pull_request": "https://github.com/iamthamanic/visudev-app/pull/8"
   },
-  "packages": ["src", "local-engine", "shared"],
-  "affected_features": ["blueprint-views", "local-engine"],
-  "affected_components": ["src/modules/blueprint", "local-engine"],
+  "packages": [
+    "src",
+    "local-engine",
+    "shared"
+  ],
+  "affected_features": [
+    "blueprint-views",
+    "local-engine"
+  ],
+  "affected_components": [
+    "src/modules/blueprint",
+    "local-engine"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "security_relevant": true,

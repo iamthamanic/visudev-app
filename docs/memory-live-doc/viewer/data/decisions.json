@@ -13,7 +13,9 @@
         "en": "Blueprint asks abstractly about AuthN/AuthZ/Scope/Tenant/Ownership — not RLS. DB adapters (Postgres, MariaDB, MongoDB, …) supply mechanisms and evidence for the inspector. MariaDB without RLS is not an automatic failure."
       },
       "status": "accepted",
-      "related_features": ["blueprint-access-control"],
+      "related_features": [
+        "blueprint-access-control"
+      ],
       "evidence": [
         {
           "kind": "file",
