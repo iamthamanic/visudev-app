@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "status": "recorded",
+  "packages": [
+    "local-engine",
+    "preview-runner"
+  ],
+  "breaking_changes": [],
+  "migration_required": false,
+  "screenshots": [],
+  "confidence": 0.7,
+  "review_status": "needs-review",
+  "operational_impact": {
+    "de": [
+      "Crawl-Proxy in der Local Engine für Runtime-Screenshots."
+    ],
+    "en": [
+      "Crawl proxy in Local Engine for runtime screenshots."
+    ]
+  },
+  "id": "2026-07-08-runtime-screenshots",
+  "date": "2026-07-08",
+  "type": "feature",
+  "title": {
+    "de": "Runtime-Screenshots über Engine-Crawl",
+    "en": "Runtime screenshots via engine crawl"
+  },
+  "summary": {
+    "de": "Local Engine crawlt die laufende Preview und liefert echte Screen-Bilder statt Platzhalter.",
+    "en": "Local Engine crawls the running preview and supplies real screen images instead of placeholders."
+  },
+  "plain_language": {
+    "de": "VisuDEV fotografiert die laufende App, damit Karten echte Bildschirme zeigen — nicht nur Kästen.",
+    "en": "VisuDEV photographs the running app so maps show real screens — not just boxes."
+  },
+  "why_it_matters": {
+    "de": "Ohne Bilder bleibt App Flow abstrakt.",
+    "en": "Without images App Flow stays abstract."
+  },
+  "user_impact": {
+    "de": [
+      "Echte Screenshots in Flows/Karten"
+    ],
+    "en": [
+      "Real screenshots in flows/maps"
+    ]
+  },
+  "developer_impact": {
+    "de": [
+      "Engine crawl proxy (#28)"
+    ],
+    "en": [
+      "Engine crawl proxy (#28)"
+    ]
+  },
+  "security_relevant": true,
+  "git": {
+    "base": "604cd864",
+    "head": "604cd864",
+    "branch": "main",
+    "pull_request": "https://github.com/iamthamanic/visudev-app/pull/28"
+  },
+  "affected_features": [
+    "preview-runner",
+    "appflow",
+    "local-engine"
+  ],
+  "affected_components": [
+    "local-engine",
+    "preview-runner"
+  ],
+  "evidence": [
+    {
+      "kind": "commit",
+      "path": "604cd864",
+      "sha": "604cd864",
+      "url": "https://github.com/iamthamanic/visudev-app/commit/604cd864"
+    },
+    {
+      "kind": "pr",
+      "path": "https://github.com/iamthamanic/visudev-app/pull/28",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/28"
+    },
+    {
+      "kind": "file",
+      "path": "local-engine",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/604cd864/local-engine"
+    },
+    {
+      "kind": "file",
+      "path": "preview-runner",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/604cd864/preview-runner"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "status": "recorded",
+  "packages": [],
+  "breaking_changes": [],
+  "migration_required": false,
+  "screenshots": [],
+  "confidence": 0.85,
+  "review_status": "needs-review",
+  "operational_impact": {
+    "de": [
+      "GitHub Pages: branch main, Pfad /docs."
+    ],
+    "en": [
+      "GitHub Pages: branch main, path /docs."
+    ]
+  },
+  "id": "2026-08-12-memory-pages",
+  "date": "2026-08-12",
+  "type": "feature",
+  "title": {
+    "de": "Living Memory auf GitHub Pages",
+    "en": "Living memory on GitHub Pages"
+  },
+  "summary": {
+    "de": "Repo public; Pages auf main+/docs. Viewer unter /memory-live-doc/viewer/ mit Timeline, Features, Decisions, Architecture.",
+    "en": "Repo public; Pages on main+/docs. Viewer at /memory-live-doc/viewer/ with timeline, features, decisions, architecture."
+  },
+  "plain_language": {
+    "de": "Die Projektchronik ist im Browser lesbar — nicht nur als Dateien im Repo.",
+    "en": "The project chronicle is readable in the browser — not only as files in the repo."
+  },
+  "why_it_matters": {
+    "de": "Ohne öffentliche Seite bleibt die Dokumentation unsichtbar.",
+    "en": "Without a public page the documentation stays invisible."
+  },
+  "user_impact": {
+    "de": [
+      "Öffentlicher Memory-Viewer"
+    ],
+    "en": [
+      "Public memory viewer"
+    ]
+  },
+  "developer_impact": {
+    "de": [
+      "@memory-live-doc apply + export-viewer-snapshot"
+    ],
+    "en": [
+      "@memory-live-doc apply + export-viewer-snapshot"
+    ]
+  },
+  "security_relevant": false,
+  "git": {
+    "base": "36fff3da",
+    "head": "26a5b448",
+    "branch": "main",
+    "pull_request": "https://github.com/iamthamanic/visudev-app/pull/284"
+  },
+  "affected_features": [],
+  "affected_components": [
+    "docs/memory-live-doc/viewer",
+    ".project-memory/config.json"
+  ],
+  "evidence": [
+    {
+      "kind": "compare",
+      "path": "36fff3da...26a5b448",
+      "url": "https://github.com/iamthamanic/visudev-app/compare/36fff3da...26a5b448"
+    },
+    {
+      "kind": "commit",
+      "path": "26a5b448",
+      "sha": "26a5b448",
+      "url": "https://github.com/iamthamanic/visudev-app/commit/26a5b448"
+    },
+    {
+      "kind": "pr",
+      "path": "https://github.com/iamthamanic/visudev-app/pull/284",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/284"
+    },
+    {
+      "kind": "file",
+      "path": "docs/memory-live-doc/viewer",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/26a5b448/docs/memory-live-doc/viewer"
+    },
+    {
+      "kind": "file",
+      "path": ".project-memory/config.json",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b448/.project-memory/config.json"
+    },
+    {
+      "kind": "file",
+      "path": "docs/memory-live-doc/viewer",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/docs/memory-live-doc/viewer"
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "analyzed_at": "2026-08-12T20:09:27Z",
+  "head": "26a5b44823f9f053cc5924fc8e0e8d36508e5ace",
+  "first_commit": {
+    "sha": "26a5b44823f9f053cc5924fc8e0e8d36508e5ace",
+    "date": "2026-08-12",
+    "subject": "docs(memory): mark GitHub Pages viewer active after public enable. (#284)"
+  },
+  "commit_count": 276,
+  "monthly_counts": {
+    "2026-01": 4,
+    "2026-02": 85,
+    "2026-03": 15,
+    "2026-07": 157,
+    "2026-08": 15
+  },
+  "milestone_candidates": [
+    {
+      "date": "2026-02-03",
+      "kind": "fix",
+      "title": "fix: remove hardcoded colors in CSS (use vars from globals.css)",
+      "sha": "56bf31d0c83a8f29244353388d9a970a954580ed",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-02-03",
+      "kind": "fix",
+      "title": "fix: hooks before early return (AppFlowPage), remove unused vars (LogsPage)",
+      "sha": "b5b850412dabb59f2969b0178ffd147366dd3d75",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-02-03",
+      "kind": "fix",
+      "title": "fix: Prettier + githubAuth disconnect type (fix parser >>)",
+      "sha": "1e4898c1d33c565abbc84ef004edc93ac7d748e7",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-02-03",
+      "kind": "feat",
+      "title": "feat: Auth (AuthGate, AuthContext, GitHub), modules polish, GitHub secrets docs",
+      "sha": "6ae11c0a28080373646bb82e6bc8d40bcc502e1d",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-03-01",
+      "kind": "fix",
+      "title": "fix: pre-push no silent fails; document no-upstream case",
+      "sha": "c1885b2b933e0e10ac59f2df58cb0106e017a5a6",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-03-01",
+      "kind": "fix",
+      "title": "fix: enforce single commit at push (pre-push hook)",
+      "sha": "2112c141d77474f363c85d7468f7ba37d3ca4299",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-03-01",
+      "kind": "fix",
+      "title": "fix: address AI review deductions (Edge Cases + Kommentar-Qualität)",
+      "sha": "c1a1d17639737be63bfa8426cfcee71800dda30c",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-03-01",
+      "kind": "fix",
+      "title": "fix(AI review): IDOR/rate-limit docs, storage side-effect JSDoc, screen path dedup",
+      "sha": "9bcf62e24336f3018afa9f1071dcfb6a6cacfc7a",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-07-07",
+      "kind": "feat",
+      "title": "feat: LLM settings, AppFlow graph, logs-runner; integrate blueprint local runner",
+      "sha": "3c278731114965dae0ed1fdc87ef2251b2f5c76f",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-07-07",
+      "kind": "feat",
+      "title": "feat(blueprint): local runner, guest mode, and visudev-blueprint basePath (#9)",
+      "sha": "291e733f44428f861b93248a6f9baa3292c82d3a",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-07-08",
+      "kind": "feat",
+      "title": "feat(local): Supabase ↔ local project migration (#29)",
+      "sha": "2597ff757b2a3090affac3d1b29574a9db3b0cec",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-07-08",
+      "kind": "feat",
+      "title": "feat(local): runtime screenshots via Engine crawl proxy (#28)",
+      "sha": "604cd86407b1154bcd4bb658c8c39c4f2cf4502d",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-08-12",
+      "kind": "bootstrap",
+      "title": "docs(memory): mark GitHub Pages viewer active after public enable. (#284)",
+      "sha": "26a5b44823f9f053cc5924fc8e0e8d36508e5ace",
+      "score": 100,
+      "files_hint": []
+    },
+    {
+      "date": "2026-08-12",
+      "kind": "fix",
+      "title": "fix: relativize AST samples and diversify Softort path catalogs. (#279)",
+      "sha": "b32f78bb1476a47f6461aeb7765ae25fb0d89827",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-08-12",
+      "kind": "fix",
+      "title": "fix(security): jail blueprint walk against fixture symlink escape (#274)",
+      "sha": "70b7845296359139938b8cea4dee6b5e79c5e04d",
+      "score": 80,
+      "files_hint": []
+    },
+    {
+      "date": "2026-08-12",
+      "kind": "high-churn",
+      "title": "docs(memory): catch up Phase 0 + slice strangler since July checkpoint. (#282)",
+      "sha": "69374c839971cb3a5e1d89b48a3ba3ef765d0aef",
+      "score": 65,
+      "files_hint": [
+        ".project-memory/architecture/history/2026-08-12-architecture-update.json",
+        ".project-memory/architecture/overview.mermaid",
+        ".project-memory/changes/2026-01-26-figma-make-bootstrap.json",
+        ".project-memory/changes/2026-02-03-auth-github.json",
+        ".project-memory/changes/2026-02-04-live-app-preview.json",
+        ".project-memory/changes/2026-02-10-security-idor.json",
+        ".project-memory/changes/2026-03-01-runner-analyzer-polish.json",
+        ".project-memory/changes/2026-07-07-blueprint-engine-mvp.json",
+        ".project-memory/changes/2026-07-08-local-first-graph.json",
+        ".project-memory/changes/2026-07-14-blueprint-multiview.json",
+        ".project-memory/changes/2026-07-14-blueprint-shell-rebuild.json",
+        ".project-memory/changes/2026-07-15-wave2-viz-parity.json"
+      ]
+    }
+  ],
+  "suggested_architecture_dates": [
+    "2026-01-15",
+    "2026-02-15",
+    "2026-03-15",
+    "2026-07-15",
+    "2026-08-01",
+    "2026-08-15"
+  ],
+  "agent_instructions": "Cluster candidates into 8–20 bilingual change events spanning first_commit→HEAD. Do not invent runtime behavior; use commit messages + paths as evidence. Create architecture/history snapshots at major eras. Mark needs-review. Set config.history_coverage.status=complete after apply."
+}

@@ -1,5 +1,11 @@
 # Changelog (Memory)
 
+## 2026-08-12 — Memory-Viewer auf Pages + Status/Decisions nachgezogen
+
+**Typ:** feature · **Review:** needs-review
+
+GitHub Pages aktiv. Status-Tab hat „Kürzlich erledigt“. Decisions aus Design-Docs (Local-First, Graph-IR, Blueprint v2, Slices, Domänen-Pässe, ehrlicher Analyzer).
+
 ## 2026-08-12 — Phase 0 Honest Core
 
 **Typ:** feature · **Review:** needs-review

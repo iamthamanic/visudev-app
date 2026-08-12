@@ -29,7 +29,9 @@
     "2026-07-16-softort-analyzer-honesty",
     "2026-07-16-wave5-view-polish",
     "2026-07-17-meteor-mongo-extractors",
-    "2026-07-17-infra-postgres-redis"
+    "2026-07-17-infra-postgres-redis",
+    "2026-07-14-atlas-2d-3d",
+    "2026-08-12-phase0-honest-core"
   ],
   "review_status": "needs-review",
   "confidence": 0.7,

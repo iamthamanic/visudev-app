@@ -1,0 +1,31 @@
+{
+  "id": "pluggable-blueprint-enrichment",
+  "date": "2026-07-07",
+  "title": {
+    "de": "Pluggable Analyzer + VisuDEV-Enrichment",
+    "en": "Pluggable analyzer + VisuDEV enrichment"
+  },
+  "summary": {
+    "de": "Scanner liefern Rohdaten; VisuDEV normalisiert Routen, Security-Matrix und Findings. AutoGuide ist Adapter, nicht die UI-Wahrheit. Legacy-Runner bleibt Default bis Swap.",
+    "en": "Scanners supply raw data; VisuDEV normalizes routes, security matrix, and findings. AutoGuide is an adapter, not UI truth. Legacy runner stays default until swapped."
+  },
+  "status": "accepted",
+  "related_features": ["local-engine", "blueprint-views"],
+  "evidence": [
+    {
+      "kind": "file",
+      "path": ".qa/design/blueprint-engine-pluggable.md",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/design/blueprint-engine-pluggable.md"
+    }
+  ],
+  "review_status": "needs-review",
+  "confidence": 0.75,
+  "plain_language": {
+    "de": "Verschiedene Scanner dürfen zuliefern. Was du in Blueprint siehst, formt VisuDEV selbst — einheitlich.",
+    "en": "Different scanners may feed in. What you see in Blueprint is shaped by VisuDEV — consistently."
+  },
+  "why_it_matters": {
+    "de": "Scanner tauschen ohne die ganze UI umzubauen.",
+    "en": "Scanners can be swapped without rebuilding the whole UI."
+  }
+}

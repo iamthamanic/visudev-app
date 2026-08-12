@@ -1,27 +1,34 @@
 # Project status (VisuDEV)
 
-> Generated from `.project-memory/` — claims: **needs-review**. As of: 2026-08-12 (`36fff3da`).
+> Generated from `.project-memory/` — claims: **needs-review**. As of: 2026-08-12 (`26a5b448`).
 
 ## Summary
 
-VisuDEV visualizes deterministic flows from UI through code/API to database and security. Frontend behind product-slice public entries; Phase 0 honest core delivers path and filename domains, honest edges/security, and a CI golden set against the real analyzer.
+VisuDEV is a local architecture X-ray: projects, App Flow, Blueprint (7 views + Software Graph), Data/ERD, Logs, Settings. Phase 0 honest core and vertical slices are merged. Living memory runs on GitHub Pages.
 
 ## Current focus
 
 - Review memory claims (`needs-review`)
 - Capture Architecture banner screenshot
-- Next phase / gapclose (Phase 0 queue empty)
+- Next phase after empty Phase 0 queue
 
-## Known gaps
+## Recently completed
 
-- Screenshot for `domainSource` banner missing
-- Many memory entries still needs-review
-- Data scan: primarily PostgreSQL/SQLite
+- GitHub Pages for the memory viewer
+- P0-14 filename + path domains
+- Vertical-slice strangler
+- Stack-agnostic access control
+
+## Incomplete
+
+- Logs documentation thin
+- Data scan primarily PostgreSQL/SQLite
+- domainSource banner screenshot missing
 
 ## Architecture
 
-See [`.project-memory/architecture/overview.mermaid`](../../.project-memory/architecture/overview.mermaid).
+See [`.project-memory/architecture/overview.mermaid`](../../.project-memory/architecture/overview.mermaid) and [Decisions](DECISIONS.md).
 
 ## Next step
 
-Review `.project-memory/` claims and add missing screenshots under `docs/memory-live-doc/assets/2026-08-12-phase0-honest-core/`.
+Review claims; add screenshot under `docs/memory-live-doc/assets/2026-08-12-phase0-honest-core/`.

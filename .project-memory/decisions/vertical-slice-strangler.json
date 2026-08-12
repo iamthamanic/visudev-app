@@ -1,0 +1,31 @@
+{
+  "id": "vertical-slice-strangler",
+  "date": "2026-07-22",
+  "title": {
+    "de": "Strangler zu Product-Slices, kein Big-Bang-Rename",
+    "en": "Strangler to product slices, no big-bang rename"
+  },
+  "summary": {
+    "de": "Jede Capability hinter public index.ts. Kein src/slices-Rename, kein Package-Split, kein Hybrid-Ausbau. Boundary-Check in CI. Pilot logs, Blueprint zuletzt.",
+    "en": "Each capability behind a public index.ts. No src/slices rename, no package split, no hybrid expansion. Boundary check in CI. Logs pilot, Blueprint last."
+  },
+  "status": "accepted",
+  "related_features": ["projects", "appflow", "blueprint-views", "data-erd", "logs", "settings-connections"],
+  "evidence": [
+    {
+      "kind": "file",
+      "path": ".qa/design/vertical-slice-strangler.md",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/design/vertical-slice-strangler.md"
+    }
+  ],
+  "review_status": "needs-review",
+  "confidence": 0.8,
+  "plain_language": {
+    "de": "Der Code wird bereichsweise hinter klare Türen gezogen — ohne alles auf einmal umzubenennen.",
+    "en": "Code is pulled behind clear doors area by area — without renaming everything at once."
+  },
+  "why_it_matters": {
+    "de": "Kleine PRs, weniger Merge-Chaos, CI verhindert neue Wild-Imports.",
+    "en": "Small PRs, less merge chaos, CI blocks new wild imports."
+  }
+}

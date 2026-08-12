@@ -1,5 +1,11 @@
 # Changelog (Memory)
 
+## 2026-08-12 — Memory viewer on Pages + status/decisions filled
+
+**Type:** feature · **Review:** needs-review
+
+GitHub Pages active. Status tab has “Recently completed”. Decisions from design docs (local-first, graph IR, Blueprint v2, slices, domain passes, honest analyzer).
+
 ## 2026-08-12 — Phase 0 honest core
 
 **Type:** feature · **Review:** needs-review
