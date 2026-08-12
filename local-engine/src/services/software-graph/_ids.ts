@@ -41,3 +41,25 @@ export function stableUniqueId(
   set.add(candidate);
   return candidate;
 }
+
+/**
+ * Registers a deterministic id that must not be renamed on collision.
+ * Returns true when the id was newly registered.
+ */
+export function registerKnownId(
+  registry: IdRegistry,
+  kind: "node" | "edge" | "scope" | "evidence",
+  id: string,
+): boolean {
+  const set =
+    kind === "node"
+      ? registry.nodes
+      : kind === "edge"
+        ? registry.edges
+        : kind === "scope"
+          ? registry.scopes
+          : registry.evidence;
+  if (set.has(id)) return false;
+  set.add(id);
+  return true;
+}

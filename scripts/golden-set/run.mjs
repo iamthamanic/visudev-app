@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { analyzeLocalBlueprint } from "../../preview-runner/lib/blueprint-local.js";
 
-const METRIC_NAMES = ["nodes", "edges", "routes", "tables", "files"];
+const METRIC_NAMES = ["nodes", "edges", "routes", "tables", "files", "duplicateNodeIds"];
 const fixturePath = fileURLToPath(new URL("../../tests/fixtures/golden-repo/", import.meta.url));
 const expectedMetricsPath = new URL(
   "../../tests/fixtures/golden-repo/expected-metrics.json",
@@ -19,6 +19,7 @@ function collectMetrics(result) {
     routes: Array.isArray(result.blueprint.routes) ? result.blueprint.routes.length : 0,
     tables: nodes.filter((node) => node.kind === "table").length,
     files: Number.isInteger(result.blueprint.filesAnalyzed) ? result.blueprint.filesAnalyzed : 0,
+    duplicateNodeIds: nodes.filter((node) => node.id.includes("~")).length,
   };
 }
 
@@ -41,9 +42,15 @@ if (reportOnly) {
 const expected = JSON.parse(await readFile(expectedMetricsPath, "utf8"));
 const failures = METRIC_NAMES.flatMap((name) => {
   const minimum = expected[name]?.min;
-  return Number.isInteger(minimum) && measured[name] >= minimum
-    ? []
-    : [`golden-set: ${name} ${measured[name]} < min ${minimum}`];
+  const maximum = expected[name]?.max;
+  return [
+    ...(Number.isInteger(minimum) && measured[name] < minimum
+      ? [`golden-set: ${name} ${measured[name]} < min ${minimum}`]
+      : []),
+    ...(Number.isInteger(maximum) && measured[name] > maximum
+      ? [`golden-set: ${name} ${measured[name]} > max ${maximum}`]
+      : []),
+  ];
 });
 
 if (failures.length > 0) {
