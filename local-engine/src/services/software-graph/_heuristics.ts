@@ -9,7 +9,7 @@ export function normalizePath(filePath: string): string {
   return filePath.replace(/^\/+/, "");
 }
 
-export type DomainSource = "path" | "none";
+export type DomainSource = "path" | "filename" | "none";
 
 export interface DomainDetection {
   domain: string;
@@ -188,6 +188,16 @@ export function detectLayer(filePath: string): string {
     }
   }
 
+  // Rails / Nest structural folders before the broad Next.js `app/` rule —
+  // otherwise `app/models/*` is misclassified as presentation (blocks P0-14).
+  if (/\/(models|migrations|repositories|infra|database|db)\//.test(normalized)) {
+    return "data";
+  }
+  if (/\/(controllers|serializers|viewsets|views|pages|screens)\//.test(normalized)) {
+    return "presentation";
+  }
+  if (/\/(services|use-cases|application)\//.test(normalized)) return "application";
+
   // Next.js App Router + API routes
   if (/(?:^|\/)app\/api\//.test(normalized) || /(?:^|\/)pages\/api\//.test(normalized)) {
     return "presentation";
@@ -196,11 +206,10 @@ export function detectLayer(filePath: string): string {
     return "presentation";
   }
 
-  if (/\/(pages|routes|screens|views)\//.test(normalized)) return "presentation";
+  if (/\/(routes)\//.test(normalized)) return "presentation";
   if (/\/(components|ui|modules)\//.test(normalized)) return "ui";
   if (/\/(hooks|composables)\//.test(normalized)) return "hooks";
-  if (/\/(services|use-cases|application|server)\//.test(normalized)) return "application";
-  if (/\/(repositories|infra|database|db)\//.test(normalized)) return "data";
+  if (/\/(server)\//.test(normalized)) return "application";
   if (/\/(lib|utils|shared|common|helpers)\//.test(normalized)) return "shared";
   if (/\/(config|types)\//.test(normalized)) return "config";
   return "unknown";

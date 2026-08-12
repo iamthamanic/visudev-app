@@ -23,6 +23,7 @@ import { addRouteNodes } from "./software-graph/_route-nodes.js";
 import { buildRuntimeGroups, dropDanglingEdges } from "./software-graph/_runtime-groups.js";
 import { createApplicationScope, createOrganizationScope } from "./software-graph/_scopes.js";
 import { buildSegmentSpreadIndex } from "./software-graph/_segment-spread.js";
+import { applyFilenameDomains } from "./software-graph/_domain-from-filename.js";
 import {
   addEdge,
   addNode,
@@ -110,6 +111,9 @@ export function buildSoftwareGraph(scan: RawBlueprintScan): SoftwareGraph {
   }
 
   for (const fact of otherFacts) ingestFact(fact);
+
+  // P0-14 Pass 2: filename stems for layer-first files still on unassigned/none.
+  applyFilenameDomains(state, projectId);
 
   const runtimeNodeId = stableUniqueId(state.registry, "node", `runtime:${projectId}`);
   const runtimes = [

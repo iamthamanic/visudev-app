@@ -29,6 +29,16 @@
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 45%, transparent);
 }
 
+.domainSourceHint {
+  margin: var(--space-sm) var(--space-md) 0;
+  padding: 0.65rem 0.85rem;
+  border-left: 3px solid var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-background));
+  color: var(--color-muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
 .controlsColumn {
   display: flex;
   flex-direction: column;
