@@ -5,7 +5,11 @@
 import { Check } from "lucide-react";
 import type { SoftwareGraphSnapshot } from "../../types";
 import { ViewSectionTitle } from "../ui/ViewSectionTitle.js";
-import { displayText, formatSnapshotDate } from "./evolution-display.js";
+import {
+  formatSnapshotDate,
+  formatSnapshotOrigin,
+  snapshotOriginHelp,
+} from "./evolution-display.js";
 import styles from "../../styles/EvolutionView.module.css";
 
 interface EvolutionSnapshotCardsProps {
@@ -55,6 +59,7 @@ export function EvolutionSnapshotCards({
           {snapshots.map((snapshot, index) => {
             const isTarget = snapshot.id === targetSnapshotId;
             const isBase = snapshot.id === baseSnapshotId;
+            const originLabel = formatSnapshotOrigin(snapshot);
             return (
               <li key={snapshot.id}>
                 <button
@@ -66,7 +71,9 @@ export function EvolutionSnapshotCards({
                 >
                   <SnapshotThumb seed={index * 13 + snapshot.nodeIds.length} />
                   <span className={styles.snapshotCardHeader}>
-                    <span className={styles.snapshotLabel}>{displayText(snapshot.label)}</span>
+                    <span className={styles.snapshotLabel} title={snapshotOriginHelp(snapshot)}>
+                      {originLabel}
+                    </span>
                     {isTarget ? (
                       <Check className={styles.snapshotCheck} aria-hidden="true" />
                     ) : null}

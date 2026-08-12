@@ -9,7 +9,12 @@ import type {
   SoftwareGraphSnapshot,
 } from "../../types";
 import { InspectorPanel } from "../ui/InspectorPanel.js";
-import { displayText, formatCommitSha, formatSnapshotDate } from "./evolution-display.js";
+import {
+  displayText,
+  formatCommitSha,
+  formatSnapshotDate,
+  formatSnapshotOrigin,
+} from "./evolution-display.js";
 import styles from "../../styles/EvolutionView.module.css";
 
 interface EvolutionInspectorProps {
@@ -41,7 +46,7 @@ export function EvolutionInspector({
   return (
     <div data-testid="evolution-inspector">
       <InspectorPanel
-        title={displayText(targetSnapshot.label)}
+        title={formatSnapshotOrigin(targetSnapshot)}
         subtitle={formatSnapshotDate(targetSnapshot.capturedAt)}
         sections={[
           {

@@ -34,6 +34,36 @@ describe("normalizeSoftwareGraph", () => {
     expect(graph?.edges).toHaveLength(0);
   });
 
+  it("preserves snapshot analysis origin metadata", () => {
+    const graph = normalizeSoftwareGraph({
+      version: 1,
+      projectId: "p1",
+      analyzedAt: "2026-01-01T00:00:00.000Z",
+      nodes: [{ id: "n1", kind: "service", label: "API", metadata: {} }],
+      edges: [],
+      snapshots: [
+        {
+          id: "snapshot:abc1234:2026-01-01T00:00:00.000Z",
+          label: "Commit abc1234 · Branch main",
+          ref: "abc1234",
+          capturedAt: "2026-01-01T00:00:00.000Z",
+          nodeIds: ["n1"],
+          commitSha: "abc1234",
+          branch: "main",
+          sourceKind: "git",
+          dirty: true,
+        },
+      ],
+    });
+
+    expect(graph?.snapshots?.[0]).toMatchObject({
+      commitSha: "abc1234",
+      branch: "main",
+      sourceKind: "git",
+      dirty: true,
+    });
+  });
+
   it("keeps edges only when both endpoints exist", () => {
     const graph = normalizeSoftwareGraph({
       version: 1,

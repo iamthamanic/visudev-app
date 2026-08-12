@@ -83,4 +83,44 @@ describe("EvolutionView", () => {
     expect(screen.getByText("Evolutions-Metriken")).toBeInTheDocument();
     expect(screen.getAllByText("scan-1").length).toBeGreaterThan(0);
   });
+
+  it("explains the first capture and shows dirty Git provenance", () => {
+    const graph = graphWithSnapshots.graph;
+    if (!graph) throw new Error("Evolution fixture requires a graph");
+    const blueprint: BlueprintData = {
+      ...graphWithSnapshots,
+      graph: {
+        ...graph,
+        snapshots: [
+          {
+            id: "snapshot:abc12345:2026-01-01T00:00:00.000Z",
+            label: "legacy-label",
+            ref: "abc12345",
+            capturedAt: "2026-01-01T00:00:00.000Z",
+            nodeIds: ["a"],
+            commitSha: "abc12345",
+            branch: "main",
+            sourceKind: "git",
+            dirty: true,
+          },
+        ],
+      },
+    };
+
+    render(<EvolutionView blueprint={blueprint} />);
+
+    expect(
+      screen.getByText(
+        "Nur ein Zeitpunkt vorhanden. Für einen Vergleich braucht VisuDEV mindestens zwei Analysen. Scanne das Projekt später erneut, dann erscheint hier, was sich verändert hat.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText("Commit abc12345 · Branch main · ungespeicherte Änderungen").length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getByTitle(
+        "Du hast Dateien geändert, aber noch nicht in Git gespeichert. Diese Analyse zeigt deinen aktuellen Stand, nicht den letzten Commit.",
+      ),
+    ).toBeInTheDocument();
+  });
 });

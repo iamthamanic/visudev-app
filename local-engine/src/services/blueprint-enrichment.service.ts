@@ -65,8 +65,6 @@ export function enrichBlueprint(scan: RawBlueprintScan): BlueprintDocument {
     version: 1,
     projectId: scan.projectId,
     repo: scan.localPath,
-    branch: "local",
-    commitSha: "local",
     analyzedAt: scan.analyzedAt,
     projectProfile: DEFAULT_PROFILE,
     routes,

@@ -4,11 +4,12 @@
  */
 
 import { spawn } from "node:child_process";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveValidatedLocalPath } from "./local-path-security.js";
+import { readLocalAnalysisOrigin } from "./analysis-origin-git.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "../..");
@@ -394,10 +395,6 @@ function collectFileEntries(workspaceRoot) {
   return entries;
 }
 
-function localCommitSha(localPath) {
-  return createHash("sha256").update(localPath).digest("hex").slice(0, 12);
-}
-
 function runDenoAnalyze(payload) {
   const serialized = JSON.stringify(payload);
   if (Buffer.byteLength(serialized, "utf8") > MAX_STDIN_BYTES) {
@@ -509,12 +506,14 @@ export async function analyzeLocalBlueprint(input) {
 
     const localPath = validated.path;
     const projectId = input.projectId;
+    // Provenance git subprocesses inherit this handler's MAX_CONCURRENT_ANALYZE gate.
+    const analysisOrigin = await readLocalAnalysisOrigin(localPath);
 
     const result = await runDenoAnalyze({
       projectId,
       localPath,
       repo: `local:${localPath}`,
-      branch: "local",
+      branch: analysisOrigin.branch,
       files,
       fileLimit: FILE_LIMIT,
     });
@@ -523,9 +522,20 @@ export async function analyzeLocalBlueprint(input) {
       throw new Error("Blueprint CLI returned no blueprint");
     }
 
-    result.blueprint.commitSha = localCommitSha(localPath);
+    if (analysisOrigin.commitSha) {
+      result.blueprint.commitSha = analysisOrigin.commitSha;
+    } else {
+      delete result.blueprint.commitSha;
+    }
+    if (analysisOrigin.branch) {
+      result.blueprint.branch = analysisOrigin.branch;
+    } else {
+      delete result.blueprint.branch;
+    }
+    result.blueprint.analysisOrigin = analysisOrigin;
     return {
       blueprint: result.blueprint,
+      origin: analysisOrigin,
       analysisId: result.analysisId ?? randomUUID(),
       filesAnalyzed: files.length,
       workspaceRoot,

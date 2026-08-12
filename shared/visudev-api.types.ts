@@ -3,6 +3,8 @@
  * Location: shared/visudev-api.types.ts
  */
 
+import type { AnalysisOrigin } from "./software-graph.types.js";
+
 export type VisuDevMode = "local" | "supabase" | "hybrid";
 
 export type ApiSuccess<T> = {
@@ -165,6 +167,8 @@ export type RawBlueprintScan = {
   routes: RawBlueprintRoute[];
   facts: RawBlueprintFact[];
   filesAnalyzed: number;
+  /** Captured at scan time by the provider; avoids re-reading git after analysis. */
+  analysisOrigin?: AnalysisOrigin;
   providerMetadata?: Record<string, unknown>;
 };
 

@@ -16,12 +16,19 @@ import type { EngineConfig } from "../config.js";
 import { ALL_SCAN_SEQUENCE, aggregateParentStatus, isParentScanType } from "../lib/analysis-all.js";
 import type { ProjectService } from "./project.service.js";
 import { enrichBlueprint } from "./blueprint-enrichment.service.js";
+import {
+  readAnalysisOrigin,
+  isAnalysisOrigin,
+  type AnalysisOriginReader,
+} from "./analysis-origin.service.js";
 import { attachSnapshotsToGraph } from "./software-graph/_snapshots.js";
+import type { AnalysisOrigin } from "../../../shared/software-graph.types.js";
 import type {
   AnalysisChildRunStatus,
   AnalysisRunStatus,
   AnalyzeProjectRequest,
   BlueprintAnalysisProviderId,
+  BlueprintDocument,
   EngineAnalysisRun,
   EngineParentAnalysisRun,
   LocalAllAnalysisResult,
@@ -80,13 +87,16 @@ export class AnalysisService {
   private readonly analysisProviders: Map<string, AnalysisProvider>;
   private readonly blueprintProviders: Map<string, BlueprintProvider>;
   private readonly defaultBlueprintProviderId: BlueprintAnalysisProviderId;
+  private readonly readAnalysisOrigin: AnalysisOriginReader;
 
   constructor(
     private readonly storageDir: string,
     private readonly projectService: ProjectService,
     runnerUrl: string,
     config: EngineConfig,
+    deps?: { readAnalysisOrigin?: AnalysisOriginReader },
   ) {
+    this.readAnalysisOrigin = deps?.readAnalysisOrigin ?? readAnalysisOrigin;
     this.defaultBlueprintProviderId = resolveBlueprintProviderId(config);
 
     const legacyBlueprintProvider = new LegacyVisuDevAnalysisProvider(runnerUrl);
@@ -469,6 +479,7 @@ export class AnalysisService {
     } satisfies EngineAnalysisRun);
 
     let result: LocalEngineAnalysisResult;
+    let blueprintOrigin: AnalysisOrigin | undefined;
     try {
       if (scanType === "blueprint") {
         const blueprintProviderId = this.resolveProjectBlueprintProviderId(project);
@@ -479,7 +490,16 @@ export class AnalysisService {
           project,
           localPath: request.localPath ?? project.localPath,
         });
-        result = this.buildBlueprintResult(runId, projectId, blueprintProviderId, rawScan);
+        blueprintOrigin = isAnalysisOrigin(rawScan.analysisOrigin)
+          ? rawScan.analysisOrigin
+          : await this.readAnalysisOrigin(rawScan.localPath);
+        result = this.buildBlueprintResult(
+          runId,
+          projectId,
+          blueprintProviderId,
+          rawScan,
+          blueprintOrigin,
+        );
       } else {
         const provider = this.resolveProvider(providerId);
         result = await provider.analyzeProject({
@@ -507,7 +527,15 @@ export class AnalysisService {
     const finishedAt = new Date().toISOString();
 
     if (scanType === "blueprint") {
-      await this.persistBlueprintRun(runId, projectId, providerId, runningAt, finishedAt, result);
+      await this.persistBlueprintRun(
+        runId,
+        projectId,
+        providerId,
+        runningAt,
+        finishedAt,
+        result,
+        blueprintOrigin,
+      );
       return;
     }
 
@@ -524,8 +552,14 @@ export class AnalysisService {
     projectId: string,
     providerId: BlueprintAnalysisProviderId,
     rawScan: RawBlueprintScan,
+    origin: AnalysisOrigin,
   ): LocalBlueprintAnalysisResult {
-    const blueprint = enrichBlueprint(rawScan);
+    const blueprint: BlueprintDocument = {
+      ...enrichBlueprint(rawScan),
+      branch: origin.branch,
+      commitSha: origin.commitSha,
+      analysisOrigin: origin,
+    };
     const routesDetected = rawScan.routes.length;
     const findings = Array.isArray(blueprint.findings) ? blueprint.findings.length : 0;
 
@@ -555,6 +589,7 @@ export class AnalysisService {
     runningAt: string,
     finishedAt: string,
     result: LocalEngineAnalysisResult,
+    origin: AnalysisOrigin | undefined,
   ): Promise<void> {
     if (result.kind !== "blueprint") {
       await writeJsonFile(this.statusPath(runId), {
@@ -586,6 +621,11 @@ export class AnalysisService {
       runId,
       createdAt: finishedAt,
     };
+    const analysisOrigin = origin ?? {
+      sourceKind: "filesystem",
+      dirty: false,
+      capturedAt: finishedAt,
+    };
 
     const previousLatest = await readJsonFile<LocalBlueprintLatest | null>(
       this.blueprintCachePath(projectId),
@@ -599,10 +639,12 @@ export class AnalysisService {
         graph: attachSnapshotsToGraph(
           blueprintResult.blueprint.graph,
           {
-            ref: commitSha ?? finishedAt,
-            capturedAt: finishedAt,
+            ref: commitSha ?? analysisOrigin.capturedAt,
+            capturedAt: analysisOrigin.capturedAt,
             commitSha,
-            label: commitSha ? commitSha.slice(0, 8) : finishedAt.slice(0, 10),
+            branch: analysisOrigin.branch,
+            sourceKind: analysisOrigin.sourceKind,
+            dirty: analysisOrigin.dirty,
           },
           previousLatest?.blueprint?.graph?.snapshots,
         ),
@@ -640,6 +682,14 @@ export class AnalysisService {
       blueprint: blueprintResult.blueprint,
       updatedAt: finishedAt,
     } satisfies LocalBlueprintLatest);
+    await appendJsonLog(path.join(this.runDir(runId), "log.jsonl"), {
+      at: finishedAt,
+      message:
+        analysisOrigin.sourceKind === "git" && analysisOrigin.commitSha
+          ? `Analyzed commit ${analysisOrigin.commitSha}`
+          : `Analyzed local folder at ${analysisOrigin.capturedAt} (no git repository)`,
+      scanType: "blueprint",
+    });
 
     const current = await this.projectService.getProject(projectId);
     if (current) {

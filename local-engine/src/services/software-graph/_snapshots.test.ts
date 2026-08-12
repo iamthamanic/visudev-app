@@ -28,9 +28,43 @@ describe("createGraphSnapshot", () => {
       ref: "abc123",
       capturedAt: "2026-01-02T00:00:00.000Z",
       commitSha: "abc123",
+      branch: "main",
+      sourceKind: "git",
+      dirty: false,
     });
     expect(snapshot.nodeIds).toEqual(["a", "b"]);
     expect(snapshot.nodeSignatures?.a).toBe("file:a");
+  });
+
+  it("snapshot id includes the timestamp", () => {
+    const snapshot = createGraphSnapshot(makeGraph(["a"]), {
+      ref: "abc123",
+      capturedAt: "2026-01-02T00:00:00.123Z",
+      commitSha: "abc123",
+      branch: "main",
+      sourceKind: "git",
+      dirty: false,
+    });
+
+    expect(snapshot.id).toBe("snapshot:abc123:2026-01-02T00:00:00.123Z");
+  });
+
+  it("snapshot without commitSha still gets a unique id", () => {
+    const first = createGraphSnapshot(makeGraph(["a"]), {
+      ref: "2026-01-02T00:00:00.123Z",
+      capturedAt: "2026-01-02T00:00:00.123Z",
+      sourceKind: "filesystem",
+      dirty: false,
+    });
+    const second = createGraphSnapshot(makeGraph(["a"]), {
+      ref: "2026-01-02T00:00:00.124Z",
+      capturedAt: "2026-01-02T00:00:00.124Z",
+      sourceKind: "filesystem",
+      dirty: false,
+    });
+
+    expect(first.id).toBe("snapshot:local:2026-01-02T00:00:00.123Z");
+    expect(second.id).not.toBe(first.id);
   });
 });
 
@@ -39,14 +73,57 @@ describe("mergeGraphSnapshots", () => {
     const first = createGraphSnapshot(makeGraph(["a"]), {
       ref: "v1",
       capturedAt: "2026-01-01T00:00:00.000Z",
+      sourceKind: "filesystem",
+      dirty: false,
     });
     const second = createGraphSnapshot(makeGraph(["a", "b"]), {
       ref: "v2",
       capturedAt: "2026-01-02T00:00:00.000Z",
+      sourceKind: "filesystem",
+      dirty: false,
     });
     const merged = mergeGraphSnapshots([first], second);
     expect(merged).toHaveLength(2);
     expect(merged[1].nodeIds).toContain("b");
+  });
+
+  it("two captures of the same commit produce two snapshots", () => {
+    const first = createGraphSnapshot(makeGraph(["a"]), {
+      ref: "abc123",
+      capturedAt: "2026-01-01T00:00:00.000Z",
+      commitSha: "abc123",
+      branch: "main",
+      sourceKind: "git",
+      dirty: false,
+    });
+    const second = createGraphSnapshot(makeGraph(["a", "b"]), {
+      ref: "abc123",
+      capturedAt: "2026-01-01T00:00:00.001Z",
+      commitSha: "abc123",
+      branch: "main",
+      sourceKind: "git",
+      dirty: true,
+    });
+
+    expect(mergeGraphSnapshots([first], second)).toHaveLength(2);
+  });
+
+  it("captures in the same millisecond do not collide silently", () => {
+    const options = {
+      ref: "abc123",
+      capturedAt: "2026-01-01T00:00:00.000Z",
+      commitSha: "abc123",
+      branch: "main",
+      sourceKind: "git" as const,
+      dirty: false,
+    };
+    const first = createGraphSnapshot(makeGraph(["a"]), options);
+    const second = createGraphSnapshot(makeGraph(["a", "b"]), options);
+    const merged = mergeGraphSnapshots([first], second);
+
+    expect(second.id).toBe(first.id);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].nodeIds).toContain("b");
   });
 });
 
@@ -55,6 +132,8 @@ describe("attachSnapshotsToGraph", () => {
     const graph = attachSnapshotsToGraph(makeGraph(["n1"]), {
       ref: "current",
       capturedAt: "2026-01-01T00:00:00.000Z",
+      sourceKind: "filesystem",
+      dirty: false,
     });
     expect(graph.snapshots).toHaveLength(1);
     expect(graph.snapshots?.[0].nodeIds).toEqual(["n1"]);

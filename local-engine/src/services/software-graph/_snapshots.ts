@@ -3,16 +3,15 @@
  */
 
 import type {
+  AnalysisOrigin,
   SoftwareGraph,
   SoftwareGraphSnapshot,
 } from "../../../../shared/software-graph.types.js";
 
 const MAX_SNAPSHOTS = 20;
 
-export interface SnapshotCaptureOptions {
+export interface SnapshotCaptureOptions extends AnalysisOrigin {
   ref: string;
-  capturedAt: string;
-  commitSha?: string;
   label?: string;
 }
 
@@ -20,13 +19,16 @@ export function createGraphSnapshot(
   graph: Pick<SoftwareGraph, "nodes">,
   options: SnapshotCaptureOptions,
 ): SoftwareGraphSnapshot {
-  const snapshotId = `snapshot:${options.commitSha ?? options.ref}`;
+  const snapshotId = `snapshot:${options.commitSha ?? "local"}:${options.capturedAt}`;
   return {
     id: snapshotId,
     label: options.label ?? options.ref,
     ref: options.ref,
     capturedAt: options.capturedAt,
     commitSha: options.commitSha,
+    branch: options.branch,
+    sourceKind: options.sourceKind,
+    dirty: options.dirty,
     nodeIds: graph.nodes.map((node) => node.id),
     nodeSignatures: Object.fromEntries(
       graph.nodes.map((node) => [node.id, `${node.kind}:${node.label}`]),
