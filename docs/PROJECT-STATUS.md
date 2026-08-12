@@ -1,6 +1,6 @@
 # Projektstatus (VisuDEV)
 
-> Generiert aus `.project-memory/` — Claims: **needs-review**. Stand: 2026-08-12 (`26a5b448`).
+> Generiert aus `.project-memory/` — Claims: **needs-review**. Stand: 2026-08-12 (`fa29f6e1`).
 
 ## Kurzfassung
 
@@ -14,6 +14,7 @@ VisuDEV ist ein lokales Architektur-Röntgen: Projekte, App Flow, Blueprint (7 V
 
 ## Kürzlich erledigt
 
+- Blueprint-Views unter `/blueprint/<view>`
 - GitHub Pages für Memory-Viewer
 - P0-14 Dateinamen- + Pfad-Domänen
 - Vertical-Slice-Strangler

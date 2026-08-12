@@ -364,7 +364,7 @@ export async function openBlueprintView(page: import("@playwright/test").Page, v
   await expect(projectCard).toBeVisible({ timeout: 15000 });
   await projectCard.click();
 
-  await page.goto(`/blueprint?view=${viewId}`);
+  await page.goto(`/blueprint/${viewId}`);
   await page.waitForLoadState("networkidle");
 
   const emptyProject = page.getByText("Kein Projekt ausgewählt");

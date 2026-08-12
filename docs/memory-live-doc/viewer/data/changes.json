@@ -4,6 +4,119 @@
     {
       "schema_version": 1,
       "status": "recorded",
+      "id": "2026-08-12-blueprint-nested-urls",
+      "date": "2026-08-12",
+      "type": "feature",
+      "title": {
+        "de": "Blueprint-Views als nested Paths",
+        "en": "Blueprint views as nested paths"
+      },
+      "summary": {
+        "de": "Canonical-URL /blueprint/<view> statt Query ?view=; Legacy-Bookmarks werden umgeschrieben.",
+        "en": "Canonical URL /blueprint/<view> instead of query ?view=; legacy bookmarks are rewritten."
+      },
+      "plain_language": {
+        "de": "Jeder Blueprint-Tab hat jetzt eine eigene Adresse wie /blueprint/atlas, nicht mehr einen Parameter in der URL.",
+        "en": "Each Blueprint tab now has its own address like /blueprint/atlas, not a query parameter."
+      },
+      "why_it_matters": {
+        "de": "Pfade sind teilbar, lesbar und passen zur Sidebar-Hierarchie.",
+        "en": "Paths are shareable, readable, and match the sidebar hierarchy."
+      },
+      "user_impact": {
+        "de": [
+          "Adressleiste zeigt /blueprint/atlas statt /blueprint?view=atlas",
+          "Alte ?view=-Links werden automatisch umgeleitet"
+        ],
+        "en": [
+          "Address bar shows /blueprint/atlas instead of /blueprint?view=atlas",
+          "Old ?view= links redirect automatically"
+        ]
+      },
+      "developer_impact": {
+        "de": [
+          "Shell pathnameToScreen nutzt nur das erste Segment",
+          "blueprintViewPath und parseBlueprintViewFromLocation"
+        ],
+        "en": [
+          "Shell pathnameToScreen uses only the first segment",
+          "blueprintViewPath and parseBlueprintViewFromLocation"
+        ]
+      },
+      "operational_impact": {
+        "de": [],
+        "en": []
+      },
+      "git": {
+        "base": "fa29f6e19b67e7ece74f7e60addec1a3651e680d",
+        "head": "fa29f6e19b67e7ece74f7e60addec1a3651e680d",
+        "branch": "feat/blueprint-nested-urls",
+        "pull_request": null
+      },
+      "packages": [
+        "src"
+      ],
+      "affected_features": [
+        "blueprint-views"
+      ],
+      "affected_components": [
+        "src/modules/blueprint/blueprint-view-config.ts",
+        "src/modules/shell/pages/ShellPage.tsx",
+        "src/modules/shell/components/Sidebar.tsx"
+      ],
+      "breaking_changes": [],
+      "migration_required": false,
+      "security_relevant": false,
+      "evidence": [
+        {
+          "kind": "commit",
+          "path": "fa29f6e19b67e7ece74f7e60addec1a3651e680d",
+          "sha": "fa29f6e19b67e7ece74f7e60addec1a3651e680d",
+          "url": "https://github.com/iamthamanic/visudev-app/commit/fa29f6e19b67e7ece74f7e60addec1a3651e680d"
+        },
+        {
+          "kind": "file",
+          "path": "src/modules/blueprint/blueprint-view-config.ts",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/fa29f6e19b67e7ece74f7e60addec1a3651e680d/src/modules/blueprint/blueprint-view-config.ts"
+        },
+        {
+          "kind": "file",
+          "path": "src/modules/shell/pages/ShellPage.tsx",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/fa29f6e19b67e7ece74f7e60addec1a3651e680d/src/modules/shell/pages/ShellPage.tsx"
+        },
+        {
+          "kind": "file",
+          "path": "src/modules/shell/components/Sidebar.tsx",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/fa29f6e19b67e7ece74f7e60addec1a3651e680d/src/modules/shell/components/Sidebar.tsx"
+        },
+        {
+          "kind": "file",
+          "path": "src/modules/blueprint/blueprint-view-config.ts",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/feat/blueprint-nested-urls/src/modules/blueprint/blueprint-view-config.ts"
+        },
+        {
+          "kind": "file",
+          "path": "src/modules/shell/pages/ShellPage.tsx",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/feat/blueprint-nested-urls/src/modules/shell/pages/ShellPage.tsx"
+        }
+      ],
+      "screenshots": [
+        {
+          "id": "shot-1",
+          "path": "docs/memory-live-doc/assets/2026-08-12-blueprint-nested-urls/url-bar.png",
+          "status": "missing",
+          "caption": {
+            "de": "Adressleiste mit /blueprint/atlas",
+            "en": "Address bar showing /blueprint/atlas"
+          }
+        }
+      ],
+      "confidence": 0.9,
+      "review_status": "needs-review"
+    },
+    {
+      "schema_version": 1,
+      "status": "recorded",
       "packages": [],
       "breaking_changes": [],
       "migration_required": false,

@@ -1,5 +1,14 @@
 # Changelog (Memory)
 
+## 2026-08-12 — Blueprint-Views als nested Paths
+
+**Typ:** feature · **Review:** needs-review
+
+Canonical-URL ist `/blueprint/<view>` (z. B. `/blueprint/atlas`). Legacy `?view=` wird per `replaceState` umgeschrieben.
+
+**Nutzer:** Tabs sind echte Pfade, nicht Query-Parameter.  
+**Entwickler:** `blueprintViewPath` / `parseBlueprintViewFromLocation`; Shell parst nur das erste Path-Segment als Screen.
+
 ## 2026-08-12 — Memory-Viewer auf Pages + Status/Decisions nachgezogen
 
 **Typ:** feature · **Review:** needs-review

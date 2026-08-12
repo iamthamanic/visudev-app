@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "as_of": "2026-08-12",
-  "commit": "26a5b44823f9f053cc5924fc8e0e8d36508e5ace",
+  "commit": "fa29f6e19b67e7ece74f7e60addec1a3651e680d",
   "branch": "main",
   "product_status": {
     "de": "VisuDEV ist ein lokales Architektur-Röntgen: Projekte verbinden, App Flow (Screens), Blueprint (7 Views + Software Graph), Data/ERD, Logs, Settings. Phase-0 Honest Core und Vertical Slices sind gemerged. Living Memory läuft auf GitHub Pages.",
@@ -21,12 +21,14 @@
   },
   "recently_completed": {
     "de": [
+      "Blueprint-Views unter /blueprint/<view> statt ?view=",
       "GitHub Pages für Memory-Viewer aktiviert (Repo public, /docs)",
       "P0-14 Dateinamen-Domänen + Pfad-Domänen (Honest Core #260–#268)",
       "Vertical-Slice-Strangler (#243–#250)",
       "Access-Control stack-agnostisch (Postgres/MariaDB/Mongo)"
     ],
     "en": [
+      "Blueprint views at /blueprint/<view> instead of ?view=",
       "GitHub Pages enabled for memory viewer (public repo, /docs)",
       "P0-14 filename domains + path domains (honest core #260–#268)",
       "Vertical-slice strangler (#243–#250)",

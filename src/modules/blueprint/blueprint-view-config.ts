@@ -1,6 +1,7 @@
 /**
- * Blueprint shell view ids, German labels, and URL helpers (#86).
+ * Blueprint shell view ids, German labels, and URL helpers.
  * Location: src/modules/blueprint/
+ * Canonical URL: /blueprint/<viewId> (legacy ?view= still parsed).
  */
 
 export type BlueprintShellViewId =
@@ -45,10 +46,34 @@ export function parseBlueprintViewParam(value: string | null | undefined): Bluep
   return getDefaultBlueprintView();
 }
 
+export function blueprintViewPath(viewId: BlueprintShellViewId): string {
+  return `/blueprint/${viewId}`;
+}
+
+/** First path segment after /blueprint/, or null if absent. */
+export function blueprintViewIdFromPathname(pathname: string): string | null {
+  const parts = pathname.replace(/\/$/, "").split("/").filter(Boolean);
+  if (parts[0] !== "blueprint") return null;
+  return parts[1] ?? null;
+}
+
+export function parseBlueprintViewFromLocation(
+  pathname: string,
+  search: string,
+): BlueprintShellViewId {
+  const fromPath = blueprintViewIdFromPathname(pathname);
+  if (fromPath) return parseBlueprintViewParam(fromPath);
+  const fromQuery = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get(
+    "view",
+  );
+  return parseBlueprintViewParam(fromQuery);
+}
+
 export function getBlueprintViewLabel(viewId: BlueprintShellViewId): string {
   return BLUEPRINT_VIEWS.find((view) => view.id === viewId)?.label ?? viewId;
 }
 
+/** @deprecated Use blueprintViewPath. Kept for query-string redirects. */
 export function blueprintViewSearchParam(viewId: BlueprintShellViewId): string {
   return `view=${viewId}`;
 }
