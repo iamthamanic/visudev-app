@@ -7,3 +7,6 @@ docs/AI_REVIEW_WHY_NEW_ERRORS_AFTER_FIXES.md
 .qa/queue/runs/
 # Queue runner mutates this between agent turns — not a product source file.
 .qa/queue/state.json
+# Living docs JSON/viewer snapshots — generated, not hand-formatted.
+.project-memory/
+docs/memory-live-doc/

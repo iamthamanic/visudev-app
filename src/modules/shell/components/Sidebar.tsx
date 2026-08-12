@@ -189,7 +189,7 @@ export function Sidebar({
                       <button
                         key={view.id}
                         type="button"
-                        data-nav-path={`/blueprint?view=${view.id}`}
+                        data-nav-path={`/blueprint/${view.id}`}
                         className={clsx(
                           styles.subNavButton,
                           isSubActive && styles.subNavButtonActive,

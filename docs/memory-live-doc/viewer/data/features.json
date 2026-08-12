@@ -186,7 +186,8 @@
         "2026-07-17-meteor-mongo-extractors",
         "2026-07-17-infra-postgres-redis",
         "2026-07-14-atlas-2d-3d",
-        "2026-08-12-phase0-honest-core"
+        "2026-08-12-phase0-honest-core",
+        "2026-08-12-blueprint-nested-urls"
       ],
       "review_status": "needs-review",
       "confidence": 0.7,

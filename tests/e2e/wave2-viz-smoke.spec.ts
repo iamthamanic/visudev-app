@@ -291,7 +291,7 @@ async function openBlueprintView(page: import("@playwright/test").Page, viewId: 
     await projectCard.click();
   }
 
-  await page.goto(`/blueprint?view=${viewId}`);
+  await page.goto(`/blueprint/${viewId}`);
   await page.waitForLoadState("networkidle");
 
   await page

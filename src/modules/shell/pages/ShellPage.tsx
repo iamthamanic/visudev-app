@@ -3,9 +3,8 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "../../../contexts/useAuth";
 import { useVisudev } from "../../../lib/visudev/store";
 import {
-  blueprintViewSearchParam,
-  getDefaultBlueprintView,
-  parseBlueprintViewParam,
+  blueprintViewPath,
+  parseBlueprintViewFromLocation,
   type BlueprintShellViewId,
 } from "../../blueprint";
 import { RunnersTopBar } from "../components/RunnersTopBar";
@@ -41,7 +40,10 @@ const PATH_SEGMENT_TO_SCREEN: Record<string, ShellScreen> = {
 
 function pathnameToScreen(): ShellScreen {
   if (typeof window === "undefined") return "projects";
-  const seg = (window.location.pathname.replace(/\/$/, "").slice(1) || "projects").trim();
+  const first = (window.location.pathname.replace(/\/$/, "").slice(1) || "projects")
+    .split("/")
+    .filter(Boolean)[0];
+  const seg = (first || "projects").trim();
   if (VALID_SCREENS.includes(seg as ShellScreen)) return seg as ShellScreen;
   return PATH_SEGMENT_TO_SCREEN[seg] ?? "projects";
 }
@@ -68,13 +70,13 @@ function getScreenFromUrl(): ShellScreen {
 
 function screenToPath(screen: ShellScreen, blueprintView: BlueprintShellViewId): string {
   if (screen === "projects") return "/";
-  if (screen === "blueprint") return `/blueprint?${blueprintViewSearchParam(blueprintView)}`;
+  if (screen === "blueprint") return blueprintViewPath(blueprintView);
   return `/${screen}`;
 }
 
 function readBlueprintViewFromLocation(): BlueprintShellViewId {
-  if (typeof window === "undefined") return getDefaultBlueprintView();
-  return parseBlueprintViewParam(new URLSearchParams(window.location.search).get("view"));
+  if (typeof window === "undefined") return parseBlueprintViewFromLocation("/", "");
+  return parseBlueprintViewFromLocation(window.location.pathname, window.location.search);
 }
 
 const ProjectsPage = lazy(() =>
@@ -109,6 +111,15 @@ export function ShellPage() {
       setActiveScreen("settings");
       const path = window.location.pathname + window.location.hash;
       window.history.replaceState({}, "", path);
+      return;
+    }
+    // Legacy bookmarks: /blueprint?view=atlas → /blueprint/atlas
+    if (pathnameToScreen() === "blueprint" && params.get("view")) {
+      const view = readBlueprintViewFromLocation();
+      params.delete("view");
+      const rest = params.toString();
+      const next = `${blueprintViewPath(view)}${rest ? `?${rest}` : ""}${window.location.hash}`;
+      window.history.replaceState({}, "", next);
     }
   }, []);
 
