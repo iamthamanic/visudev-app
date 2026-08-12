@@ -38,6 +38,7 @@ export type {
   RawBlueprintFact,
   RawBlueprintRoute,
   RawBlueprintScan,
+  FactSelectionReport,
   StartAnalysisResponse,
   StartPreviewInput,
   UpdateProjectInput,

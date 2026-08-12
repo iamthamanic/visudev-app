@@ -8,6 +8,7 @@
 import type {
   BlueprintAnalysisProviderId,
   BlueprintDocument,
+  FactSelectionReport,
   RawBlueprintRoute,
   RawBlueprintScan,
 } from "../types/api.types.js";
@@ -98,6 +99,17 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
       metadata: raw.metadata && typeof raw.metadata === "object" ? raw.metadata : {},
     }));
 
+    const rawFactSelection = blueprint.factSelection as FactSelectionReport | undefined;
+    const factSelection =
+      rawFactSelection &&
+      typeof rawFactSelection.extracted === "number" &&
+      typeof rawFactSelection.selected === "number" &&
+      typeof rawFactSelection.filesCovered === "number" &&
+      rawFactSelection.byKind &&
+      typeof rawFactSelection.byKind === "object"
+        ? rawFactSelection
+        : undefined;
+
     return {
       providerId: this.id,
       projectId: input.projectId,
@@ -105,6 +117,7 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
       analyzedAt,
       routes,
       facts,
+      factSelection,
       filesAnalyzed:
         typeof payload.data.filesAnalyzed === "number" ? payload.data.filesAnalyzed : routes.length,
       analysisOrigin: scanOrigin,

@@ -4,6 +4,7 @@ import { assertEquals } from "std/assert";
 import type { VisuDevGraph } from "../../dto/graph/visudev-graph.dto.ts";
 import {
   capGraphForExport,
+  FACT_EXPORT_PRIORITY,
   selectFactsPreservingPrismaModels,
 } from "./graph-export-cap.ts";
 import { repairGraphReferences } from "./graph-export-integrity.ts";
@@ -166,14 +167,29 @@ function modelFact(table: string, line: number): CodeFact {
   };
 }
 
-function routeFact(i: number): CodeFact {
+function routeFact(i: number, filePath?: string): CodeFact {
   return {
     id: `r-${i}`,
     kind: "api-route",
-    filePath: `apps/web/app/api/r${i}/route.ts`,
+    filePath: filePath ?? `apps/web/app/api/r${i}/route.ts`,
     line: 1,
     snippet: `export async function GET() {}`,
     metadata: { method: "GET", path: `/api/r${i}` },
+  };
+}
+
+function kindFact(
+  kind: string,
+  filePath: string,
+  index: number,
+): CodeFact {
+  return {
+    id: `${kind}-${filePath}-${index}`,
+    kind,
+    filePath,
+    line: index + 1,
+    snippet: `${kind} snippet`,
+    metadata: {},
   };
 }
 
@@ -183,7 +199,7 @@ Deno.test("selectFactsPreservingPrismaModels keeps all schema models under cap f
     (_, i) => modelFact(`Model${i}`, i + 1),
   );
   const routes = Array.from({ length: 400 }, (_, i) => routeFact(i));
-  const selected = selectFactsPreservingPrismaModels(
+  const { facts: selected } = selectFactsPreservingPrismaModels(
     [...routes, ...models],
     100,
   );
@@ -200,7 +216,10 @@ Deno.test("selectFactsPreservingPrismaModels keeps LeaveRequest among many model
     modelFact("LeaveRequest", 99),
   ];
   const noise = Array.from({ length: 200 }, (_, i) => routeFact(i));
-  const selected = selectFactsPreservingPrismaModels([...noise, ...models], 50);
+  const { facts: selected } = selectFactsPreservingPrismaModels([
+    ...noise,
+    ...models,
+  ], 50);
   assertEquals(
     selected.some((f) => f.metadata?.table === "LeaveRequest"),
     true,
@@ -221,7 +240,10 @@ Deno.test("selectFactsPreservingPrismaModels keeps infra-service past route floo
     },
   };
   const noise = Array.from({ length: 400 }, (_, i) => routeFact(i));
-  const selected = selectFactsPreservingPrismaModels([...noise, infra], 50);
+  const { facts: selected } = selectFactsPreservingPrismaModels([
+    ...noise,
+    infra,
+  ], 50);
   assertEquals(
     selected.some((f) =>
       f.kind === "infra-service" && f.metadata?.service === "Redis"
@@ -243,8 +265,90 @@ Deno.test("selectFactsPreservingPrismaModels bounds infra-service preservation (
       framework: "docker-compose",
     },
   }));
-  const selected = selectFactsPreservingPrismaModels(flood, 10);
+  const { facts: selected } = selectFactsPreservingPrismaModels(flood, 10);
   const infra = selected.filter((f) => f.kind === "infra-service");
   assertEquals(infra.length <= 16, true);
   assertEquals(infra.length, 16);
+});
+
+Deno.test("selection spreads across files before deepening", () => {
+  const facts: CodeFact[] = [];
+  for (let file = 0; file < 100; file += 1) {
+    for (let i = 0; i < 20; i += 1) {
+      facts.push(
+        kindFact("misc", `src/file-${String(file).padStart(3, "0")}.ts`, i),
+      );
+    }
+  }
+  const { facts: selected, report } = selectFactsPreservingPrismaModels(
+    facts,
+    200,
+  );
+  const coveredFiles = new Set(selected.map((fact) => fact.filePath));
+  assertEquals(coveredFiles.size, 100);
+  assertEquals(report.filesCovered, 100);
+  assertEquals(selected.length, 200);
+});
+
+Deno.test("auth-check outranks generic facts", () => {
+  const authFacts = Array.from(
+    { length: 400 },
+    (_, i) => kindFact("auth-check", `src/auth/file-${i}.ts`, 0),
+  );
+  const genericFacts = Array.from(
+    { length: 4000 },
+    (_, i) => kindFact("misc", `src/other/file-${i}.ts`, 0),
+  );
+  const { facts: selected } = selectFactsPreservingPrismaModels(
+    [...genericFacts, ...authFacts],
+    500,
+  );
+  const authSelected = selected.filter((fact) => fact.kind === "auth-check");
+  assertEquals(authSelected.length, 400);
+});
+
+Deno.test("factSelection reports extracted and selected counts", () => {
+  const facts = [
+    ...Array.from({ length: 50 }, (_, i) => routeFact(i)),
+    modelFact("User", 1),
+  ];
+  const { report } = selectFactsPreservingPrismaModels(facts, 10);
+  assertEquals(report.extracted, 51);
+  assertEquals(report.selected, 10);
+  assertEquals(report.byKind["api-route"]?.extracted, 50);
+  assertEquals(typeof report.byKind["db-write"]?.selected, "number");
+});
+
+Deno.test("no cap means selected equals extracted", () => {
+  const facts = Array.from({ length: 12 }, (_, i) => routeFact(i));
+  const { facts: selected, report } = selectFactsPreservingPrismaModels(
+    facts,
+    100,
+  );
+  assertEquals(selected.length, 12);
+  assertEquals(report.extracted, report.selected);
+});
+
+Deno.test("single file cannot consume the whole budget", () => {
+  const dominant = Array.from(
+    { length: 5000 },
+    (_, i) => kindFact("misc", "src/huge.ts", i),
+  );
+  const others = Array.from(
+    { length: 99 },
+    (_, i) => kindFact("misc", `src/small-${i}.ts`, 0),
+  );
+  const { facts: selected } = selectFactsPreservingPrismaModels(
+    [...dominant, ...others],
+    200,
+  );
+  const covered = new Set(selected.map((fact) => fact.filePath));
+  for (let i = 0; i < 99; i += 1) {
+    assertEquals(covered.has(`src/small-${i}.ts`), true);
+  }
+});
+
+Deno.test("FACT_EXPORT_PRIORITY is exported and ordered", () => {
+  assertEquals(FACT_EXPORT_PRIORITY[0], "auth-check");
+  assertEquals(FACT_EXPORT_PRIORITY.includes("ast-import"), true);
 });

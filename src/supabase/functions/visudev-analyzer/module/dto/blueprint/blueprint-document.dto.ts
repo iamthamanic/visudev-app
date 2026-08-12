@@ -110,6 +110,17 @@ export interface ProjectProfile {
   deployment: "vercel" | "self-hosted" | "edge";
 }
 
+export interface FactSelectionReport {
+  /** Facts produced by the extractors before any cap. */
+  extracted: number;
+  /** Facts included in the export. */
+  selected: number;
+  /** Files with at least one selected fact. */
+  filesCovered: number;
+  /** Per kind: extracted vs selected. */
+  byKind: Record<string, { extracted: number; selected: number }>;
+}
+
 export interface BlueprintDocument {
   version: 1;
   projectId?: string;
@@ -122,6 +133,7 @@ export interface BlueprintDocument {
   securityMatrix: SecurityMatrixRow[];
   findings: BlueprintFinding[];
   facts: CodeFact[];
+  factSelection?: FactSelectionReport;
   concepts: TechnicalConcept[];
   graph?: VisuDevGraph;
   filesAnalyzed: number;
