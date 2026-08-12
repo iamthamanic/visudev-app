@@ -1,5 +1,5 @@
 {
-  "_comment": "min = floor(measured * 0.9). measured stammt aus dem Lauf in PR #<nummer>. Bei Verbesserungen wird min im selben PR angehoben.",
+  "_comment": "min = floor(measured * 0.9). measured stammt aus dem Lauf in PR #<nummer>. Bei Verbesserungen wird min im selben PR angehoben. missingAuthFindings is an upper bound (P0-6).",
   "nodes": {
     "measured": 18,
     "min": 16
@@ -23,5 +23,9 @@
   "duplicateNodeIds": {
     "measured": 0,
     "max": 0
+  },
+  "missingAuthFindings": {
+    "measured": 1,
+    "max": 1
   }
 }

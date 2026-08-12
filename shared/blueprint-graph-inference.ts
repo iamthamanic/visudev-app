@@ -1,6 +1,6 @@
 /**
  * Heuristic + graph-edge security inference for Diagnostics matrix.
- * visudev-gapclose P0-4: prefer authenticates/validates/data edges over snippet-only `?`.
+ * P0-6: missing requires analyzability; absence of data → unknown (not method-based).
  */
 
 import type { SoftwareGraph } from "./software-graph.types.js";
@@ -10,7 +10,7 @@ import type {
   ProjectedSecurityMatrixRow,
 } from "./blueprint-graph-types.js";
 
-const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+export const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const AUTH_EVIDENCE_PATTERN = /auth|middleware|protect|guard|session|jwt|oauth|authorize/i;
 const VALIDATION_EVIDENCE_PATTERN =
   /zod|joi|yup|validator|validate|schema|body\(|query\(|params\(|class-validator|IsString|IsEmail/i;
@@ -19,11 +19,15 @@ const ROLE_EVIDENCE_PATTERN =
 
 type NormalizedRoute = Pick<ProjectedRoute, "id" | "method" | "path" | "filePath" | "line">;
 
+export type RouteAnalyzability = "analyzable" | "not-analyzable";
+
 export interface RouteFactsIndexes {
   routeFactsIndex: Map<string, ProjectedCodeFact[]>;
   factsByFilePath: Map<string, ProjectedCodeFact[]>;
   authByDirectory: Map<string, boolean>;
   validationByFile: Map<string, boolean>;
+  /** "analyzable" when the route file has at least one fact. */
+  analyzabilityByRouteId: Map<string, RouteAnalyzability>;
 }
 
 function dirnameOfFile(filePath: string): string {
@@ -90,7 +94,9 @@ function buildAuthByDirectory(
   for (const [directory, dirFacts] of scopedDirectoryFacts) {
     authByDirectory.set(
       directory,
-      dirFacts.some((fact) => AUTH_EVIDENCE_PATTERN.test(fact.snippet)),
+      dirFacts.some(
+        (fact) => fact.kind === "auth-check" || AUTH_EVIDENCE_PATTERN.test(fact.snippet),
+      ),
     );
   }
   return authByDirectory;
@@ -103,7 +109,10 @@ function buildValidationByFile(
   for (const [filePath, fileFacts] of factsByFilePath) {
     validationByFile.set(
       filePath,
-      fileFacts.some((fact) => VALIDATION_EVIDENCE_PATTERN.test(fact.snippet)),
+      fileFacts.some(
+        (fact) =>
+          fact.kind === "validation-deny-400" || VALIDATION_EVIDENCE_PATTERN.test(fact.snippet),
+      ),
     );
   }
   return validationByFile;
@@ -119,10 +128,13 @@ export function buildRouteFactsIndexes(
   const authByDirectory = buildAuthByDirectory(scopedDirectoryFacts);
   const validationByFile = buildValidationByFile(factsByFilePath);
   const routeFactsIndex = new Map<string, ProjectedCodeFact[]>();
+  const analyzabilityByRouteId = new Map<string, RouteAnalyzability>();
 
   for (const route of routes) {
     const directory = dirnameOfFile(route.filePath);
     routeFactsIndex.set(route.id, scopedDirectoryFacts.get(directory) ?? []);
+    const fileFacts = factsByFilePath.get(route.filePath) ?? [];
+    analyzabilityByRouteId.set(route.id, fileFacts.length > 0 ? "analyzable" : "not-analyzable");
   }
 
   return {
@@ -130,6 +142,7 @@ export function buildRouteFactsIndexes(
     factsByFilePath,
     authByDirectory,
     validationByFile,
+    analyzabilityByRouteId,
   };
 }
 
@@ -140,44 +153,95 @@ export function buildRouteFactsIndex(
   return buildRouteFactsIndexes(routes, facts).routeFactsIndex;
 }
 
-function resolveAuthState(
-  route: NormalizedRoute,
+export function resolveAuthState(
   hasAuthEvidence: boolean,
+  analyzability: RouteAnalyzability,
 ): ProjectedSecurityMatrixRow["auth"]["state"] {
   if (hasAuthEvidence) return "confirmed";
-  if (MUTATING_METHODS.has(route.method)) return "missing";
+  if (analyzability === "analyzable") return "missing";
   return "unknown";
 }
 
-function resolveValidationState(
-  route: NormalizedRoute,
+export function resolveValidationState(
   hasValidationEvidence: boolean,
+  analyzability: RouteAnalyzability,
 ): ProjectedSecurityMatrixRow["validation"]["state"] {
   if (hasValidationEvidence) return "confirmed";
-  if (MUTATING_METHODS.has(route.method)) return "missing";
+  if (analyzability === "analyzable") return "missing";
   return "unknown";
+}
+
+function hasTypedAuthFact(facts: ProjectedCodeFact[], routeFilePath: string): boolean {
+  return facts.some((fact) => fact.kind === "auth-check" && fact.filePath === routeFilePath);
+}
+
+function hasTypedValidationFact(facts: ProjectedCodeFact[], routeFilePath: string): boolean {
+  return facts.some(
+    (fact) => fact.kind === "validation-deny-400" && fact.filePath === routeFilePath,
+  );
+}
+
+function hasRegexAuthHint(facts: ProjectedCodeFact[], routeFilePath: string): boolean {
+  return facts.some(
+    (fact) =>
+      fact.filePath === routeFilePath &&
+      fact.kind !== "auth-check" &&
+      AUTH_EVIDENCE_PATTERN.test(fact.snippet),
+  );
+}
+
+function hasRegexValidationHint(facts: ProjectedCodeFact[], routeFilePath: string): boolean {
+  return facts.some(
+    (fact) =>
+      fact.filePath === routeFilePath &&
+      fact.kind !== "validation-deny-400" &&
+      VALIDATION_EVIDENCE_PATTERN.test(fact.snippet),
+  );
+}
+
+/**
+ * Resolve auth/validation with typed facts → confirmed, regex-only → partial,
+ * no evidence + analyzable → missing, else unknown.
+ */
+export function resolveEvidenceState(options: {
+  typedEvidence: boolean;
+  regexHint: boolean;
+  edgeEvidence: boolean;
+  analyzability: RouteAnalyzability;
+}): ProjectedSecurityMatrixRow["auth"]["state"] {
+  if (options.typedEvidence || options.edgeEvidence) return "confirmed";
+  if (options.regexHint) return "partial";
+  return resolveAuthState(false, options.analyzability);
 }
 
 export function inferAuthState(
   route: NormalizedRoute,
   routeFacts: ProjectedCodeFact[],
+  analyzability: RouteAnalyzability = routeFacts.some((f) => f.filePath === route.filePath)
+    ? "analyzable"
+    : "not-analyzable",
 ): ProjectedSecurityMatrixRow["auth"]["state"] {
-  return resolveAuthState(
-    route,
-    routeFacts.some((fact) => AUTH_EVIDENCE_PATTERN.test(fact.snippet)),
-  );
+  return resolveEvidenceState({
+    typedEvidence: hasTypedAuthFact(routeFacts, route.filePath),
+    regexHint: hasRegexAuthHint(routeFacts, route.filePath),
+    edgeEvidence: false,
+    analyzability,
+  });
 }
 
 export function inferValidationState(
   route: NormalizedRoute,
   routeFacts: ProjectedCodeFact[],
+  analyzability: RouteAnalyzability = routeFacts.some((f) => f.filePath === route.filePath)
+    ? "analyzable"
+    : "not-analyzable",
 ): ProjectedSecurityMatrixRow["validation"]["state"] {
-  return resolveValidationState(
-    route,
-    routeFacts.some(
-      (fact) => fact.filePath === route.filePath && VALIDATION_EVIDENCE_PATTERN.test(fact.snippet),
-    ),
-  );
+  return resolveEvidenceState({
+    typedEvidence: hasTypedValidationFact(routeFacts, route.filePath),
+    regexHint: hasRegexValidationHint(routeFacts, route.filePath),
+    edgeEvidence: false,
+    analyzability,
+  });
 }
 
 export interface RouteInference {
@@ -185,15 +249,6 @@ export interface RouteInference {
   validation: ProjectedSecurityMatrixRow["validation"]["state"];
   role: ProjectedSecurityMatrixRow["role"]["state"];
   db: ProjectedSecurityMatrixRow["db"]["state"];
-}
-
-type MatrixState = ProjectedSecurityMatrixRow["auth"]["state"];
-
-function preferConfirmed(a: MatrixState, b: MatrixState): MatrixState {
-  if (a === "confirmed" || b === "confirmed") return "confirmed";
-  if (a === "missing" || b === "missing") return "missing";
-  if (a === "partial" || b === "partial") return "partial";
-  return a !== "unknown" && a !== "n/a" ? a : b;
 }
 
 /** True when an execution group for this route includes a confirmed table node. */
@@ -265,9 +320,9 @@ export function collectRouteSnippetSignals(
     if (evidence.length >= 8) break;
     // Prefer auth-check / authorize / role / validation — not incidental "session" in DB snippets.
     const hit =
-      /auth-check|authorize|requireAuth|middleware|permission_classes|IsAuthenticated/i.test(
-        `${fact.kind}\n${fact.snippet}`,
-      ) ||
+      fact.kind === "auth-check" ||
+      fact.kind === "validation-deny-400" ||
+      /authorize|requireAuth|middleware|permission_classes|IsAuthenticated/i.test(fact.snippet) ||
       ROLE_EVIDENCE_PATTERN.test(fact.snippet) ||
       (fact.filePath === route.filePath && VALIDATION_EVIDENCE_PATTERN.test(fact.snippet));
     if (!hit || seen.has(fact.id)) continue;
@@ -398,12 +453,8 @@ export function collectRouteEdgeSignals(
   return { hasAuth, hasValidation, hasDb, evidence };
 }
 
-function resolveRoleState(
-  route: NormalizedRoute,
-  hasRoleEvidence: boolean,
-): ProjectedSecurityMatrixRow["role"]["state"] {
+function resolveRoleState(hasRoleEvidence: boolean): ProjectedSecurityMatrixRow["role"]["state"] {
   if (hasRoleEvidence) return "confirmed";
-  if (MUTATING_METHODS.has(route.method)) return "unknown";
   return "unknown";
 }
 
@@ -422,8 +473,10 @@ export function inferRouteStates(
   for (const route of routes) {
     const directory = dirnameOfFile(route.filePath);
     const routeFacts = indexes.routeFactsIndex.get(route.id) ?? [];
-    const snippetAuth = indexes.authByDirectory.get(directory) ?? false;
-    const snippetValidation = indexes.validationByFile.get(route.filePath) ?? false;
+    const analyzability = indexes.analyzabilityByRouteId.get(route.id) ?? "not-analyzable";
+    const typedAuth = hasTypedAuthFact(routeFacts, route.filePath);
+    const typedValidation = hasTypedValidationFact(routeFacts, route.filePath);
+
     const snippetRole = routeFacts.some(
       (fact) =>
         (fact.filePath === route.filePath || isPathUnderDirectory(fact.filePath, directory)) &&
@@ -439,16 +492,21 @@ export function inferRouteStates(
         )
       : { hasAuth: false, hasValidation: false, hasDb: false };
 
-    const auth = preferConfirmed(
-      resolveAuthState(route, snippetAuth),
-      resolveAuthState(route, edgeSignals.hasAuth),
-    );
-    const validation = preferConfirmed(
-      resolveValidationState(route, snippetValidation),
-      resolveValidationState(route, edgeSignals.hasValidation),
-    );
+    // Prefer typed/edge confirmed over regex partial; never invent missing from HTTP method.
+    const auth = resolveEvidenceState({
+      typedEvidence: typedAuth,
+      regexHint: !typedAuth && hasRegexAuthHint(routeFacts, route.filePath),
+      edgeEvidence: edgeSignals.hasAuth,
+      analyzability,
+    });
+    const validation = resolveEvidenceState({
+      typedEvidence: typedValidation,
+      regexHint: !typedValidation && hasRegexValidationHint(routeFacts, route.filePath),
+      edgeEvidence: edgeSignals.hasValidation,
+      analyzability,
+    });
     // Role/Permission: only permission/authorize evidence — never invent from bare auth edges.
-    const role = resolveRoleState(route, snippetRole);
+    const role = resolveRoleState(snippetRole);
 
     states.set(route.id, {
       auth,

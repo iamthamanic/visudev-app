@@ -45,10 +45,7 @@ function isFactSelectionReport(value: unknown): value is FactSelectionReport {
   for (const entry of Object.values(byKind as Record<string, unknown>)) {
     if (!entry || typeof entry !== "object" || Array.isArray(entry)) return false;
     const row = entry as Record<string, unknown>;
-    if (
-      !isNonNegativeFiniteNumber(row.extracted) ||
-      !isNonNegativeFiniteNumber(row.selected)
-    ) {
+    if (!isNonNegativeFiniteNumber(row.extracted) || !isNonNegativeFiniteNumber(row.selected)) {
       return false;
     }
   }
