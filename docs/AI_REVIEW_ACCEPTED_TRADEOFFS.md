@@ -57,3 +57,11 @@ Diese Trade-offs sind bewusst eingegangen und dürfen in der AI-Review **nicht**
 - **Silent Fails (scripts-5):** AI-Review-Skip bei fehlendem Codex ist optional; Push erfordert weiterhin AI-Review. Kein Abzug.
 - **Side Effects (scripts-8):** `push-checked.sh` / `supabase-checked.sh` erzeugen bewusst Commit/Push nach bestandenen Checks; dokumentiert in AGENTS.md.
 - **Kein Abzug** für die genannten Punkte, solange Verhalten wie beschrieben.
+
+---
+
+## Git provenance (preview-runner / local-engine)
+
+- **Rate Limiting:** `readLocalAnalysisOrigin` läuft nur innerhalb von `analyzeLocalBlueprint`, das `MAX_CONCURRENT_ANALYZE` (Default 2) mit HTTP 429 durchsetzt. Git-Subprozesse sind damit an die bestehende Blueprint-Analyse-Concurrency gekoppelt, nicht unbegrenzt pro Request.
+- **Dependency Inversion:** `spawn("git", …)` in `analysis-origin-git.js` ist der Preview-Runner-Port; Tests können `runGitCommand` injizieren. Local Engine nutzt `createAnalysisOriginReader` / `readGitSummary`.
+- **Kein Abzug** für fehlenden separaten Git-Rate-Limiter oder direktes `spawn("git")` in diesem Modul, solange der Concurrency-Gate eingehalten wird.

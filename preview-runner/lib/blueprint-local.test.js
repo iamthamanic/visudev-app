@@ -1,9 +1,13 @@
 /**
- * Softort: blueprint analysis must use clone root, not preview package winner.
+ * Tests local Blueprint workspace coverage and honest Git provenance.
  * Location: preview-runner/lib/blueprint-local.test.js
  */
 
-import { describe, expect, it } from "vitest";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   FILE_LIMIT,
   SUPPORTED_EXT,
@@ -12,6 +16,29 @@ import {
   prioritizeBlueprintFiles,
   resolveWorkspaceRoot,
 } from "./blueprint-local.js";
+import { readLocalAnalysisOrigin } from "./analysis-origin-git.js";
+
+const temporaryDirectories = [];
+const originalAllowedRoots = process.env.VISUDEV_ALLOWED_LOCAL_ROOTS;
+
+afterEach(() => {
+  if (originalAllowedRoots === undefined) {
+    delete process.env.VISUDEV_ALLOWED_LOCAL_ROOTS;
+  } else {
+    process.env.VISUDEV_ALLOWED_LOCAL_ROOTS = originalAllowedRoots;
+  }
+  for (const directory of temporaryDirectories.splice(0)) {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+function createAnalyzableDirectory() {
+  const directory = mkdtempSync(join(tmpdir(), "visudev-blueprint-origin-"));
+  temporaryDirectories.push(directory);
+  process.env.VISUDEV_ALLOWED_LOCAL_ROOTS = directory;
+  writeFileSync(join(directory, "route.ts"), 'export const route = "/health";\n');
+  return directory;
+}
 
 describe("blueprint-local Softort coverage", () => {
   it("keeps workspace root at clone path (not preview web package)", () => {
@@ -133,5 +160,50 @@ describe("blueprint-local Softort coverage", () => {
     expect(capped.indexOf("apps/meteor/server/models.ts")).toBeLessThan(
       capped.indexOf("apps/meteor/server/lib/utils.ts"),
     );
+  });
+});
+
+describe("blueprint-local analysis origin", () => {
+  it("readLocalAnalysisOrigin on a non-git folder reports filesystem provenance", async () => {
+    const directory = createAnalyzableDirectory();
+
+    const origin = await readLocalAnalysisOrigin(directory);
+
+    expect(origin.commitSha).toBeUndefined();
+    expect(origin.branch).toBeUndefined();
+    expect(origin).toMatchObject({
+      sourceKind: "filesystem",
+      dirty: false,
+    });
+  });
+
+  it("readLocalAnalysisOrigin on a git folder reports the real head commit", async () => {
+    const directory = createAnalyzableDirectory();
+    execFileSync("git", ["init", "--quiet"], { cwd: directory });
+    execFileSync("git", ["config", "user.email", "visudev-test@example.invalid"], {
+      cwd: directory,
+    });
+    execFileSync("git", ["config", "user.name", "VisuDEV Test"], { cwd: directory });
+    execFileSync("git", ["add", "route.ts"], { cwd: directory });
+    execFileSync("git", ["commit", "--quiet", "-m", "fixture"], { cwd: directory });
+    const expectedCommit = execFileSync("git", ["rev-parse", "--short", "HEAD"], {
+      cwd: directory,
+      encoding: "utf8",
+    }).trim();
+    const expectedBranch = execFileSync("git", ["branch", "--show-current"], {
+      cwd: directory,
+      encoding: "utf8",
+    }).trim();
+
+    const origin = await readLocalAnalysisOrigin(directory);
+
+    expect(origin.commitSha).toBe(expectedCommit.slice(0, 7));
+    expect(origin.branch).toBe(expectedBranch);
+    expect(origin).toMatchObject({
+      sourceKind: "git",
+      commitSha: expectedCommit.slice(0, 7),
+      branch: expectedBranch,
+      dirty: false,
+    });
   });
 });

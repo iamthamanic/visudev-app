@@ -45,6 +45,11 @@ function isBoundedNodeId(value: unknown): value is string {
   return typeof value === "string" && boundedString(value, 128) === value;
 }
 
+function normalizeSnapshotSourceKind(value: unknown): "git" | "filesystem" | undefined {
+  if (value === "git" || value === "filesystem") return value;
+  return undefined;
+}
+
 function isBoundedEvidence(value: unknown): value is SoftwareGraphEvidence {
   if (!isRecord(value)) return false;
   const id = boundedString(value.id, 128);
@@ -139,6 +144,9 @@ export function normalizeSoftwareGraph(raw: unknown): SoftwareGraph | undefined 
             capturedAt,
             nodeIds: boundedArray(item.nodeIds, MAX_NODES, isBoundedNodeId),
             commitSha: boundedString(item.commitSha, 64),
+            branch: boundedString(item.branch, 120),
+            sourceKind: normalizeSnapshotSourceKind(item.sourceKind),
+            dirty: typeof item.dirty === "boolean" ? item.dirty : undefined,
             nodeSignatures: boundedNodeSignatures(item.nodeSignatures),
           };
         })

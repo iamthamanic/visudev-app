@@ -11,6 +11,7 @@ import type {
   RawBlueprintRoute,
   RawBlueprintScan,
 } from "../types/api.types.js";
+import { isAnalysisOrigin } from "../services/analysis-origin.service.js";
 import type { BlueprintProvider, BlueprintProviderInput } from "./blueprint-provider.interface.js";
 
 type RunnerBlueprintResponse = {
@@ -70,6 +71,9 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
     }
 
     const blueprint = payload.data.blueprint;
+    const scanOrigin = isAnalysisOrigin(blueprint.analysisOrigin)
+      ? blueprint.analysisOrigin
+      : undefined;
     const rawRoutes = Array.isArray(blueprint.routes) ? blueprint.routes : [];
     const rawFacts = Array.isArray(blueprint.facts) ? blueprint.facts : [];
     const analyzedAt =
@@ -103,6 +107,7 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
       facts,
       filesAnalyzed:
         typeof payload.data.filesAnalyzed === "number" ? payload.data.filesAnalyzed : routes.length,
+      analysisOrigin: scanOrigin,
       providerMetadata: {
         legacy: {
           runnerAnalysisId: payload.data.analysisId,

@@ -92,6 +92,19 @@ export interface SoftwareGraphMetric {
   value: number;
 }
 
+export interface AnalysisOrigin {
+  /** "git" when a real commit was read, "filesystem" otherwise. */
+  sourceKind: "git" | "filesystem";
+  /** Real short commit sha. Undefined when sourceKind is "filesystem". */
+  commitSha?: string;
+  /** Real branch name. Undefined on detached HEAD or without git. */
+  branch?: string;
+  /** True when the working tree has uncommitted changes. */
+  dirty: boolean;
+  /** ISO 8601 with milliseconds. Always set. */
+  capturedAt: string;
+}
+
 export interface SoftwareGraphSnapshot {
   id: string;
   label: string;
@@ -100,6 +113,11 @@ export interface SoftwareGraphSnapshot {
   capturedAt: string;
   nodeIds: string[];
   commitSha?: string;
+  branch?: string;
+  /** Optional for backwards-compatible demo snapshots. */
+  sourceKind?: AnalysisOrigin["sourceKind"];
+  /** Optional for backwards-compatible demo snapshots. */
+  dirty?: boolean;
   /** kind:label signatures per node for change detection between snapshots. */
   nodeSignatures?: Record<string, string>;
 }

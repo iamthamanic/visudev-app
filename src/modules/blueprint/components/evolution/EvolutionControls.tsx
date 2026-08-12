@@ -3,7 +3,7 @@
  */
 
 import type { GitSummary, SoftwareGraphSnapshot } from "../../types";
-import { displayText, formatCommitSha } from "./evolution-display.js";
+import { displayText, formatCommitSha, formatSnapshotOrigin } from "./evolution-display.js";
 import styles from "../../styles/EvolutionView.module.css";
 
 export interface EvolutionControlsProps {
@@ -37,7 +37,9 @@ export function EvolutionControls({
         <h3 className={styles.sectionTitle}>Vergleich</h3>
         {snapshots.length < 2 ? (
           <p className={styles.emptyControls}>
-            Mindestens zwei Snapshots nötig. Führe weitere Blueprint-Analysen aus.
+            {snapshots.length === 1
+              ? "Nur ein Zeitpunkt vorhanden. Für einen Vergleich braucht VisuDEV mindestens zwei Analysen. Scanne das Projekt später erneut, dann erscheint hier, was sich verändert hat."
+              : "Mindestens zwei Snapshots nötig. Führe weitere Blueprint-Analysen aus."}
           </p>
         ) : (
           <>
@@ -50,7 +52,7 @@ export function EvolutionControls({
               >
                 {snapshots.map((snapshot) => (
                   <option key={snapshot.id} value={snapshot.id}>
-                    {snapshot.label}
+                    {formatSnapshotOrigin(snapshot)}
                   </option>
                 ))}
               </select>
@@ -64,7 +66,7 @@ export function EvolutionControls({
               >
                 {snapshots.map((snapshot) => (
                   <option key={snapshot.id} value={snapshot.id}>
-                    {snapshot.label}
+                    {formatSnapshotOrigin(snapshot)}
                   </option>
                 ))}
               </select>

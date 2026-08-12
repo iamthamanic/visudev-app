@@ -4,7 +4,7 @@
  */
 
 import { spawn } from "node:child_process";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -121,10 +121,6 @@ function collectFileEntries(workspaceRoot) {
     }
   }
   return entries;
-}
-
-function localCommitSha(localPath) {
-  return createHash("sha256").update(localPath).digest("hex").slice(0, 12);
 }
 
 function runDenoAnalyze(payload) {
@@ -250,7 +246,6 @@ export async function analyzeLocalAppflow(input) {
       throw new Error("Appflow CLI returned no screens");
     }
 
-    const commitSha = localCommitSha(localPath);
     return {
       screens: result.screens,
       flows: result.flows ?? [],
@@ -258,7 +253,7 @@ export async function analyzeLocalAppflow(input) {
       quality: result.quality,
       framework: result.framework,
       analysisId: result.analysisId ?? randomUUID(),
-      commitSha: result.commitSha ?? commitSha,
+      commitSha: result.commitSha,
       filesAnalyzed: files.length,
       workspaceRoot,
     };
