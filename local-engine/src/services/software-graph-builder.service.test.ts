@@ -36,7 +36,7 @@ describe("buildSoftwareGraph", () => {
 
   it("creates domain/layer/module/file hierarchy from route paths", () => {
     const scan = makeScan({
-      filesAnalyzed: 2,
+      filesAnalyzed: 3,
       routes: [
         {
           id: "route:users:get",
@@ -44,6 +44,25 @@ describe("buildSoftwareGraph", () => {
           path: "/api/users",
           filePath: "src/routes/users.ts",
           line: 10,
+        },
+      ],
+      // Sibling dirs under src so `routes` becomes a domain candidate (P0-10).
+      facts: [
+        {
+          id: "f-svc",
+          kind: "db-read",
+          filePath: "src/services/users.ts",
+          line: 1,
+          snippet: "find",
+          metadata: {},
+        },
+        {
+          id: "f-repo",
+          kind: "db-read",
+          filePath: "src/repositories/users.ts",
+          line: 1,
+          snippet: "find",
+          metadata: {},
         },
       ],
     });
@@ -63,6 +82,12 @@ describe("buildSoftwareGraph", () => {
     expect(graph.nodes.some((n) => n.kind === "route" && n.id === "route:route:users:get")).toBe(
       true,
     );
+    expect(
+      graph.nodes.some(
+        (n) =>
+          n.kind === "domain" && n.id === "domain:routes" && n.metadata?.domainSource === "path",
+      ),
+    ).toBe(true);
   });
 
   it("maps facts to evidence and inferred nodes", () => {

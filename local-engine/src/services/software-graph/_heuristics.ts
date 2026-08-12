@@ -1,10 +1,24 @@
 /**
  * Path-based heuristics used by the Software Graph builder.
+ * Location: local-engine/src/services/software-graph/_heuristics.ts
  */
+
+import { isDomainCandidate, type SegmentSpreadIndex } from "./_segment-spread.js";
 
 export function normalizePath(filePath: string): string {
   return filePath.replace(/^\/+/, "");
 }
+
+export type DomainSource = "path" | "none";
+
+export interface DomainDetection {
+  domain: string;
+  module: string;
+  domainSource: DomainSource;
+}
+
+/** Placeholder when no domain-candidate segment exists (UI: „Nicht zugeordnet”). */
+export const UNASSIGNED_DOMAIN = "unassigned";
 
 function isRouteGroupSegment(segment: string): boolean {
   return /^\([^)]+\)$/.test(segment);
@@ -20,7 +34,7 @@ function firstMeaningfulSegment(parts: string[]): string | null {
   return null;
 }
 
-export function detectDomain(filePath: string): string {
+function legacyDetectDomain(filePath: string): string {
   const parts = normalizePath(filePath).split("/").filter(Boolean);
   if (parts.length === 0) return "root";
 
@@ -33,7 +47,7 @@ export function detectDomain(filePath: string): string {
   return parts[0] || "root";
 }
 
-export function detectModule(filePath: string, domain: string): string {
+function legacyDetectModule(filePath: string, domain: string): string {
   const normalized = normalizePath(filePath);
 
   if (normalized.startsWith("src/")) {
@@ -71,6 +85,82 @@ export function detectModule(filePath: string, domain: string): string {
 
   const meaningful = firstMeaningfulSegment(parts);
   return meaningful ?? parts[0]!;
+}
+
+/**
+ * Preferred production entry: first domain-candidate segment wins (P0-10).
+ * Without candidates → monorepo prefix fallback → `unassigned` + source none.
+ */
+export function detectDomainAndModule(
+  filePath: string,
+  spread: SegmentSpreadIndex,
+): DomainDetection {
+  const parts = normalizePath(filePath).split("/").filter(Boolean);
+  if (parts.length === 0) {
+    return {
+      domain: UNASSIGNED_DOMAIN,
+      module: UNASSIGNED_DOMAIN,
+      domainSource: "none",
+    };
+  }
+
+  // Drop filename.
+  const dirParts = parts.slice(0, -1);
+  let monorepoPrefix: string | null = null;
+  let scanParts = dirParts;
+
+  if (
+    (dirParts[0] === "apps" || dirParts[0] === "packages" || dirParts[0] === "ee") &&
+    dirParts.length >= 2
+  ) {
+    monorepoPrefix = `${dirParts[0]}/${dirParts[1]}`;
+    scanParts = dirParts.slice(2);
+  }
+
+  const candidates: string[] = [];
+  for (const segment of scanParts) {
+    const entry = spread.byKey.get(segment.toLowerCase());
+    if (entry && isDomainCandidate(entry)) {
+      candidates.push(entry.label);
+    }
+  }
+
+  if (candidates.length >= 1) {
+    return {
+      domain: candidates[0]!,
+      module: candidates[1] ?? candidates[0]!,
+      domainSource: "path",
+    };
+  }
+  if (monorepoPrefix) {
+    return {
+      domain: monorepoPrefix,
+      module: monorepoPrefix,
+      domainSource: "path",
+    };
+  }
+  return {
+    domain: UNASSIGNED_DOMAIN,
+    module: UNASSIGNED_DOMAIN,
+    domainSource: "none",
+  };
+}
+
+export function detectDomain(filePath: string, spread?: SegmentSpreadIndex): string {
+  if (!spread) return legacyDetectDomain(filePath);
+  return detectDomainAndModule(filePath, spread).domain;
+}
+
+export function detectModule(
+  filePath: string,
+  domain: string,
+  spread?: SegmentSpreadIndex,
+): string {
+  if (!spread) return legacyDetectModule(filePath, domain);
+  const detected = detectDomainAndModule(filePath, spread);
+  // Keep call-site domain when it already matches; otherwise trust spread module.
+  if (detected.domain === domain) return detected.module;
+  return detected.module;
 }
 
 export function detectLayer(filePath: string): string {
