@@ -316,7 +316,9 @@ Deno.test("factSelection reports extracted and selected counts", () => {
   assertEquals(report.extracted, 51);
   assertEquals(report.selected, 10);
   assertEquals(report.byKind["api-route"]?.extracted, 50);
-  assertEquals(typeof report.byKind["db-write"]?.selected, "number");
+  assertEquals(report.byKind["api-route"]?.selected, 9);
+  assertEquals(report.byKind["db-write"]?.extracted, 1);
+  assertEquals(report.byKind["db-write"]?.selected, 1);
 });
 
 Deno.test("no cap means selected equals extracted", () => {

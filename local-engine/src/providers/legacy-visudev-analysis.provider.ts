@@ -26,6 +26,35 @@ type RunnerBlueprintResponse = {
   error?: string;
 };
 
+function isNonNegativeFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+function isFactSelectionReport(value: unknown): value is FactSelectionReport {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const report = value as Record<string, unknown>;
+  if (
+    !isNonNegativeFiniteNumber(report.extracted) ||
+    !isNonNegativeFiniteNumber(report.selected) ||
+    !isNonNegativeFiniteNumber(report.filesCovered)
+  ) {
+    return false;
+  }
+  const byKind = report.byKind;
+  if (!byKind || typeof byKind !== "object" || Array.isArray(byKind)) return false;
+  for (const entry of Object.values(byKind as Record<string, unknown>)) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return false;
+    const row = entry as Record<string, unknown>;
+    if (
+      !isNonNegativeFiniteNumber(row.extracted) ||
+      !isNonNegativeFiniteNumber(row.selected)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
   readonly id: BlueprintAnalysisProviderId = "legacy-blueprint-runner";
   readonly name = "Legacy Blueprint Runner";
@@ -99,16 +128,9 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
       metadata: raw.metadata && typeof raw.metadata === "object" ? raw.metadata : {},
     }));
 
-    const rawFactSelection = blueprint.factSelection as FactSelectionReport | undefined;
-    const factSelection =
-      rawFactSelection &&
-      typeof rawFactSelection.extracted === "number" &&
-      typeof rawFactSelection.selected === "number" &&
-      typeof rawFactSelection.filesCovered === "number" &&
-      rawFactSelection.byKind &&
-      typeof rawFactSelection.byKind === "object"
-        ? rawFactSelection
-        : undefined;
+    const factSelection = isFactSelectionReport(blueprint.factSelection)
+      ? blueprint.factSelection
+      : undefined;
 
     return {
       providerId: this.id,

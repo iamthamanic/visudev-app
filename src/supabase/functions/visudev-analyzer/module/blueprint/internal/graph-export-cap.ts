@@ -112,19 +112,21 @@ export function selectRestFactsByPriorityAndCoverage(
     const nextIndex = new Map<string, number>();
     for (const filePath of filePaths) nextIndex.set(filePath, 0);
 
-    let tierHasRemaining = true;
-    while (tierHasRemaining && selected.length < budget) {
-      tierHasRemaining = false;
-      for (const filePath of filePaths) {
+    let activeFiles = [...filePaths];
+    while (activeFiles.length > 0 && selected.length < budget) {
+      const stillActive: string[] = [];
+      for (const filePath of activeFiles) {
         if (selected.length >= budget) break;
         const facts = byFile.get(filePath)!;
         const index = nextIndex.get(filePath) ?? 0;
         if (index < facts.length) {
           selected.push(facts[index]);
-          nextIndex.set(filePath, index + 1);
-          tierHasRemaining = true;
+          const next = index + 1;
+          nextIndex.set(filePath, next);
+          if (next < facts.length) stillActive.push(filePath);
         }
       }
+      activeFiles = stillActive;
     }
     if (selected.length >= budget) break;
   }
