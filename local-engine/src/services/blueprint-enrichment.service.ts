@@ -1,6 +1,10 @@
 /**
  * Graph-first blueprint enrichment: legacy diagnostics are derived from SoftwareGraph.
  * Also attaches stack-agnostic accessControlFindings / accessControlMatrix (Phase 1+).
+ *
+ * P0-6: analyzability for auth/validation states is computed inside
+ * `buildRouteFactsIndexes` / `inferRouteStates` from per-file facts — no separate
+ * enrichment flag is required when `scan.facts` already carry `kind`.
  */
 
 import type { BlueprintDocument, RawBlueprintScan } from "../types/api.types.js";
