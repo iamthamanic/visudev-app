@@ -5,8 +5,8 @@
 
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveValidatedLocalPath } from "./local-path-security.js";
 import { readLocalAnalysisOrigin } from "./analysis-origin-git.js";
@@ -124,13 +124,48 @@ function logBlueprintSkip(kind, detail) {
   console.warn(`[blueprint-local] ${kind}: ${detail}`);
 }
 
-function walkCodeFiles(rootDir, maxFiles = MAX_WALK_CANDIDATES) {
+/** Resolve realpath; null when missing / unreadable. */
+function resolveRealPath(path) {
+  try {
+    return realpathSync(path);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * True when candidate resolves inside jailRoot (no symlink escape).
+ * Exported for unit tests.
+ */
+export function isPathInsideRoot(candidateAbs, jailRootReal) {
+  if (!jailRootReal) return false;
+  const real = resolveRealPath(candidateAbs);
+  if (!real) return false;
+  const rel = relative(jailRootReal, real);
+  return rel === "" || (!rel.startsWith(`..${sep}`) && rel !== ".." && !isAbsolute(rel));
+}
+
+/**
+ * Walk code files under rootDir, never following symlinks and never leaving jailRoot.
+ * @param {string} rootDir start directory
+ * @param {number} [maxFiles]
+ * @param {string} [jailRoot] containment root (defaults to rootDir)
+ */
+function walkCodeFiles(rootDir, maxFiles = MAX_WALK_CANDIDATES, jailRoot = rootDir) {
   const results = [];
+  const rootReal = resolveRealPath(jailRoot) ?? resolveRealPath(rootDir);
+  if (!rootReal) return results;
+  if (!isPathInsideRoot(rootDir, rootReal)) return results;
+
   const stack = [rootDir];
   const limit = Math.max(1, maxFiles);
 
   while (stack.length > 0 && results.length < limit) {
     const dir = stack.pop();
+    if (!isPathInsideRoot(dir, rootReal)) {
+      logBlueprintSkip("skip directory outside workspace", dir);
+      continue;
+    }
     let entries;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
@@ -141,12 +176,25 @@ function walkCodeFiles(rootDir, maxFiles = MAX_WALK_CANDIDATES) {
     for (const entry of entries) {
       if (results.length >= limit) break;
       const full = join(dir, entry.name);
+      // Skip before isDirectory/isFile — those follow symlink targets.
+      if (entry.isSymbolicLink()) {
+        logBlueprintSkip("skip symlink", relative(rootReal, full) || entry.name);
+        continue;
+      }
       if (entry.isDirectory()) {
         if (SKIP_DIRS.has(entry.name)) continue;
+        if (!isPathInsideRoot(full, rootReal)) {
+          logBlueprintSkip("skip directory outside workspace", full);
+          continue;
+        }
         stack.push(full);
         continue;
       }
       if (!entry.isFile()) continue;
+      if (!isPathInsideRoot(full, rootReal)) {
+        logBlueprintSkip("skip file outside workspace", full);
+        continue;
+      }
       const ext = entry.name.split(".").pop()?.toLowerCase();
       if (!ext || !SUPPORTED_EXT.has(ext)) continue;
       // Only compose YAML — generic .yml (CI/k8s) must not flood FILE_LIMIT.
@@ -248,7 +296,7 @@ function collectCriticalSeedRelPaths(workspaceRoot) {
     } catch {
       return;
     }
-    for (const abs of walkCodeFiles(absDir, budget)) {
+    for (const abs of walkCodeFiles(absDir, budget, workspaceRoot)) {
       pushAbs(abs);
     }
   };
@@ -290,9 +338,11 @@ function collectCriticalSeedRelPaths(workspaceRoot) {
 
   // Named schema.prisma search (shallow-biased DFS) when package roots differ.
   const schemaHits = [];
+  const workspaceReal = resolveRealPath(workspaceRoot);
   const stack = [workspaceRoot];
   while (stack.length > 0 && schemaHits.length < SEED_SCHEMA_FIND_BUDGET) {
     const dir = stack.pop();
+    if (workspaceReal && !isPathInsideRoot(dir, workspaceReal)) continue;
     let entries;
     try {
       entries = readdirSync(dir, { withFileTypes: true });
@@ -302,13 +352,17 @@ function collectCriticalSeedRelPaths(workspaceRoot) {
     for (const entry of entries) {
       if (schemaHits.length >= SEED_SCHEMA_FIND_BUDGET) break;
       const full = join(dir, entry.name);
+      if (entry.isSymbolicLink()) continue;
       if (entry.isDirectory()) {
         if (SKIP_DIRS.has(entry.name)) continue;
+        if (workspaceReal && !isPathInsideRoot(full, workspaceReal)) continue;
         stack.push(full);
         continue;
       }
       if (entry.isFile() && entry.name === "schema.prisma") {
-        schemaHits.push(full);
+        if (!workspaceReal || isPathInsideRoot(full, workspaceReal)) {
+          schemaHits.push(full);
+        }
       }
     }
   }
@@ -361,13 +415,20 @@ export {
   applyFileLimitWithSeeds,
   isCriticalWalkSeedPath,
   collectCriticalSeedRelPaths,
+  walkCodeFiles,
   SUPPORTED_EXT,
   FILE_LIMIT,
 };
 
 function collectFileEntries(workspaceRoot) {
+  const rootReal = resolveRealPath(workspaceRoot);
+  if (!rootReal) {
+    logBlueprintSkip("skip workspace", "unresolvable workspace root");
+    return [];
+  }
+
   const seedRelPaths = collectCriticalSeedRelPaths(workspaceRoot);
-  const walkedAbs = walkCodeFiles(workspaceRoot);
+  const walkedAbs = walkCodeFiles(workspaceRoot, MAX_WALK_CANDIDATES, workspaceRoot);
   const walkedRel = walkedAbs.map((abs) => relative(workspaceRoot, abs).replace(/\\/g, "/"));
   const merged = [...new Set([...seedRelPaths, ...walkedRel])];
   const prioritized = prioritizeBlueprintFiles(merged);
@@ -376,14 +437,23 @@ function collectFileEntries(workspaceRoot) {
   const entries = [];
   for (const relPath of capped) {
     const abs = join(workspaceRoot, relPath);
+    if (!isPathInsideRoot(abs, rootReal)) {
+      logBlueprintSkip("skip path outside workspace", relPath);
+      continue;
+    }
     try {
-      const stat = statSync(abs);
+      const realAbs = resolveRealPath(abs);
+      if (!realAbs || !isPathInsideRoot(realAbs, rootReal)) {
+        logBlueprintSkip("skip path outside workspace", relPath);
+        continue;
+      }
+      const stat = statSync(realAbs);
       if (!stat.isFile()) continue;
       if (stat.size > MAX_FILE_BYTES) {
         logBlueprintSkip("skip large file", `${relPath} (${stat.size} bytes)`);
         continue;
       }
-      const content = readFileSync(abs, "utf8");
+      const content = readFileSync(realAbs, "utf8");
       entries.push({ path: relPath, content });
     } catch (error) {
       logBlueprintSkip(
@@ -392,6 +462,7 @@ function collectFileEntries(workspaceRoot) {
       );
     }
   }
+
   return entries;
 }
 

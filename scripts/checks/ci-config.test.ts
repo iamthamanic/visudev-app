@@ -38,4 +38,11 @@ describe("CI workflow", () => {
   it("e2e-demo job is explicitly named as demo path", () => {
     expect(getJobBlock("e2e-demo")).toContain("name: E2E (Playwright, Demo-Enrichment)");
   });
+
+  it("DEMO_ENRICHMENT only appears inside the e2e-demo job (not workflow-level)", () => {
+    const e2eBlock = getJobBlock("e2e-demo");
+    const outsideE2e = workflow.replace(e2eBlock, "");
+    expect(outsideE2e).not.toMatch(/DEMO_ENRICHMENT/);
+    expect(e2eBlock).toMatch(/DEMO_ENRICHMENT/);
+  });
 });
