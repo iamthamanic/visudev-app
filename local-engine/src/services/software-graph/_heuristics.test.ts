@@ -53,6 +53,17 @@ describe("software graph heuristics", () => {
     expect(detectLayer("src/repositories/user-repo.ts")).toBe("data");
   });
 
+  it("classifies Rails app/models vs app/controllers before broad app/", () => {
+    expect(detectLayer("app/models/topic.rb")).toBe("data");
+    expect(detectLayer("app/controllers/topics_controller.rb")).toBe("presentation");
+    expect(detectLayer("app/(dashboard)/page.tsx")).toBe("presentation");
+  });
+
+  it("still classifies database and db folders as data", () => {
+    expect(detectLayer("src/database/migrations/001.sql")).toBe("data");
+    expect(detectLayer("packages/db/schema.ts")).toBe("data");
+  });
+
   it("without index, legacy first-segment behavior remains", () => {
     expect(detectDomain("backend/app/modules/leaves/x.ts")).toBe("backend");
   });

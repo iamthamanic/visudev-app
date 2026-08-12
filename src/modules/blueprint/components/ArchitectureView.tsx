@@ -13,6 +13,10 @@ import {
 } from "./architecture/architecture-grouping.js";
 import { buildArchitectureStackCards } from "./architecture/build-layer-stack.js";
 import { projectArchitectureGraph } from "./architecture/_projection.js";
+import {
+  collectFileDomainSources,
+  domainSourceHintText,
+} from "./architecture/domain-source-hint.js";
 import { useArchitectureDefaultLayerSelection } from "../hooks/useArchitectureDefaultLayerSelection.js";
 import { buildGraphSnapshotKey } from "../services/graph-snapshot-key.js";
 import styles from "../styles/ArchitectureView.module.css";
@@ -60,6 +64,11 @@ export function ArchitectureView({ blueprint }: ArchitectureViewProps) {
     if (!graph) return [];
     return buildArchitectureStackCards(graph, GROUPING_STACK_KIND[groupingMode]);
   }, [graph, groupingMode]);
+
+  const domainHint = useMemo(() => {
+    if (!graph) return null;
+    return domainSourceHintText(collectFileDomainSources(graph.nodes));
+  }, [graph]);
 
   const selectedNode = useMemo(() => {
     if (!graph || !selectedNodeId) return null;
@@ -155,6 +164,11 @@ export function ArchitectureView({ blueprint }: ArchitectureViewProps) {
   return (
     <div className={styles.root}>
       <ArchitectureGroupingToggle mode={groupingMode} onSelectMode={setGroupingMode} />
+      {domainHint ? (
+        <p className={styles.domainSourceHint} role="status">
+          {domainHint}
+        </p>
+      ) : null}
 
       <BlueprintViewLayout
         controls={controls}
