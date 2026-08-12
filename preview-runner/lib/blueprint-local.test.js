@@ -11,12 +11,12 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   FILE_LIMIT,
   SUPPORTED_EXT,
-  analyzeLocalBlueprint,
   applyFileLimitWithSeeds,
   isCriticalWalkSeedPath,
   prioritizeBlueprintFiles,
   resolveWorkspaceRoot,
 } from "./blueprint-local.js";
+import { readLocalAnalysisOrigin } from "./analysis-origin-git.js";
 
 const temporaryDirectories = [];
 const originalAllowedRoots = process.env.VISUDEV_ALLOWED_LOCAL_ROOTS;
@@ -164,23 +164,20 @@ describe("blueprint-local Softort coverage", () => {
 });
 
 describe("blueprint-local analysis origin", () => {
-  it("analysis of a non-git folder reports no commit sha", async () => {
+  it("readLocalAnalysisOrigin on a non-git folder reports filesystem provenance", async () => {
     const directory = createAnalyzableDirectory();
 
-    const result = await analyzeLocalBlueprint({
-      localPath: directory,
-      projectId: "origin-no-git",
-    });
+    const origin = await readLocalAnalysisOrigin(directory);
 
-    expect(result.blueprint.commitSha).toBeUndefined();
-    expect(result.blueprint.branch).toBeUndefined();
-    expect(result.origin).toMatchObject({
+    expect(origin.commitSha).toBeUndefined();
+    expect(origin.branch).toBeUndefined();
+    expect(origin).toMatchObject({
       sourceKind: "filesystem",
       dirty: false,
     });
-  }, 30_000);
+  });
 
-  it("analysis of a git folder reports the real head commit", async () => {
+  it("readLocalAnalysisOrigin on a git folder reports the real head commit", async () => {
     const directory = createAnalyzableDirectory();
     execFileSync("git", ["init", "--quiet"], { cwd: directory });
     execFileSync("git", ["config", "user.email", "visudev-test@example.invalid"], {
@@ -198,18 +195,15 @@ describe("blueprint-local analysis origin", () => {
       encoding: "utf8",
     }).trim();
 
-    const result = await analyzeLocalBlueprint({
-      localPath: directory,
-      projectId: "origin-git",
-    });
+    const origin = await readLocalAnalysisOrigin(directory);
 
-    expect(result.blueprint.commitSha).toBe(expectedCommit);
-    expect(result.blueprint.branch).toBe(expectedBranch);
-    expect(result.origin).toMatchObject({
+    expect(origin.commitSha).toBe(expectedCommit.slice(0, 7));
+    expect(origin.branch).toBe(expectedBranch);
+    expect(origin).toMatchObject({
       sourceKind: "git",
-      commitSha: expectedCommit,
+      commitSha: expectedCommit.slice(0, 7),
       branch: expectedBranch,
       dirty: false,
     });
-  }, 30_000);
+  });
 });
