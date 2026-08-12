@@ -97,12 +97,12 @@ export function analyzeFromFileEntries(
   const routeScopes = validateRouteScopes(
     buildRouteScopes(allFacts, fileIndex),
   );
-  const exportFacts = sanitizeFactsForExport(
-    selectFactsPreservingPrismaModels(allFacts, MAX_BLUEPRINT_FACTS),
-  );
+  const { facts: cappedFacts, report: factSelection } =
+    selectFactsPreservingPrismaModels(allFacts, MAX_BLUEPRINT_FACTS);
+  const exportFacts = sanitizeFactsForExport(cappedFacts);
   const concepts = buildConceptsForRoutes(routeScopes, allFacts);
   const findings = evaluatePolicies(routeScopes, concepts, allFacts);
-  let graph = assembleBlueprintGraph(allFacts, routeScopes);
+  let graph = assembleBlueprintGraph(exportFacts, routeScopes);
   const routes = buildRouteBlueprints(routeScopes, concepts, graph);
   const securityMatrix = buildSecurityMatrix(routes, findings, graph);
   graph = attachGraphFindings(graph, routes, routeScopes, allFacts, findings);
@@ -119,6 +119,7 @@ export function analyzeFromFileEntries(
     securityMatrix,
     findings,
     facts: exportFacts,
+    factSelection,
     concepts,
     graph,
     filesAnalyzed: analyzed,

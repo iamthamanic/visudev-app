@@ -2,6 +2,7 @@
 
 export {
   capGraphForExport,
+  FACT_EXPORT_PRIORITY,
   MAX_BLUEPRINT_FACTS,
   selectFactsPreservingPrismaModels,
 } from "./graph-export-cap.ts";

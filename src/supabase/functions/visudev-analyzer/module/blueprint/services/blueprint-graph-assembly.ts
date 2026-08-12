@@ -4,19 +4,13 @@ import type { CodeFact } from "../../dto/blueprint/blueprint-document.dto.ts";
 import type { RouteScope } from "../../dto/blueprint/route-scope.dto.ts";
 import type { VisuDevGraph } from "../../dto/graph/visudev-graph.dto.ts";
 import { buildVisuDevGraphFromFacts } from "../graph/fact-graph.mapper.ts";
-import {
-  capGraphForExport,
-  MAX_BLUEPRINT_FACTS,
-  selectFactsPreservingPrismaModels,
-} from "../internal/export-sanitizer.ts";
+import { capGraphForExport } from "../internal/export-sanitizer.ts";
 
 export function assembleBlueprintGraph(
-  facts: CodeFact[],
+  exportFacts: CodeFact[],
   routeScopes: RouteScope[],
 ): VisuDevGraph {
-  const graphFacts = selectFactsPreservingPrismaModels(
-    facts,
-    MAX_BLUEPRINT_FACTS,
+  return capGraphForExport(
+    buildVisuDevGraphFromFacts(exportFacts, routeScopes),
   );
-  return capGraphForExport(buildVisuDevGraphFromFacts(graphFacts, routeScopes));
 }

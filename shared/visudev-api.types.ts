@@ -159,6 +159,13 @@ export type RawBlueprintFact = {
   metadata?: Record<string, unknown>;
 };
 
+export type FactSelectionReport = {
+  extracted: number;
+  selected: number;
+  filesCovered: number;
+  byKind: Record<string, { extracted: number; selected: number }>;
+};
+
 export type RawBlueprintScan = {
   providerId: BlueprintAnalysisProviderId;
   projectId: string;
@@ -166,6 +173,7 @@ export type RawBlueprintScan = {
   analyzedAt: string;
   routes: RawBlueprintRoute[];
   facts: RawBlueprintFact[];
+  factSelection?: FactSelectionReport;
   filesAnalyzed: number;
   /** Captured at scan time by the provider; avoids re-reading git after analysis. */
   analysisOrigin?: AnalysisOrigin;
