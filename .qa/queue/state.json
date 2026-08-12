@@ -1,26 +1,26 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 268,
-  "featureSlug": "p0-14-filename-domains",
-  "phase": "commit",
-  "branch": "issue-268-p0-14-filename-domains",
+  "activeIssue": null,
+  "featureSlug": null,
+  "phase": "idle",
+  "branch": null,
   "prUrl": null,
   "milestoneFilter": "visudev-honest-core-phase0",
   "paused": false,
   "runMode": "loop",
-  "queue": [268],
+  "queue": [],
   "completedIssues": [
     67, 68, 69, 70, 71, 72, 73, 74, 75, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 105, 106, 107, 108,
     109, 110, 111, 112, 113, 123, 124, 125, 126, 127, 128, 129, 130, 133, 134, 135, 136, 137, 138,
     139, 140, 141, 142, 149, 150, 151, 152, 153, 154, 195, 196, 197, 198, 203, 204, 205, 209, 210,
-    213, 243, 244, 245, 246, 247, 248, 249, 250, 260, 261, 262, 263, 264, 273, 265, 266, 267
+    213, 243, 244, 245, 246, 247, 248, 249, 250, 260, 261, 262, 263, 264, 273, 265, 266, 267, 268
   ],
   "mergedIssues": [
     105, 106, 107, 108, 109, 110, 111, 112, 113, 123, 124, 125, 126, 127, 128, 129, 130, 133, 134,
     135, 136, 137, 138, 139, 140, 141, 142, 149, 150, 151, 152, 153, 154, 195, 196, 197, 198, 203,
     204, 205, 209, 210, 213, 243, 244, 245, 246, 247, 248, 249, 250, 260, 261, 262, 263, 264, 273,
-    265, 266, 267
+    265, 266, 267, 268
   ],
   "prUrls": {
     "260": "https://github.com/iamthamanic/visudev-app/pull/269",
@@ -31,20 +31,14 @@
     "264": "https://github.com/iamthamanic/visudev-app/pull/275",
     "265": "https://github.com/iamthamanic/visudev-app/pull/276",
     "266": "https://github.com/iamthamanic/visudev-app/pull/277",
-    "267": "https://github.com/iamthamanic/visudev-app/pull/278"
+    "267": "https://github.com/iamthamanic/visudev-app/pull/278",
+    "268": "https://github.com/iamthamanic/visudev-app/pull/280"
   },
   "retries": {
     "implement": 0,
     "verifyTicket": 0,
     "verifyUi": 0,
-    "review": 0,
-    "268": {
-      "implement": 0,
-      "verifyTicket": 0,
-      "verifyUi": 0,
-      "review": 0,
-      "sameRootCause": 0
-    }
+    "review": 0
   },
   "maxRetries": {
     "implement": 3,
@@ -55,10 +49,10 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 0,
-  "updatedAt": "2026-08-12T14:14:00.000Z",
-  "notes": "Policy: fix Critical+Important+Minor before merge. Queue synced after #267 merge + audit follow-up #279. Next #268 P0-14.",
-  "currentIssue": 268,
-  "lastCompletedIssue": 267,
-  "activeBranch": "issue-268-p0-14-filename-domains"
+  "issuesProcessedInSession": 1,
+  "updatedAt": "2026-08-12T14:37:30.000Z",
+  "notes": "Queue empty after #268 P0-14 merged (PR #280). No open agent-ready issues in milestone.",
+  "currentIssue": null,
+  "lastCompletedIssue": 268,
+  "activeBranch": null
 }
