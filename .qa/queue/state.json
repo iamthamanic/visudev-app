@@ -10,7 +10,6 @@
   "paused": false,
   "runMode": "loop",
   "queue": [
-    265,
     266,
     267,
     268
@@ -91,7 +90,8 @@
     262,
     263,
     264,
-    273
+    273,
+    265
   ],
   "mergedIssues": [
     105,
@@ -150,7 +150,8 @@
     262,
     263,
     264,
-    273
+    273,
+    265
   ],
   "prUrls": {
     "260": "https://github.com/iamthamanic/visudev-app/pull/269",
@@ -158,7 +159,8 @@
     "262": "https://github.com/iamthamanic/visudev-app/pull/271",
     "263": "https://github.com/iamthamanic/visudev-app/pull/272",
     "273": "https://github.com/iamthamanic/visudev-app/pull/274",
-    "264": "https://github.com/iamthamanic/visudev-app/pull/275"
+    "264": "https://github.com/iamthamanic/visudev-app/pull/275",
+    "265": "https://github.com/iamthamanic/visudev-app/pull/276"
   },
   "retries": {
     "implement": 0,
@@ -185,7 +187,7 @@
   "issuesProcessedInSession": 7,
   "updatedAt": "2026-08-12T11:20:00.000Z",
   "notes": "Policy: fix Critical+Important+Minor before merge. Next #265 P0-9.",
-  "currentIssue": 265,
-  "lastCompletedIssue": 264,
-  "activeBranch": "issue-265-p0-9-null-import-call-edges"
+  "currentIssue": 266,
+  "lastCompletedIssue": 265,
+  "activeBranch": "issue-266-p0-13-segment-spread"
 }
