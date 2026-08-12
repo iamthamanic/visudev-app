@@ -37,10 +37,7 @@ describe("buildSegmentSpreadIndex", () => {
   });
 
   it("case folding: Models and models share a key", () => {
-    const index = buildSegmentSpreadIndex([
-      "app/Models/a.rb",
-      "plugins/x/models/b.rb",
-    ]);
+    const index = buildSegmentSpreadIndex(["app/Models/a.rb", "plugins/x/models/b.rb"]);
     expect(index.byKey.get("models")?.parentSpread).toBe(2);
     expect(index.byKey.has("Models")).toBe(false);
   });
