@@ -4,7 +4,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -13,8 +13,10 @@ import {
   SUPPORTED_EXT,
   applyFileLimitWithSeeds,
   isCriticalWalkSeedPath,
+  isPathInsideRoot,
   prioritizeBlueprintFiles,
   resolveWorkspaceRoot,
+  walkCodeFiles,
 } from "./blueprint-local.js";
 import { readLocalAnalysisOrigin } from "./analysis-origin-git.js";
 
@@ -205,5 +207,33 @@ describe("blueprint-local analysis origin", () => {
       branch: expectedBranch,
       dirty: false,
     });
+  });
+});
+
+describe("blueprint-local workspace jail", () => {
+  it("isPathInsideRoot rejects paths outside the jail", () => {
+    const root = mkdtempSync(join(tmpdir(), "visudev-jail-root-"));
+    const outside = mkdtempSync(join(tmpdir(), "visudev-jail-out-"));
+    temporaryDirectories.push(root, outside);
+    writeFileSync(join(root, "a.ts"), "export {};\n");
+    writeFileSync(join(outside, "secret.ts"), "export {};\n");
+    const rootReal = realpathSync(root);
+    expect(isPathInsideRoot(join(root, "a.ts"), rootReal)).toBe(true);
+    expect(isPathInsideRoot(join(outside, "secret.ts"), rootReal)).toBe(false);
+  });
+
+  it("walkCodeFiles does not follow directory symlinks outside the workspace", () => {
+    const root = mkdtempSync(join(tmpdir(), "visudev-walk-root-"));
+    const outside = mkdtempSync(join(tmpdir(), "visudev-walk-out-"));
+    temporaryDirectories.push(root, outside);
+
+    writeFileSync(join(root, "inside.ts"), "export const ok = 1;\n");
+    writeFileSync(join(outside, "secret.ts"), "export const leaked = 1;\n");
+    symlinkSync(outside, join(root, "escape"));
+
+    const walked = walkCodeFiles(root);
+    const basenames = walked.map((abs) => abs.split(/[/\\]/).pop());
+    expect(basenames).toContain("inside.ts");
+    expect(basenames).not.toContain("secret.ts");
   });
 });
