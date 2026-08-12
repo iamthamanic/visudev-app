@@ -19,7 +19,7 @@ test.describe("Wave 4 execution FEHLT / payload", () => {
     const fehltCount = await page.getByText(/fehlt/i).count();
     expect(fehltCount).toBeLessThanOrEqual(1);
 
-    const payload = page.getByTestId("execution-detail-tab-payload");
+    const payload = page.getByTestId("execution-payload");
     await expect(payload).toBeVisible({ timeout: 15000 });
     await expect(payload).toContainText("{");
     await expect(payload).toContainText(/resourceRef|accepted|status/i);

@@ -220,10 +220,7 @@ test.describe("Blueprint Engine Core UI", () => {
     await page.waitForLoadState("networkidle");
 
     const loginSubtitle = page.getByText(/Melde dich an/i);
-    if (await loginSubtitle.isVisible().catch(() => false)) {
-      test.skip(true, "Auth mock insufficient — login screen still shown");
-      return;
-    }
+    await expect(loginSubtitle).toBeHidden();
 
     const projectCard = page.getByText("Blueprint E2E").first();
     if (await projectCard.isVisible().catch(() => false)) {
@@ -266,15 +263,7 @@ test.describe("Blueprint Engine Core UI", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    if (
-      await page
-        .getByText(/Melde dich an/i)
-        .isVisible()
-        .catch(() => false)
-    ) {
-      test.skip(true, "Login required");
-      return;
-    }
+    await expect(page.getByText(/Melde dich an/i)).toBeHidden();
 
     const projectCard = page.getByText("Blueprint E2E").first();
     if (await projectCard.isVisible().catch(() => false)) {
@@ -312,15 +301,7 @@ test.describe("Blueprint Engine Core UI", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    if (
-      await page
-        .getByText(/Melde dich an/i)
-        .isVisible()
-        .catch(() => false)
-    ) {
-      test.skip(true, "Login required");
-      return;
-    }
+    await expect(page.getByText(/Melde dich an/i)).toBeHidden();
 
     const projectCard = page.getByText("Blueprint E2E").first();
     if (await projectCard.isVisible().catch(() => false)) {
@@ -383,15 +364,7 @@ test.describe("Blueprint Engine Core UI", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    if (
-      await page
-        .getByText(/Melde dich an/i)
-        .isVisible()
-        .catch(() => false)
-    ) {
-      test.skip(true, "Login required");
-      return;
-    }
+    await expect(page.getByText(/Melde dich an/i)).toBeHidden();
 
     const projectCard = page.getByText("Blueprint E2E").first();
     if (await projectCard.isVisible().catch(() => false)) {

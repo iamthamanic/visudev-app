@@ -16,6 +16,6 @@ test.describe("Wave 3 evolution git timeline", () => {
     await openBlueprintView(page, "evolution");
 
     await expect(page.getByTestId("evolution-timeline")).toBeVisible({ timeout: 20000 });
-    expect(await page.getByTestId("evolution-commit-dot").count()).toBeGreaterThanOrEqual(3);
+    expect(await page.getByTestId("evolution-timeline-commit").count()).toBeGreaterThanOrEqual(3);
   });
 });

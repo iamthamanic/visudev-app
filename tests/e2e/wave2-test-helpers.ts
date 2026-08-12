@@ -3,7 +3,7 @@
  * Uses sidebar navigation (pushState) so activeProject survives view switches.
  */
 
-import { expect, test } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { buildDemoGitSummary } from "../../shared/demo-git-summary.js";
 import { buildHrToolDemoGraph } from "../../shared/demo-graph-seed.js";
 
@@ -358,15 +358,7 @@ export async function openBlueprintView(page: import("@playwright/test").Page, v
   await page.goto("/");
   await page.waitForLoadState("networkidle");
 
-  if (
-    await page
-      .getByText(/Melde dich an/i)
-      .isVisible()
-      .catch(() => false)
-  ) {
-    test.skip(true, "Auth mock insufficient — login screen still shown");
-    return;
-  }
+  await expect(page.getByText(/Melde dich an/i)).toBeHidden();
 
   const projectCard = page.getByText("browo/hr-tool").first();
   await expect(projectCard).toBeVisible({ timeout: 15000 });

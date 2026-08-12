@@ -12,12 +12,14 @@ export default defineConfig({
       "local-engine/**/*.{test,spec}.ts",
       "shared/**/*.{test,spec}.ts",
       "preview-runner/lib/**/*.{test,spec}.js",
+      "scripts/checks/**/*.test.ts",
     ],
     environmentMatchGlobs: [
       ["local-engine/**", "node"],
       ["preview-runner/**", "node"],
+      ["scripts/checks/**", "node"],
     ],
-    exclude: ["src/supabase/functions/**"],
+    exclude: ["src/supabase/functions/**", "tests/fixtures/**"],
     passWithNoTests: true,
   },
 });

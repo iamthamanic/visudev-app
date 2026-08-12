@@ -13,6 +13,7 @@ export default tseslint.config(
       "preview-runner/**",
       "logs-runner/**",
       "scripts/**", // Node.js dev scripts (require, process, etc.)
+      "tests/fixtures/**",
       "src/supabase/functions/**",
       "shared/**",
       "supabase/**", // Backup-Layout (Deno/Edge Functions)

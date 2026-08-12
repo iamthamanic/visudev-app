@@ -22,13 +22,13 @@ test.describe("Wave 2 evolution viz parity", () => {
 
     const timeline = page.getByTestId("evolution-timeline");
     await expect(timeline).toBeVisible({ timeout: 20000 });
-    expect(await page.getByTestId("evolution-commit-dot").count()).toBeGreaterThanOrEqual(3);
+    expect(await page.getByTestId("evolution-timeline-commit").count()).toBeGreaterThanOrEqual(3);
 
     await expect(page.getByTestId("evolution-snapshot-card")).toHaveCount(5);
     expect(await page.getByTestId("evolution-metric-card").count()).toBeGreaterThanOrEqual(6);
     await expect(page.getByTestId("evolution-changes-column")).toHaveCount(4);
 
-    await page.getByTestId("evolution-commit-dot").nth(1).click();
+    await page.getByTestId("evolution-timeline-commit").nth(1).click();
     await expect(page.getByTestId("evolution-inspector")).toBeVisible();
     await expect(
       page.getByTestId("evolution-inspector").getByText("Payroll Integration"),
