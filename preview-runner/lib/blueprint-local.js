@@ -36,6 +36,11 @@ const SKIP_DIRS = new Set([
 const SUPPORTED_EXT = new Set(["ts", "tsx", "js", "jsx", "vue", "py", "prisma", "yml", "yaml"]);
 const FILE_LIMIT = Math.max(250, Number(process.env.BLUEPRINT_FILE_LIMIT) || 400);
 const MAX_WALK_CANDIDATES = Math.max(2000, Number(process.env.BLUEPRINT_MAX_WALK) || 4000);
+/** Walk paths shipped for Softort/domain spread (may exceed FILE_LIMIT content set). */
+const MAX_PATH_CATALOG = Math.max(
+  FILE_LIMIT,
+  Number(process.env.BLUEPRINT_MAX_PATH_CATALOG) || 4000,
+);
 /** visudev-gapclose P1-1: seed budgets so Cap cannot starve Prisma/Meteor. */
 const SEED_DATABASE_BUDGET = Math.max(20, Number(process.env.BLUEPRINT_SEED_DATABASE_BUDGET) || 80);
 const SEED_METEOR_SERVER_BUDGET = Math.max(
@@ -373,6 +378,7 @@ function collectCriticalSeedRelPaths(workspaceRoot) {
 
 /**
  * Guarantee seed paths occupy Cap slots before ranked fill (route.ts must not starve meteor).
+ * Remaining slots round-robin by first two path segments (erpnext module diversity).
  * Keep in sync with call-graph.builder.ts applyFileLimitWithSeeds.
  */
 function applyFileLimitWithSeeds(rankedRelPaths, seedRelPaths, limit = FILE_LIMIT) {
@@ -391,11 +397,43 @@ function applyFileLimitWithSeeds(rankedRelPaths, seedRelPaths, limit = FILE_LIMI
     seen.add(p);
     out.push(p);
   }
+
+  /** @type {Map<string, string[]>} */
+  const buckets = new Map();
+  /** @type {string[]} */
+  const order = [];
   for (const p of rankedRelPaths || []) {
-    if (out.length >= cap) break;
     if (seen.has(p)) continue;
-    seen.add(p);
-    out.push(p);
+    const norm = String(p || "").replace(/\\/g, "/");
+    const parts = norm.split("/").filter(Boolean);
+    const key = parts.slice(0, Math.min(2, parts.length)).join("/") || "_";
+    if (!buckets.has(key)) {
+      buckets.set(key, []);
+      order.push(key);
+    }
+    buckets.get(key).push(p);
+  }
+  /** @type {Map<string, number>} */
+  const indexes = new Map(order.map((k) => [k, 0]));
+
+  let progress = true;
+  while (out.length < cap && progress) {
+    progress = false;
+    for (const key of order) {
+      if (out.length >= cap) break;
+      const list = buckets.get(key);
+      let idx = indexes.get(key) ?? 0;
+      while (idx < list.length && seen.has(list[idx])) idx += 1;
+      if (idx >= list.length) {
+        indexes.set(key, idx);
+        continue;
+      }
+      const pick = list[idx];
+      seen.add(pick);
+      out.push(pick);
+      indexes.set(key, idx + 1);
+      progress = true;
+    }
   }
   return out;
 }
@@ -416,15 +454,73 @@ export {
   isCriticalWalkSeedPath,
   collectCriticalSeedRelPaths,
   walkCodeFiles,
+  selectDiversePathCatalog,
   SUPPORTED_EXT,
   FILE_LIMIT,
 };
+
+/**
+ * Round-robin by first two path segments so erpnext/accounts + buying + crm
+ * all appear in the Softort catalog even when ranked order clusters one module.
+ * @param {string[]} rankedRelPaths
+ * @param {number} limit
+ */
+function selectDiversePathCatalog(rankedRelPaths, limit = MAX_PATH_CATALOG) {
+  const cap = Math.max(0, limit);
+  if (cap === 0 || rankedRelPaths.length === 0) return [];
+  if (rankedRelPaths.length <= cap) return [...rankedRelPaths];
+
+  /** @type {Map<string, string[]>} */
+  const buckets = new Map();
+  /** @type {string[]} */
+  const order = [];
+  for (const raw of rankedRelPaths) {
+    const path = String(raw || "")
+      .replace(/\\/g, "/")
+      .trim();
+    if (!path) continue;
+    const parts = path.split("/").filter(Boolean);
+    const key = parts.slice(0, Math.min(2, parts.length)).join("/") || "_";
+    if (!buckets.has(key)) {
+      buckets.set(key, []);
+      order.push(key);
+    }
+    buckets.get(key).push(path);
+  }
+
+  /** @type {string[]} */
+  const selected = [];
+  const seen = new Set();
+  /** @type {Map<string, number>} */
+  const indexes = new Map(order.map((k) => [k, 0]));
+
+  let progress = true;
+  while (selected.length < cap && progress) {
+    progress = false;
+    for (const key of order) {
+      if (selected.length >= cap) break;
+      const list = buckets.get(key);
+      let idx = indexes.get(key) ?? 0;
+      while (idx < list.length && seen.has(list[idx])) idx += 1;
+      if (idx >= list.length) {
+        indexes.set(key, idx);
+        continue;
+      }
+      const pick = list[idx];
+      seen.add(pick);
+      selected.push(pick);
+      indexes.set(key, idx + 1);
+      progress = true;
+    }
+  }
+  return selected;
+}
 
 function collectFileEntries(workspaceRoot) {
   const rootReal = resolveRealPath(workspaceRoot);
   if (!rootReal) {
     logBlueprintSkip("skip workspace", "unresolvable workspace root");
-    return [];
+    return { files: [], pathCatalog: [] };
   }
 
   const seedRelPaths = collectCriticalSeedRelPaths(workspaceRoot);
@@ -432,6 +528,8 @@ function collectFileEntries(workspaceRoot) {
   const walkedRel = walkedAbs.map((abs) => relative(workspaceRoot, abs).replace(/\\/g, "/"));
   const merged = [...new Set([...seedRelPaths, ...walkedRel])];
   const prioritized = prioritizeBlueprintFiles(merged);
+  // Full walk (diversified) for segment-spread — not limited to content FILE_LIMIT.
+  const pathCatalog = selectDiversePathCatalog(prioritized, MAX_PATH_CATALOG);
   const capped = applyFileLimitWithSeeds(prioritized, seedRelPaths, FILE_LIMIT);
 
   const entries = [];
@@ -463,7 +561,7 @@ function collectFileEntries(workspaceRoot) {
     }
   }
 
-  return entries;
+  return { files: entries, pathCatalog };
 }
 
 function runDenoAnalyze(payload) {
@@ -568,7 +666,7 @@ export async function analyzeLocalBlueprint(input) {
     }
 
     const workspaceRoot = resolveWorkspaceRoot(validated.path);
-    const files = collectFileEntries(workspaceRoot);
+    const { files, pathCatalog } = collectFileEntries(workspaceRoot);
     if (files.length === 0) {
       const err = new Error("No analyzable source files found in local project path");
       err.statusCode = 400;
@@ -586,6 +684,7 @@ export async function analyzeLocalBlueprint(input) {
       repo: `local:${localPath}`,
       branch: analysisOrigin.branch,
       files,
+      pathCatalog,
       fileLimit: FILE_LIMIT,
     });
 

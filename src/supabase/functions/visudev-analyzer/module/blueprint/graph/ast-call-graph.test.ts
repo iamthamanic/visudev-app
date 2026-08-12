@@ -131,3 +131,14 @@ Deno.test("reports parse failures instead of swallowing them", () => {
   assertEquals(report.filesFailed, 1);
   assertEquals(report.failedSamples, [ROUTE_FILE]);
 });
+
+Deno.test("failedSamples never keep absolute host prefixes", () => {
+  const broken = "import { x from './y'; {{{";
+  const report = createEmptyAstParseReport();
+  const abs = "/Users/alice/code/repo/src/routes/employees.ts";
+  assertEquals(parseAstModuleGraph(broken, abs, undefined, report), null);
+  assertEquals(report.failedSamples.length, 1);
+  assertEquals(report.failedSamples[0]!.includes("/Users/alice"), false);
+  assertEquals(report.failedSamples[0]!.includes("alice"), false);
+  assertEquals(report.failedSamples[0], "src/routes/employees.ts");
+});

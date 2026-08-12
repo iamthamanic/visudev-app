@@ -76,6 +76,27 @@ function isAstParseReport(value: unknown): value is AstParseReport {
   return report.failedSamples.every((sample) => typeof sample === "string");
 }
 
+const MAX_PATH_CATALOG_ACCEPT = 4000;
+const MAX_PATH_CATALOG_ENTRY = 512;
+
+function sanitizeIncomingPathCatalog(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const entry of value) {
+    if (typeof entry !== "string") continue;
+    const next = entry.trim().replace(/\\/g, "/").slice(0, MAX_PATH_CATALOG_ENTRY);
+    if (!next || seen.has(next)) continue;
+    // Reject absolute host paths that slipped past the analyzer.
+    if (next.startsWith("/") || /^[A-Za-z]:/.test(next)) continue;
+    if (/^(?:Users|home)\//i.test(next)) continue;
+    seen.add(next);
+    out.push(next);
+    if (out.length >= MAX_PATH_CATALOG_ACCEPT) break;
+  }
+  return out.length > 0 ? out : undefined;
+}
+
 export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
   readonly id: BlueprintAnalysisProviderId = "legacy-blueprint-runner";
   readonly name = "Legacy Blueprint Runner";
@@ -155,6 +176,7 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
     const astParseReport = isAstParseReport(blueprint.astParseReport)
       ? blueprint.astParseReport
       : undefined;
+    const pathCatalog = sanitizeIncomingPathCatalog(blueprint.pathCatalog);
 
     return {
       providerId: this.id,
@@ -165,6 +187,7 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
       facts,
       factSelection,
       astParseReport,
+      pathCatalog,
       filesAnalyzed:
         typeof payload.data.filesAnalyzed === "number" ? payload.data.filesAnalyzed : routes.length,
       analysisOrigin: scanOrigin,

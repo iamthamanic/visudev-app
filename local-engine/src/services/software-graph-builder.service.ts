@@ -68,14 +68,17 @@ export function buildSoftwareGraph(scan: RawBlueprintScan): SoftwareGraph {
     .map(normalizeFact)
     .filter((fact): fact is RawBlueprintFact => fact !== null);
 
-  // P0-10: one spread index for the whole scan (paths the builder will see,
-  // including dependency targets preserved by P0-9).
+  // P0-10: one spread index for the whole scan. Prefer pathCatalog (walk
+  // diversity) so thin fact-export sets (erpnext) still yield domain trees.
   const catalogPaths = new Set<string>();
   const addPath = (value: unknown): void => {
     if (typeof value === "string" && value.trim().length > 0) {
       catalogPaths.add(value.trim());
     }
   };
+  for (const path of scan.pathCatalog ?? []) {
+    addPath(path);
+  }
   for (const fact of facts) {
     addPath(fact.filePath);
     addPath(fact.metadata?.resolvedPath);

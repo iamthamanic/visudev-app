@@ -114,10 +114,17 @@ brechen. Mit Index → neues Verhalten. Produktionspfad übergibt immer den Inde
   Domänenzahl darf gegenüber „alles = app" **sinken** — das ist hier erlaubt,
   weil „app" keine Fachdomäne war. Gegenkriterium: keine Fake-Domäne
   `models`/`controllers`.
-- **browo-hr:** ≥ 30 Domänen-Labels; enthält `leaves`, `payroll`, `auth`,
+- **browo-hr:** ≥ 30 Domänen-Labels; enthält `leaves`, `auth`,
   `documents`; enthält **nicht** `modules` als Domäne.
+  **Payroll:** Im Repo oft nur `payroll-adjustments` / `payroll-collections` /
+  `payroll-rules` — **kein** bare `payroll/`. Abnahme: mindestens ein
+  Domänen-Label `payroll-*` (oder wörtlich `payroll`, falls Ordner existiert).
+  Issues und Acceptance dürfen nicht „Domain = payroll“ verlangen, wenn der
+  Baum nur hyphenierte Module hat.
 - **erpnext:** Domänen wie `accounts`, `buying`, `crm` erscheinen (Streuung
-  niedrig). `erpnext` als alleinige Domäne ist ein Fail.
+  niedrig). `erpnext` als alleinige Domäne ist ein Fail. Softort nutzt den
+  Walk-`pathCatalog` (nicht nur Fact-Export-Pfade), damit Fachmodule nicht
+  durch dünne Fact-Selektion verhungern.
 - **Monorepo ohne Fachordner darunter:** Domäne = `apps/web` (Präfix-Rückfall).
 - **Leeres Repo:** Index leer, alle `unassigned`.
 - **P0-7 noch nicht gemerged:** Dieses Issue blockiert — Duplikate verfälschen
@@ -129,7 +136,7 @@ brechen. Mit Index → neues Verhalten. Produktionspfad übergibt immer den Inde
 
 **Vorher:** Architecture = 499× „DOMAIN backend".
 
-**Nachher (domänenzuerst):** Distrikte `leaves`, `payroll`, …  
+**Nachher (domänenzuerst):** Distrikte `leaves`, `payroll-*` / `auth`, …  
 **Nachher (schichtzuerst, vor P0-14):** ehrlicher Zustand „Nicht zugeordnet"
 mit Banner (siehe 13), nicht eine Fake-Domäne `app`.
 
@@ -138,13 +145,15 @@ mit Banner (siehe 13), nicht eine Fake-Domäne `app`.
 - [ ] Produktionspfad übergibt immer einen `SegmentSpreadIndex` an
       `detectDomain` / `detectModule`.
 - [ ] **browo-hr, Enrichment OFF:** ≥ 30 distinct Domänen-Labels; enthält
-      `leaves`, `payroll`, `auth`, `documents`; enthält nicht `modules` als
-      Domänen-Label.
+      `leaves`, `auth`, `documents`; enthält nicht `modules` als
+      Domänen-Label. Payroll: Domäne `payroll` **oder** mindestens ein
+      `payroll-*` (browo hat oft keinen bare `payroll/`-Ordner).
 - [ ] **discourse, Enrichment OFF:** Kein Domänen-Label `models`,
       `controllers`, `serializers` aus dem `app/`-Baum. Pfade unter `app/`
       ohne Plugin: überwiegend `unassigned` oder `domainSource: "none"`.
 - [ ] **erpnext, Enrichment OFF:** Mindestens 5 Domänen-Labels aus dem
       Fachbaum (z. B. accounts/buying/crm/stock/…); nicht nur `erpnext`.
+      `pathCatalog` aus dem Walk speist Segment-Spread (nicht nur Fact-Pfade).
 - [ ] **immich, Enrichment OFF:** Keine Verschlechterung durch Fake-Domänen
       `controllers`/`services` als Domain-Kind. `domainSource: "none"` für
       typische `server/src/services/*.ts` ist akzeptabel bis P0-14.

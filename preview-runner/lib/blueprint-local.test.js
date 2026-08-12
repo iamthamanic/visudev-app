@@ -16,6 +16,7 @@ import {
   isPathInsideRoot,
   prioritizeBlueprintFiles,
   resolveWorkspaceRoot,
+  selectDiversePathCatalog,
   walkCodeFiles,
 } from "./blueprint-local.js";
 import { readLocalAnalysisOrigin } from "./analysis-origin-git.js";
@@ -90,6 +91,20 @@ describe("blueprint-local Softort coverage", () => {
     );
   });
 
+  it("diversifies pathCatalog across erpnext module buckets", () => {
+    const ranked = [];
+    for (let i = 0; i < 20; i += 1) {
+      ranked.push(`erpnext/accounts/file-${i}.py`);
+    }
+    ranked.push("erpnext/buying/a.py", "erpnext/crm/b.py", "erpnext/stock/c.py");
+    const catalog = selectDiversePathCatalog(ranked, 8);
+    expect(catalog.length).toBe(8);
+    const modules = new Set(catalog.map((p) => p.split("/")[1]));
+    expect(modules.has("accounts")).toBe(true);
+    expect(modules.has("buying")).toBe(true);
+    expect(modules.size).toBeGreaterThanOrEqual(3);
+  });
+
   it("prefers module-segment paths and canonical prisma over basename lottery", () => {
     const ranked = prioritizeBlueprintFiles([
       "HrKo_LeaveService.ts",
@@ -162,6 +177,18 @@ describe("blueprint-local Softort coverage", () => {
     expect(capped.indexOf("apps/meteor/server/models.ts")).toBeLessThan(
       capped.indexOf("apps/meteor/server/lib/utils.ts"),
     );
+  });
+
+  it("round-robins FILE_LIMIT fill across erpnext module buckets", () => {
+    const flood = [];
+    for (let i = 0; i < 40; i += 1) flood.push(`erpnext/accounts/f${i}.py`);
+    flood.push("erpnext/buying/a.py", "erpnext/crm/b.py", "erpnext/stock/c.py");
+    const ranked = prioritizeBlueprintFiles(flood);
+    const capped = applyFileLimitWithSeeds(ranked, [], 10);
+    const modules = new Set(capped.map((p) => p.split("/")[1]));
+    expect(modules.has("buying")).toBe(true);
+    expect(modules.has("crm")).toBe(true);
+    expect(modules.size).toBeGreaterThanOrEqual(3);
   });
 });
 

@@ -23,6 +23,10 @@ import {
   sanitizeFactsForExport,
   selectFactsPreservingPrismaModels,
 } from "../internal/export-sanitizer.ts";
+import {
+  sanitizePathCatalog,
+  toExportSamplePath,
+} from "../internal/path-export.util.ts";
 import { buildConceptsForRoutes } from "./concept-engine.service.ts";
 import {
   buildRouteBlueprints,
@@ -52,10 +56,17 @@ export interface FileSourceEntry {
 
 export interface AnalyzeBlueprintFromFilesInput {
   projectId?: string;
+  /** Absolute workspace root when known — used to strip host paths from export. */
+  localPath?: string;
   repo: string;
   branch: string;
   commitSha: string;
   fileEntries: FileSourceEntry[];
+  /**
+   * Optional walk catalog (repo-relative). When set, segment-spread consumers
+   * see domain trees even if fact export only covers a thin file subset.
+   */
+  pathCatalog?: string[];
   fileLimit?: number;
   projectProfile?: ProjectProfile;
 }
@@ -123,6 +134,19 @@ export function analyzeFromFileEntries(
   const securityMatrix = buildSecurityMatrix(routes, findings, graph);
   graph = attachGraphFindings(graph, routes, routeScopes, allFacts, findings);
 
+  const rootHint = input.localPath?.trim() || undefined;
+  astParseReport.failedSamples = astParseReport.failedSamples.map((sample) =>
+    toExportSamplePath(sample, rootHint)
+  );
+  // Prefer the walk catalog when provided so Softort/domain spread is not
+  // starved by thin fact-export path sets (erpnext). Fall back to extract paths.
+  const pathCatalog = sanitizePathCatalog(
+    input.pathCatalog && input.pathCatalog.length > 0
+      ? input.pathCatalog
+      : [...resolutionPaths],
+    rootHint,
+  );
+
   return {
     version: 1,
     projectId: input.projectId,
@@ -137,6 +161,7 @@ export function analyzeFromFileEntries(
     facts: exportFacts,
     factSelection,
     astParseReport,
+    pathCatalog,
     concepts,
     graph,
     filesAnalyzed: analyzed,

@@ -186,6 +186,8 @@ function seedSortKey(relPath: string): number {
 
 /**
  * Guarantee seed paths occupy Cap slots before ranked fill.
+ * Remaining slots round-robin by first two path segments so one package
+ * (e.g. erpnext/accounts) cannot starve sibling modules under FILE_LIMIT.
  * Keep in sync with preview-runner/lib/blueprint-local.js applyFileLimitWithSeeds.
  */
 export function applyFileLimitWithSeeds<T extends { path: string }>(
@@ -214,11 +216,43 @@ export function applyFileLimitWithSeeds<T extends { path: string }>(
     seen.add(p);
     out.push(item);
   }
+
+  // Bucket remaining ranked paths for diversity fill.
+  const buckets = new Map<string, T[]>();
+  const order: string[] = [];
   for (const item of ranked) {
-    if (out.length >= cap) break;
     if (seen.has(item.path)) continue;
-    seen.add(item.path);
-    out.push(item);
+    const norm = item.path.replace(/\\/g, "/");
+    const parts = norm.split("/").filter(Boolean);
+    const key = parts.slice(0, Math.min(2, parts.length)).join("/") || "_";
+    if (!buckets.has(key)) {
+      buckets.set(key, []);
+      order.push(key);
+    }
+    buckets.get(key)!.push(item);
   }
+  const indexes = new Map<string, number>();
+  for (const key of order) indexes.set(key, 0);
+
+  let progress = true;
+  while (out.length < cap && progress) {
+    progress = false;
+    for (const key of order) {
+      if (out.length >= cap) break;
+      const list = buckets.get(key)!;
+      let idx = indexes.get(key) ?? 0;
+      while (idx < list.length && seen.has(list[idx]!.path)) idx += 1;
+      if (idx >= list.length) {
+        indexes.set(key, idx);
+        continue;
+      }
+      const pick = list[idx]!;
+      seen.add(pick.path);
+      out.push(pick);
+      indexes.set(key, idx + 1);
+      progress = true;
+    }
+  }
+
   return out;
 }
