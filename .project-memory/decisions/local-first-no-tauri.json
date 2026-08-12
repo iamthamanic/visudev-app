@@ -1,0 +1,31 @@
+{
+  "id": "local-first-no-tauri",
+  "date": "2026-07-08",
+  "title": {
+    "de": "Local-First: Browser + Local Engine, kein Tauri",
+    "en": "Local-first: browser + Local Engine, no Tauri"
+  },
+  "summary": {
+    "de": "VisuDEV läuft im Browser (Vite) mit Local Engine als Control Plane. Kein Desktop-Wrapper. Supabase bleibt optional/legacy, nicht Pflicht für lokale Scans.",
+    "en": "VisuDEV runs in the browser (Vite) with Local Engine as control plane. No desktop wrapper. Supabase stays optional/legacy, not required for local scans."
+  },
+  "status": "accepted",
+  "related_features": ["local-engine", "preview-runner", "projects"],
+  "evidence": [
+    {
+      "kind": "file",
+      "path": ".qa/design/local-first-visudev.md",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/design/local-first-visudev.md"
+    }
+  ],
+  "review_status": "needs-review",
+  "confidence": 0.8,
+  "plain_language": {
+    "de": "Du öffnest VisuDEV im Browser. Die schwere Analyse läuft auf deinem Rechner — nicht als Extra-App und nicht zwingend in der Cloud.",
+    "en": "You open VisuDEV in the browser. Heavy analysis runs on your machine — not as a separate desktop app and not necessarily in the cloud."
+  },
+  "why_it_matters": {
+    "de": "Schneller Cursor-Workflow, Code bleibt lokal, keine Native-App-Pflege.",
+    "en": "Faster Cursor workflow, code stays local, no native-app upkeep."
+  }
+}

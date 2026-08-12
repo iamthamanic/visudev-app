@@ -1,36 +1,64 @@
 {
   "schema_version": 1,
   "as_of": "2026-08-12",
-  "commit": "36fff3da21a385a387c9ba1adcb29ee531884534",
+  "commit": "26a5b44823f9f053cc5924fc8e0e8d36508e5ace",
   "branch": "main",
   "product_status": {
-    "de": "VisuDEV: Vertical-Slice-Frontend + Phase-0 Honest Core gemerged. Domänen aus Pfad- und Dateinamen-Stämmen, ehrliche Edges/Security/CI-Golden-Set. Living Memory Catch-up bis HEAD.",
-    "en": "VisuDEV: vertical-slice frontend + Phase 0 honest core merged. Domains from path and filename stems, honest edges/security/CI golden set. Living memory catch-up through HEAD."
+    "de": "VisuDEV ist ein lokales Architektur-Röntgen: Projekte verbinden, App Flow (Screens), Blueprint (7 Views + Software Graph), Data/ERD, Logs, Settings. Phase-0 Honest Core und Vertical Slices sind gemerged. Living Memory läuft auf GitHub Pages.",
+    "en": "VisuDEV is a local architecture X-ray: connect projects, App Flow (screens), Blueprint (7 views + Software Graph), Data/ERD, Logs, Settings. Phase 0 honest core and vertical slices are merged. Living memory runs on GitHub Pages."
   },
   "active_focus": {
     "de": [
-      "Memory-Claims reviewen (needs-review)",
-      "Architecture-Banner Screenshot nachziehen",
-      "Nächste Phase / Gapclose nach leerer Queue"
+      "Memory-Claims menschlich reviewen (needs-review)",
+      "Architecture-Banner-Screenshot nachziehen",
+      "Nächste Produktphase nach leerer Phase-0-Queue"
     ],
     "en": [
-      "Review memory claims (needs-review)",
+      "Human-review memory claims (needs-review)",
       "Capture Architecture banner screenshot",
-      "Next phase / gapclose after empty queue"
+      "Next product phase after empty Phase 0 queue"
+    ]
+  },
+  "recently_completed": {
+    "de": [
+      "GitHub Pages für Memory-Viewer aktiviert (Repo public, /docs)",
+      "P0-14 Dateinamen-Domänen + Pfad-Domänen (Honest Core #260–#268)",
+      "Vertical-Slice-Strangler (#243–#250)",
+      "Access-Control stack-agnostisch (Postgres/MariaDB/Mongo)"
+    ],
+    "en": [
+      "GitHub Pages enabled for memory viewer (public repo, /docs)",
+      "P0-14 filename domains + path domains (honest core #260–#268)",
+      "Vertical-slice strangler (#243–#250)",
+      "Stack-agnostic access control (Postgres/MariaDB/Mongo)"
+    ]
+  },
+  "incomplete": {
+    "de": [
+      "Logs-Modul: Umfang noch dünn dokumentiert",
+      "Data-Scan: primär PostgreSQL/SQLite",
+      "Screenshot für domainSource-Banner fehlt",
+      "Viele Memory-Einträge noch needs-review"
+    ],
+    "en": [
+      "Logs module: scope still thinly documented",
+      "Data scan: primarily PostgreSQL/SQLite",
+      "Screenshot for domainSource banner missing",
+      "Many memory entries still needs-review"
     ]
   },
   "known_gaps": {
     "de": [
-      "Screenshot für domainSource-Banner fehlt",
-      "Viele Memory-Einträge noch needs-review",
-      "Queue Phase 0 leer — Folge-Intake offen"
+      "Apr–Jun 2026: keine Commits (Lücke in der Git-Historie)",
+      "Nicht jeder Fix ist ein eigenes Change-Event — Meilensteine sind geclustert",
+      "Enrichment/Demo vs. ehrlicher Analyzer bleibt ein Spannungsfeld"
     ],
     "en": [
-      "Screenshot for domainSource banner missing",
-      "Many memory entries still needs-review",
-      "Phase 0 queue empty — follow-up intake open"
+      "Apr–Jun 2026: no commits (gap in git history)",
+      "Not every fix is its own change event — milestones are clustered",
+      "Enrichment/demo vs honest analyzer remains a tension"
     ]
   },
   "review_status": "needs-review",
-  "confidence": 0.7
+  "confidence": 0.72
 }

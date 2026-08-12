@@ -59,6 +59,7 @@ Der Vite-Dev-Server und `npm run preview` laufen fest auf **Port 3005** (`vite.c
 
 ## Recent changes
 
+- **2026-08-12** — Memory-Viewer auf GitHub Pages; Status „Kürzlich erledigt“ + Decisions nachgezogen ([CHANGELOG](docs/CHANGELOG.md))
 - **2026-08-12** — Phase 0 Honest Core: Pfad-/Dateinamen-Domänen, Edges, Security-Ehrlichkeit, CI Golden-Set ([CHANGELOG](docs/CHANGELOG.md))
 - **2026-07-22** — Vertical-Slice-Strangler: Product-Slices hinter Public Entries ([CHANGELOG](docs/CHANGELOG.md))
 - **2026-07-19** — Living documentation Bootstrap (`.project-memory/`, Status/Features/Changelog, Memory-Viewer)

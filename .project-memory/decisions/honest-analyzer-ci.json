@@ -1,0 +1,36 @@
+{
+  "id": "honest-analyzer-ci",
+  "date": "2026-08-12",
+  "title": {
+    "de": "Ehrlicher Analyzer: CI ohne Enrichment, Security nur bei Analysierbarkeit",
+    "en": "Honest analyzer: CI without enrichment, security only when analyzable"
+  },
+  "summary": {
+    "de": "Golden-Set misst den echten Analyzer. Fehlende Auth/Validation nur, wenn Code analysierbar ist. Graph darf nicht voller sein als die Evidence.",
+    "en": "Golden set measures the real analyzer. Missing auth/validation only when code is analyzable. The graph must not look fuller than the evidence."
+  },
+  "status": "accepted",
+  "related_features": ["local-engine", "blueprint-access-control", "blueprint-views"],
+  "evidence": [
+    {
+      "kind": "pr",
+      "path": "269",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/269"
+    },
+    {
+      "kind": "pr",
+      "path": "275",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/275"
+    }
+  ],
+  "review_status": "needs-review",
+  "confidence": 0.8,
+  "plain_language": {
+    "de": "VisuDEV darf keine fertige Architektur oder Security-Lücken vorspielen, wenn der Scan unsicher oder unvollständig war.",
+    "en": "VisuDEV must not fake a finished architecture or security gaps when the scan was uncertain or incomplete."
+  },
+  "why_it_matters": {
+    "de": "Vertrauen in Blueprint steht und fällt mit Ehrlichkeit.",
+    "en": "Trust in Blueprint stands or falls with honesty."
+  }
+}

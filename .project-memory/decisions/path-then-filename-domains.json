@@ -1,0 +1,36 @@
+{
+  "id": "path-then-filename-domains",
+  "date": "2026-08-12",
+  "title": {
+    "de": "Domänen: zuerst Pfad, dann Dateiname — nie überschreiben",
+    "en": "Domains: path first, then filename — never overwrite"
+  },
+  "summary": {
+    "de": "Pass 1 setzt domainSource path aus Segmentstreuung. Pass 2 setzt filename nur bei none, wenn Stamm in ≥2 bekannten Schichten und ≥2 Dateien vorkommt. Path bleibt unangetastet.",
+    "en": "Pass 1 sets domainSource path from segment spread. Pass 2 sets filename only on none when a stem appears in ≥2 known layers and ≥2 files. Path is never overwritten."
+  },
+  "status": "accepted",
+  "related_features": ["blueprint-software-graph", "blueprint-views"],
+  "evidence": [
+    {
+      "kind": "file",
+      "path": ".qa/intake/phase0/P0-14-domaenen-aus-dateinamen.md",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/intake/phase0/P0-14-domaenen-aus-dateinamen.md"
+    },
+    {
+      "kind": "pr",
+      "path": "280",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/280"
+    }
+  ],
+  "review_status": "needs-review",
+  "confidence": 0.85,
+  "plain_language": {
+    "de": "Fachbereiche kommen aus Ordnern, wenn möglich. Nur wenn die App nach Schichten (models/controllers) sortiert ist, helfen Dateinamen wie topic.rb.",
+    "en": "Business areas come from folders when possible. Only when the app is sorted by layers (models/controllers) do filenames like topic.rb help."
+  },
+  "why_it_matters": {
+    "de": "Rails/Nest-Repos bekommen Distrikte, ohne Modul-Repos zu verfälschen.",
+    "en": "Rails/Nest repos get districts without distorting module-based repos."
+  }
+}

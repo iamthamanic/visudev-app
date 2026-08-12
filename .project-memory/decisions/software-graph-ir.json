@@ -1,0 +1,31 @@
+{
+  "id": "software-graph-ir",
+  "date": "2026-07-08",
+  "title": {
+    "de": "Software Graph ist die Source of Truth für Blueprint",
+    "en": "Software Graph is the source of truth for Blueprint"
+  },
+  "summary": {
+    "de": "Ein neutrales Graph-IR (Nodes, Edges, Evidence, Scopes) speist alle Blueprint-Views. Report-Felder bleiben abgeleitet, nicht parallel wahr.",
+    "en": "A neutral graph IR (nodes, edges, evidence, scopes) feeds all Blueprint views. Report fields stay derived, not a second source of truth."
+  },
+  "status": "accepted",
+  "related_features": ["blueprint-software-graph", "blueprint-views"],
+  "evidence": [
+    {
+      "kind": "file",
+      "path": ".qa/design/visudev-graph-ir.md",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/design/visudev-graph-ir.md"
+    }
+  ],
+  "review_status": "needs-review",
+  "confidence": 0.8,
+  "plain_language": {
+    "de": "Alle Architektur-Karten lesen denselben Stadtplan. Es gibt nicht sieben widersprüchliche Wahrheiten.",
+    "en": "All architecture maps read the same city plan. There are not seven conflicting truths."
+  },
+  "why_it_matters": {
+    "de": "Views bleiben konsistent und erweiterbar, ohne die Analyse neu zu erfinden.",
+    "en": "Views stay consistent and extensible without reinventing analysis."
+  }
+}

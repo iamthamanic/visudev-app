@@ -4,6 +4,104 @@
     {
       "schema_version": 1,
       "status": "recorded",
+      "packages": [],
+      "breaking_changes": [],
+      "migration_required": false,
+      "screenshots": [],
+      "confidence": 0.85,
+      "review_status": "needs-review",
+      "operational_impact": {
+        "de": [
+          "GitHub Pages: branch main, Pfad /docs."
+        ],
+        "en": [
+          "GitHub Pages: branch main, path /docs."
+        ]
+      },
+      "id": "2026-08-12-memory-pages",
+      "date": "2026-08-12",
+      "type": "feature",
+      "title": {
+        "de": "Living Memory auf GitHub Pages",
+        "en": "Living memory on GitHub Pages"
+      },
+      "summary": {
+        "de": "Repo public; Pages auf main+/docs. Viewer unter /memory-live-doc/viewer/ mit Timeline, Features, Decisions, Architecture.",
+        "en": "Repo public; Pages on main+/docs. Viewer at /memory-live-doc/viewer/ with timeline, features, decisions, architecture."
+      },
+      "plain_language": {
+        "de": "Die Projektchronik ist im Browser lesbar — nicht nur als Dateien im Repo.",
+        "en": "The project chronicle is readable in the browser — not only as files in the repo."
+      },
+      "why_it_matters": {
+        "de": "Ohne öffentliche Seite bleibt die Dokumentation unsichtbar.",
+        "en": "Without a public page the documentation stays invisible."
+      },
+      "user_impact": {
+        "de": [
+          "Öffentlicher Memory-Viewer"
+        ],
+        "en": [
+          "Public memory viewer"
+        ]
+      },
+      "developer_impact": {
+        "de": [
+          "@memory-live-doc apply + export-viewer-snapshot"
+        ],
+        "en": [
+          "@memory-live-doc apply + export-viewer-snapshot"
+        ]
+      },
+      "security_relevant": false,
+      "git": {
+        "base": "36fff3da",
+        "head": "26a5b448",
+        "branch": "main",
+        "pull_request": "https://github.com/iamthamanic/visudev-app/pull/284"
+      },
+      "affected_features": [],
+      "affected_components": [
+        "docs/memory-live-doc/viewer",
+        ".project-memory/config.json"
+      ],
+      "evidence": [
+        {
+          "kind": "compare",
+          "path": "36fff3da...26a5b448",
+          "url": "https://github.com/iamthamanic/visudev-app/compare/36fff3da...26a5b448"
+        },
+        {
+          "kind": "commit",
+          "path": "26a5b448",
+          "sha": "26a5b448",
+          "url": "https://github.com/iamthamanic/visudev-app/commit/26a5b448"
+        },
+        {
+          "kind": "pr",
+          "path": "https://github.com/iamthamanic/visudev-app/pull/284",
+          "url": "https://github.com/iamthamanic/visudev-app/pull/284"
+        },
+        {
+          "kind": "file",
+          "path": "docs/memory-live-doc/viewer",
+          "url": "https://github.com/iamthamanic/visudev-app/tree/26a5b448/docs/memory-live-doc/viewer"
+        },
+        {
+          "kind": "file",
+          "path": ".project-memory/config.json",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b448/.project-memory/config.json"
+        },
+        {
+          "kind": "file",
+          "path": "docs/memory-live-doc/viewer",
+          "url": "https://github.com/iamthamanic/visudev-app/tree/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/docs/memory-live-doc/viewer"
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "status": "recorded",
       "packages": [
         "src",
         "local-engine",
@@ -1153,6 +1251,108 @@
     {
       "schema_version": 1,
       "status": "recorded",
+      "packages": [
+        "src"
+      ],
+      "breaking_changes": [],
+      "migration_required": false,
+      "screenshots": [],
+      "confidence": 0.75,
+      "review_status": "needs-review",
+      "operational_impact": {
+        "de": [],
+        "en": []
+      },
+      "id": "2026-07-14-atlas-2d-3d",
+      "date": "2026-07-14",
+      "type": "feature",
+      "title": {
+        "de": "Atlas: 2D-Stadtkarte und optionale 3D-City",
+        "en": "Atlas: 2D system map and optional 3D city"
+      },
+      "summary": {
+        "de": "Phase 7 Atlas-2D mit Suche; später lazy-loaded 3D-City-Modus mit Toggle, Stats und Labels.",
+        "en": "Phase 7 Atlas 2D with search; later lazy-loaded 3D city mode with toggle, stats, and labels."
+      },
+      "plain_language": {
+        "de": "Atlas zeigt das ganze System als Karte — flach zum Orientieren, optional als 3D-Stadt zum Eintauchen.",
+        "en": "Atlas shows the whole system as a map — flat for orientation, optionally as a 3D city to dive in."
+      },
+      "why_it_matters": {
+        "de": "Ohne Überblick bleiben die anderen Blueprint-Views Einzelpuzzles.",
+        "en": "Without an overview the other Blueprint views stay isolated puzzles."
+      },
+      "user_impact": {
+        "de": [
+          "Atlas-Tab mit 2D/3D-Umschalter",
+          "Suche und Dichte-Karte"
+        ],
+        "en": [
+          "Atlas tab with 2D/3D toggle",
+          "Search and density map"
+        ]
+      },
+      "developer_impact": {
+        "de": [
+          "Cytoscape 2D",
+          "React Three Fiber lazy AtlasCityScene"
+        ],
+        "en": [
+          "Cytoscape 2D",
+          "React Three Fiber lazy AtlasCityScene"
+        ]
+      },
+      "security_relevant": false,
+      "git": {
+        "base": "b5614027",
+        "head": "c1a3c7ef",
+        "branch": "main",
+        "pull_request": "https://github.com/iamthamanic/visudev-app/pull/104"
+      },
+      "affected_features": [
+        "blueprint-views"
+      ],
+      "affected_components": [
+        "src/modules/blueprint/components/AtlasView.tsx",
+        "src/modules/blueprint/components/atlas"
+      ],
+      "evidence": [
+        {
+          "kind": "compare",
+          "path": "b5614027...c1a3c7ef",
+          "url": "https://github.com/iamthamanic/visudev-app/compare/b5614027...c1a3c7ef"
+        },
+        {
+          "kind": "commit",
+          "path": "c1a3c7ef",
+          "sha": "c1a3c7ef",
+          "url": "https://github.com/iamthamanic/visudev-app/commit/c1a3c7ef"
+        },
+        {
+          "kind": "pr",
+          "path": "https://github.com/iamthamanic/visudev-app/pull/104",
+          "url": "https://github.com/iamthamanic/visudev-app/pull/104"
+        },
+        {
+          "kind": "file",
+          "path": "src/modules/blueprint/components/AtlasView.tsx",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/c1a3c7ef/src/modules/blueprint/components/AtlasView.tsx"
+        },
+        {
+          "kind": "file",
+          "path": "src/modules/blueprint/components/atlas",
+          "url": "https://github.com/iamthamanic/visudev-app/tree/c1a3c7ef/src/modules/blueprint/components/atlas"
+        },
+        {
+          "kind": "pr",
+          "path": "83",
+          "url": "https://github.com/iamthamanic/visudev-app/pull/83"
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "status": "recorded",
       "id": "2026-07-14-blueprint-multiview",
       "date": "2026-07-14",
       "type": "feature",
@@ -1430,6 +1630,101 @@
       "screenshots": [],
       "confidence": 0.75,
       "review_status": "needs-review"
+    },
+    {
+      "schema_version": 1,
+      "status": "recorded",
+      "packages": [
+        "local-engine",
+        "preview-runner"
+      ],
+      "breaking_changes": [],
+      "migration_required": false,
+      "screenshots": [],
+      "confidence": 0.7,
+      "review_status": "needs-review",
+      "operational_impact": {
+        "de": [
+          "Crawl-Proxy in der Local Engine für Runtime-Screenshots."
+        ],
+        "en": [
+          "Crawl proxy in Local Engine for runtime screenshots."
+        ]
+      },
+      "id": "2026-07-08-runtime-screenshots",
+      "date": "2026-07-08",
+      "type": "feature",
+      "title": {
+        "de": "Runtime-Screenshots über Engine-Crawl",
+        "en": "Runtime screenshots via engine crawl"
+      },
+      "summary": {
+        "de": "Local Engine crawlt die laufende Preview und liefert echte Screen-Bilder statt Platzhalter.",
+        "en": "Local Engine crawls the running preview and supplies real screen images instead of placeholders."
+      },
+      "plain_language": {
+        "de": "VisuDEV fotografiert die laufende App, damit Karten echte Bildschirme zeigen — nicht nur Kästen.",
+        "en": "VisuDEV photographs the running app so maps show real screens — not just boxes."
+      },
+      "why_it_matters": {
+        "de": "Ohne Bilder bleibt App Flow abstrakt.",
+        "en": "Without images App Flow stays abstract."
+      },
+      "user_impact": {
+        "de": [
+          "Echte Screenshots in Flows/Karten"
+        ],
+        "en": [
+          "Real screenshots in flows/maps"
+        ]
+      },
+      "developer_impact": {
+        "de": [
+          "Engine crawl proxy (#28)"
+        ],
+        "en": [
+          "Engine crawl proxy (#28)"
+        ]
+      },
+      "security_relevant": true,
+      "git": {
+        "base": "604cd864",
+        "head": "604cd864",
+        "branch": "main",
+        "pull_request": "https://github.com/iamthamanic/visudev-app/pull/28"
+      },
+      "affected_features": [
+        "preview-runner",
+        "appflow",
+        "local-engine"
+      ],
+      "affected_components": [
+        "local-engine",
+        "preview-runner"
+      ],
+      "evidence": [
+        {
+          "kind": "commit",
+          "path": "604cd864",
+          "sha": "604cd864",
+          "url": "https://github.com/iamthamanic/visudev-app/commit/604cd864"
+        },
+        {
+          "kind": "pr",
+          "path": "https://github.com/iamthamanic/visudev-app/pull/28",
+          "url": "https://github.com/iamthamanic/visudev-app/pull/28"
+        },
+        {
+          "kind": "file",
+          "path": "local-engine",
+          "url": "https://github.com/iamthamanic/visudev-app/tree/604cd864/local-engine"
+        },
+        {
+          "kind": "file",
+          "path": "preview-runner",
+          "url": "https://github.com/iamthamanic/visudev-app/tree/604cd864/preview-runner"
+        }
+      ]
     },
     {
       "schema_version": 1,

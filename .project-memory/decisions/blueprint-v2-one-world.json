@@ -1,0 +1,31 @@
+{
+  "id": "blueprint-v2-one-world",
+  "date": "2026-07-14",
+  "title": {
+    "de": "Ein Repo = eine Weltkarte, sieben Views",
+    "en": "One repo = one world map, seven views"
+  },
+  "summary": {
+    "de": "Atlas, Architecture, Dependencies, Execution, Infrastructure, Diagnostics, Evolution projizieren denselben Graph. Gruppierung zuerst über Pfade. Cytoscape für 2D; Atlas-3D optional dazu.",
+    "en": "Atlas, Architecture, Dependencies, Execution, Infrastructure, Diagnostics, Evolution project the same graph. Grouping is path-first. Cytoscape for 2D; Atlas 3D is optional on top."
+  },
+  "status": "accepted",
+  "related_features": ["blueprint-views", "blueprint-software-graph"],
+  "evidence": [
+    {
+      "kind": "file",
+      "path": ".qa/design/blueprint-v2.md",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/design/blueprint-v2.md"
+    }
+  ],
+  "review_status": "needs-review",
+  "confidence": 0.8,
+  "plain_language": {
+    "de": "Ein analysiertes Projekt ist eine Stadt. Du wechselst die Brille (Atlas, Abhängigkeiten, Sicherheit) — nicht das Projekt.",
+    "en": "One analyzed project is a city. You change glasses (atlas, dependencies, security) — not the project."
+  },
+  "why_it_matters": {
+    "de": "Verhindert, dass jede Ansicht eine eigene, widersprüchliche Geschichte erzählt.",
+    "en": "Prevents each view from telling its own conflicting story."
+  }
+}

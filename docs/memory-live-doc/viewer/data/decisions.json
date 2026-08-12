@@ -33,6 +33,260 @@
         "de": "Verhindert falsche Alarme bei Teams, die kein PostgreSQL nutzen, und macht echte Lücken (fehlende Mandantentrennung) sichtbarer.",
         "en": "Avoids false alarms for teams not on PostgreSQL and makes real gaps (missing tenant isolation) more visible."
       }
+    },
+    {
+      "id": "blueprint-v2-one-world",
+      "date": "2026-07-14",
+      "title": {
+        "de": "Ein Repo = eine Weltkarte, sieben Views",
+        "en": "One repo = one world map, seven views"
+      },
+      "summary": {
+        "de": "Atlas, Architecture, Dependencies, Execution, Infrastructure, Diagnostics, Evolution projizieren denselben Graph. Gruppierung zuerst über Pfade. Cytoscape für 2D; Atlas-3D optional dazu.",
+        "en": "Atlas, Architecture, Dependencies, Execution, Infrastructure, Diagnostics, Evolution project the same graph. Grouping is path-first. Cytoscape for 2D; Atlas 3D is optional on top."
+      },
+      "status": "accepted",
+      "related_features": [
+        "blueprint-views",
+        "blueprint-software-graph"
+      ],
+      "evidence": [
+        {
+          "kind": "file",
+          "path": ".qa/design/blueprint-v2.md",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/design/blueprint-v2.md"
+        }
+      ],
+      "review_status": "needs-review",
+      "confidence": 0.8,
+      "plain_language": {
+        "de": "Ein analysiertes Projekt ist eine Stadt. Du wechselst die Brille (Atlas, Abhängigkeiten, Sicherheit) — nicht das Projekt.",
+        "en": "One analyzed project is a city. You change glasses (atlas, dependencies, security) — not the project."
+      },
+      "why_it_matters": {
+        "de": "Verhindert, dass jede Ansicht eine eigene, widersprüchliche Geschichte erzählt.",
+        "en": "Prevents each view from telling its own conflicting story."
+      }
+    },
+    {
+      "id": "honest-analyzer-ci",
+      "date": "2026-08-12",
+      "title": {
+        "de": "Ehrlicher Analyzer: CI ohne Enrichment, Security nur bei Analysierbarkeit",
+        "en": "Honest analyzer: CI without enrichment, security only when analyzable"
+      },
+      "summary": {
+        "de": "Golden-Set misst den echten Analyzer. Fehlende Auth/Validation nur, wenn Code analysierbar ist. Graph darf nicht voller sein als die Evidence.",
+        "en": "Golden set measures the real analyzer. Missing auth/validation only when code is analyzable. The graph must not look fuller than the evidence."
+      },
+      "status": "accepted",
+      "related_features": [
+        "local-engine",
+        "blueprint-access-control",
+        "blueprint-views"
+      ],
+      "evidence": [
+        {
+          "kind": "pr",
+          "path": "269",
+          "url": "https://github.com/iamthamanic/visudev-app/pull/269"
+        },
+        {
+          "kind": "pr",
+          "path": "275",
+          "url": "https://github.com/iamthamanic/visudev-app/pull/275"
+        }
+      ],
+      "review_status": "needs-review",
+      "confidence": 0.8,
+      "plain_language": {
+        "de": "VisuDEV darf keine fertige Architektur oder Security-Lücken vorspielen, wenn der Scan unsicher oder unvollständig war.",
+        "en": "VisuDEV must not fake a finished architecture or security gaps when the scan was uncertain or incomplete."
+      },
+      "why_it_matters": {
+        "de": "Vertrauen in Blueprint steht und fällt mit Ehrlichkeit.",
+        "en": "Trust in Blueprint stands or falls with honesty."
+      }
+    },
+    {
+      "id": "local-first-no-tauri",
+      "date": "2026-07-08",
+      "title": {
+        "de": "Local-First: Browser + Local Engine, kein Tauri",
+        "en": "Local-first: browser + Local Engine, no Tauri"
+      },
+      "summary": {
+        "de": "VisuDEV läuft im Browser (Vite) mit Local Engine als Control Plane. Kein Desktop-Wrapper. Supabase bleibt optional/legacy, nicht Pflicht für lokale Scans.",
+        "en": "VisuDEV runs in the browser (Vite) with Local Engine as control plane. No desktop wrapper. Supabase stays optional/legacy, not required for local scans."
+      },
+      "status": "accepted",
+      "related_features": [
+        "local-engine",
+        "preview-runner",
+        "projects"
+      ],
+      "evidence": [
+        {
+          "kind": "file",
+          "path": ".qa/design/local-first-visudev.md",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/design/local-first-visudev.md"
+        }
+      ],
+      "review_status": "needs-review",
+      "confidence": 0.8,
+      "plain_language": {
+        "de": "Du öffnest VisuDEV im Browser. Die schwere Analyse läuft auf deinem Rechner — nicht als Extra-App und nicht zwingend in der Cloud.",
+        "en": "You open VisuDEV in the browser. Heavy analysis runs on your machine — not as a separate desktop app and not necessarily in the cloud."
+      },
+      "why_it_matters": {
+        "de": "Schneller Cursor-Workflow, Code bleibt lokal, keine Native-App-Pflege.",
+        "en": "Faster Cursor workflow, code stays local, no native-app upkeep."
+      }
+    },
+    {
+      "id": "path-then-filename-domains",
+      "date": "2026-08-12",
+      "title": {
+        "de": "Domänen: zuerst Pfad, dann Dateiname — nie überschreiben",
+        "en": "Domains: path first, then filename — never overwrite"
+      },
+      "summary": {
+        "de": "Pass 1 setzt domainSource path aus Segmentstreuung. Pass 2 setzt filename nur bei none, wenn Stamm in ≥2 bekannten Schichten und ≥2 Dateien vorkommt. Path bleibt unangetastet.",
+        "en": "Pass 1 sets domainSource path from segment spread. Pass 2 sets filename only on none when a stem appears in ≥2 known layers and ≥2 files. Path is never overwritten."
+      },
+      "status": "accepted",
+      "related_features": [
+        "blueprint-software-graph",
+        "blueprint-views"
+      ],
+      "evidence": [
+        {
+          "kind": "file",
+          "path": ".qa/intake/phase0/P0-14-domaenen-aus-dateinamen.md",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/intake/phase0/P0-14-domaenen-aus-dateinamen.md"
+        },
+        {
+          "kind": "pr",
+          "path": "280",
+          "url": "https://github.com/iamthamanic/visudev-app/pull/280"
+        }
+      ],
+      "review_status": "needs-review",
+      "confidence": 0.85,
+      "plain_language": {
+        "de": "Fachbereiche kommen aus Ordnern, wenn möglich. Nur wenn die App nach Schichten (models/controllers) sortiert ist, helfen Dateinamen wie topic.rb.",
+        "en": "Business areas come from folders when possible. Only when the app is sorted by layers (models/controllers) do filenames like topic.rb help."
+      },
+      "why_it_matters": {
+        "de": "Rails/Nest-Repos bekommen Distrikte, ohne Modul-Repos zu verfälschen.",
+        "en": "Rails/Nest repos get districts without distorting module-based repos."
+      }
+    },
+    {
+      "id": "pluggable-blueprint-enrichment",
+      "date": "2026-07-07",
+      "title": {
+        "de": "Pluggable Analyzer + VisuDEV-Enrichment",
+        "en": "Pluggable analyzer + VisuDEV enrichment"
+      },
+      "summary": {
+        "de": "Scanner liefern Rohdaten; VisuDEV normalisiert Routen, Security-Matrix und Findings. AutoGuide ist Adapter, nicht die UI-Wahrheit. Legacy-Runner bleibt Default bis Swap.",
+        "en": "Scanners supply raw data; VisuDEV normalizes routes, security matrix, and findings. AutoGuide is an adapter, not UI truth. Legacy runner stays default until swapped."
+      },
+      "status": "accepted",
+      "related_features": [
+        "local-engine",
+        "blueprint-views"
+      ],
+      "evidence": [
+        {
+          "kind": "file",
+          "path": ".qa/design/blueprint-engine-pluggable.md",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/design/blueprint-engine-pluggable.md"
+        }
+      ],
+      "review_status": "needs-review",
+      "confidence": 0.75,
+      "plain_language": {
+        "de": "Verschiedene Scanner dürfen zuliefern. Was du in Blueprint siehst, formt VisuDEV selbst — einheitlich.",
+        "en": "Different scanners may feed in. What you see in Blueprint is shaped by VisuDEV — consistently."
+      },
+      "why_it_matters": {
+        "de": "Scanner tauschen ohne die ganze UI umzubauen.",
+        "en": "Scanners can be swapped without rebuilding the whole UI."
+      }
+    },
+    {
+      "id": "software-graph-ir",
+      "date": "2026-07-08",
+      "title": {
+        "de": "Software Graph ist die Source of Truth für Blueprint",
+        "en": "Software Graph is the source of truth for Blueprint"
+      },
+      "summary": {
+        "de": "Ein neutrales Graph-IR (Nodes, Edges, Evidence, Scopes) speist alle Blueprint-Views. Report-Felder bleiben abgeleitet, nicht parallel wahr.",
+        "en": "A neutral graph IR (nodes, edges, evidence, scopes) feeds all Blueprint views. Report fields stay derived, not a second source of truth."
+      },
+      "status": "accepted",
+      "related_features": [
+        "blueprint-software-graph",
+        "blueprint-views"
+      ],
+      "evidence": [
+        {
+          "kind": "file",
+          "path": ".qa/design/visudev-graph-ir.md",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/design/visudev-graph-ir.md"
+        }
+      ],
+      "review_status": "needs-review",
+      "confidence": 0.8,
+      "plain_language": {
+        "de": "Alle Architektur-Karten lesen denselben Stadtplan. Es gibt nicht sieben widersprüchliche Wahrheiten.",
+        "en": "All architecture maps read the same city plan. There are not seven conflicting truths."
+      },
+      "why_it_matters": {
+        "de": "Views bleiben konsistent und erweiterbar, ohne die Analyse neu zu erfinden.",
+        "en": "Views stay consistent and extensible without reinventing analysis."
+      }
+    },
+    {
+      "id": "vertical-slice-strangler",
+      "date": "2026-07-22",
+      "title": {
+        "de": "Strangler zu Product-Slices, kein Big-Bang-Rename",
+        "en": "Strangler to product slices, no big-bang rename"
+      },
+      "summary": {
+        "de": "Jede Capability hinter public index.ts. Kein src/slices-Rename, kein Package-Split, kein Hybrid-Ausbau. Boundary-Check in CI. Pilot logs, Blueprint zuletzt.",
+        "en": "Each capability behind a public index.ts. No src/slices rename, no package split, no hybrid expansion. Boundary check in CI. Logs pilot, Blueprint last."
+      },
+      "status": "accepted",
+      "related_features": [
+        "projects",
+        "appflow",
+        "blueprint-views",
+        "data-erd",
+        "logs",
+        "settings-connections"
+      ],
+      "evidence": [
+        {
+          "kind": "file",
+          "path": ".qa/design/vertical-slice-strangler.md",
+          "url": "https://github.com/iamthamanic/visudev-app/blob/26a5b44823f9f053cc5924fc8e0e8d36508e5ace/.qa/design/vertical-slice-strangler.md"
+        }
+      ],
+      "review_status": "needs-review",
+      "confidence": 0.8,
+      "plain_language": {
+        "de": "Der Code wird bereichsweise hinter klare Türen gezogen — ohne alles auf einmal umzubenennen.",
+        "en": "Code is pulled behind clear doors area by area — without renaming everything at once."
+      },
+      "why_it_matters": {
+        "de": "Kleine PRs, weniger Merge-Chaos, CI verhindert neue Wild-Imports.",
+        "en": "Small PRs, less merge chaos, CI blocks new wild imports."
+      }
     }
   ]
 }

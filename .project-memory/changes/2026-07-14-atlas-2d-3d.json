@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "status": "recorded",
+  "packages": [
+    "src"
+  ],
+  "breaking_changes": [],
+  "migration_required": false,
+  "screenshots": [],
+  "confidence": 0.75,
+  "review_status": "needs-review",
+  "operational_impact": {
+    "de": [],
+    "en": []
+  },
+  "id": "2026-07-14-atlas-2d-3d",
+  "date": "2026-07-14",
+  "type": "feature",
+  "title": {
+    "de": "Atlas: 2D-Stadtkarte und optionale 3D-City",
+    "en": "Atlas: 2D system map and optional 3D city"
+  },
+  "summary": {
+    "de": "Phase 7 Atlas-2D mit Suche; später lazy-loaded 3D-City-Modus mit Toggle, Stats und Labels.",
+    "en": "Phase 7 Atlas 2D with search; later lazy-loaded 3D city mode with toggle, stats, and labels."
+  },
+  "plain_language": {
+    "de": "Atlas zeigt das ganze System als Karte — flach zum Orientieren, optional als 3D-Stadt zum Eintauchen.",
+    "en": "Atlas shows the whole system as a map — flat for orientation, optionally as a 3D city to dive in."
+  },
+  "why_it_matters": {
+    "de": "Ohne Überblick bleiben die anderen Blueprint-Views Einzelpuzzles.",
+    "en": "Without an overview the other Blueprint views stay isolated puzzles."
+  },
+  "user_impact": {
+    "de": [
+      "Atlas-Tab mit 2D/3D-Umschalter",
+      "Suche und Dichte-Karte"
+    ],
+    "en": [
+      "Atlas tab with 2D/3D toggle",
+      "Search and density map"
+    ]
+  },
+  "developer_impact": {
+    "de": [
+      "Cytoscape 2D",
+      "React Three Fiber lazy AtlasCityScene"
+    ],
+    "en": [
+      "Cytoscape 2D",
+      "React Three Fiber lazy AtlasCityScene"
+    ]
+  },
+  "security_relevant": false,
+  "git": {
+    "base": "b5614027",
+    "head": "c1a3c7ef",
+    "branch": "main",
+    "pull_request": "https://github.com/iamthamanic/visudev-app/pull/104"
+  },
+  "affected_features": [
+    "blueprint-views"
+  ],
+  "affected_components": [
+    "src/modules/blueprint/components/AtlasView.tsx",
+    "src/modules/blueprint/components/atlas"
+  ],
+  "evidence": [
+    {
+      "kind": "compare",
+      "path": "b5614027...c1a3c7ef",
+      "url": "https://github.com/iamthamanic/visudev-app/compare/b5614027...c1a3c7ef"
+    },
+    {
+      "kind": "commit",
+      "path": "c1a3c7ef",
+      "sha": "c1a3c7ef",
+      "url": "https://github.com/iamthamanic/visudev-app/commit/c1a3c7ef"
+    },
+    {
+      "kind": "pr",
+      "path": "https://github.com/iamthamanic/visudev-app/pull/104",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/104"
+    },
+    {
+      "kind": "file",
+      "path": "src/modules/blueprint/components/AtlasView.tsx",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/c1a3c7ef/src/modules/blueprint/components/AtlasView.tsx"
+    },
+    {
+      "kind": "file",
+      "path": "src/modules/blueprint/components/atlas",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/c1a3c7ef/src/modules/blueprint/components/atlas"
+    },
+    {
+      "kind": "pr",
+      "path": "83",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/83"
+    }
+  ]
+}
