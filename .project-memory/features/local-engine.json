@@ -21,7 +21,8 @@
     "2026-07-08-local-first-graph",
     "2026-07-16-softort-analyzer-honesty",
     "2026-07-17-meteor-mongo-extractors",
-    "2026-07-17-infra-postgres-redis"
+    "2026-07-17-infra-postgres-redis",
+    "2026-08-12-phase0-honest-core"
   ],
   "review_status": "needs-review",
   "confidence": 0.65,

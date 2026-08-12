@@ -24,14 +24,15 @@
     "2026-07-08-local-first-graph",
     "2026-07-14-blueprint-multiview",
     "2026-07-16-softort-analyzer-honesty",
-    "2026-07-17-meteor-mongo-extractors"
+    "2026-07-17-meteor-mongo-extractors",
+    "2026-08-12-phase0-honest-core"
   ],
   "review_status": "needs-review",
-  "confidence": 0.65,
+  "confidence": 0.7,
   "locked": false,
   "plain_language": {
-    "de": "Im Hintergrund baut VisuDEV einen gemeinsamen „Stadtplan“ der Software (Software Graph). Alle Blueprint-Ansichten lesen denselben Plan.",
-    "en": "Under the hood VisuDEV builds a shared city map of the software (Software Graph). All Blueprint views read the same map."
+    "de": "Im Hintergrund baut VisuDEV einen gemeinsamen „Stadtplan“ der Software (Software Graph). Domänen kommen aus Ordnerpfaden oder — bei schichtzuerst-Layouts — aus Dateinamen. Alle Blueprint-Ansichten lesen denselben Plan.",
+    "en": "Under the hood VisuDEV builds a shared city map of the software (Software Graph). Domains come from folder paths or — for layer-first layouts — from filenames. All Blueprint views read the same map."
   },
   "why_it_matters": {
     "de": "Dadurch bleiben die Views konsistent und können später erweitert werden, ohne alles neu zu erfinden.",

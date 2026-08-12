@@ -1,7 +1,10 @@
 {
   "schema_version": 1,
   "status": "recorded",
-  "packages": ["src", "local-engine"],
+  "packages": [
+    "src",
+    "local-engine"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "screenshots": [],
@@ -31,12 +34,26 @@
     "en": "Raw diagnostic data becomes a usable interface."
   },
   "user_impact": {
-    "de": ["Filterbare Findings", "Execution-Timeline", "Footer „Keine kritischen Probleme“"],
-    "en": ["Filterable findings", "Execution timeline", "Footer “no critical issues”"]
+    "de": [
+      "Filterbare Findings",
+      "Execution-Timeline",
+      "Footer „Keine kritischen Probleme“"
+    ],
+    "en": [
+      "Filterable findings",
+      "Execution timeline",
+      "Footer “no critical issues”"
+    ]
   },
   "developer_impact": {
-    "de": ["Wave 5 issues #166–#170", "shell footer health"],
-    "en": ["Wave 5 issues #166–#170", "shell footer health"]
+    "de": [
+      "Wave 5 issues #166–#170",
+      "shell footer health"
+    ],
+    "en": [
+      "Wave 5 issues #166–#170",
+      "shell footer health"
+    ]
   },
   "security_relevant": false,
   "git": {
@@ -45,8 +62,13 @@
     "branch": "main",
     "pull_request": null
   },
-  "affected_features": ["blueprint-views"],
-  "affected_components": ["src/modules/blueprint", "src/modules/shell"],
+  "affected_features": [
+    "blueprint-views"
+  ],
+  "affected_components": [
+    "src/modules/blueprint",
+    "src/modules/shell"
+  ],
   "evidence": [
     {
       "kind": "compare",

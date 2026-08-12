@@ -1,7 +1,10 @@
 {
   "schema_version": 1,
   "status": "recorded",
-  "packages": ["src", "local-engine"],
+  "packages": [
+    "src",
+    "local-engine"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "screenshots": [],
@@ -35,11 +38,20 @@
       "Glaubwürdigere Architecture/Infra-Views",
       "Bessere Treffer bei Django/Prisma-Projekten"
     ],
-    "en": ["More credible architecture/infra views", "Better hits on Django/Prisma projects"]
+    "en": [
+      "More credible architecture/infra views",
+      "Better hits on Django/Prisma projects"
+    ]
   },
   "developer_impact": {
-    "de": ["softort / soft-cap ranking", "monorepo + Prisma coverage"],
-    "en": ["softort / soft-cap ranking", "monorepo + Prisma coverage"]
+    "de": [
+      "softort / soft-cap ranking",
+      "monorepo + Prisma coverage"
+    ],
+    "en": [
+      "softort / soft-cap ranking",
+      "monorepo + Prisma coverage"
+    ]
   },
   "security_relevant": false,
   "git": {
@@ -48,8 +60,15 @@
     "branch": "main",
     "pull_request": null
   },
-  "affected_features": ["blueprint-software-graph", "local-engine", "blueprint-views"],
-  "affected_components": ["local-engine", "shared"],
+  "affected_features": [
+    "blueprint-software-graph",
+    "local-engine",
+    "blueprint-views"
+  ],
+  "affected_components": [
+    "local-engine",
+    "shared"
+  ],
   "evidence": [
     {
       "kind": "compare",

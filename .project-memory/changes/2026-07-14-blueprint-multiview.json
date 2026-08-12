@@ -21,12 +21,24 @@
     "en": "Different questions (security vs deploy vs dependencies) get clear dedicated views."
   },
   "user_impact": {
-    "de": ["View-Umschalter im Blueprint", "Reichere Inspektoren"],
-    "en": ["View switcher in Blueprint", "Richer inspectors"]
+    "de": [
+      "View-Umschalter im Blueprint",
+      "Reichere Inspektoren"
+    ],
+    "en": [
+      "View switcher in Blueprint",
+      "Richer inspectors"
+    ]
   },
   "developer_impact": {
-    "de": ["Phases 0–8", "Cytoscape / view components"],
-    "en": ["Phases 0–8", "Cytoscape / view components"]
+    "de": [
+      "Phases 0–8",
+      "Cytoscape / view components"
+    ],
+    "en": [
+      "Phases 0–8",
+      "Cytoscape / view components"
+    ]
   },
   "operational_impact": {
     "de": [],
@@ -38,9 +50,18 @@
     "branch": "main",
     "pull_request": null
   },
-  "packages": ["src", "shared", "local-engine"],
-  "affected_features": ["blueprint-views", "blueprint-software-graph"],
-  "affected_components": ["src/modules/blueprint"],
+  "packages": [
+    "src",
+    "shared",
+    "local-engine"
+  ],
+  "affected_features": [
+    "blueprint-views",
+    "blueprint-software-graph"
+  ],
+  "affected_components": [
+    "src/modules/blueprint"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "security_relevant": false,

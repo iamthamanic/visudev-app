@@ -21,16 +21,30 @@
     "en": "Foundation for many Blueprint views and stack-agnostic security."
   },
   "user_impact": {
-    "de": ["Zuverlässigere lokale Scans"],
-    "en": ["More reliable local scans"]
+    "de": [
+      "Zuverlässigere lokale Scans"
+    ],
+    "en": [
+      "More reliable local scans"
+    ]
   },
   "developer_impact": {
-    "de": ["Software Graph builder", "pluggable providers vorbereitet"],
-    "en": ["Software Graph builder", "pluggable providers prepared"]
+    "de": [
+      "Software Graph builder",
+      "pluggable providers vorbereitet"
+    ],
+    "en": [
+      "Software Graph builder",
+      "pluggable providers prepared"
+    ]
   },
   "operational_impact": {
-    "de": ["Local Engine zentral"],
-    "en": ["Local Engine central"]
+    "de": [
+      "Local Engine zentral"
+    ],
+    "en": [
+      "Local Engine central"
+    ]
   },
   "git": {
     "base": "",
@@ -38,9 +52,18 @@
     "branch": "main",
     "pull_request": null
   },
-  "packages": ["local-engine", "shared"],
-  "affected_features": ["blueprint-software-graph", "local-engine"],
-  "affected_components": ["shared/software-graph.types.ts", "local-engine"],
+  "packages": [
+    "local-engine",
+    "shared"
+  ],
+  "affected_features": [
+    "blueprint-software-graph",
+    "local-engine"
+  ],
+  "affected_components": [
+    "shared/software-graph.types.ts",
+    "local-engine"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "security_relevant": false,

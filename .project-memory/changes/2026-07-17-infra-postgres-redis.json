@@ -1,7 +1,10 @@
 {
   "schema_version": 1,
   "status": "recorded",
-  "packages": ["src", "local-engine"],
+  "packages": [
+    "src",
+    "local-engine"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "screenshots": [],
@@ -31,12 +34,20 @@
     "en": "Deploy and data questions need visible infra, not only routes."
   },
   "user_impact": {
-    "de": ["Postgres/Redis-Knoten in Infrastructure"],
-    "en": ["Postgres/Redis nodes in Infrastructure"]
+    "de": [
+      "Postgres/Redis-Knoten in Infrastructure"
+    ],
+    "en": [
+      "Postgres/Redis nodes in Infrastructure"
+    ]
   },
   "developer_impact": {
-    "de": ["compose + Prisma infra extraction"],
-    "en": ["compose + Prisma infra extraction"]
+    "de": [
+      "compose + Prisma infra extraction"
+    ],
+    "en": [
+      "compose + Prisma infra extraction"
+    ]
   },
   "security_relevant": false,
   "git": {
@@ -45,8 +56,14 @@
     "branch": "main",
     "pull_request": null
   },
-  "affected_features": ["blueprint-views", "local-engine"],
-  "affected_components": ["local-engine", "src/modules/blueprint"],
+  "affected_features": [
+    "blueprint-views",
+    "local-engine"
+  ],
+  "affected_components": [
+    "local-engine",
+    "src/modules/blueprint"
+  ],
   "evidence": [
     {
       "kind": "compare",

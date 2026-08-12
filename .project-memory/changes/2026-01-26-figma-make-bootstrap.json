@@ -21,16 +21,28 @@
     "en": "This is project day one — everything later builds on it."
   },
   "user_impact": {
-    "de": ["Erste klickbare Oberfläche existiert."],
-    "en": ["A first clickable UI exists."]
+    "de": [
+      "Erste klickbare Oberfläche existiert."
+    ],
+    "en": [
+      "A first clickable UI exists."
+    ]
   },
   "developer_impact": {
-    "de": ["Vite/React-Codebasis aus Figma-Export."],
-    "en": ["Vite/React codebase from Figma export."]
+    "de": [
+      "Vite/React-Codebasis aus Figma-Export."
+    ],
+    "en": [
+      "Vite/React codebase from Figma export."
+    ]
   },
   "operational_impact": {
-    "de": ["Repo auf GitHub angelegt."],
-    "en": ["Repo created on GitHub."]
+    "de": [
+      "Repo auf GitHub angelegt."
+    ],
+    "en": [
+      "Repo created on GitHub."
+    ]
   },
   "git": {
     "base": "2b776765",
@@ -38,9 +50,17 @@
     "branch": "main",
     "pull_request": null
   },
-  "packages": ["src"],
-  "affected_features": ["projects", "appflow", "settings-connections"],
-  "affected_components": ["src/"],
+  "packages": [
+    "src"
+  ],
+  "affected_features": [
+    "projects",
+    "appflow",
+    "settings-connections"
+  ],
+  "affected_components": [
+    "src/"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "security_relevant": false,

@@ -1,7 +1,10 @@
 {
   "schema_version": 1,
   "status": "recorded",
-  "packages": ["src", "local-engine"],
+  "packages": [
+    "src",
+    "local-engine"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "screenshots": [],
@@ -31,12 +34,26 @@
     "en": "Without this shell rebuild, the many Blueprint views feel like loose tabs instead of one product."
   },
   "user_impact": {
-    "de": ["Sidebar-Navigation", "Scan-Status im Header", "deutsche View-Namen"],
-    "en": ["Sidebar navigation", "Scan status in header", "German view names"]
+    "de": [
+      "Sidebar-Navigation",
+      "Scan-Status im Header",
+      "deutsche View-Namen"
+    ],
+    "en": [
+      "Sidebar navigation",
+      "Scan status in header",
+      "German view names"
+    ]
   },
   "developer_impact": {
-    "de": ["Blueprint shell / sidebar layout", "Figma-aligned architecture canvas"],
-    "en": ["Blueprint shell / sidebar layout", "Figma-aligned architecture canvas"]
+    "de": [
+      "Blueprint shell / sidebar layout",
+      "Figma-aligned architecture canvas"
+    ],
+    "en": [
+      "Blueprint shell / sidebar layout",
+      "Figma-aligned architecture canvas"
+    ]
   },
   "security_relevant": false,
   "git": {
@@ -45,8 +62,12 @@
     "branch": "main",
     "pull_request": null
   },
-  "affected_features": ["blueprint-views"],
-  "affected_components": ["src/modules/blueprint"],
+  "affected_features": [
+    "blueprint-views"
+  ],
+  "affected_components": [
+    "src/modules/blueprint"
+  ],
   "evidence": [
     {
       "kind": "compare",

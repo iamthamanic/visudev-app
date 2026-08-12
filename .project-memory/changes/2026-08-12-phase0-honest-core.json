@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "status": "recorded",
+  "packages": [
+    "src",
+    "local-engine",
+    "shared",
+    "preview-runner"
+  ],
+  "breaking_changes": [],
+  "migration_required": false,
+  "screenshots": [
+    {
+      "id": "shot-architecture-domain-hint",
+      "path": "docs/memory-live-doc/assets/2026-08-12-phase0-honest-core/architecture-domain-hint.png",
+      "status": "missing",
+      "caption": {
+        "de": "Architecture-Banner bei majority domainSource filename / none",
+        "en": "Architecture banner when majority domainSource is filename / none"
+      }
+    }
+  ],
+  "confidence": 0.8,
+  "review_status": "needs-review",
+  "operational_impact": {
+    "de": [
+      "CI Golden-Set misst den echten Analyzer ohne Enrichment.",
+      "Symlink-Jail verhindert Path-Escape beim lokalen Walk."
+    ],
+    "en": [
+      "CI golden set measures the real analyzer without enrichment.",
+      "Symlink jail prevents path escape during local walks."
+    ]
+  },
+  "id": "2026-08-12-phase0-honest-core",
+  "date": "2026-08-12",
+  "type": "feature",
+  "title": {
+    "de": "Phase 0 Honest Core: Domänen, Edges, Snapshots, Security-Ehrlichkeit",
+    "en": "Phase 0 honest core: domains, edges, snapshots, security honesty"
+  },
+  "summary": {
+    "de": "Welle A: CI Golden-Set (P0-5), Security nur bei Analysierbarkeit (P0-6), keine Node-Duplikate (P0-7), Fact-Cap (P0-8), Import/Call-Edges (P0-9), Segmentstreuung (P0-13), Pfad-Domänen (P0-10), Commit-SHA/Snapshots (P0-11), Dateinamen-Domänen (P0-14), Softort-Pfad-Diversität + Sample-Relativierung.",
+    "en": "Wave A: CI golden set (P0-5), security only when analyzable (P0-6), no node duplicates (P0-7), fact cap (P0-8), import/call edges (P0-9), segment spread (P0-13), path domains (P0-10), commit SHA/snapshots (P0-11), filename domains (P0-14), Softort path diversity + sample relativization."
+  },
+  "plain_language": {
+    "de": "VisuDEV erkennt Fachbereiche jetzt auch in schichtzuerst-Projekten (Dateinamen) und in modulbasierten Pfaden. Graphen zeigen wieder echte Import/Call-Verbindungen. Security-Warnungen erscheinen nicht mehr, wenn der Code gar nicht analysierbar war. CI prüft den Analyzer an echten Repos.",
+    "en": "VisuDEV now detects business domains in layer-first projects (filenames) and module-based paths. Graphs again show real import/call links. Security warnings no longer appear when code was not analyzable. CI checks the analyzer against real repos."
+  },
+  "why_it_matters": {
+    "de": "Ohne ehrliche Domänen und Edges wirken Architecture/Atlas leer oder falsch — das Vertrauen in Blueprint steht und fällt damit.",
+    "en": "Without honest domains and edges, Architecture/Atlas look empty or wrong — Blueprint trust depends on this."
+  },
+  "user_impact": {
+    "de": [
+      "Mehr und glaubwürdigere Domänen-Distrikte (path + filename)",
+      "Architecture-Hinweistext je nach domainSource-Mehrheit",
+      "Weniger falsche Security-Findings bei nicht analysierbarem Code",
+      "Stabilere Graph-IDs (keine Container-Duplikate)"
+    ],
+    "en": [
+      "More credible domain districts (path + filename)",
+      "Architecture hint text by domainSource majority",
+      "Fewer false security findings when code is not analyzable",
+      "More stable graph IDs (no container duplicates)"
+    ]
+  },
+  "developer_impact": {
+    "de": [
+      "Segment-Spread-Index + Pfad-/Dateinamen-Domänen-Pässe",
+      "domainSource: path | filename | none",
+      "Issues #260–#268 / PRs #269–#280"
+    ],
+    "en": [
+      "Segment-spread index + path/filename domain passes",
+      "domainSource: path | filename | none",
+      "Issues #260–#268 / PRs #269–#280"
+    ]
+  },
+  "security_relevant": true,
+  "git": {
+    "base": "1d130a00",
+    "head": "5364a4b3",
+    "branch": "main",
+    "pull_request": "https://github.com/iamthamanic/visudev-app/pull/280"
+  },
+  "affected_features": [
+    "blueprint-software-graph",
+    "local-engine",
+    "blueprint-views",
+    "blueprint-access-control"
+  ],
+  "affected_components": [
+    "local-engine/src/services/software-graph",
+    "local-engine/src/services/software-graph-builder.service.ts",
+    "src/modules/blueprint/components/architecture/domain-source-hint.ts",
+    "preview-runner/lib",
+    ".github/workflows"
+  ],
+  "evidence": [
+    {
+      "kind": "compare",
+      "path": "1d130a00...5364a4b3",
+      "url": "https://github.com/iamthamanic/visudev-app/compare/1d130a00...5364a4b3"
+    },
+    {
+      "kind": "commit",
+      "path": "5364a4b3",
+      "sha": "5364a4b3",
+      "url": "https://github.com/iamthamanic/visudev-app/commit/5364a4b3"
+    },
+    {
+      "kind": "pr",
+      "path": "https://github.com/iamthamanic/visudev-app/pull/280",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/280"
+    },
+    {
+      "kind": "file",
+      "path": "local-engine/src/services/software-graph",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/5364a4b3/local-engine/src/services/software-graph"
+    },
+    {
+      "kind": "file",
+      "path": "local-engine/src/services/software-graph-builder.service.ts",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/5364a4b3/local-engine/src/services/software-graph-builder.service.ts"
+    },
+    {
+      "kind": "file",
+      "path": "src/modules/blueprint/components/architecture/domain-source-hint.ts",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/5364a4b3/src/modules/blueprint/components/architecture/domain-source-hint.ts"
+    },
+    {
+      "kind": "file",
+      "path": "preview-runner/lib",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/5364a4b3/preview-runner/lib"
+    },
+    {
+      "kind": "file",
+      "path": ".github/workflows",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/5364a4b3/.github/workflows"
+    },
+    {
+      "kind": "pr",
+      "path": "269",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/269"
+    },
+    {
+      "kind": "pr",
+      "path": "278",
+      "url": "https://github.com/iamthamanic/visudev-app/pull/278"
+    },
+    {
+      "kind": "file",
+      "path": "local-engine/src/services/software-graph/_domain-from-filename.ts",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/5364a4b3/local-engine/src/services/software-graph/_domain-from-filename.ts"
+    },
+    {
+      "kind": "file",
+      "path": "local-engine/src/services/software-graph/_segment-spread.ts",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/5364a4b3/local-engine/src/services/software-graph/_segment-spread.ts"
+    },
+    {
+      "kind": "commit",
+      "path": "70b78452",
+      "sha": "70b78452",
+      "url": "https://github.com/iamthamanic/visudev-app/commit/70b78452"
+    }
+  ]
+}

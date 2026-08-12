@@ -12,11 +12,22 @@
         "en": "Screen-centric sitemap: screens, navigation, UI actions, and preview integration."
       },
       "status": "active",
-      "packages": ["src", "preview-runner", "local-engine"],
-      "paths": ["src/modules/appflow/**", "docs/APPFLOW_*.md"],
+      "packages": [
+        "src",
+        "preview-runner",
+        "local-engine"
+      ],
+      "paths": [
+        "src/modules/appflow/**",
+        "docs/APPFLOW_*.md"
+      ],
       "user_impact": {
-        "de": ["Zeigt, welche Screens existieren und wohin Aktionen führen."],
-        "en": ["Shows which screens exist and where actions lead."]
+        "de": [
+          "Zeigt, welche Screens existieren und wohin Aktionen führen."
+        ],
+        "en": [
+          "Shows which screens exist and where actions lead."
+        ]
       },
       "related_changes": [
         "2026-07-19-bootstrap",
@@ -47,7 +58,11 @@
         "en": "Abstract controls (AuthN, AuthZ, Scope, Tenant, Ownership, Validation, Audit); mechanisms (RLS, views, query filters) only in inspector/adapters. Expectations without DB type; detection optionally stack-specific."
       },
       "status": "active",
-      "packages": ["shared", "local-engine", "src"],
+      "packages": [
+        "shared",
+        "local-engine",
+        "src"
+      ],
       "paths": [
         "shared/access-control.types.ts",
         "shared/access-control-matrix.ts",
@@ -65,7 +80,10 @@
           "MariaDB/MongoDB without native RLS are not falsely marked critical when scope is evidenced."
         ]
       },
-      "related_changes": ["2026-07-19-bootstrap", "2026-07-17-access-control-epic"],
+      "related_changes": [
+        "2026-07-19-bootstrap",
+        "2026-07-17-access-control-epic"
+      ],
       "review_status": "needs-review",
       "confidence": 0.75,
       "locked": false,
@@ -89,29 +107,37 @@
         "en": "Neutral graph intermediate representation (nodes, edges, evidence) as source of truth for Blueprint projections."
       },
       "status": "active",
-      "packages": ["shared", "local-engine"],
+      "packages": [
+        "shared",
+        "local-engine"
+      ],
       "paths": [
         "shared/software-graph.types.ts",
         "local-engine/src/services/software-graph-builder.service.ts",
         ".qa/design/visudev-graph-ir.md"
       ],
       "user_impact": {
-        "de": ["Ermöglicht konsistente Views unabhängig vom Analyse-Provider."],
-        "en": ["Enables consistent views independent of the analysis provider."]
+        "de": [
+          "Ermöglicht konsistente Views unabhängig vom Analyse-Provider."
+        ],
+        "en": [
+          "Enables consistent views independent of the analysis provider."
+        ]
       },
       "related_changes": [
         "2026-07-19-bootstrap",
         "2026-07-08-local-first-graph",
         "2026-07-14-blueprint-multiview",
         "2026-07-16-softort-analyzer-honesty",
-        "2026-07-17-meteor-mongo-extractors"
+        "2026-07-17-meteor-mongo-extractors",
+        "2026-08-12-phase0-honest-core"
       ],
       "review_status": "needs-review",
-      "confidence": 0.65,
+      "confidence": 0.7,
       "locked": false,
       "plain_language": {
-        "de": "Im Hintergrund baut VisuDEV einen gemeinsamen „Stadtplan“ der Software (Software Graph). Alle Blueprint-Ansichten lesen denselben Plan.",
-        "en": "Under the hood VisuDEV builds a shared city map of the software (Software Graph). All Blueprint views read the same map."
+        "de": "Im Hintergrund baut VisuDEV einen gemeinsamen „Stadtplan“ der Software (Software Graph). Domänen kommen aus Ordnerpfaden oder — bei schichtzuerst-Layouts — aus Dateinamen. Alle Blueprint-Ansichten lesen denselben Plan.",
+        "en": "Under the hood VisuDEV builds a shared city map of the software (Software Graph). Domains come from folder paths or — for layer-first layouts — from filenames. All Blueprint views read the same map."
       },
       "why_it_matters": {
         "de": "Dadurch bleiben die Views konsistent und können später erweitert werden, ohne alles neu zu erfinden.",
@@ -129,15 +155,23 @@
         "en": "Seven Blueprint views (Atlas, Architecture, Dependencies, Execution, Infrastructure, Diagnostics, Evolution) over a shared Software Graph."
       },
       "status": "active",
-      "packages": ["src", "shared", "local-engine"],
+      "packages": [
+        "src",
+        "shared",
+        "local-engine"
+      ],
       "paths": [
         "src/modules/blueprint/**",
         "shared/software-graph.types.ts",
         ".qa/design/blueprint-v2.md"
       ],
       "user_impact": {
-        "de": ["Technische Architektur und Diagnosen neben Security-Matrix."],
-        "en": ["Technical architecture and diagnostics alongside the security matrix."]
+        "de": [
+          "Technische Architektur und Diagnosen neben Security-Matrix."
+        ],
+        "en": [
+          "Technical architecture and diagnostics alongside the security matrix."
+        ]
       },
       "related_changes": [
         "2026-07-19-bootstrap",
@@ -174,13 +208,25 @@
         "en": "Database schema and ERD; local introspection for PostgreSQL and SQLite."
       },
       "status": "active",
-      "packages": ["src", "local-engine"],
-      "paths": ["src/modules/data/**", "local-engine/src/services/data-introspection.service.ts"],
+      "packages": [
+        "src",
+        "local-engine"
+      ],
+      "paths": [
+        "src/modules/data/**",
+        "local-engine/src/services/data-introspection.service.ts"
+      ],
       "user_impact": {
-        "de": ["Tabellen, Spalten und Beziehungen sichtbar machen."],
-        "en": ["Make tables, columns, and relationships visible."]
+        "de": [
+          "Tabellen, Spalten und Beziehungen sichtbar machen."
+        ],
+        "en": [
+          "Make tables, columns, and relationships visible."
+        ]
       },
-      "related_changes": ["2026-07-19-bootstrap"],
+      "related_changes": [
+        "2026-07-19-bootstrap"
+      ],
       "review_status": "needs-review",
       "confidence": 0.55,
       "locked": false,
@@ -204,11 +250,21 @@
         "en": "Local analysis server: Blueprint providers, enrichment, Software Graph, access control."
       },
       "status": "active",
-      "packages": ["local-engine", "shared"],
-      "paths": ["local-engine/**", "docs/LOCAL_ENGINE.md"],
+      "packages": [
+        "local-engine",
+        "shared"
+      ],
+      "paths": [
+        "local-engine/**",
+        "docs/LOCAL_ENGINE.md"
+      ],
       "user_impact": {
-        "de": ["Analyse ohne Cloud für lokale Projekte."],
-        "en": ["Analysis without cloud for local projects."]
+        "de": [
+          "Analyse ohne Cloud für lokale Projekte."
+        ],
+        "en": [
+          "Analysis without cloud for local projects."
+        ]
       },
       "related_changes": [
         "2026-07-19-bootstrap",
@@ -216,7 +272,8 @@
         "2026-07-08-local-first-graph",
         "2026-07-16-softort-analyzer-honesty",
         "2026-07-17-meteor-mongo-extractors",
-        "2026-07-17-infra-postgres-redis"
+        "2026-07-17-infra-postgres-redis",
+        "2026-08-12-phase0-honest-core"
       ],
       "review_status": "needs-review",
       "confidence": 0.65,
@@ -241,13 +298,23 @@
         "en": "Logs module for analysis/runtime events; scope still incompletely documented."
       },
       "status": "incomplete",
-      "packages": ["src"],
-      "paths": ["src/modules/logs/**"],
+      "packages": [
+        "src"
+      ],
+      "paths": [
+        "src/modules/logs/**"
+      ],
       "user_impact": {
-        "de": ["Laufzeit- und Scan-Logs einsehen (Details needs-review)."],
-        "en": ["View runtime and scan logs (details needs-review)."]
+        "de": [
+          "Laufzeit- und Scan-Logs einsehen (Details needs-review)."
+        ],
+        "en": [
+          "View runtime and scan logs (details needs-review)."
+        ]
       },
-      "related_changes": ["2026-07-19-bootstrap"],
+      "related_changes": [
+        "2026-07-19-bootstrap"
+      ],
       "review_status": "needs-review",
       "confidence": 0.4,
       "locked": false,
@@ -271,11 +338,20 @@
         "en": "Builds and runs linked apps locally for live preview and crawls (port 4000)."
       },
       "status": "active",
-      "packages": ["preview-runner"],
-      "paths": ["preview-runner/**", "docs/PREVIEW_RUNNER.md"],
+      "packages": [
+        "preview-runner"
+      ],
+      "paths": [
+        "preview-runner/**",
+        "docs/PREVIEW_RUNNER.md"
+      ],
       "user_impact": {
-        "de": ["Live-Iframes und Screenshots aus dem analysierten Repo."],
-        "en": ["Live iframes and screenshots from the analyzed repo."]
+        "de": [
+          "Live-Iframes und Screenshots aus dem analysierten Repo."
+        ],
+        "en": [
+          "Live iframes and screenshots from the analyzed repo."
+        ]
       },
       "related_changes": [
         "2026-07-19-bootstrap",
@@ -305,11 +381,19 @@
         "en": "Create/manage projects, connect GitHub repos or local paths, start analysis."
       },
       "status": "active",
-      "packages": ["src"],
-      "paths": ["src/modules/projects/**"],
+      "packages": [
+        "src"
+      ],
+      "paths": [
+        "src/modules/projects/**"
+      ],
       "user_impact": {
-        "de": ["Projektliste und Auswahl steuern App Flow, Blueprint und Data."],
-        "en": ["Project list and selection drive App Flow, Blueprint, and Data."]
+        "de": [
+          "Projektliste und Auswahl steuern App Flow, Blueprint und Data."
+        ],
+        "en": [
+          "Project list and selection drive App Flow, Blueprint, and Data."
+        ]
       },
       "related_changes": [
         "2026-07-19-bootstrap",
@@ -340,11 +424,19 @@
         "en": "Configure GitHub OAuth, LLM providers, and other connections."
       },
       "status": "active",
-      "packages": ["src"],
-      "paths": ["src/modules/settings/**"],
+      "packages": [
+        "src"
+      ],
+      "paths": [
+        "src/modules/settings/**"
+      ],
       "user_impact": {
-        "de": ["Voraussetzung für Repo-Zugriff und optionale KI-Features."],
-        "en": ["Prerequisite for repo access and optional AI features."]
+        "de": [
+          "Voraussetzung für Repo-Zugriff und optionale KI-Features."
+        ],
+        "en": [
+          "Prerequisite for repo access and optional AI features."
+        ]
       },
       "related_changes": [
         "2026-07-19-bootstrap",

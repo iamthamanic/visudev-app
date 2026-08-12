@@ -1,7 +1,10 @@
 {
   "schema_version": 1,
   "status": "recorded",
-  "packages": ["src", "local-engine"],
+  "packages": [
+    "src",
+    "local-engine"
+  ],
   "breaking_changes": [],
   "migration_required": false,
   "screenshots": [],
@@ -31,12 +34,22 @@
     "en": "Without stack extractors, Blueprint stays blind on non-HTTP apps."
   },
   "user_impact": {
-    "de": ["Mehr sichtbare Methoden/Modelle bei Meteor-Apps"],
-    "en": ["More visible methods/models on Meteor apps"]
+    "de": [
+      "Mehr sichtbare Methoden/Modelle bei Meteor-Apps"
+    ],
+    "en": [
+      "More visible methods/models on Meteor apps"
+    ]
   },
   "developer_impact": {
-    "de": ["RC-W2 extractors", "FILE_LIMIT seeding order"],
-    "en": ["RC-W2 extractors", "FILE_LIMIT seeding order"]
+    "de": [
+      "RC-W2 extractors",
+      "FILE_LIMIT seeding order"
+    ],
+    "en": [
+      "RC-W2 extractors",
+      "FILE_LIMIT seeding order"
+    ]
   },
   "security_relevant": false,
   "git": {
@@ -45,8 +58,13 @@
     "branch": "main",
     "pull_request": null
   },
-  "affected_features": ["blueprint-software-graph", "local-engine"],
-  "affected_components": ["local-engine"],
+  "affected_features": [
+    "blueprint-software-graph",
+    "local-engine"
+  ],
+  "affected_components": [
+    "local-engine"
+  ],
   "evidence": [
     {
       "kind": "compare",

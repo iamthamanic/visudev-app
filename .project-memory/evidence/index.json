@@ -5,31 +5,49 @@
       "id": "readme",
       "kind": "file",
       "path": "README.md",
-      "url": "https://github.com/iamthamanic/visudev-app/blob/527e2cb2d17cf6826b3d8fbd163b713cee5a1efc/README.md"
+      "url": "https://github.com/iamthamanic/visudev-app/blob/36fff3da21a385a387c9ba1adcb29ee531884534/README.md"
     },
     {
       "id": "agents",
       "kind": "file",
       "path": "AGENTS.md",
-      "url": "https://github.com/iamthamanic/visudev-app/blob/527e2cb2d17cf6826b3d8fbd163b713cee5a1efc/AGENTS.md"
+      "url": "https://github.com/iamthamanic/visudev-app/blob/36fff3da21a385a387c9ba1adcb29ee531884534/AGENTS.md"
+    },
+    {
+      "id": "phase0-filename-domains",
+      "kind": "file",
+      "path": "local-engine/src/services/software-graph/_domain-from-filename.ts",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/36fff3da21a385a387c9ba1adcb29ee531884534/local-engine/src/services/software-graph/_domain-from-filename.ts"
+    },
+    {
+      "id": "phase0-segment-spread",
+      "kind": "file",
+      "path": "local-engine/src/services/software-graph/_segment-spread.ts",
+      "url": "https://github.com/iamthamanic/visudev-app/blob/36fff3da21a385a387c9ba1adcb29ee531884534/local-engine/src/services/software-graph/_segment-spread.ts"
+    },
+    {
+      "id": "slice-modules",
+      "kind": "file",
+      "path": "src/modules",
+      "url": "https://github.com/iamthamanic/visudev-app/tree/36fff3da21a385a387c9ba1adcb29ee531884534/src/modules"
     },
     {
       "id": "ac-design",
       "kind": "file",
       "path": ".qa/design/blueprint-access-control.md",
-      "url": "https://github.com/iamthamanic/visudev-app/blob/527e2cb2d17cf6826b3d8fbd163b713cee5a1efc/.qa/design/blueprint-access-control.md"
+      "url": "https://github.com/iamthamanic/visudev-app/blob/36fff3da21a385a387c9ba1adcb29ee531884534/.qa/design/blueprint-access-control.md"
     },
     {
       "id": "ac-types",
       "kind": "file",
       "path": "shared/access-control.types.ts",
-      "url": "https://github.com/iamthamanic/visudev-app/blob/527e2cb2d17cf6826b3d8fbd163b713cee5a1efc/shared/access-control.types.ts"
+      "url": "https://github.com/iamthamanic/visudev-app/blob/36fff3da21a385a387c9ba1adcb29ee531884534/shared/access-control.types.ts"
     },
     {
       "id": "blueprint-engine-docs",
       "kind": "file",
       "path": "docs/visudev-blueprint-engine.md",
-      "url": "https://github.com/iamthamanic/visudev-app/blob/527e2cb2d17cf6826b3d8fbd163b713cee5a1efc/docs/visudev-blueprint-engine.md"
+      "url": "https://github.com/iamthamanic/visudev-app/blob/36fff3da21a385a387c9ba1adcb29ee531884534/docs/visudev-blueprint-engine.md"
     }
   ]
 }

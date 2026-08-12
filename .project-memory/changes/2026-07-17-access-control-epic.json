@@ -21,12 +21,24 @@
     "en": "Avoids false alarms and surfaces real tenant/ownership gaps."
   },
   "user_impact": {
-    "de": ["Neue Security-Matrix-Spalten", "Inspector mit Mechanismen"],
-    "en": ["New security matrix columns", "Inspector with mechanisms"]
+    "de": [
+      "Neue Security-Matrix-Spalten",
+      "Inspector mit Mechanismen"
+    ],
+    "en": [
+      "New security matrix columns",
+      "Inspector with mechanisms"
+    ]
   },
   "developer_impact": {
-    "de": ["shared/access-control*", "local-engine access-control adapters"],
-    "en": ["shared/access-control*", "local-engine access-control adapters"]
+    "de": [
+      "shared/access-control*",
+      "local-engine access-control adapters"
+    ],
+    "en": [
+      "shared/access-control*",
+      "local-engine access-control adapters"
+    ]
   },
   "operational_impact": {
     "de": [],
@@ -38,8 +50,14 @@
     "branch": "main",
     "pull_request": null
   },
-  "packages": ["shared", "local-engine", "src"],
-  "affected_features": ["blueprint-access-control"],
+  "packages": [
+    "shared",
+    "local-engine",
+    "src"
+  ],
+  "affected_features": [
+    "blueprint-access-control"
+  ],
   "affected_components": [
     "shared/access-control.types.ts",
     "local-engine/src/services/access-control"
