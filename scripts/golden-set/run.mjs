@@ -15,6 +15,7 @@ const METRIC_NAMES = [
   "files",
   "duplicateNodeIds",
   "missingAuthFindings",
+  "importEdges",
 ];
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const fixturePath = fileURLToPath(new URL("../../tests/fixtures/golden-repo/", import.meta.url));
@@ -26,6 +27,13 @@ const expectedMetricsPath = new URL(
 function collectGraphMetrics(result) {
   const graph = result.blueprint.graph;
   const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+  const facts = Array.isArray(result.blueprint?.facts) ? result.blueprint.facts : [];
+  // P0-9: SoftwareGraph imports edges require preserved resolvedPath on ast-import facts.
+  const importEdges = facts.filter((fact) => {
+    if (fact?.kind !== "ast-import") return false;
+    const resolved = fact?.metadata?.resolvedPath;
+    return typeof resolved === "string" && resolved.length > 0 && resolved !== "***";
+  }).length;
 
   return {
     nodes: nodes.length,
@@ -34,6 +42,7 @@ function collectGraphMetrics(result) {
     tables: nodes.filter((node) => node.kind === "table").length,
     files: Number.isInteger(result.blueprint.filesAnalyzed) ? result.blueprint.filesAnalyzed : 0,
     duplicateNodeIds: nodes.filter((node) => node.id.includes("~")).length,
+    importEdges,
   };
 }
 

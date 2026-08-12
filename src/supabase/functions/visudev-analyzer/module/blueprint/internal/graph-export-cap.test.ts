@@ -354,3 +354,52 @@ Deno.test("FACT_EXPORT_PRIORITY is exported and ordered", () => {
   assertEquals(FACT_EXPORT_PRIORITY[0], "auth-check");
   assertEquals(FACT_EXPORT_PRIORITY.includes("ast-import"), true);
 });
+
+Deno.test("selectFactsPreservingPrismaModels keeps ast-import past prisma soft-cap (P0-9)", () => {
+  const models = Array.from(
+    { length: 480 },
+    (_, i) => modelFact(`Model${i}`, i + 1),
+  );
+  const imports = Array.from({ length: 200 }, (_, i) => ({
+    ...kindFact("ast-import", `src/mod-${i}.ts`, 1),
+    metadata: { resolvedPath: `src/dep-${i}.ts` },
+  }));
+  const { facts: selected } = selectFactsPreservingPrismaModels(
+    [...models, ...imports],
+    500,
+  );
+  const importSelected = selected.filter((fact) => fact.kind === "ast-import");
+  assertEquals(importSelected.length >= 200, true);
+  assertEquals(
+    selected.filter((f) => f.metadata?.operation === "prisma-model").length,
+    480,
+  );
+});
+
+Deno.test("selectFactsPreservingPrismaModels prefers resolved dependency targets (P0-9)", () => {
+  const resolved = Array.from({ length: 50 }, (_, i) => ({
+    ...kindFact("ast-import", `src/a-${i}.ts`, 1),
+    metadata: { resolvedPath: `src/b-${i}.ts` },
+  }));
+  const unresolved = Array.from(
+    { length: 200 },
+    (_, i) => kindFact("ast-import", `src/pkg-${i}.ts`, 1),
+  );
+  const calls = Array.from({ length: 30 }, (_, i) => ({
+    ...kindFact("ast-call", `src/c-${i}.ts`, 1),
+    metadata: { targetFile: `src/d-${i}.ts` },
+  }));
+  const { facts: selected } = selectFactsPreservingPrismaModels(
+    [...unresolved, ...resolved, ...calls],
+    10,
+  );
+  assertEquals(selected.filter((f) => f.kind === "ast-import").length, 50);
+  assertEquals(selected.filter((f) => f.kind === "ast-call").length, 30);
+  assertEquals(
+    selected.every((f) =>
+      typeof f.metadata?.resolvedPath === "string" ||
+      typeof f.metadata?.targetFile === "string"
+    ),
+    true,
+  );
+});

@@ -166,6 +166,15 @@ export type FactSelectionReport = {
   byKind: Record<string, { extracted: number; selected: number }>;
 };
 
+/** AST parse attempt summary (P0-9) — failures are counted, not swallowed. */
+export type AstParseReport = {
+  filesAttempted: number;
+  filesParsed: number;
+  filesFailed: number;
+  /** Repo-relative paths of files that failed to parse, capped at 50. */
+  failedSamples: string[];
+};
+
 export type RawBlueprintScan = {
   providerId: BlueprintAnalysisProviderId;
   projectId: string;
@@ -174,6 +183,7 @@ export type RawBlueprintScan = {
   routes: RawBlueprintRoute[];
   facts: RawBlueprintFact[];
   factSelection?: FactSelectionReport;
+  astParseReport?: AstParseReport;
   filesAnalyzed: number;
   /** Captured at scan time by the provider; avoids re-reading git after analysis. */
   analysisOrigin?: AnalysisOrigin;

@@ -121,6 +121,15 @@ export interface FactSelectionReport {
   byKind: Record<string, { extracted: number; selected: number }>;
 }
 
+/** AST parse attempt summary (P0-9) — failures are counted, not swallowed. */
+export interface AstParseReport {
+  filesAttempted: number;
+  filesParsed: number;
+  filesFailed: number;
+  /** Repo-relative paths of files that failed to parse, capped at 50. */
+  failedSamples: string[];
+}
+
 export interface BlueprintDocument {
   version: 1;
   projectId?: string;
@@ -134,6 +143,8 @@ export interface BlueprintDocument {
   findings: BlueprintFinding[];
   facts: CodeFact[];
   factSelection?: FactSelectionReport;
+  /** Present when JS/TS AST extraction ran during this analysis. */
+  astParseReport?: AstParseReport;
   concepts: TechnicalConcept[];
   graph?: VisuDevGraph;
   filesAnalyzed: number;

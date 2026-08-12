@@ -6,6 +6,7 @@ import type {
   ProjectProfile,
 } from "../../dto/blueprint/blueprint-document.dto.ts";
 import { extractFactsFromFile } from "../facts/fact-extractors.ts";
+import { createEmptyAstParseReport } from "../graph/ast-call-graph.ts";
 import {
   applyFileLimitWithSeeds,
   collectRelatedFiles,
@@ -80,8 +81,17 @@ export function analyzeFromFileEntries(
     fileLimit,
   );
 
+  // Resolution catalog: every supported path in the scan, not only the soft-capped
+  // extract set — otherwise NodeNext `./x.js`→`x.ts` fails when x.ts is outside FILE_LIMIT.
+  const resolutionPaths = new Set(
+    input.fileEntries
+      .filter((entry) => isSupportedBlueprintFile(entry.path))
+      .map((entry) => entry.path),
+  );
+
   const fileIndex = new Map<string, FileIndexEntry>();
   const allFacts: CodeFact[] = [];
+  const astParseReport = createEmptyAstParseReport();
   let analyzed = 0;
 
   for (const file of prioritized) {
@@ -89,7 +99,13 @@ export function analyzeFromFileEntries(
   }
 
   for (const file of prioritized) {
-    const facts = extractFactsFromFile(file.path, file.content, fileIndex);
+    const facts = extractFactsFromFile(
+      file.path,
+      file.content,
+      fileIndex,
+      astParseReport,
+      resolutionPaths,
+    );
     allFacts.push(...facts);
     analyzed += 1;
   }
@@ -120,6 +136,7 @@ export function analyzeFromFileEntries(
     findings,
     facts: exportFacts,
     factSelection,
+    astParseReport,
     concepts,
     graph,
     filesAnalyzed: analyzed,
