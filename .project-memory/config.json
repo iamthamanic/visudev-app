@@ -1,7 +1,10 @@
 {
   "schema_version": 1,
   "languages": {
-    "json": ["de", "en"],
+    "json": [
+      "de",
+      "en"
+    ],
     "markdown_primary": "de",
     "markdown_en_dir": "docs/en"
   },
@@ -10,24 +13,24 @@
   "pages": {
     "schema_version": 1,
     "kind": "memory-live-doc-pages",
-    "status": "memory_viewer_active",
-    "reason": "Enabled GitHub Pages: branch main, path /docs. Viewer: https://iamthamanic.github.io/visudev-app/memory-live-doc/viewer/ (after push).",
+    "status": "not_enabled",
+    "reason": "GitHub Pages unavailable: private repo on a plan that does not include Pages (API 422). Viewer files exist under docs/memory-live-doc/viewer/.",
     "repo": "iamthamanic/visudev-app",
     "default_branch": "main",
-    "has_pages": true,
-    "build_type": "legacy",
+    "has_pages": false,
+    "build_type": null,
     "source": {
-      "branch": "main",
-      "path": "/docs"
+      "branch": null,
+      "path": null
     },
     "html_url": null,
     "github_pages_status": null,
     "viewer_url": "https://iamthamanic.github.io/visudev-app/memory-live-doc/viewer/",
     "local_viewer_present": true,
-    "can_enable": true,
-    "can_change_pages": true,
-    "action_taken": "enabled_docs_legacy",
-    "private_note": null
+    "can_enable": false,
+    "can_change_pages": false,
+    "action_taken": "blocked_plan_private",
+    "private_note": "private_repo \u2014 enable Pages requires public repo or GitHub Pro/Team with Pages, or host viewer elsewhere"
   },
   "history_coverage": {
     "status": "complete",
