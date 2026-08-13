@@ -140,8 +140,6 @@ export function filterProjectedNodesByDeployment(
   });
 }
 
-export const TOPOLOGY_ENV_FILTERS = ["Produktion", "Staging"] as const;
-export const TOPOLOGY_REGION_FILTERS = ["eu-central-1", "us-east-1"] as const;
 export const TOPOLOGY_VIEW_FILTERS = ["Logische Topologie", "Physische Topologie"] as const;
 
 /**
@@ -164,6 +162,4 @@ export function deploymentFiltersFromGraph(softwareGraph: SoftwareGraph): {
   return { envs: Array.from(envs).sort(), regions: Array.from(regions).sort() };
 }
 
-export type TopologyEnvFilter = (typeof TOPOLOGY_ENV_FILTERS)[number];
-export type TopologyRegionFilter = (typeof TOPOLOGY_REGION_FILTERS)[number];
 export type TopologyViewFilter = (typeof TOPOLOGY_VIEW_FILTERS)[number];

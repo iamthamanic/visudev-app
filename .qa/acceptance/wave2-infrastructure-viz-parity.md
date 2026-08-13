@@ -11,8 +11,8 @@ Infrastructure topology matches reference: full tiers, filters, resource meters,
 ## Visual checklist
 
 - [ ] View title "INFRASTRUCTURE" with subtitle "Laufzeit- und Deployment-Topologie"
-- [ ] Filter: Umgebung (Produktion + green dot)
-- [ ] Filter: Region (eu-central-1 Frankfurt)
+- [ ] Filter: Umgebung only when node metadata.env exists (P0-2; no invented Produktion)
+- [ ] Filter: Region only when node metadata.region exists (P0-2; no invented eu-central-1)
 - [ ] Filter: Ansicht (Logische Topologie)
 - [ ] Aktualisieren button with refresh icon
 - [ ] Internet node (globe) at top
@@ -24,8 +24,8 @@ Infrastructure topology matches reference: full tiers, filters, resource meters,
 - [ ] Dashed connection lines between tiers
 - [ ] Legend: HTTP, gRPC, Jobs, Datenzugriff, Externe Verbindung
 - [ ] Inspector: selected node title + RUNNING badge
-- [ ] Inspector: ÜBERSICHT key-value list (Port, Instanzen, Uptime, Version)
-- [ ] Inspector: RESSOURCEN bars (CPU, RAM, Netzwerk In/Out)
+- [ ] Inspector: ÜBERSICHT only from real metadata (no invented Uptime/Instanzen)
+- [ ] Inspector: RESSOURCEN bars only with real telemetry; otherwise `infra-runtime-empty`
 - [ ] Inspector: VERBINDUNGEN eingehend/ausgehend
 - [ ] "Logs anzeigen" footer button
 
@@ -38,7 +38,7 @@ PLAYWRIGHT_BASE_URL=http://localhost:3005 npx playwright test tests/e2e/wave2-in
 - Assert: `[data-testid="infra-topology-node"]` count ≥ 10
 - Assert: `[data-testid="infra-external-apis"]` visible
 - Assert: `[data-testid="infra-monitoring-tier"]` visible
-- Click Web App → assert `[data-testid="infra-resource-cpu"]` visible
+- Click Web App → assert `[data-testid="infra-runtime-empty"]` visible (no invented meters)
 - Screenshot topology + inspector
 
 ## Criteria
