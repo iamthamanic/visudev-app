@@ -1,5 +1,7 @@
 /**
  * Atlas aggregate stats derived from SoftwareGraph nodes and blueprint file counts.
+ * Honest-Core (P0-1): coveragePercent is null when no real metric exists —
+ * never derived from node ratios (inverse heuristic lied).
  */
 
 import type { BlueprintData, SoftwareGraph } from "../../types";
@@ -9,7 +11,8 @@ export interface AtlasAggregateStats {
   services: number;
   modules: number;
   files: number;
-  coveragePercent: number;
+  /** Null when the graph carries no coverage metric. Rendered as "unbekannt". */
+  coveragePercent: number | null;
 }
 
 function metricValue(graph: SoftwareGraph, name: string): number | null {
@@ -33,12 +36,7 @@ export function computeAtlasStats(
   const modules = metricValue(graph, "modules") ?? modulesFromNodes;
   const files = metricValue(graph, "files") ?? (filesAnalyzed > 0 ? filesAnalyzed : fileNodes);
   const coverageFromMetric = metricValue(graph, "coverage");
-  const coveragePercent =
-    coverageFromMetric != null
-      ? Math.min(100, coverageFromMetric)
-      : nodes.length > 0
-        ? Math.min(100, Math.round((modulesFromNodes / nodes.length) * 100))
-        : 0;
+  const coveragePercent = coverageFromMetric != null ? Math.min(100, coverageFromMetric) : null;
 
   return {
     systems,

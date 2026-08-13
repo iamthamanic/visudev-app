@@ -25,7 +25,9 @@ export function AtlasClusterMetricGrid({ metrics }: AtlasClusterMetricGridProps)
         <span>Dateien</span>
       </div>
       <div className={styles.metricCell}>
-        <strong>{metrics.coveragePercent}%</strong>
+        <strong>
+          {metrics.coveragePercent == null ? "unbekannt" : `${metrics.coveragePercent}%`}
+        </strong>
         <span>Abdeckung</span>
       </div>
     </div>

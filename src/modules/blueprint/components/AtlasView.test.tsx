@@ -56,6 +56,31 @@ describe("AtlasView", () => {
     expect(screen.getByRole("group", { name: "Atlas-Ansicht" })).toBeInTheDocument();
   });
 
+  it("shows Abdeckung unbekannt when graph has no coverage metric", () => {
+    render(<AtlasView blueprint={graphBlueprint} />);
+    expect(screen.getByTestId("atlas-stat-coverage")).toHaveTextContent("Abdeckung: unbekannt");
+  });
+
+  it("shows truncation banner when analysis is condensed", () => {
+    const condensed: BlueprintData = {
+      ...graphBlueprint,
+      graph: { ...graphBlueprint.graph!, condensed: true },
+    };
+    render(<AtlasView blueprint={condensed} />);
+    expect(screen.getByTestId("truncation-banner")).toBeInTheDocument();
+  });
+
+  it("shows truncation banner when filesAnalyzed < totalFiles", () => {
+    const partial: BlueprintData = { ...graphBlueprint, filesAnalyzed: 400, totalFiles: 1706 };
+    render(<AtlasView blueprint={partial} />);
+    expect(screen.getByTestId("truncation-banner")).toBeInTheDocument();
+  });
+
+  it("hides truncation banner on a complete scan", () => {
+    render(<AtlasView blueprint={graphBlueprint} />);
+    expect(screen.queryByTestId("truncation-banner")).not.toBeInTheDocument();
+  });
+
   it("renders search, node cards, and overview stats", () => {
     render(<AtlasView blueprint={graphBlueprint} />);
     const controls = screen.getByLabelText("Atlas-Steuerung");
