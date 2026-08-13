@@ -57,6 +57,52 @@ const graphBlueprint: BlueprintData = {
   },
 };
 
+const mixedDomainBlueprint: BlueprintData = {
+  ...emptyBlueprint,
+  graph: {
+    version: 1,
+    projectId: "p1",
+    analyzedAt: "2026-01-01T00:00:00.000Z",
+    scopes: [],
+    nodes: [
+      { id: "domain:hr", kind: "domain", label: "hr", metadata: {} },
+      { id: "layer:hr:ui", kind: "layer", label: "ui", metadata: {} },
+      { id: "layer:none:shared", kind: "layer", label: "shared", metadata: {} },
+    ],
+    edges: [
+      {
+        id: "e-hr",
+        kind: "contains",
+        sourceId: "domain:hr",
+        targetId: "layer:hr:ui",
+        metadata: {},
+      },
+    ],
+    evidence: [],
+    groups: [],
+    metrics: [],
+    condensed: false,
+    limits: { maxNodes: 2500, maxEdges: 5000 },
+  },
+};
+
+const noDomainBlueprint: BlueprintData = {
+  ...emptyBlueprint,
+  graph: {
+    version: 1,
+    projectId: "p1",
+    analyzedAt: "2026-01-01T00:00:00.000Z",
+    scopes: [],
+    nodes: [{ id: "layer:x:ui", kind: "layer", label: "ui", metadata: {} }],
+    edges: [],
+    evidence: [],
+    groups: [],
+    metrics: [],
+    condensed: false,
+    limits: { maxNodes: 2500, maxEdges: 5000 },
+  },
+};
+
 describe("ArchitectureView", () => {
   it("shows empty state without graph data", () => {
     render(<ArchitectureView blueprint={emptyBlueprint} />);
@@ -96,5 +142,23 @@ describe("ArchitectureView", () => {
     expect(domainButton).toHaveAttribute("aria-pressed", "false");
     fireEvent.click(domainButton);
     expect(domainButton).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("groups layers by domain and lists unassigned layers separately", () => {
+    render(<ArchitectureView blueprint={mixedDomainBlueprint} />);
+    expect(screen.getByTestId("arch-domain-group")).toHaveTextContent("hr");
+    expect(screen.getByTestId("arch-no-domain")).toHaveTextContent("Ohne Domäne");
+    expect(screen.getByRole("button", { name: /ui/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /shared/i })).toBeInTheDocument();
+  });
+
+  it("shows nothing-found when no domains are recognized", () => {
+    render(<ArchitectureView blueprint={noDomainBlueprint} />);
+    expect(screen.getByTestId("arch-nothing-found")).toHaveTextContent(
+      "Keine Domänen erkannt — gesucht nach Domain-Zuordnung in den Modul-Pfaden.",
+    );
+    expect(screen.queryByTestId("arch-domain-group")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("arch-no-domain")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-layer-stack")).toBeInTheDocument();
   });
 });

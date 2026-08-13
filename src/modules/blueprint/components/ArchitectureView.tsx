@@ -3,6 +3,7 @@ import type { BlueprintData, SoftwareGraphNodeKind } from "../types";
 import { BlueprintViewLayout } from "./ui/BlueprintViewLayout.js";
 import { applyArchitectureNodeColors } from "./architecture/_apply-colors.js";
 import { ArchitectureControls } from "./architecture/ArchitectureControls.js";
+import { ArchitectureDomainGroups } from "./architecture/ArchitectureDomainGroups.js";
 import { ArchitectureGroupingToggle } from "./architecture/ArchitectureGroupingToggle.js";
 import { ArchitectureInspector } from "./architecture/ArchitectureInspector.js";
 import { ArchitectureLayerStack } from "./architecture/ArchitectureLayerStack.js";
@@ -11,7 +12,10 @@ import {
   GROUPING_VISIBLE_KINDS,
   type ArchitectureGroupingMode,
 } from "./architecture/architecture-grouping.js";
-import { buildArchitectureStackCards } from "./architecture/build-layer-stack.js";
+import {
+  buildArchitectureStackCards,
+  groupArchitectureCardsByDomain,
+} from "./architecture/build-layer-stack.js";
 import { projectArchitectureGraph } from "./architecture/_projection.js";
 import {
   collectFileDomainSources,
@@ -64,6 +68,11 @@ export function ArchitectureView({ blueprint }: ArchitectureViewProps) {
     if (!graph) return [];
     return buildArchitectureStackCards(graph, GROUPING_STACK_KIND[groupingMode]);
   }, [graph, groupingMode]);
+
+  const domainGroups = useMemo(() => {
+    if (!graph || groupingMode !== "layers") return [];
+    return groupArchitectureCardsByDomain(graph, stackCards);
+  }, [graph, groupingMode, stackCards]);
 
   const domainHint = useMemo(() => {
     if (!graph) return null;
@@ -135,13 +144,21 @@ export function ArchitectureView({ blueprint }: ArchitectureViewProps) {
 
   const canvas = showStackInCanvas ? (
     <div className={styles.stackCanvasWrap}>
-      <ArchitectureLayerStack
-        cards={stackCards}
-        selectedNodeId={selectedNodeId}
-        onSelectNode={setSelectedNodeId}
-        variant="canvas"
-        showTitle={false}
-      />
+      {groupingMode === "layers" ? (
+        <ArchitectureDomainGroups
+          groups={domainGroups}
+          selectedNodeId={selectedNodeId}
+          onSelectNode={setSelectedNodeId}
+        />
+      ) : (
+        <ArchitectureLayerStack
+          cards={stackCards}
+          selectedNodeId={selectedNodeId}
+          onSelectNode={setSelectedNodeId}
+          variant="canvas"
+          showTitle={false}
+        />
+      )}
     </div>
   ) : (
     <div className={styles.canvasWrap}>
