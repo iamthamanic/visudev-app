@@ -1,5 +1,5 @@
 /**
- * Composes dependencies graph canvas with toolbar, minimap, and footer stats.
+ * Composes dependencies graph canvas with toolbar, minimap, orphan group, and footer stats.
  */
 
 import { lazy, Suspense, type RefObject } from "react";
@@ -19,6 +19,8 @@ export interface DependenciesGraphCanvasProps {
   edges: GraphCanvasEdge[];
   totalNodes: number;
   totalEdges: number;
+  orphanCount: number;
+  orphanNodeIds: string[];
   selectedNodeId: string | null;
   searchQuery: string;
   searchInputRef: RefObject<HTMLInputElement>;
@@ -34,6 +36,8 @@ export function DependenciesGraphCanvas({
   edges,
   totalNodes,
   totalEdges,
+  orphanCount,
+  orphanNodeIds,
   selectedNodeId,
   searchQuery,
   searchInputRef,
@@ -78,7 +82,16 @@ export function DependenciesGraphCanvas({
             </li>
           ))}
         </ul>
-        <DependenciesMinimap nodes={nodes} onSelectNode={onMinimapSelect} />
+        <DependenciesMinimap
+          nodes={nodes}
+          orphanNodeIds={orphanNodeIds}
+          onSelectNode={onMinimapSelect}
+        />
+        {orphanCount > 0 ? (
+          <p className={styles.orphanGroup} data-testid="dep-orphan-group">
+            Ohne Verbindungen ({orphanCount})
+          </p>
+        ) : null}
       </div>
 
       <DependenciesGraphFooter
