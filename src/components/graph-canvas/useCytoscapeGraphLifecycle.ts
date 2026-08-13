@@ -12,6 +12,7 @@ export function useCytoscapeGraphLifecycle(
   onEdgeSelect?: (edgeId: string | null) => void,
   onNodeSelect?: (nodeId: string | null) => void,
   selectedNodeId?: string | null,
+  highlightedNodeIds?: readonly string[],
 ) {
   const { setContainerRef, hasGraph, initError, graphRef } = useCytoscapeGraphMount(
     validated,
@@ -21,6 +22,6 @@ export function useCytoscapeGraphLifecycle(
   useCytoscapeGraphSync(graphRef, validated, hasGraph, layoutPreset);
   useGraphCanvasEdgeSelection(graphRef, hasGraph, onEdgeSelect);
   useGraphCanvasNodeSelection(graphRef, hasGraph, onNodeSelect);
-  useGraphCanvasNodeHighlight(graphRef, hasGraph, selectedNodeId, validNodeIds);
+  useGraphCanvasNodeHighlight(graphRef, hasGraph, selectedNodeId, validNodeIds, highlightedNodeIds);
   return { setContainerRef, hasGraph, initError, graphRef };
 }

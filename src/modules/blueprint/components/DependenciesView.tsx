@@ -24,6 +24,7 @@ import { useDependenciesSearch } from "./dependencies/useDependenciesSearch.js";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
+import { selectionFromNode } from "../selection.js";
 import styles from "../styles/DependenciesView.module.css";
 
 interface DependenciesViewProps extends BlueprintViewScanProps {
@@ -85,6 +86,17 @@ export function DependenciesView({
     if (!selectedNodeId || !graphIndex) return null;
     return getNodeDependencySummaryFromIndex(graphIndex, selectedNodeId);
   }, [graphIndex, selectedNodeId]);
+
+  const codeSelection = useMemo(() => {
+    if (!selectedNode || !graph) return null;
+    return selectionFromNode(selectedNode, graph.nodes);
+  }, [graph, selectedNode]);
+
+  const codeExcerpt = useMemo(() => {
+    if (!graph || !codeSelection?.filePath) return null;
+    const match = graph.evidence.find((item) => item.filePath === codeSelection.filePath);
+    return match?.excerpt ?? null;
+  }, [codeSelection, graph]);
 
   useEffect(() => {
     if (!graph) return;
@@ -195,6 +207,7 @@ export function DependenciesView({
               orphanCount={projection.orphanNodeIds.length}
               orphanNodeIds={projection.orphanNodeIds}
               selectedNodeId={selectedNodeId}
+              highlightedNodeIds={codeSelection?.relatedNodeIds}
               searchQuery={searchQuery}
               searchInputRef={searchInputRef}
               onSearchChange={setSearchQuery}
@@ -225,6 +238,9 @@ export function DependenciesView({
           incomingCount={nodeSummary?.incoming ?? 0}
           outgoingCount={nodeSummary?.outgoing ?? 0}
           topNodeDependencies={nodeSummary?.neighbors ?? []}
+          codeSelection={codeSelection}
+          codeExcerpt={codeExcerpt}
+          onSelectCodeNode={handleNodeSelect}
         />
       }
     />

@@ -22,6 +22,7 @@ export interface DependenciesGraphCanvasProps {
   orphanCount: number;
   orphanNodeIds: string[];
   selectedNodeId: string | null;
+  highlightedNodeIds?: readonly string[];
   searchQuery: string;
   searchInputRef: RefObject<HTMLInputElement>;
   onSearchChange: (value: string) => void;
@@ -39,6 +40,7 @@ export function DependenciesGraphCanvas({
   orphanCount,
   orphanNodeIds,
   selectedNodeId,
+  highlightedNodeIds,
   searchQuery,
   searchInputRef,
   onSearchChange,
@@ -71,6 +73,7 @@ export function DependenciesGraphCanvas({
             edges={edges}
             layoutPreset="force"
             selectedNodeId={selectedNodeId}
+            highlightedNodeIds={highlightedNodeIds}
             onNodeSelect={onNodeSelect}
             onEdgeSelect={onEdgeSelect}
           />
