@@ -209,6 +209,7 @@ export function BlueprintPage({ projectId, activeView }: BlueprintPageProps) {
           freshnessLabel={freshnessLabel}
           onRefresh={handleRescan}
           refreshDisabled={isScanning}
+          criticalCount={notificationCount}
         />
       ) : null}
     </div>

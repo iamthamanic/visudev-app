@@ -112,17 +112,12 @@ export function buildTopologyNodes(projectedGraphNodes: GraphCanvasNode[]): Topo
   return projectGraphNodesToTopologyRefs(projectedGraphNodes);
 }
 
-const ENV_FILTER_VALUES: Record<TopologyEnvFilter, string> = {
-  Produktion: "prod",
-  Staging: "staging",
-};
-
 /** Applies env/region filters using graph node metadata; nodes without metadata stay visible. */
 export function filterProjectedNodesByDeployment(
   projectedGraphNodes: GraphCanvasNode[],
   softwareGraph: SoftwareGraph,
-  activeEnv: TopologyEnvFilter | null,
-  activeRegion: TopologyRegionFilter | null,
+  activeEnv: string | null,
+  activeRegion: string | null,
 ): GraphCanvasNode[] {
   if (!activeEnv && !activeRegion) return projectedGraphNodes;
 
@@ -135,20 +130,36 @@ export function filterProjectedNodesByDeployment(
     const nodeEnv = sourceGraphNode.metadata.env;
     const nodeRegion = sourceGraphNode.metadata.region;
 
-    if (activeEnv && typeof nodeEnv === "string" && nodeEnv !== ENV_FILTER_VALUES[activeEnv]) {
+    if (activeEnv && nodeEnv !== activeEnv) {
       return false;
     }
-    if (activeRegion && typeof nodeRegion === "string" && nodeRegion !== activeRegion) {
+    if (activeRegion && nodeRegion !== activeRegion) {
       return false;
     }
     return true;
   });
 }
 
-export const TOPOLOGY_ENV_FILTERS = ["Produktion", "Staging"] as const;
-export const TOPOLOGY_REGION_FILTERS = ["eu-central-1", "us-east-1"] as const;
 export const TOPOLOGY_VIEW_FILTERS = ["Logische Topologie", "Physische Topologie"] as const;
 
-export type TopologyEnvFilter = (typeof TOPOLOGY_ENV_FILTERS)[number];
-export type TopologyRegionFilter = (typeof TOPOLOGY_REGION_FILTERS)[number];
+/**
+ * Honest-Core P0-2: env/region filters are derived from real node metadata,
+ * never a fixed list. Returns only the env/region values actually present in
+ * the graph; an empty array means the filter group must not be rendered.
+ */
+export function deploymentFiltersFromGraph(softwareGraph: SoftwareGraph): {
+  envs: string[];
+  regions: string[];
+} {
+  const envs = new Set<string>();
+  const regions = new Set<string>();
+  for (const node of softwareGraph.nodes) {
+    const env = node.metadata?.env;
+    const region = node.metadata?.region;
+    if (typeof env === "string" && env.trim()) envs.add(env.trim());
+    if (typeof region === "string" && region.trim()) regions.add(region.trim());
+  }
+  return { envs: Array.from(envs).sort(), regions: Array.from(regions).sort() };
+}
+
 export type TopologyViewFilter = (typeof TOPOLOGY_VIEW_FILTERS)[number];

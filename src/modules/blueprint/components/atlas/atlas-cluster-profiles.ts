@@ -37,7 +37,8 @@ export function atlasClusterProfile(label: string): {
 } {
   const profile = CLUSTER_STACK[normalizeClusterLabel(label)];
   if (!profile) {
-    return { stack: "System-Cluster", tier: "System", techs: ["TypeScript"] };
+    // Honest-Core P0-2: unknown cluster shows no invented tech list.
+    return { stack: "System-Cluster", tier: "System", techs: [] };
   }
   return { stack: profile.stack, tier: "System", techs: profile.techs };
 }

@@ -12,6 +12,8 @@ interface BlueprintFooterStatusBarProps {
   freshnessLabel: string;
   onRefresh: () => void;
   refreshDisabled?: boolean;
+  /** Real count of high/critical findings. Drives the health line (P0-2). */
+  criticalCount?: number;
 }
 
 function formatCount(value: number): string {
@@ -24,7 +26,12 @@ export function BlueprintFooterStatusBar({
   freshnessLabel,
   onRefresh,
   refreshDisabled = false,
+  criticalCount = 0,
 }: BlueprintFooterStatusBarProps): JSX.Element {
+  const healthLabel =
+    criticalCount > 0
+      ? `${formatCount(criticalCount)} kritische Probleme`
+      : "Keine kritischen Probleme";
   return (
     <footer className={styles.root} data-testid="blueprint-footer-stats">
       <div className={styles.metrics}>
@@ -38,7 +45,7 @@ export function BlueprintFooterStatusBar({
         <span className={styles.separator}>│</span>
         <span className={styles.healthLine} data-testid="footer-health-line">
           <span className={styles.healthDot} aria-hidden="true" />
-          Keine kritischen Probleme
+          {healthLabel}
         </span>
       </div>
 

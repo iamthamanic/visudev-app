@@ -29,7 +29,8 @@ test.describe("Wave 2 infrastructure viz parity", () => {
       .filter({ hasText: /Web App/i })
       .first()
       .click();
-    await expect(page.getByTestId("infra-resource-cpu")).toBeVisible();
+    // Honest-Core P0-2: no placeholder meters. Demo graph has no telemetry → empty state.
+    await expect(page.getByTestId("infra-runtime-empty")).toBeVisible();
 
     await page.screenshot({
       path: `${EVIDENCE_DIR}/infrastructure-topology-inspector.png`,

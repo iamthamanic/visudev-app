@@ -6,6 +6,7 @@ import { describe, it, expect } from "vitest";
 import {
   buildTopologyNodes,
   classifyGraphNodeTopologyTier,
+  deploymentFiltersFromGraph,
   filterProjectedNodesByDeployment,
 } from "./build-topology.js";
 import type { GraphCanvasNode } from "../../types";
@@ -109,9 +110,53 @@ describe("build-topology", () => {
     const filtered = filterProjectedNodesByDeployment(
       projectedGraphNodes,
       softwareGraph,
-      "Produktion",
+      "prod",
       "eu-central-1",
     );
     expect(filtered.map((node) => node.id)).toEqual(["service:web"]);
+  });
+
+  it("derives env/region filters from real node metadata only", () => {
+    const softwareGraph: SoftwareGraph = {
+      version: 1,
+      projectId: "proj-test",
+      analyzedAt: new Date().toISOString(),
+      scopes: [],
+      nodes: [
+        { id: "a", kind: "service", label: "A", metadata: { env: "prod", region: "eu-central-1" } },
+        { id: "b", kind: "service", label: "B", metadata: { env: "staging" } },
+        { id: "c", kind: "service", label: "C", metadata: {} },
+      ],
+      edges: [],
+      evidence: [],
+      groups: [],
+      metrics: [],
+      condensed: false,
+      limits: { maxNodes: 100, maxEdges: 100 },
+      snapshots: [],
+    };
+    const filters = deploymentFiltersFromGraph(softwareGraph);
+    expect(filters.envs).toEqual(["prod", "staging"]);
+    expect(filters.regions).toEqual(["eu-central-1"]);
+  });
+
+  it("returns empty env/region filters when no node carries deployment metadata", () => {
+    const softwareGraph: SoftwareGraph = {
+      version: 1,
+      projectId: "proj-test",
+      analyzedAt: new Date().toISOString(),
+      scopes: [],
+      nodes: [{ id: "a", kind: "service", label: "A", metadata: {} }],
+      edges: [],
+      evidence: [],
+      groups: [],
+      metrics: [],
+      condensed: false,
+      limits: { maxNodes: 100, maxEdges: 100 },
+      snapshots: [],
+    };
+    const filters = deploymentFiltersFromGraph(softwareGraph);
+    expect(filters.envs).toEqual([]);
+    expect(filters.regions).toEqual([]);
   });
 });

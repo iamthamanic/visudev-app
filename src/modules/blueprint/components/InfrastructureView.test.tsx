@@ -103,21 +103,58 @@ describe("InfrastructureView", () => {
     expect(screen.getByTestId("infra-external-apis")).toBeInTheDocument();
     expect(screen.getByTestId("infra-monitoring-tier")).toBeInTheDocument();
     expect(screen.getByLabelText("Verbindungs-Legende")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Produktion/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /eu-central-1/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Logische Topologie/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Aktualisieren/i })).toBeInTheDocument();
   });
 
-  it("opens inspector with resource meters on selection", () => {
+  it("hides env/region filters when no node carries deployment metadata (P0-2)", () => {
+    render(<InfrastructureView blueprint={graphBlueprint} />);
+    expect(screen.queryByRole("button", { name: /Produktion/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /eu-central-1/i })).not.toBeInTheDocument();
+  });
+
+  it("shows env/region filters derived from real node metadata", () => {
+    const withMeta: BlueprintData = {
+      ...graphBlueprint,
+      graph: {
+        ...graphBlueprint.graph!,
+        nodes: graphBlueprint.graph!.nodes.map((node) =>
+          node.id === "service:web"
+            ? { ...node, metadata: { env: "prod", region: "eu-central-1" } }
+            : node,
+        ),
+      },
+    };
+    render(<InfrastructureView blueprint={withMeta} />);
+    expect(screen.getByRole("button", { name: "prod" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "eu-central-1" })).toBeInTheDocument();
+  });
+
+  it("shows honest runtime empty-state instead of placeholder meters (P0-2)", () => {
     render(<InfrastructureView blueprint={graphBlueprint} />);
     fireEvent.click(screen.getAllByRole("button", { name: /Web App/i })[0]);
     expect(screen.getByText("Übersicht")).toBeInTheDocument();
     expect(screen.getByText("Ressourcen")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-resource-cpu")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-resource-cpu")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-runtime-empty")).toBeInTheDocument();
     expect(screen.getByText("Verbindungen")).toBeInTheDocument();
-    expect(screen.getAllByText(/eingehend/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/ausgehend/i).length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /Logs anzeigen/i })).toBeInTheDocument();
+  });
+
+  it("renders real resource meters when node metadata has telemetry", () => {
+    const withTelemetry: BlueprintData = {
+      ...graphBlueprint,
+      graph: {
+        ...graphBlueprint.graph!,
+        nodes: graphBlueprint.graph!.nodes.map((node) =>
+          node.id === "service:web"
+            ? { ...node, metadata: { cpu: 55, ram: 61, networkIn: 10, networkOut: 8 } }
+            : node,
+        ),
+      },
+    };
+    render(<InfrastructureView blueprint={withTelemetry} />);
+    fireEvent.click(screen.getAllByRole("button", { name: /Web App/i })[0]);
+    expect(screen.getByTestId("infra-resource-cpu")).toBeInTheDocument();
   });
 });
