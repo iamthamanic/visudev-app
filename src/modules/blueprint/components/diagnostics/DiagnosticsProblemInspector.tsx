@@ -14,6 +14,7 @@ import {
 } from "./diagnostics-finding-location.js";
 import type { FindingResolutionStatus } from "./finding-resolution.js";
 import { formatConfidence } from "../../../../lib/format-confidence.js";
+import { MetricHint } from "../../../../components/ui/MetricHint.js";
 import styles from "../../styles/DiagnosticsView.module.css";
 
 interface DiagnosticsProblemInspectorProps {
@@ -139,7 +140,14 @@ export function DiagnosticsProblemInspector({
               </div>
               <div className={styles.detailRow}>
                 <dt>Confidence</dt>
-                <dd>{formatConfidence(finding.confidence) ?? "unbekannt"}</dd>
+                <dd>
+                  <MetricHint
+                    glossaryId="confidence"
+                    source={formatConfidence(finding.confidence) == null ? "unbekannt" : "graph"}
+                  >
+                    {formatConfidence(finding.confidence) ?? "unbekannt"}
+                  </MetricHint>
+                </dd>
               </div>
               {finding.remediation ? (
                 <div className={styles.detailRow}>

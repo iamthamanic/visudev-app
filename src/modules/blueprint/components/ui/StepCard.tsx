@@ -3,6 +3,7 @@
  * Location: src/modules/blueprint/components/ui/
  */
 
+import { MetricHint } from "../../../../components/ui/MetricHint.js";
 import type { StatusBadgeVariant } from "./StatusBadge.js";
 import { StatusBadge } from "./StatusBadge.js";
 import styles from "./StepCard.module.css";
@@ -52,11 +53,20 @@ export function StepCard({
         {subtitle ? <span className={styles.subtitle}>{subtitle}</span> : null}
       </span>
       <span className={styles.meta}>
-        <span className={styles.duration} data-testid="execution-step-duration">
-          {typeof durationMs === "number" && Number.isFinite(durationMs) && durationMs >= 0
-            ? `${durationMs}ms`
-            : "unbekannt"}
-        </span>
+        <MetricHint
+          glossaryId="execution-dauer"
+          source={
+            typeof durationMs === "number" && Number.isFinite(durationMs) && durationMs >= 0
+              ? "gemessen"
+              : "unbekannt"
+          }
+        >
+          <span className={styles.duration} data-testid="execution-step-duration">
+            {typeof durationMs === "number" && Number.isFinite(durationMs) && durationMs >= 0
+              ? `${durationMs}ms`
+              : "unbekannt"}
+          </span>
+        </MetricHint>
         <StatusBadge variant={status} label={statusLabel} />
       </span>
     </button>

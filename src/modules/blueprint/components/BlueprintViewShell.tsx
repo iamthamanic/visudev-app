@@ -2,6 +2,8 @@
  * Blueprint view shell — renders active projection without horizontal tabs (#86).
  */
 
+import { useEffect, useState } from "react";
+import { GlossaryDrawer } from "../../../components/ui/GlossaryDrawer.js";
 import { ArchitectureView } from "./ArchitectureView";
 import { AtlasView } from "./AtlasView";
 import { BlueprintViewHeader } from "./BlueprintViewHeader.js";
@@ -29,12 +31,37 @@ export function BlueprintViewShell({
   projectName,
   branchLabel,
 }: BlueprintViewShellProps): JSX.Element {
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      const typing =
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable);
+      if (event.key === "Escape") {
+        setGlossaryOpen(false);
+        return;
+      }
+      if (event.key === "?" && !typing) {
+        event.preventDefault();
+        setGlossaryOpen((open) => !open);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
   return (
     <div className={styles.root} data-testid="blueprint-view">
       <BlueprintViewHeader
         activeView={activeView}
         projectName={projectName}
         branchLabel={branchLabel}
+        onOpenGlossary={() => setGlossaryOpen(true)}
       />
 
       <div className={styles.panel}>
@@ -61,6 +88,7 @@ export function BlueprintViewShell({
           )}
         </div>
       </div>
+      <GlossaryDrawer open={glossaryOpen} onClose={() => setGlossaryOpen(false)} />
     </div>
   );
 }
