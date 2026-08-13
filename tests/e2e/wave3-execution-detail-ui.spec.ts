@@ -15,7 +15,7 @@ test.describe("Wave 3 execution detail UI", () => {
     await installWave2Mocks(page, PROJECT_ID, "wave3-exec-1");
     await openBlueprintView(page, "execution");
 
-    await expect(page.getByTestId("execution-live-badge")).toBeVisible();
+    await expect(page.getByTestId("execution-mode-badge")).toBeVisible();
 
     const createStep = page
       .getByTestId("execution-step-card")

@@ -174,7 +174,8 @@ export function findStepEvidence(graph: SoftwareGraph, nodeId: string | null) {
 
 export interface StepTiming {
   nodeId: string;
-  durationMs: number;
+  /** Null when the graph has no measured durationMs (Honest-Core P0-4). */
+  durationMs: number | null;
   startMs: number;
   endMs: number;
 }
@@ -190,21 +191,22 @@ export interface ExecutionMetrics {
   payloadCount: number;
 }
 
-export function resolveStepDurationMs(node: SoftwareGraphNode | undefined, index: number): number {
+export function resolveStepDurationMs(node: SoftwareGraphNode | undefined): number | null {
   const fromMeta = node?.metadata?.durationMs;
   if (typeof fromMeta === "number" && Number.isFinite(fromMeta) && fromMeta >= 0) {
     return Math.round(fromMeta);
   }
-  return (index + 1) * 12;
+  return null;
 }
 
 export function computeStepTimings(graph: SoftwareGraph, stepNodeIds: string[]): StepTiming[] {
   const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
   let cursorMs = 0;
-  return stepNodeIds.map((nodeId, index) => {
-    const durationMs = resolveStepDurationMs(nodeById.get(nodeId), index);
+  return stepNodeIds.map((nodeId) => {
+    const durationMs = resolveStepDurationMs(nodeById.get(nodeId));
     const startMs = cursorMs;
-    const endMs = cursorMs + durationMs;
+    const measured = durationMs ?? 0;
+    const endMs = cursorMs + measured;
     cursorMs = endMs;
     return { nodeId, durationMs, startMs, endMs };
   });
@@ -292,22 +294,14 @@ export function isExecutionLive(graph: SoftwareGraph, routeId: string): boolean 
   if (executionStatus && TERMINAL_EXECUTION_STATUSES.has(executionStatus)) return false;
   if (routeStatus && TERMINAL_EXECUTION_STATUSES.has(routeStatus)) return false;
 
-  const traceId = routeNode?.metadata?.traceId;
-  if (
-    typeof traceId === "string" &&
-    traceId.trim().length > 0 &&
-    executionStatus === null &&
-    routeStatus === null
-  ) {
-    return true;
-  }
-
   const projection = projectExecutionGraph(graph, { routeId });
   if (!projection) return false;
 
   const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
   return projection.stepNodeIds.some((nodeId) => {
     const node = nodeById.get(nodeId);
-    return node?.metadata?.status === "running" || node?.metadata?.executionStatus === "running";
+    const stepStatus = normalizedExecutionStatus(node?.metadata?.executionStatus);
+    const nodeStatus = normalizedExecutionStatus(node?.metadata?.status);
+    return stepStatus === "running" || nodeStatus === "running";
   });
 }

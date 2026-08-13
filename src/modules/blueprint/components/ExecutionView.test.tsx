@@ -119,6 +119,12 @@ describe("ExecutionView", () => {
       },
     };
     render(<ExecutionView blueprint={liveBlueprint} />);
-    expect(screen.getByText("Live (Streaming)")).toBeInTheDocument();
+    expect(screen.getByText("Live")).toBeInTheDocument();
+  });
+
+  it("shows Projektion badge when there is no running telemetry (P0-4)", () => {
+    render(<ExecutionView blueprint={graphBlueprint} />);
+    expect(screen.getByTestId("execution-mode-badge")).toHaveTextContent("Projektion");
+    expect(screen.getByTestId("execution-mode-badge")).toHaveAttribute("data-live", "false");
   });
 });

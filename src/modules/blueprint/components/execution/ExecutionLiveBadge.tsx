@@ -1,5 +1,6 @@
 /**
- * Pulsing LIVE badge — only when route/step metadata still reports running (active scan stub).
+ * Execution mode badge — "Live" only with a real running telemetry channel,
+ * otherwise "Projektion" (Honest-Core P0-4).
  */
 
 import { StatusBadge } from "../ui/StatusBadge.js";
@@ -11,15 +12,21 @@ export interface ExecutionLiveBadgeProps {
 
 export function ExecutionLiveBadge({ live }: ExecutionLiveBadgeProps): JSX.Element {
   return (
-    <span className={styles.liveBadgeWrap} data-testid="execution-live-badge" data-live={live}>
+    <span
+      className={styles.liveBadgeWrap}
+      data-testid="execution-mode-badge"
+      data-live={live ? "true" : "false"}
+    >
       {live ? (
         <>
           <span className={styles.liveSignal} aria-hidden="true">
             ●
           </span>
-          <StatusBadge variant="running" label="Live (Streaming)" />
+          <StatusBadge variant="running" label="Live" />
         </>
-      ) : null}
+      ) : (
+        <StatusBadge variant="unknown" label="Projektion" />
+      )}
     </span>
   );
 }

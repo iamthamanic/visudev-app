@@ -11,7 +11,7 @@ Execution trace view matches reference: pipeline cards, timeline, metrics bar, 7
 ## Visual checklist
 
 - [ ] View title "EXECUTION" with German subtitle (Echtzeit-Trace)
-- [ ] Live (Streaming) badge with signal icon (blue)
+- [ ] Mode badge: Projektion (default) or Live only when executionStatus is running
 - [ ] Filters: time range, flow (LeaveRequest), status
 - [ ] Trace ID + Gesamtdauer header (e.g. 364ms)
 - [ ] 8 horizontal StepCards connected by dashed arrows
@@ -33,7 +33,7 @@ Execution trace view matches reference: pipeline cards, timeline, metrics bar, 7
 PLAYWRIGHT_BASE_URL=http://localhost:3005 npx playwright test tests/e2e/wave2-execution-viz.spec.ts --project=chromium
 ```
 
-- Assert: `[data-testid="execution-live-badge"]` visible
+- Assert: `[data-testid="execution-mode-badge"]` visible (Projektion unless running)
 - Assert: `[data-testid="execution-step-card"]` count ≥ 6
 - Assert: `[data-testid="execution-metrics-bar"]` visible
 - Assert: `[data-testid="execution-detail-tab-payload"]` has JSON content after tab click
