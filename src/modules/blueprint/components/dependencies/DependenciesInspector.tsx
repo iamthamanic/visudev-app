@@ -8,6 +8,7 @@ import type {
   SoftwareGraphEvidence,
   SoftwareGraphNode,
 } from "../../types";
+import type { GraphCodeSelection } from "../../selection.js";
 import type { DependencyKindCount, TopNodeDependency } from "./_projection.js";
 import { DependenciesEdgeInspector } from "./DependenciesEdgeInspector.js";
 import { DependenciesEmptyInspector } from "./DependenciesEmptyInspector.js";
@@ -23,6 +24,9 @@ export interface DependenciesInspectorProps {
   incomingCount: number;
   outgoingCount: number;
   topNodeDependencies: TopNodeDependency[];
+  codeSelection: GraphCodeSelection | null;
+  codeExcerpt: string | null;
+  onSelectCodeNode: (nodeId: string | null) => void;
 }
 
 export function DependenciesInspector({
@@ -35,6 +39,9 @@ export function DependenciesInspector({
   incomingCount,
   outgoingCount,
   topNodeDependencies,
+  codeSelection,
+  codeExcerpt,
+  onSelectCodeNode,
 }: DependenciesInspectorProps): JSX.Element {
   if (selectedNode) {
     return (
@@ -44,6 +51,15 @@ export function DependenciesInspector({
         incomingCount={incomingCount}
         outgoingCount={outgoingCount}
         neighbors={topNodeDependencies}
+        codeSelection={codeSelection}
+        codeExcerpt={codeExcerpt}
+        relatedNodes={
+          codeSelection?.relatedNodeIds
+            .map((id) => nodeById.get(id))
+            .filter((node): node is SoftwareGraphNode => node != null)
+            .map((node) => ({ id: node.id, label: node.label })) ?? []
+        }
+        onSelectCodeNode={onSelectCodeNode}
       />
     );
   }

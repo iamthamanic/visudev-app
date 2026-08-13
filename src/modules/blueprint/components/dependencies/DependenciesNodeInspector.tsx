@@ -3,7 +3,9 @@
  */
 
 import type { SoftwareGraphNode } from "../../types";
+import type { GraphCodeSelection } from "../../selection.js";
 import { InspectorPanel } from "../ui/InspectorPanel.js";
+import { GraphCodeHighlight } from "../ui/GraphCodeHighlight.js";
 import type { TopNodeDependency } from "./_projection.js";
 import { RELATIONSHIP_LABELS, type DependencyEdgeKind } from "./_projection.constants.js";
 import {
@@ -21,6 +23,10 @@ export interface DependenciesNodeInspectorProps {
   incomingCount: number;
   outgoingCount: number;
   neighbors: TopNodeDependency[];
+  codeSelection: GraphCodeSelection | null;
+  codeExcerpt: string | null;
+  relatedNodes: { id: string; label: string }[];
+  onSelectCodeNode: (nodeId: string | null) => void;
 }
 
 export function DependenciesNodeInspector({
@@ -29,6 +35,10 @@ export function DependenciesNodeInspector({
   incomingCount,
   outgoingCount,
   neighbors,
+  codeSelection,
+  codeExcerpt,
+  relatedNodes,
+  onSelectCodeNode,
 }: DependenciesNodeInspectorProps): JSX.Element {
   return (
     <div data-testid="dependency-inspector">
@@ -36,6 +46,21 @@ export function DependenciesNodeInspector({
         title={node.label}
         subtitle={readDependencyNodeModuleLabel(node)}
         sections={[
+          {
+            id: "code",
+            title: "Code",
+            content: (
+              <GraphCodeHighlight
+                filePath={codeSelection?.filePath ?? null}
+                line={codeSelection?.line ?? null}
+                hint={codeSelection?.hint ?? null}
+                excerpt={codeExcerpt}
+                relatedNodes={relatedNodes}
+                selectedNodeId={node.id}
+                onSelectNode={(nodeId) => onSelectCodeNode(nodeId)}
+              />
+            ),
+          },
           {
             id: "description",
             title: "Beschreibung",

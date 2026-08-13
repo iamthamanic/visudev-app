@@ -20,6 +20,7 @@ export interface GraphCanvasProps {
   onEdgeSelect?: (edgeId: string | null) => void;
   onNodeSelect?: (nodeId: string | null) => void;
   selectedNodeId?: string | null;
+  highlightedNodeIds?: readonly string[];
 }
 
 export function GraphCanvas({
@@ -29,6 +30,7 @@ export function GraphCanvas({
   onEdgeSelect,
   onNodeSelect,
   selectedNodeId,
+  highlightedNodeIds,
 }: GraphCanvasProps) {
   const validated = useValidatedGraphElements(nodes, edges);
   const { setContainerRef, hasGraph, initError, graphRef } = useCytoscapeGraphLifecycle(
@@ -37,6 +39,7 @@ export function GraphCanvas({
     onEdgeSelect,
     onNodeSelect,
     selectedNodeId,
+    highlightedNodeIds,
   );
   const { handleFit, handleZoomIn, handleZoomOut } = useGraphCanvasToolbar(graphRef);
 

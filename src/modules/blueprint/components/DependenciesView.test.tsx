@@ -165,4 +165,69 @@ describe("DependenciesView", () => {
     });
     expect(screen.getByText(/2\/2 Knoten sichtbar/i)).toBeInTheDocument();
   });
+
+  it("highlights file and line when the selected node has path metadata", () => {
+    const linkedBlueprint: BlueprintData = {
+      ...graphBlueprint,
+      graph: graphBlueprint.graph
+        ? {
+            ...graphBlueprint.graph,
+            nodes: [
+              {
+                id: "file:a",
+                kind: "file",
+                label: "login",
+                filePath: "src/auth.ts",
+                line: 4,
+                metadata: { type: "Use Case" },
+              },
+              {
+                id: "file:b",
+                kind: "file",
+                label: "logout",
+                filePath: "src/auth.ts",
+                line: 40,
+                metadata: {},
+              },
+            ],
+          }
+        : undefined,
+    };
+    render(<DependenciesView blueprint={linkedBlueprint} />);
+    expect(screen.getByTestId("code-highlight")).toHaveTextContent("src/auth.ts:4");
+    expect(screen.getByTestId("graph-node-selected")).toHaveTextContent("login");
+    fireEvent.click(screen.getByTestId("graph-node-related"));
+    expect(screen.getByTestId("graph-node-selected")).toHaveTextContent("logout");
+    expect(screen.getByTestId("code-highlight")).toHaveTextContent("src/auth.ts:40");
+  });
+
+  it("shows an honest hint when the selected node has no file", () => {
+    render(<DependenciesView blueprint={graphBlueprint} />);
+    expect(screen.getByText("Keine Datei — externer Service")).toBeInTheDocument();
+    expect(screen.queryByTestId("code-highlight")).not.toBeInTheDocument();
+  });
+
+  it("shows Zeile unbekannt when only the file path is known", () => {
+    const fileOnlyBlueprint: BlueprintData = {
+      ...graphBlueprint,
+      graph: graphBlueprint.graph
+        ? {
+            ...graphBlueprint.graph,
+            nodes: [
+              {
+                id: "file:a",
+                kind: "file",
+                label: "a.ts",
+                filePath: "src/a.ts",
+                metadata: { type: "Use Case" },
+              },
+              { id: "file:b", kind: "file", label: "b.ts", filePath: "src/b.ts", metadata: {} },
+            ],
+          }
+        : undefined,
+    };
+    render(<DependenciesView blueprint={fileOnlyBlueprint} />);
+    expect(screen.getByTestId("code-highlight")).toHaveTextContent("src/a.ts");
+    expect(screen.getByText("Zeile unbekannt")).toBeInTheDocument();
+  });
 });
