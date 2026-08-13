@@ -281,21 +281,55 @@
   color: var(--color-muted-foreground);
 }
 
-.legend {
+.legendDock {
   position: absolute;
   left: 50%;
   bottom: 0.75rem;
   transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  pointer-events: auto;
+}
+
+.legendToggle {
+  pointer-events: auto;
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: min(36rem, calc(100vw - 2rem));
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--color-background) 92%, transparent);
+}
+
+.legendChannels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendChannel {
+  font-size: 0.6875rem;
+  color: var(--color-muted-foreground);
+}
+
+.legendKinds {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.35rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: 9999px;
-  background: color-mix(in srgb, var(--color-background) 92%, transparent);
-  z-index: 2;
-  pointer-events: none;
 }
 
 .legendItem {

@@ -18,6 +18,7 @@ describe("GlossaryDrawer", () => {
       "Projektion",
       "Quelle",
       "Senke",
+      "dekorativ",
     ]) {
       expect(drawer).toHaveTextContent(term);
     }

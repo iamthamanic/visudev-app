@@ -79,6 +79,14 @@ const GLOSSARY_ENTRY_LIST: GlossaryEntry[] = [
     unit: "—",
     defaultSource: "graph",
   },
+  {
+    id: "dekorativ",
+    term: "dekorativ",
+    short: "Visuelle Variable ohne Messwert — nur Gestaltung.",
+    long: "In der Atlas-Legende bedeutet dekorativ: die Darstellung folgt keinem Graph-Wert (zum Beispiel die feste Gebäude-Grundfläche). Sie darf nicht als Metrik gelesen werden.",
+    unit: "—",
+    defaultSource: "unbekannt",
+  },
 ];
 
 export const GLOSSARY_ENTRIES: GlossaryEntry[] = [...GLOSSARY_ENTRY_LIST].sort((left, right) =>
