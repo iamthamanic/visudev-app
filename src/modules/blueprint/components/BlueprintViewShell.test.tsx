@@ -2,7 +2,7 @@
  * Tests for BlueprintViewShell controlled view rendering (#86).
  */
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import { BlueprintViewShell } from "./BlueprintViewShell";
 import type { BlueprintData } from "../types";
@@ -43,5 +43,12 @@ describe("BlueprintViewShell", () => {
   it("does not render horizontal tab bar", () => {
     render(<BlueprintViewShell blueprint={emptyBlueprint} activeView="atlas" />);
     expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
+  });
+
+  it("opens the glossary drawer from the header", () => {
+    render(<BlueprintViewShell blueprint={emptyBlueprint} activeView="atlas" />);
+    fireEvent.click(screen.getByRole("button", { name: "Begriffsregister öffnen" }));
+    expect(screen.getByTestId("glossary-drawer")).toBeInTheDocument();
+    expect(screen.getByTestId("glossary-drawer")).toHaveTextContent("Projektion");
   });
 });

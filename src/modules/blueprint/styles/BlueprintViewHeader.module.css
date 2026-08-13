@@ -1,7 +1,19 @@
 .root {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
   padding: var(--space-md) var(--space-lg);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-card);
+}
+
+.copy {
+  min-width: 0;
+}
+
+.glossaryButton {
+  flex-shrink: 0;
 }
 
 .kicker {

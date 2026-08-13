@@ -3,6 +3,7 @@
  * otherwise "Projektion" (Honest-Core P0-4).
  */
 
+import { MetricHint } from "../../../../components/ui/MetricHint.js";
 import { StatusBadge } from "../ui/StatusBadge.js";
 import styles from "../../styles/ExecutionView.module.css";
 
@@ -12,21 +13,23 @@ export interface ExecutionLiveBadgeProps {
 
 export function ExecutionLiveBadge({ live }: ExecutionLiveBadgeProps): JSX.Element {
   return (
-    <span
-      className={styles.liveBadgeWrap}
-      data-testid="execution-mode-badge"
-      data-live={live ? "true" : "false"}
-    >
-      {live ? (
-        <>
-          <span className={styles.liveSignal} aria-hidden="true">
-            ●
-          </span>
-          <StatusBadge variant="running" label="Live" />
-        </>
-      ) : (
-        <StatusBadge variant="unknown" label="Projektion" />
-      )}
-    </span>
+    <MetricHint glossaryId="projektion" source={live ? "gemessen" : "graph"}>
+      <span
+        className={styles.liveBadgeWrap}
+        data-testid="execution-mode-badge"
+        data-live={live ? "true" : "false"}
+      >
+        {live ? (
+          <>
+            <span className={styles.liveSignal} aria-hidden="true">
+              ●
+            </span>
+            <StatusBadge variant="running" label="Live" />
+          </>
+        ) : (
+          <StatusBadge variant="unknown" label="Projektion" />
+        )}
+      </span>
+    </MetricHint>
   );
 }

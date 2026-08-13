@@ -3,6 +3,7 @@
  * Honest-Core (P0-1): Abdeckung shows "unbekannt" when coveragePercent is null.
  */
 
+import { MetricHint } from "../../../../components/ui/MetricHint.js";
 import type { AtlasAggregateStats } from "./atlas-stats.js";
 import styles from "../../styles/AtlasView.module.css";
 
@@ -32,7 +33,18 @@ export function AtlasStatsBar({ stats }: AtlasStatsBarProps): JSX.Element {
               ·
             </span>
           ) : null}
-          {item.label}: {item.value}
+          {item.key === "coverage" ? (
+            <MetricHint
+              glossaryId="abdeckung"
+              source={stats.coveragePercent == null ? "unbekannt" : "graph"}
+            >
+              {item.label}: {item.value}
+            </MetricHint>
+          ) : (
+            <>
+              {item.label}: {item.value}
+            </>
+          )}
         </span>
       ))}
     </div>

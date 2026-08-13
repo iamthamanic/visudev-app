@@ -1,0 +1,98 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--color-foreground) 24%, transparent);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.panel {
+  width: min(28rem, 100%);
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--space-lg, 1.25rem);
+  background: var(--color-background);
+  border-left: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md, 1rem);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.searchLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.searchLabelText {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted-foreground);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-size: 0.8125rem;
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted-foreground);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.term {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.long {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-foreground);
+}
+
+.meta {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+}
