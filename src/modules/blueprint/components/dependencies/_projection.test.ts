@@ -5,6 +5,7 @@
 import { describe, expect, it } from "vitest";
 import type { SoftwareGraph } from "../../types";
 import {
+  applyOrphanFilter,
   buildDependenciesGraphIndex,
   filterDependenciesProjection,
   findEdgeEvidence,
@@ -73,7 +74,29 @@ describe("projectDependenciesGraph", () => {
 
     const none = projectDependenciesGraph(graph, { visibleEdgeKinds: new Set() });
     expect(none.edges).toHaveLength(0);
-    expect(none.nodes).toHaveLength(0);
+    expect(none.nodes).toHaveLength(2);
+    expect(none.orphanNodeIds).toEqual(["file:a", "file:b"]);
+  });
+
+  it("includes isolated nodes as orphans", () => {
+    const graph = makeGraph({
+      nodes: [
+        { id: "file:a", kind: "file", label: "a.ts", metadata: {} },
+        { id: "file:b", kind: "file", label: "b.ts", metadata: {} },
+        { id: "file:c", kind: "file", label: "c.ts", metadata: {} },
+      ],
+      edges: [
+        { id: "e-import", kind: "imports", sourceId: "file:a", targetId: "file:b", metadata: {} },
+      ],
+    });
+
+    const projected = projectDependenciesGraph(graph);
+    expect(projected.nodes.map((node) => node.id).sort()).toEqual(["file:a", "file:b", "file:c"]);
+    expect(projected.orphanNodeIds).toEqual(["file:c"]);
+    expect(projected.nodes.find((node) => node.id === "file:c")?.color).toBe(
+      "var(--color-muted-foreground)",
+    );
+    expect(projected.nodes.find((node) => node.id === "file:a")?.color).toBeUndefined();
   });
 });
 
@@ -85,6 +108,7 @@ describe("filterDependenciesProjection", () => {
         { id: "file:b", label: "b.ts\nDatei", kind: "file" },
       ],
       edges: [{ id: "e1", source: "file:a", target: "file:b", kind: "imports", label: "Imports" }],
+      orphanNodeIds: [],
     };
 
     const filtered = filterDependenciesProjection(
@@ -113,11 +137,39 @@ describe("filterDependenciesProjection", () => {
     expect(empty.nodes).toHaveLength(0);
 
     const isolated = filterDependenciesProjection(
-      { nodes: [{ id: "file:z", label: "z.ts\nDatei", kind: "file" }], edges: [] },
+      {
+        nodes: [{ id: "file:z", label: "z.ts\nDatei", kind: "file" }],
+        edges: [],
+        orphanNodeIds: ["file:z"],
+      },
       "z.ts",
       makeGraph({ nodes: [{ id: "file:z", kind: "file", label: "z.ts", metadata: {} }] }),
     );
     expect(isolated.nodes).toHaveLength(1);
+    expect(isolated.orphanNodeIds).toEqual(["file:z"]);
+  });
+});
+
+describe("applyOrphanFilter", () => {
+  it("hides orphan nodes when the toggle is off", () => {
+    const projection = {
+      nodes: [
+        { id: "file:a", label: "a.ts\nDatei", kind: "file" },
+        {
+          id: "file:c",
+          label: "c.ts\nDatei",
+          kind: "file",
+          color: "var(--color-muted-foreground)",
+        },
+      ],
+      edges: [{ id: "e1", source: "file:a", target: "file:b", kind: "imports", label: "Imports" }],
+      orphanNodeIds: ["file:c"],
+    };
+
+    const hidden = applyOrphanFilter(projection, false);
+    expect(hidden.nodes.map((node) => node.id)).toEqual(["file:a"]);
+    expect(hidden.orphanNodeIds).toEqual([]);
+    expect(applyOrphanFilter(projection, true)).toBe(projection);
   });
 });
 

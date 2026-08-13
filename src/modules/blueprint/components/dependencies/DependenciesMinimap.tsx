@@ -7,16 +7,19 @@ import styles from "../../styles/DependenciesView.module.css";
 
 export interface DependenciesMinimapProps {
   nodes: GraphCanvasNode[];
+  orphanNodeIds: string[];
   onSelectNode: (nodeId: string) => void;
 }
 
 export function DependenciesMinimap({
   nodes,
+  orphanNodeIds,
   onSelectNode,
 }: DependenciesMinimapProps): JSX.Element | null {
   if (nodes.length === 0) return null;
 
   const minimapNodes = nodes.slice(0, 24);
+  const orphanSet = new Set(orphanNodeIds);
 
   return (
     <div className={styles.minimap} aria-label="Graph-Minimap">
@@ -26,7 +29,7 @@ export function DependenciesMinimap({
           <li key={node.id}>
             <button
               type="button"
-              className={styles.minimapChip}
+              className={`${styles.minimapChip} ${orphanSet.has(node.id) ? styles.minimapChipOrphan : ""}`}
               data-kind={node.kind}
               onClick={() => onSelectNode(node.id)}
               title={node.label}

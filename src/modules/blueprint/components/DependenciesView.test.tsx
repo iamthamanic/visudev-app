@@ -60,6 +60,19 @@ const graphBlueprint: BlueprintData = {
   },
 };
 
+const orphanBlueprint: BlueprintData = {
+  ...graphBlueprint,
+  graph: graphBlueprint.graph
+    ? {
+        ...graphBlueprint.graph,
+        nodes: [
+          ...graphBlueprint.graph.nodes,
+          { id: "file:c", kind: "file", label: "c.ts", metadata: {} },
+        ],
+      }
+    : undefined,
+};
+
 describe("DependenciesView", () => {
   it("shows empty state without graph", () => {
     render(<DependenciesView blueprint={emptyBlueprint} />);
@@ -102,7 +115,7 @@ describe("DependenciesView", () => {
     expect(screen.getByTestId("dependency-inspector")).toBeInTheDocument();
   });
 
-  it("shows empty canvas message when all relationship chips are off", () => {
+  it("keeps isolated nodes when all relationship chips are off", () => {
     render(<DependenciesView blueprint={graphBlueprint} />);
     const controls = screen.getByLabelText("Abhängigkeiten-Steuerung");
     for (const label of [
@@ -120,7 +133,16 @@ describe("DependenciesView", () => {
         fireEvent.click(chip);
       }
     }
-    expect(screen.getByText(/Passe die Beziehungstypen an/i)).toBeInTheDocument();
+    expect(screen.getByTestId("dep-orphan-group")).toHaveTextContent("Ohne Verbindungen (2)");
+    expect(screen.queryByText(/Passe die Beziehungstypen an/i)).not.toBeInTheDocument();
+  });
+
+  it("hides orphan nodes when Isolierte Knoten is off", () => {
+    render(<DependenciesView blueprint={orphanBlueprint} />);
+    expect(screen.getByTestId("dep-orphan-group")).toHaveTextContent("Ohne Verbindungen (1)");
+    fireEvent.click(screen.getByTestId("dep-filter-orphans"));
+    expect(screen.queryByTestId("dep-orphan-group")).not.toBeInTheDocument();
+    expect(screen.getByText(/2\/3 Knoten sichtbar/i)).toBeInTheDocument();
   });
 
   it("renders graph search, footer stats, and minimap", () => {

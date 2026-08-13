@@ -10,6 +10,7 @@ import { DependenciesGraphCanvas } from "./dependencies/DependenciesGraphCanvas.
 import { DependenciesInspector } from "./dependencies/DependenciesInspector.js";
 import {
   DEFAULT_VISIBLE_DEPENDENCY_KINDS,
+  applyOrphanFilter,
   buildDependenciesGraphIndex,
   countDependencyEdgesByKind,
   filterDependenciesProjection,
@@ -32,18 +33,24 @@ export function DependenciesView({ blueprint }: DependenciesViewProps) {
   const [visibleEdgeKinds, setVisibleEdgeKinds] = useState<Set<DependencyEdgeKind>>(
     () => new Set(DEFAULT_VISIBLE_DEPENDENCY_KINDS),
   );
+  const [showOrphans, setShowOrphans] = useState(true);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
   const baseProjection = useMemo(() => {
-    if (!graph) return { nodes: [], edges: [] };
+    if (!graph) return { nodes: [], edges: [], orphanNodeIds: [] };
     return projectDependenciesGraph(graph, { visibleEdgeKinds });
   }, [graph, visibleEdgeKinds]);
 
-  const projection = useMemo(
+  const searchedProjection = useMemo(
     () =>
       graph ? filterDependenciesProjection(baseProjection, searchQuery, graph) : baseProjection,
     [baseProjection, searchQuery, graph],
+  );
+
+  const projection = useMemo(
+    () => applyOrphanFilter(searchedProjection, showOrphans),
+    [searchedProjection, showOrphans],
   );
 
   const graphIndex = useMemo(() => {
@@ -110,6 +117,7 @@ export function DependenciesView({ blueprint }: DependenciesViewProps) {
 
   const resetFilters = () => {
     setVisibleEdgeKinds(new Set(DEFAULT_VISIBLE_DEPENDENCY_KINDS));
+    setShowOrphans(true);
     setSelectedEdgeId(null);
     resetSearch();
   };
@@ -153,7 +161,10 @@ export function DependenciesView({ blueprint }: DependenciesViewProps) {
         <DependenciesControls
           visibleEdgeKinds={visibleEdgeKinds}
           topDependencies={topDependencies}
+          showOrphans={showOrphans}
+          orphanCount={searchedProjection.orphanNodeIds.length}
           onToggleEdgeKind={toggleEdgeKind}
+          onToggleOrphans={() => setShowOrphans((current) => !current)}
           onResetFilters={resetFilters}
         />
       }
@@ -165,6 +176,8 @@ export function DependenciesView({ blueprint }: DependenciesViewProps) {
               edges={projection.edges}
               totalNodes={baseProjection.nodes.length}
               totalEdges={baseProjection.edges.length}
+              orphanCount={projection.orphanNodeIds.length}
+              orphanNodeIds={projection.orphanNodeIds}
               selectedNodeId={selectedNodeId}
               searchQuery={searchQuery}
               searchInputRef={searchInputRef}

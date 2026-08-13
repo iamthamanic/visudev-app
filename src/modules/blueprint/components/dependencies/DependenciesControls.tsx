@@ -1,5 +1,5 @@
 /**
- * Left controls for DependenciesView — Beziehungstypen chips and Top-Abhängigkeiten summary.
+ * Left controls for DependenciesView — Beziehungstypen chips, Isolierte-Knoten toggle, Top-Abhängigkeiten.
  */
 
 import { ViewSectionTitle } from "../ui/ViewSectionTitle.js";
@@ -17,14 +17,20 @@ export interface TopDependencyCount {
 export interface DependenciesControlsProps {
   visibleEdgeKinds: Set<DependencyEdgeKind>;
   topDependencies: TopDependencyCount[];
+  showOrphans: boolean;
+  orphanCount: number;
   onToggleEdgeKind: (kind: DependencyEdgeKind) => void;
+  onToggleOrphans: () => void;
   onResetFilters: () => void;
 }
 
 export function DependenciesControls({
   visibleEdgeKinds,
   topDependencies,
+  showOrphans,
+  orphanCount,
   onToggleEdgeKind,
+  onToggleOrphans,
   onResetFilters,
 }: DependenciesControlsProps): JSX.Element {
   const sortedTop = [...topDependencies].sort((a, b) => b.count - a.count);
@@ -64,6 +70,23 @@ export function DependenciesControls({
         >
           Filter zurücksetzen
         </button>
+      </section>
+
+      <section className={styles.section}>
+        <ViewSectionTitle>Isolierte Knoten</ViewSectionTitle>
+        <label className={styles.orphanToggle}>
+          <input
+            type="checkbox"
+            className="toggle toggle-sm"
+            checked={showOrphans}
+            onChange={onToggleOrphans}
+            data-testid="dep-filter-orphans"
+          />
+          <span>
+            Isolierte Knoten
+            {orphanCount > 0 ? ` (${orphanCount})` : ""}
+          </span>
+        </label>
       </section>
 
       <section className={styles.section}>

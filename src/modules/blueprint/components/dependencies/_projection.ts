@@ -1,5 +1,6 @@
 /**
  * Maps SoftwareGraph dependency edges into DependenciesView canvas nodes and edges.
+ * Includes isolated (orphan) nodes so the view is not limited to edge endpoints.
  */
 
 import type {
@@ -66,9 +67,13 @@ export interface DependenciesProjectionOptions {
   visibleEdgeKinds?: Set<DependencyEdgeKind>;
 }
 
+export const ORPHAN_NODE_COLOR = "var(--color-muted-foreground)";
+
 export interface DependenciesProjection {
   nodes: GraphCanvasNode[];
   edges: GraphCanvasEdge[];
+  /** Nodes with no visible dependency edge (Honest-Core P1-1). */
+  orphanNodeIds: string[];
 }
 
 function truncateLabel(label: string): string {
@@ -77,11 +82,12 @@ function truncateLabel(label: string): string {
   return `${trimmed.slice(0, MAX_DEPENDENCY_LABEL_LEN - 1)}…`;
 }
 
-function toCanvasNode(node: SoftwareGraphNode): GraphCanvasNode {
+function toCanvasNode(node: SoftwareGraphNode, isOrphan: boolean): GraphCanvasNode {
   return {
     id: node.id,
     label: formatNodeCardLabel(node),
     kind: node.kind,
+    color: isOrphan ? ORPHAN_NODE_COLOR : undefined,
   };
 }
 
@@ -124,23 +130,39 @@ export function projectDependenciesGraph(
     return mapped != null && visibleKinds.has(mapped);
   });
 
-  const visibleNodeIds = new Set<string>();
+  const connectedNodeIds = new Set<string>();
   for (const edge of dependencyEdges) {
-    if (nodeById.has(edge.sourceId)) visibleNodeIds.add(edge.sourceId);
-    if (nodeById.has(edge.targetId)) visibleNodeIds.add(edge.targetId);
+    if (nodeById.has(edge.sourceId)) connectedNodeIds.add(edge.sourceId);
+    if (nodeById.has(edge.targetId)) connectedNodeIds.add(edge.targetId);
   }
 
+  const orphanNodeIds: string[] = [];
   const nodes: GraphCanvasNode[] = [];
-  for (const nodeId of visibleNodeIds) {
-    const node = nodeById.get(nodeId);
-    if (node) nodes.push(toCanvasNode(node));
+  for (const node of graphNodes) {
+    const isOrphan = !connectedNodeIds.has(node.id);
+    if (isOrphan) orphanNodeIds.push(node.id);
+    nodes.push(toCanvasNode(node, isOrphan));
   }
 
+  const visibleNodeIds = new Set(nodes.map((node) => node.id));
   const edges = dependencyEdges
     .filter((edge) => visibleNodeIds.has(edge.sourceId) && visibleNodeIds.has(edge.targetId))
     .map(toCanvasEdge);
 
-  return { nodes, edges };
+  return { nodes, edges, orphanNodeIds };
+}
+
+export function applyOrphanFilter(
+  projection: DependenciesProjection,
+  showOrphans: boolean,
+): DependenciesProjection {
+  if (showOrphans) return projection;
+  const orphanSet = new Set(projection.orphanNodeIds);
+  return {
+    nodes: projection.nodes.filter((node) => !orphanSet.has(node.id)),
+    edges: projection.edges,
+    orphanNodeIds: [],
+  };
 }
 
 export function findCentralDependencyNodeId(
@@ -371,7 +393,7 @@ export function filterDependenciesProjection(
   );
 
   if (matchingNodeIds.size === 0) {
-    return { nodes: [], edges: [] };
+    return { nodes: [], edges: [], orphanNodeIds: [] };
   }
 
   const edges = projection.edges.filter(
@@ -383,8 +405,8 @@ export function filterDependenciesProjection(
     visibleNodeIds.add(edge.target);
   }
 
-  return {
-    nodes: projection.nodes.filter((node) => visibleNodeIds.has(node.id)),
-    edges,
-  };
+  const nodes = projection.nodes.filter((node) => visibleNodeIds.has(node.id));
+  const orphanNodeIds = projection.orphanNodeIds.filter((id) => visibleNodeIds.has(id));
+
+  return { nodes, edges, orphanNodeIds };
 }
