@@ -7,6 +7,7 @@ import { InspectorPanel } from "../ui/InspectorPanel.js";
 import { StatusBadge } from "../ui/StatusBadge.js";
 import { InfrastructureResourceMeters } from "./InfrastructureResourceMeters.js";
 import { resourceMetersFromMetadata } from "./infrastructure-resource-meters.js";
+import { ControlHint } from "../../../../components/ui/ControlHint.js";
 import styles from "../../styles/InfrastructureView.module.css";
 
 const KIND_LABELS: Record<string, string> = {
@@ -162,9 +163,11 @@ export function InfrastructureInspector({
         },
       ]}
     >
-      <button type="button" className={styles.logsButton}>
-        Logs anzeigen
-      </button>
+      <ControlHint reason="Öffnen-Integration (VS Code / VisuCODE) folgt.">
+        <button type="button" className={styles.logsButton} disabled aria-disabled="true">
+          Logs anzeigen
+        </button>
+      </ControlHint>
     </InspectorPanel>
   );
 }

@@ -77,10 +77,17 @@ describe("DependenciesView", () => {
       "aria-pressed",
       "true",
     );
-    expect(within(controls).getByRole("button", { name: "API Calls" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+  });
+
+  it("disables relationship chips that have no edges in the current graph (P0-3)", () => {
+    render(<DependenciesView blueprint={graphBlueprint} />);
+    const controls = screen.getByLabelText("Abhängigkeiten-Steuerung");
+    const database = within(controls).getByRole("button", { name: "Database" });
+    expect(database).toBeDisabled();
+    expect(screen.getByTestId("dep-chip-data")).toBeInTheDocument();
+    expect(
+      screen.getAllByLabelText(/Keine Database-Kanten im aktuellen Scan/).length,
+    ).toBeGreaterThan(0);
   });
 
   it("shows Top Abhängigkeiten counts", () => {

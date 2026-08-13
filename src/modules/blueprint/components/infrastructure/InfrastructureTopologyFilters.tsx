@@ -6,6 +6,7 @@
 
 import { RefreshCw } from "lucide-react";
 import { TOPOLOGY_VIEW_FILTERS, type TopologyViewFilter } from "./build-topology.js";
+import { ControlHint } from "../../../../components/ui/ControlHint.js";
 import styles from "../../styles/InfrastructureView.module.css";
 
 interface InfrastructureTopologyFiltersProps {
@@ -74,17 +75,30 @@ export function InfrastructureTopologyFilters({
       <div className={styles.filterGroup}>
         <span className={styles.filterLabel}>Ansicht</span>
         <div className={styles.filterChips}>
-          {TOPOLOGY_VIEW_FILTERS.map((view) => (
-            <button
-              key={view}
-              type="button"
-              className={`${styles.filterChip} ${activeView === view ? styles.filterChipActive : ""}`}
-              aria-pressed={activeView === view}
-              onClick={() => onSelectView(activeView === view ? null : view)}
-            >
-              {view}
-            </button>
-          ))}
+          {TOPOLOGY_VIEW_FILTERS.map((view) => {
+            const physicalUnbuilt = view === "Physische Topologie";
+            const chip = (
+              <button
+                type="button"
+                className={`${styles.filterChip} ${activeView === view ? styles.filterChipActive : ""}`}
+                aria-pressed={activeView === view}
+                disabled={physicalUnbuilt}
+                aria-disabled={physicalUnbuilt}
+                onClick={physicalUnbuilt ? undefined : () => onSelectView(view)}
+              >
+                {view}
+              </button>
+            );
+            if (!physicalUnbuilt) return <span key={view}>{chip}</span>;
+            return (
+              <ControlHint
+                key={view}
+                reason="Physische Topologie folgt — gesucht nach Compose-/K8s-Deskriptoren."
+              >
+                {chip}
+              </ControlHint>
+            );
+          })}
         </div>
       </div>
       <button type="button" className={styles.refreshButton} onClick={onRefresh}>

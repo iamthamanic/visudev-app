@@ -104,6 +104,7 @@ describe("InfrastructureView", () => {
     expect(screen.getByTestId("infra-monitoring-tier")).toBeInTheDocument();
     expect(screen.getByLabelText("Verbindungs-Legende")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Logische Topologie/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Physische Topologie/i })).toBeDisabled();
     expect(screen.getByRole("button", { name: /Aktualisieren/i })).toBeInTheDocument();
   });
 

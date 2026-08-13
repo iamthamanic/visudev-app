@@ -6,6 +6,7 @@ import { ViewSectionTitle } from "../ui/ViewSectionTitle.js";
 import { RelationshipChip } from "../ui/RelationshipChip.js";
 import { RELATIONSHIP_KINDS, type RelationshipKind } from "../ui/blueprint-relationship-tokens.js";
 import { RELATIONSHIP_LABELS, type DependencyEdgeKind } from "./_projection.constants.js";
+import { ControlHint } from "../../../../components/ui/ControlHint.js";
 import styles from "../../styles/DependenciesView.module.css";
 
 export interface TopDependencyCount {
@@ -27,20 +28,34 @@ export function DependenciesControls({
   onResetFilters,
 }: DependenciesControlsProps): JSX.Element {
   const sortedTop = [...topDependencies].sort((a, b) => b.count - a.count);
+  const presentKinds = new Set(topDependencies.map((entry) => entry.kind));
 
   return (
     <aside className={styles.controls} aria-label="Abhängigkeiten-Steuerung">
       <section className={styles.section}>
         <ViewSectionTitle>Beziehungstypen</ViewSectionTitle>
         <div className={styles.chipGrid}>
-          {RELATIONSHIP_KINDS.map((kind) => (
-            <RelationshipChip
-              key={kind}
-              kind={kind as RelationshipKind}
-              active={visibleEdgeKinds.has(kind as DependencyEdgeKind)}
-              onToggle={() => onToggleEdgeKind(kind as DependencyEdgeKind)}
-            />
-          ))}
+          {RELATIONSHIP_KINDS.map((kind) => {
+            const edgeKind = kind as DependencyEdgeKind;
+            const available = presentKinds.has(edgeKind);
+            const label = RELATIONSHIP_LABELS[edgeKind];
+            const chip = (
+              <span data-testid={`dep-chip-${edgeKind}`}>
+                <RelationshipChip
+                  kind={kind as RelationshipKind}
+                  active={available && visibleEdgeKinds.has(edgeKind)}
+                  disabled={!available}
+                  onToggle={() => onToggleEdgeKind(edgeKind)}
+                />
+              </span>
+            );
+            if (available) return <span key={kind}>{chip}</span>;
+            return (
+              <ControlHint key={kind} reason={`Keine ${label}-Kanten im aktuellen Scan.`}>
+                {chip}
+              </ControlHint>
+            );
+          })}
         </div>
         <button
           type="button"
