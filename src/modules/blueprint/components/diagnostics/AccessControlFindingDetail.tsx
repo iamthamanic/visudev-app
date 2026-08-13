@@ -3,6 +3,7 @@
  */
 
 import type { AccessControlFinding } from "../../../../lib/visudev/access-control-types";
+import { formatConfidence } from "../../../../lib/format-confidence.js";
 import { StatusBadge } from "../ui/StatusBadge.js";
 import { accessControlStatusBadge } from "./access-control-inspector-status.js";
 import styles from "../../styles/AccessControlInspector.module.css";
@@ -34,7 +35,8 @@ export function AccessControlFindingDetail({
         <div className={styles.block}>
           <StatusBadge variant={badge.variant} label={badge.label} />
           <p className={styles.meta}>
-            Confidence {Math.round(Number.isFinite(finding.confidence) ? finding.confidence : 0)}% ·{" "}
+            Confidence {formatConfidence(finding.confidence) ?? "unbekannt"}
+            {" · "}
             {finding.resourceKind}
             {finding.ruleId ? ` · ${finding.ruleId}` : ""}
           </p>

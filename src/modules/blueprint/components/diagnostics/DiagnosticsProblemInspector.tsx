@@ -13,6 +13,7 @@ import {
   primaryEvidenceFact,
 } from "./diagnostics-finding-location.js";
 import type { FindingResolutionStatus } from "./finding-resolution.js";
+import { formatConfidence } from "../../../../lib/format-confidence.js";
 import styles from "../../styles/DiagnosticsView.module.css";
 
 interface DiagnosticsProblemInspectorProps {
@@ -138,7 +139,7 @@ export function DiagnosticsProblemInspector({
               </div>
               <div className={styles.detailRow}>
                 <dt>Confidence</dt>
-                <dd>{finding.confidence}%</dd>
+                <dd>{formatConfidence(finding.confidence) ?? "unbekannt"}</dd>
               </div>
               {finding.remediation ? (
                 <div className={styles.detailRow}>

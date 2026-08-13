@@ -4,6 +4,7 @@
  */
 
 import type { BlueprintFinding, CodeFact } from "../types";
+import { formatConfidence } from "../../../lib/format-confidence.js";
 import styles from "../styles/FindingInspector.module.css";
 
 interface FindingInspectorProps {
@@ -58,7 +59,7 @@ export function FindingInspector({
             <dt>Gefunden</dt>
             <dd>{selected.actualState}</dd>
             <dt>Confidence</dt>
-            <dd>{selected.confidence}%</dd>
+            <dd>{formatConfidence(selected.confidence) ?? "unbekannt"}</dd>
             {selected.remediation && (
               <>
                 <dt>Lösung</dt>

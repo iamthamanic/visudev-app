@@ -4,6 +4,7 @@ import { ChevronRight, ChevronDown, FileCode, Zap, Database, Globe } from "lucid
 import { IFrameScreenRenderer } from "./IFrameScreenRenderer";
 import { ScreenshotPreview } from "./ScreenshotPreview";
 import { useProject } from "../contexts/ProjectContext";
+import { formatConfidence } from "../lib/format-confidence.js";
 import styles from "./SitemapView.module.css";
 
 interface Screen {
@@ -100,7 +101,7 @@ export function SitemapView({ screens, flows, framework }: SitemapViewProps) {
                 <span className={styles.frameworkLabel}>{framework.primary}</span>
               </div>
               <div className={styles.frameworkConfidence}>
-                {Math.round(framework.confidence * 100)}% confidence
+                {formatConfidence(framework.confidence) ?? "unbekannt"} confidence
               </div>
             </div>
           )}
