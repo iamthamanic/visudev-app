@@ -111,6 +111,8 @@ export interface BlueprintData extends Record<string, unknown> {
   /** @deprecated Synthesized from `graph` when absent. */
   facts?: CodeFact[];
   filesAnalyzed?: number;
+  /** Total files in the repo, when known. Drives the partial-scan banner (P0-1). */
+  totalFiles?: number;
   frameworkHints?: string[];
   violations?: RuleViolation[];
   cycles?: BlueprintCycle[];

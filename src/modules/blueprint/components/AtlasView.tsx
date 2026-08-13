@@ -13,6 +13,7 @@ import { computeAtlasStats } from "./atlas/atlas-stats.js";
 import { AtlasStatsBar } from "./atlas/AtlasStatsBar.js";
 import { AtlasZoomControls } from "./atlas/AtlasZoomControls.js";
 import { useAtlasViewState } from "./atlas/useAtlasViewState.js";
+import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
 import styles from "../styles/AtlasView.module.css";
 
 const GraphCanvas = lazy(() =>
@@ -44,6 +45,11 @@ export function AtlasView({ blueprint }: AtlasViewProps) {
 
   const hasVisibleNodes = state.projection.nodes.length > 0;
   const atlasStats = computeAtlasStats(graph, blueprint.filesAnalyzed ?? 0);
+  const totalFiles = blueprint.totalFiles ?? null;
+  const filesAnalyzed = blueprint.filesAnalyzed ?? 0;
+  const isPartialScan =
+    graph.condensed === true ||
+    (totalFiles != null && filesAnalyzed > 0 && filesAnalyzed < totalFiles);
 
   const canvasContent = !hasVisibleNodes ? (
     <div className={styles.filteredCanvasEmpty}>
@@ -90,6 +96,7 @@ export function AtlasView({ blueprint }: AtlasViewProps) {
       }
       canvas={
         <div className={styles.canvasWrap}>
+          {isPartialScan ? <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} /> : null}
           <AtlasStatsBar stats={atlasStats} />
           <div className={styles.canvasMain}>{canvasContent}</div>
           <AtlasClusterLabels

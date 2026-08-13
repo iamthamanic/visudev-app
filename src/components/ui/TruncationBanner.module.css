@@ -1,0 +1,21 @@
+.banner {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  border-bottom: none;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-muted) 40%, var(--color-card));
+}
+
+.title {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.text {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+  line-height: 1.4;
+}

@@ -11,7 +11,8 @@ export interface ClusterOverviewMetrics {
   services: number;
   modules: number;
   files: number;
-  coveragePercent: number;
+  /** Null when the graph carries no coverage metric. Rendered as "unbekannt". */
+  coveragePercent: number | null;
 }
 
 export interface ClusterActivityItem {
@@ -38,10 +39,7 @@ export function clusterOverviewMetrics(
     graph?.nodes.filter((node) => node.kind === "service").length ?? nodeCount,
   );
   const coverageFromGraph = metricNamed(graph, "coverage");
-  const coveragePercent =
-    coverageFromGraph != null
-      ? Math.min(100, coverageFromGraph)
-      : Math.min(100, Math.max(0, nodeCount * 12));
+  const coveragePercent = coverageFromGraph != null ? Math.min(100, coverageFromGraph) : null;
 
   return {
     services,
