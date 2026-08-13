@@ -14,9 +14,8 @@ import { InfrastructureTopologyDiagram } from "./infrastructure/InfrastructureTo
 import { InfrastructureTopologyFilters } from "./infrastructure/InfrastructureTopologyFilters.js";
 import {
   buildTopologyNodes,
+  deploymentFiltersFromGraph,
   filterProjectedNodesByDeployment,
-  type TopologyEnvFilter,
-  type TopologyRegionFilter,
   type TopologyViewFilter,
 } from "./infrastructure/build-topology.js";
 import { projectInfrastructureGraph } from "./infrastructure/_projection.js";
@@ -30,8 +29,8 @@ export function InfrastructureView({ blueprint }: InfrastructureViewProps) {
   const graph = blueprint.graph;
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const graphSnapshotKey = buildGraphSnapshotKey(graph);
-  const [activeEnv, setActiveEnv] = useState<TopologyEnvFilter | null>("Produktion");
-  const [activeRegion, setActiveRegion] = useState<TopologyRegionFilter | null>("eu-central-1");
+  const [activeEnv, setActiveEnv] = useState<string | null>(null);
+  const [activeRegion, setActiveRegion] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<TopologyViewFilter | null>("Logische Topologie");
   const [refreshTick, setRefreshTick] = useState(0);
 
@@ -39,6 +38,11 @@ export function InfrastructureView({ blueprint }: InfrastructureViewProps) {
     if (!graph) return { nodes: [], edges: [] };
     return projectInfrastructureGraph(graph);
   }, [graph]);
+
+  const deploymentFilters = useMemo(
+    () => (graph ? deploymentFiltersFromGraph(graph) : { envs: [], regions: [] }),
+    [graph],
+  );
 
   const filteredNodes = useMemo(() => {
     if (!graph) return [];
@@ -95,6 +99,8 @@ export function InfrastructureView({ blueprint }: InfrastructureViewProps) {
       canvas={
         <div className={styles.canvasWrap} key={refreshTick}>
           <InfrastructureTopologyFilters
+            availableEnvs={deploymentFilters.envs}
+            availableRegions={deploymentFilters.regions}
             activeEnv={activeEnv}
             activeRegion={activeRegion}
             activeView={activeView}

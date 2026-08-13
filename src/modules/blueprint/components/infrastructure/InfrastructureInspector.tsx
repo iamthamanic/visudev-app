@@ -6,7 +6,7 @@ import type { GraphCanvasEdge, GraphCanvasNode, SoftwareGraphNode } from "../../
 import { InspectorPanel } from "../ui/InspectorPanel.js";
 import { StatusBadge } from "../ui/StatusBadge.js";
 import { InfrastructureResourceMeters } from "./InfrastructureResourceMeters.js";
-import { STATIC_PLACEHOLDER_METERS } from "./infrastructure-resource-meters.js";
+import { resourceMetersFromMetadata } from "./infrastructure-resource-meters.js";
 import styles from "../../styles/InfrastructureView.module.css";
 
 const KIND_LABELS: Record<string, string> = {
@@ -30,10 +30,9 @@ function overviewFromGraphNode(graphNode: SoftwareGraphNode | null) {
   const instancesValue = metadata.instances;
 
   return {
-    port: typeof portValue === "number" || typeof portValue === "string" ? String(portValue) : "—",
-    instances: typeof instancesValue === "string" ? instancesValue : "1",
-    uptime: "99,5 %",
-    version: typeof frameworkValue === "string" ? frameworkValue : "—",
+    port: typeof portValue === "number" || typeof portValue === "string" ? String(portValue) : null,
+    instances: typeof instancesValue === "string" ? instancesValue : null,
+    version: typeof frameworkValue === "string" ? frameworkValue : null,
   };
 }
 
@@ -82,7 +81,14 @@ export function InfrastructureInspector({
 
   const kindLabel = KIND_LABELS[node.kind] ?? node.kind;
   const overview = overviewFromGraphNode(graphNode);
+  const meterValues = resourceMetersFromMetadata(graphNode?.metadata);
   const connections = connectionEndpoints(node.id, edges, nodes);
+
+  const overviewRows: Array<{ term: string; value: string | null }> = [
+    { term: "Port", value: overview.port },
+    { term: "Instanzen", value: overview.instances },
+    { term: "Version", value: overview.version },
+  ].filter((row): row is { term: string; value: string } => row.value != null);
 
   return (
     <InspectorPanel
@@ -93,31 +99,34 @@ export function InfrastructureInspector({
         {
           id: "overview",
           title: "Übersicht",
-          content: (
-            <dl className={styles.overviewList}>
-              <div className={styles.overviewRow}>
-                <dt>Port</dt>
-                <dd>{overview.port}</dd>
-              </div>
-              <div className={styles.overviewRow}>
-                <dt>Instanzen</dt>
-                <dd>{overview.instances}</dd>
-              </div>
-              <div className={styles.overviewRow}>
-                <dt>Uptime</dt>
-                <dd>{overview.uptime}</dd>
-              </div>
-              <div className={styles.overviewRow}>
-                <dt>Version</dt>
-                <dd>{overview.version}</dd>
-              </div>
-            </dl>
-          ),
+          content:
+            overviewRows.length > 0 ? (
+              <dl className={styles.overviewList}>
+                {overviewRows.map((row) => (
+                  <div className={styles.overviewRow} key={row.term}>
+                    <dt>{row.term}</dt>
+                    <dd>{row.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p className={styles.emptyControls} data-testid="infra-overview-empty">
+                Keine Laufzeit-Metadaten — gesucht nach Port, Instanzen, Version. Nichts davon liegt
+                im aktuellen Scan.
+              </p>
+            ),
         },
         {
           id: "resources",
           title: "Ressourcen",
-          content: <InfrastructureResourceMeters values={STATIC_PLACEHOLDER_METERS} />,
+          content: meterValues ? (
+            <InfrastructureResourceMeters values={meterValues} />
+          ) : (
+            <p className={styles.emptyControls} data-testid="infra-runtime-empty">
+              Laufzeitdaten unbekannt — gesucht nach Runtime-Telemetrie (CPU, RAM, Netzwerk). Nichts
+              davon liegt im aktuellen Scan.
+            </p>
+          ),
         },
         {
           id: "connections",
