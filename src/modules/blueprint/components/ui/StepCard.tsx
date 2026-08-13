@@ -11,7 +11,7 @@ interface StepCardProps {
   stepNumber: number;
   title: string;
   subtitle?: string;
-  durationMs?: number;
+  durationMs?: number | null;
   status?: StatusBadgeVariant;
   selected?: boolean;
   onSelect?: () => void;
@@ -52,11 +52,11 @@ export function StepCard({
         {subtitle ? <span className={styles.subtitle}>{subtitle}</span> : null}
       </span>
       <span className={styles.meta}>
-        {typeof durationMs === "number" && Number.isFinite(durationMs) && durationMs >= 0 ? (
-          <span className={styles.duration} data-testid="execution-step-duration">
-            {durationMs}ms
-          </span>
-        ) : null}
+        <span className={styles.duration} data-testid="execution-step-duration">
+          {typeof durationMs === "number" && Number.isFinite(durationMs) && durationMs >= 0
+            ? `${durationMs}ms`
+            : "unbekannt"}
+        </span>
         <StatusBadge variant={status} label={statusLabel} />
       </span>
     </button>

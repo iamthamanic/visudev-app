@@ -49,7 +49,7 @@ async function waitForScanAndEnrichment(page: Page, viewId: string) {
       await expect(page.getByTestId("dependency-inspector")).toBeVisible();
       break;
     case "execution":
-      await expect(page.getByTestId("execution-live-badge")).toBeVisible();
+      await expect(page.getByTestId("execution-mode-badge")).toBeVisible();
       expect(await page.getByTestId("execution-step-card").count()).toBeGreaterThanOrEqual(6);
       break;
     case "infrastructure":

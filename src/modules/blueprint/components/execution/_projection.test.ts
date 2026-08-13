@@ -10,6 +10,7 @@ import {
   computeStepTimings,
   computeExecutionMetrics,
   isExecutionLive,
+  resolveStepDurationMs,
 } from "./_projection.js";
 
 function makeGraph(overrides: Partial<SoftwareGraph> = {}): SoftwareGraph {
@@ -159,6 +160,13 @@ describe("projectExecutionGraph", () => {
     });
   });
 
+  it("returns null duration when metadata has no durationMs (P0-4)", () => {
+    const graph = makeGraph({
+      nodes: [{ id: "file:a", kind: "file", label: "a.ts", metadata: {} }],
+    });
+    expect(resolveStepDurationMs(graph.nodes[0])).toBeNull();
+  });
+
   it("detects live execution from route metadata", () => {
     const graph = makeGraph({
       nodes: [
@@ -173,7 +181,7 @@ describe("projectExecutionGraph", () => {
     expect(isExecutionLive(graph, "route:a")).toBe(true);
   });
 
-  it("detects live execution from active trace id", () => {
+  it("does not treat a traceId without running status as live (P0-4)", () => {
     const graph = makeGraph({
       nodes: [
         {
@@ -184,7 +192,7 @@ describe("projectExecutionGraph", () => {
         },
       ],
     });
-    expect(isExecutionLive(graph, "route:b")).toBe(true);
+    expect(isExecutionLive(graph, "route:b")).toBe(false);
   });
 
   it("does not treat completed trace as live", () => {
