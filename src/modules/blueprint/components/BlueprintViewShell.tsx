@@ -14,9 +14,10 @@ import { ExecutionView } from "./ExecutionView";
 import { InfrastructureView } from "./InfrastructureView";
 import type { BlueprintShellViewId } from "../blueprint-view-config.js";
 import type { BlueprintData } from "../types";
+import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import styles from "../styles/BlueprintViewShell.module.css";
 
-interface BlueprintViewShellProps {
+interface BlueprintViewShellProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
   projectId?: string;
   activeView: BlueprintShellViewId;
@@ -30,6 +31,9 @@ export function BlueprintViewShell({
   activeView,
   projectName,
   branchLabel,
+  scanStatus,
+  scanError,
+  onRetry,
 }: BlueprintViewShellProps): JSX.Element {
   const [glossaryOpen, setGlossaryOpen] = useState(false);
 
@@ -72,19 +76,55 @@ export function BlueprintViewShell({
           data-testid="blueprint-main-content"
         >
           {activeView === "infrastructure" ? (
-            <InfrastructureView blueprint={blueprint} />
+            <InfrastructureView
+              blueprint={blueprint}
+              scanStatus={scanStatus}
+              scanError={scanError}
+              onRetry={onRetry}
+            />
           ) : activeView === "architecture" ? (
-            <ArchitectureView blueprint={blueprint} />
+            <ArchitectureView
+              blueprint={blueprint}
+              scanStatus={scanStatus}
+              scanError={scanError}
+              onRetry={onRetry}
+            />
           ) : activeView === "dependencies" ? (
-            <DependenciesView blueprint={blueprint} />
+            <DependenciesView
+              blueprint={blueprint}
+              scanStatus={scanStatus}
+              scanError={scanError}
+              onRetry={onRetry}
+            />
           ) : activeView === "execution" ? (
-            <ExecutionView blueprint={blueprint} />
+            <ExecutionView
+              blueprint={blueprint}
+              scanStatus={scanStatus}
+              scanError={scanError}
+              onRetry={onRetry}
+            />
           ) : activeView === "evolution" ? (
-            <EvolutionView blueprint={blueprint} projectId={projectId} />
+            <EvolutionView
+              blueprint={blueprint}
+              projectId={projectId}
+              scanStatus={scanStatus}
+              scanError={scanError}
+              onRetry={onRetry}
+            />
           ) : activeView === "atlas" ? (
-            <AtlasView blueprint={blueprint} />
+            <AtlasView
+              blueprint={blueprint}
+              scanStatus={scanStatus}
+              scanError={scanError}
+              onRetry={onRetry}
+            />
           ) : (
-            <DiagnosticsView blueprint={blueprint} />
+            <DiagnosticsView
+              blueprint={blueprint}
+              scanStatus={scanStatus}
+              scanError={scanError}
+              onRetry={onRetry}
+            />
           )}
         </div>
       </div>

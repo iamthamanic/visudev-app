@@ -64,7 +64,7 @@ describe("EvolutionView", () => {
         }}
       />,
     );
-    expect(screen.getByText("Keine Evolution-Daten")).toBeInTheDocument();
+    expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
   it("renders timeline tab with snapshot cards and metrics", () => {

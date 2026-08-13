@@ -92,7 +92,7 @@ describe("InfrastructureView", () => {
         }}
       />,
     );
-    expect(screen.getByText("Keine Infrastruktur-Daten")).toBeInTheDocument();
+    expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
   it("renders topology diagram with filters and legend", () => {

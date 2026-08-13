@@ -23,17 +23,24 @@ import {
 } from "./architecture/domain-source-hint.js";
 import { useArchitectureDefaultLayerSelection } from "../hooks/useArchitectureDefaultLayerSelection.js";
 import { buildGraphSnapshotKey } from "../services/graph-snapshot-key.js";
+import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
+import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import styles from "../styles/ArchitectureView.module.css";
 
 const GraphCanvas = lazy(() =>
   import("../../../components/GraphCanvas").then((module) => ({ default: module.GraphCanvas })),
 );
 
-interface ArchitectureViewProps {
+interface ArchitectureViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
 }
 
-export function ArchitectureView({ blueprint }: ArchitectureViewProps) {
+export function ArchitectureView({
+  blueprint,
+  scanStatus,
+  scanError,
+  onRetry,
+}: ArchitectureViewProps) {
   const graph = blueprint.graph;
   const [groupingMode, setGroupingMode] = useState<ArchitectureGroupingMode>("layers");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -109,12 +116,15 @@ export function ArchitectureView({ blueprint }: ArchitectureViewProps) {
 
   if (!graph) {
     return (
-      <div className={styles.empty}>
-        <p className={styles.emptyTitle}>Keine Architektur-Daten</p>
-        <p className={styles.emptyHint}>
-          Starte eine neue Blueprint-Analyse, um Domains, Layer und Module zu sehen.
-        </p>
-      </div>
+      <BlueprintViewStateGate
+        viewId="architecture"
+        hasViewData={false}
+        scanStatus={scanStatus}
+        scanError={scanError}
+        onRetry={onRetry}
+      >
+        {null}
+      </BlueprintViewStateGate>
     );
   }
 

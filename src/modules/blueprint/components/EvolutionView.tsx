@@ -16,17 +16,25 @@ import { type EvolutionTabId } from "./evolution/evolution-tabs.js";
 import { findSnapshot } from "./evolution/_diff.js";
 import { useEvolutionViewState } from "./evolution/useEvolutionViewState.js";
 import styles from "../styles/EvolutionView.module.css";
+import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
+import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 
 const GraphCanvas = lazy(() =>
   import("../../../components/GraphCanvas").then((module) => ({ default: module.GraphCanvas })),
 );
 
-interface EvolutionViewProps {
+interface EvolutionViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
   projectId?: string;
 }
 
-export function EvolutionView({ blueprint, projectId }: EvolutionViewProps) {
+export function EvolutionView({
+  blueprint,
+  projectId,
+  scanStatus,
+  scanError,
+  onRetry,
+}: EvolutionViewProps) {
   const [activeTab, setActiveTab] = useState<EvolutionTabId>("timeline");
   const [selectedCommitSha, setSelectedCommitSha] = useState<string | null>(null);
   const {
@@ -63,12 +71,15 @@ export function EvolutionView({ blueprint, projectId }: EvolutionViewProps) {
 
   if (!graph) {
     return (
-      <div className={styles.empty}>
-        <p className={styles.emptyTitle}>Keine Evolution-Daten</p>
-        <p className={styles.emptyHint}>
-          Starte eine Blueprint-Analyse, um Snapshots und Architektur-Diffs zu sehen.
-        </p>
-      </div>
+      <BlueprintViewStateGate
+        viewId="evolution"
+        hasViewData={false}
+        scanStatus={scanStatus}
+        scanError={scanError}
+        onRetry={onRetry}
+      >
+        {null}
+      </BlueprintViewStateGate>
     );
   }
 

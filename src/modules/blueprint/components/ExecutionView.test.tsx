@@ -77,7 +77,7 @@ describe("ExecutionView", () => {
         }}
       />,
     );
-    expect(screen.getByText("Keine Execution-Daten")).toBeInTheDocument();
+    expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
   it("renders step pipeline cards and Schritte list", () => {

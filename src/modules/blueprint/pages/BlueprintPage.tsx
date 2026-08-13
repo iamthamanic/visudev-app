@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useVisudev } from "../../../lib/visudev/store";
 import { getVisuDevClient, isLocalVisuDevMode } from "../../../lib/visudev-api";
 import { blueprintAPI } from "../../../utils/api";
@@ -163,44 +163,25 @@ export function BlueprintPage({ projectId, activeView }: BlueprintPageProps) {
       ) : null}
 
       <div className={styles.content}>
-        {isScanning ? (
-          <div className={styles.centerState}>
-            <div className={styles.emptyCard}>
-              <Loader2 className={`${styles.emptyIcon} ${styles.spinner}`} aria-hidden="true" />
-              <p className={styles.emptyTitle}>Blueprint wird generiert...</p>
-            </div>
-          </div>
-        ) : hasError ? (
-          <div className={styles.centerState}>
-            <div className={styles.emptyCard}>
-              <AlertCircle
-                className={`${styles.emptyIcon} ${styles.errorIcon}`}
-                aria-hidden="true"
-              />
-              <p className={styles.emptyTitle}>Fehler bei der Blueprint-Generierung</p>
-              {scanError ? <p className={styles.emptyHint}>{scanError}</p> : null}
-            </div>
-          </div>
-        ) : !hasData ? (
-          <div className={styles.centerState}>
-            <div className={styles.emptyCard}>
-              <p className={styles.emptyHint}>
-                {blueprintLoadError ??
-                  (isLocalProject
-                    ? "Keine Blueprint-Daten. Starte „Neu analysieren“ (npm run dev muss laufen)."
-                    : "Keine Blueprint-Daten. Starte „Neu analysieren“ oder verbinde ein GitHub-Repo.")}
-              </p>
-            </div>
-          </div>
-        ) : blueprint ? (
-          <BlueprintViewShell
-            blueprint={blueprint}
-            projectId={projectId}
-            activeView={activeView}
-            projectName={activeProject?.name}
-            branchLabel={activeProject?.github_branch ?? "main"}
-          />
-        ) : null}
+        <BlueprintViewShell
+          blueprint={
+            blueprint ?? {
+              version: 1,
+              routes: [],
+              securityMatrix: [],
+              findings: [],
+              facts: [],
+              filesAnalyzed: 0,
+            }
+          }
+          projectId={projectId}
+          activeView={activeView}
+          projectName={activeProject?.name}
+          branchLabel={activeProject?.github_branch ?? "main"}
+          scanStatus={isScanning ? "running" : hasError ? "failed" : effectiveScanStatus}
+          scanError={scanError ?? blueprintLoadError}
+          onRetry={handleRescan}
+        />
       </div>
 
       {hasData ? (

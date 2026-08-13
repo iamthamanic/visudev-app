@@ -46,7 +46,7 @@ describe("AtlasView", () => {
         }}
       />,
     );
-    expect(screen.getByText("Keine Atlas-Daten")).toBeInTheDocument();
+    expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
   it("renders stats bar, legend, and view mode toggle", () => {
@@ -67,18 +67,18 @@ describe("AtlasView", () => {
       graph: { ...graphBlueprint.graph!, condensed: true },
     };
     render(<AtlasView blueprint={condensed} />);
-    expect(screen.getByTestId("truncation-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("view-state-partial-scan")).toBeInTheDocument();
   });
 
   it("shows truncation banner when filesAnalyzed < totalFiles", () => {
     const partial: BlueprintData = { ...graphBlueprint, filesAnalyzed: 400, totalFiles: 1706 };
     render(<AtlasView blueprint={partial} />);
-    expect(screen.getByTestId("truncation-banner")).toBeInTheDocument();
+    expect(screen.getByTestId("view-state-partial-scan")).toBeInTheDocument();
   });
 
   it("hides truncation banner on a complete scan", () => {
     render(<AtlasView blueprint={graphBlueprint} />);
-    expect(screen.queryByTestId("truncation-banner")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("view-state-partial-scan")).not.toBeInTheDocument();
   });
 
   it("renders search, node cards, and overview stats", () => {

@@ -14,6 +14,8 @@ import { AtlasStatsBar } from "./atlas/AtlasStatsBar.js";
 import { AtlasZoomControls } from "./atlas/AtlasZoomControls.js";
 import { useAtlasViewState } from "./atlas/useAtlasViewState.js";
 import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
+import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
+import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import styles from "../styles/AtlasView.module.css";
 
 const GraphCanvas = lazy(() =>
@@ -24,22 +26,25 @@ const AtlasCityScene = lazy(() =>
   import("./atlas/AtlasCityScene.js").then((module) => ({ default: module.AtlasCityScene })),
 );
 
-interface AtlasViewProps {
+interface AtlasViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
 }
 
-export function AtlasView({ blueprint }: AtlasViewProps) {
+export function AtlasView({ blueprint, scanStatus, scanError, onRetry }: AtlasViewProps) {
   const graph = blueprint.graph;
   const state = useAtlasViewState(graph);
 
   if (!graph) {
     return (
-      <div className={styles.empty}>
-        <p className={styles.emptyTitle}>Keine Atlas-Daten</p>
-        <p className={styles.emptyHint}>
-          Starte eine Blueprint-Analyse, um die Systemübersicht als 2D-Karte zu sehen.
-        </p>
-      </div>
+      <BlueprintViewStateGate
+        viewId="atlas"
+        hasViewData={false}
+        scanStatus={scanStatus}
+        scanError={scanError}
+        onRetry={onRetry}
+      >
+        {null}
+      </BlueprintViewStateGate>
     );
   }
 

@@ -106,7 +106,7 @@ const noDomainBlueprint: BlueprintData = {
 describe("ArchitectureView", () => {
   it("shows empty state without graph data", () => {
     render(<ArchitectureView blueprint={emptyBlueprint} />);
-    expect(screen.getByText("Keine Architektur-Daten")).toBeInTheDocument();
+    expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
   it("renders grouping toggle and layer stack in canvas by default", () => {
