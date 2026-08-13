@@ -23,10 +23,22 @@ export function ArchitectureDomainGroups({
   onSelectNode,
 }: ArchitectureDomainGroupsProps): JSX.Element {
   if (!hasRecognizedArchitectureDomains(groups)) {
+    const ungroupedCards = groups.flatMap((group) => group.cards);
     return (
-      <p className={styles.emptyHint} role="status" data-testid="arch-nothing-found">
-        {NO_DOMAINS_FOUND_TEXT}
-      </p>
+      <div className={styles.ungroupedStack}>
+        <p className={styles.emptyHint} role="status" data-testid="arch-nothing-found">
+          {NO_DOMAINS_FOUND_TEXT}
+        </p>
+        {ungroupedCards.length > 0 ? (
+          <ArchitectureLayerStack
+            cards={ungroupedCards}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={onSelectNode}
+            variant="canvas"
+            showTitle={false}
+          />
+        ) : null}
+      </div>
     );
   }
 

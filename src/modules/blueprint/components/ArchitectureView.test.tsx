@@ -159,5 +159,6 @@ describe("ArchitectureView", () => {
     );
     expect(screen.queryByTestId("arch-domain-group")).not.toBeInTheDocument();
     expect(screen.queryByTestId("arch-no-domain")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-layer-stack")).toBeInTheDocument();
   });
 });
