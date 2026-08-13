@@ -19,8 +19,9 @@ import {
   type MatrixControlColumn,
 } from "./diagnostics/access-control-matrix-columns.js";
 import { DiagnosticsSubTabs, type DiagnosticsTabId } from "./diagnostics/DiagnosticsSubTabs.js";
+import { DiagnosticsProjectionTab } from "./diagnostics/DiagnosticsProjectionTab.js";
 import type { AccessControlControl } from "../../../lib/visudev/access-control-types";
-import type { BlueprintData, BlueprintFinding } from "../types";
+import type { BlueprintData } from "../types";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import styles from "../styles/DiagnosticsView.module.css";
@@ -178,34 +179,13 @@ export function DiagnosticsView({
           }
         />
       ) : (
-        <DiagnosticsPlaceholderTab tab={activeTab} findings={routeFindings} />
+        <DiagnosticsProjectionTab
+          tab={activeTab}
+          blueprint={blueprint}
+          findings={routeFindings}
+          facts={facts}
+        />
       )}
-    </div>
-  );
-}
-
-function DiagnosticsPlaceholderTab({
-  tab,
-  findings,
-}: {
-  tab: Exclude<DiagnosticsTabId, "security">;
-  findings: BlueprintFinding[];
-}): JSX.Element {
-  const labels: Record<Exclude<DiagnosticsTabId, "security">, string> = {
-    architecture: "Architektur-Diagnose",
-    completeness: "Vollständigkeit",
-    complexity: "Komplexität",
-    evidence: "Evidence-Übersicht",
-  };
-
-  return (
-    <div className={styles.placeholderPanel}>
-      <h2 className={styles.placeholderTitle}>{labels[tab]}</h2>
-      <p className={styles.emptyControls}>
-        {tab === "evidence"
-          ? `${findings.length} Finding(s) im Security-Tab verfügbar. Graph-basierte ${labels[tab]} folgt in einer späteren Phase.`
-          : `Graph-basierte ${labels[tab]} folgt in einer späteren Phase. Security-Tab enthält die vollständige v1-Funktionalität.`}
-      </p>
     </div>
   );
 }

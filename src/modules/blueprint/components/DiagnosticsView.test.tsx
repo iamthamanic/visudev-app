@@ -225,9 +225,24 @@ describe("DiagnosticsView", () => {
     expect(screen.getByTestId("finding-status-finding-1")).toHaveTextContent("Erledigt");
   });
 
-  it("switches to placeholder tab", () => {
+  it("switches to a real projection tab", () => {
     render(<DiagnosticsView blueprint={blueprint} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Architecture" }));
-    expect(screen.getByText("Architektur-Diagnose")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Completeness" }));
+    const tab = screen.getByTestId("diag-tab-completeness");
+    expect(tab).toHaveTextContent("Vollständigkeit");
+    expect(tab).toHaveTextContent("Analysierte Dateien");
+  });
+
+  it("shows nothing-found for projection tabs without data", () => {
+    const empty: BlueprintData = {
+      ...blueprint,
+      graph: undefined,
+      filesAnalyzed: 1,
+      findings: [],
+      facts: [],
+    };
+    render(<DiagnosticsView blueprint={empty} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Evidence" }));
+    expect(screen.getByTestId("diag-tab-evidence")).toHaveTextContent("keine Evidence");
   });
 });
