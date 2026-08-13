@@ -34,11 +34,12 @@ const KIND_HEIGHT: Record<string, number> = {
   runtime: 1.5,
 };
 
-const BLOCK_SIZE = 1.4;
+const BLOCK_SIZE = 1.4; // ponytail: decorative footprint; legend marks Quelle: dekorativ
 const DISTRICT_GAP = 8;
 const GRID_GAP = 0.35;
 
 function heightForKind(kind: string): number {
+  // Honest-Core: height encodes node.kind, not LOC/fan-in (see atlas-visual-channels).
   return KIND_HEIGHT[kind] ?? 2;
 }
 
