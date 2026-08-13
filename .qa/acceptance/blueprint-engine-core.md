@@ -27,7 +27,7 @@ Roadmap: blueprint-engine-v1 (Stufe A) — MVP vertical slice
 
 - [ ] Kein github_repo → Meldung, kein Crash
 - [ ] Analyzer-Fehler → Scan status failed, Fehlermeldung
-- [x] Leere Routes → Empty state (Seite zeigt „Keine Blueprint-Daten“ — nicht Matrix-Zeile „Keine API-Routes erkannt“)
+- [x] Leere Routes → ViewState `nothing-found` oder `not-scanned` (Honest-Core P1-4; nicht mehr die alte Seite „Keine Blueprint-Daten“)
 
 ## Regression
 

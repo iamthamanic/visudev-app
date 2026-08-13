@@ -76,7 +76,7 @@ const orphanBlueprint: BlueprintData = {
 describe("DependenciesView", () => {
   it("shows empty state without graph", () => {
     render(<DependenciesView blueprint={emptyBlueprint} />);
-    expect(screen.getByText("Keine Abhängigkeits-Daten")).toBeInTheDocument();
+    expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
   it("renders Beziehungstypen relationship chips", () => {

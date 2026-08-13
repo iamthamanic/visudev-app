@@ -32,12 +32,12 @@ describe("BlueprintViewShell", () => {
 
   it("renders infrastructure view when activeView is infrastructure", () => {
     render(<BlueprintViewShell blueprint={emptyBlueprint} activeView="infrastructure" />);
-    expect(screen.getByText("Keine Infrastruktur-Daten")).toBeInTheDocument();
+    expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
   it("renders dependencies view when activeView is dependencies", () => {
     render(<BlueprintViewShell blueprint={emptyBlueprint} activeView="dependencies" />);
-    expect(screen.getByText("Keine Abhängigkeits-Daten")).toBeInTheDocument();
+    expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
   it("does not render horizontal tab bar", () => {

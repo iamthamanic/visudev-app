@@ -21,13 +21,21 @@ import {
   type DependencyEdgeKind,
 } from "./dependencies/_projection.js";
 import { useDependenciesSearch } from "./dependencies/useDependenciesSearch.js";
+import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
+import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
+import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
 import styles from "../styles/DependenciesView.module.css";
 
-interface DependenciesViewProps {
+interface DependenciesViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
 }
 
-export function DependenciesView({ blueprint }: DependenciesViewProps) {
+export function DependenciesView({
+  blueprint,
+  scanStatus,
+  scanError,
+  onRetry,
+}: DependenciesViewProps) {
   const graph = blueprint.graph;
   const { searchQuery, searchInputRef, setSearchQuery, resetSearch } = useDependenciesSearch();
   const [visibleEdgeKinds, setVisibleEdgeKinds] = useState<Set<DependencyEdgeKind>>(
@@ -124,17 +132,24 @@ export function DependenciesView({ blueprint }: DependenciesViewProps) {
 
   if (!graph) {
     return (
-      <div className={styles.empty}>
-        <p className={styles.emptyTitle}>Keine Abhängigkeits-Daten</p>
-        <p className={styles.emptyHint}>
-          Starte eine neue Blueprint-Analyse, um Import-, Call-, API-, Event- und Data-Kanten zu
-          sehen.
-        </p>
-      </div>
+      <BlueprintViewStateGate
+        viewId="dependencies"
+        hasViewData={false}
+        scanStatus={scanStatus}
+        scanError={scanError}
+        onRetry={onRetry}
+      >
+        {null}
+      </BlueprintViewStateGate>
     );
   }
 
   const hasVisibleGraph = projection.nodes.length > 0;
+  const totalFiles = blueprint.totalFiles ?? null;
+  const filesAnalyzed = blueprint.filesAnalyzed ?? 0;
+  const isPartialScan =
+    graph.condensed === true ||
+    (totalFiles != null && filesAnalyzed > 0 && filesAnalyzed < totalFiles);
 
   const handleMinimapSelect = (nodeId: string) => {
     setSelectedNodeId(nodeId);
@@ -170,6 +185,7 @@ export function DependenciesView({ blueprint }: DependenciesViewProps) {
       }
       canvas={
         <div className={styles.canvasWrap}>
+          {isPartialScan ? <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} /> : null}
           {hasVisibleGraph ? (
             <DependenciesGraphCanvas
               nodes={projection.nodes}

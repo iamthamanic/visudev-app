@@ -20,12 +20,19 @@ import {
 } from "./infrastructure/build-topology.js";
 import { projectInfrastructureGraph } from "./infrastructure/_projection.js";
 import styles from "../styles/InfrastructureView.module.css";
+import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
+import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 
-interface InfrastructureViewProps {
+interface InfrastructureViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
 }
 
-export function InfrastructureView({ blueprint }: InfrastructureViewProps) {
+export function InfrastructureView({
+  blueprint,
+  scanStatus,
+  scanError,
+  onRetry,
+}: InfrastructureViewProps) {
   const graph = blueprint.graph;
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const graphSnapshotKey = buildGraphSnapshotKey(graph);
@@ -78,12 +85,15 @@ export function InfrastructureView({ blueprint }: InfrastructureViewProps) {
 
   if (!graph || nodes.length === 0) {
     return (
-      <div className={styles.empty}>
-        <p className={styles.emptyTitle}>Keine Infrastruktur-Daten</p>
-        <p className={styles.emptyHint}>
-          Starte eine neue Blueprint-Analyse, um den Software Graph zu erzeugen.
-        </p>
-      </div>
+      <BlueprintViewStateGate
+        viewId="infrastructure"
+        hasViewData={false}
+        scanStatus={scanStatus}
+        scanError={scanError}
+        onRetry={onRetry}
+      >
+        {null}
+      </BlueprintViewStateGate>
     );
   }
 

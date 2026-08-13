@@ -20,7 +20,12 @@ export function TruncationBanner({ analyzed, total }: TruncationBannerProps): JS
       : `${analyzed} Dateien`;
 
   return (
-    <div className={styles.banner} role="status" aria-live="polite" data-testid="truncation-banner">
+    <div
+      className={styles.banner}
+      role="status"
+      aria-live="polite"
+      data-testid="view-state-partial-scan"
+    >
       <p className={styles.title}>Analyse unvollständig</p>
       <p className={styles.text}>
         {scope} analysiert — die Analyse wurde am Datei-/Knoten-Limit abgeschnitten. Erhöhe den

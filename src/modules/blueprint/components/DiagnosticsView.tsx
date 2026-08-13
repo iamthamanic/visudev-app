@@ -21,13 +21,20 @@ import {
 import { DiagnosticsSubTabs, type DiagnosticsTabId } from "./diagnostics/DiagnosticsSubTabs.js";
 import type { AccessControlControl } from "../../../lib/visudev/access-control-types";
 import type { BlueprintData, BlueprintFinding } from "../types";
+import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
+import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import styles from "../styles/DiagnosticsView.module.css";
 
-interface DiagnosticsViewProps {
+interface DiagnosticsViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
 }
 
-export function DiagnosticsView({ blueprint }: DiagnosticsViewProps) {
+export function DiagnosticsView({
+  blueprint,
+  scanStatus,
+  scanError,
+  onRetry,
+}: DiagnosticsViewProps) {
   const [activeTab, setActiveTab] = useState<DiagnosticsTabId>("security");
   const [selectedAcColumn, setSelectedAcColumn] = useState<MatrixControlColumn | null>(null);
   const {
@@ -91,6 +98,25 @@ export function DiagnosticsView({ blueprint }: DiagnosticsViewProps) {
   };
 
   const showAccessControlInspector = useAccessControlV2 && selectedFinding == null;
+  const hasViewData =
+    routeFindings.length > 0 ||
+    matrix.length > 0 ||
+    routes.length > 0 ||
+    accessControlRows.length > 0;
+
+  if (!hasViewData) {
+    return (
+      <BlueprintViewStateGate
+        viewId="diagnostics"
+        hasViewData={false}
+        scanStatus={scanStatus}
+        scanError={scanError}
+        onRetry={onRetry}
+      >
+        {null}
+      </BlueprintViewStateGate>
+    );
+  }
 
   return (
     <div className={styles.root}>

@@ -22,12 +22,14 @@ import {
   projectExecutionGraph,
 } from "./execution/_projection.js";
 import styles from "../styles/ExecutionView.module.css";
+import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
+import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 
-interface ExecutionViewProps {
+interface ExecutionViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
 }
 
-export function ExecutionView({ blueprint }: ExecutionViewProps) {
+export function ExecutionView({ blueprint, scanStatus, scanError, onRetry }: ExecutionViewProps) {
   const graph = blueprint.graph;
   const routes = useMemo(() => (graph ? listExecutionRoutes(graph) : []), [graph]);
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
@@ -128,12 +130,15 @@ export function ExecutionView({ blueprint }: ExecutionViewProps) {
 
   if (!graph) {
     return (
-      <div className={styles.empty}>
-        <p className={styles.emptyTitle}>Keine Execution-Daten</p>
-        <p className={styles.emptyHint}>
-          Starte eine Blueprint-Analyse, um Routen-Pipelines und Ausführungsschritte zu sehen.
-        </p>
-      </div>
+      <BlueprintViewStateGate
+        viewId="execution"
+        hasViewData={false}
+        scanStatus={scanStatus}
+        scanError={scanError}
+        onRetry={onRetry}
+      >
+        {null}
+      </BlueprintViewStateGate>
     );
   }
 
