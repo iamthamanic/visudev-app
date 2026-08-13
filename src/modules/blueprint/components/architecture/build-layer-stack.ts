@@ -1,5 +1,5 @@
 /**
- * Builds stack cards from contains-edges for the active grouping mode.
+ * Builds stack cards from contains-edges and groups them by real graph domains.
  */
 
 import type { SoftwareGraph, SoftwareGraphNode, SoftwareGraphNodeKind } from "../../types";
@@ -81,4 +81,83 @@ export function buildArchitectureStackCards(
       }
       return left.label.localeCompare(right.label);
     });
+}
+
+const UNASSIGNED_DOMAIN_KEY = "unassigned";
+
+export const UNASSIGNED_DOMAIN_LABEL = "Ohne Domäne";
+
+export const NO_DOMAINS_FOUND_TEXT =
+  "Keine Domänen erkannt — gesucht nach Domain-Zuordnung in den Modul-Pfaden.";
+
+export interface ArchitectureDomainGroup {
+  id: string;
+  label: string;
+  isUnassigned: boolean;
+  cards: ArchitectureStackCard[];
+}
+
+function readDomainName(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === UNASSIGNED_DOMAIN_KEY) return null;
+  return trimmed;
+}
+
+function resolveCardDomainName(
+  card: ArchitectureStackCard,
+  nodeById: Map<string, SoftwareGraphNode>,
+  parentByChildId: Map<string, string>,
+): string | null {
+  const node = nodeById.get(card.id);
+  const fromMetadata = readDomainName(node?.metadata?.domain);
+  if (fromMetadata) return fromMetadata;
+
+  const parentId = parentByChildId.get(card.id);
+  const parent = parentId ? nodeById.get(parentId) : undefined;
+  if (parent?.kind === "domain") return readDomainName(parent.label);
+
+  return null;
+}
+
+export function groupArchitectureCardsByDomain(
+  graph: SoftwareGraph,
+  cards: ArchitectureStackCard[],
+): ArchitectureDomainGroup[] {
+  const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+  const edges = Array.isArray(graph.edges) ? graph.edges : [];
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const parentByChildId = new Map<string, string>();
+  for (const edge of edges) {
+    if (edge.kind !== "contains") continue;
+    parentByChildId.set(edge.targetId, edge.sourceId);
+  }
+
+  const groups = new Map<string, ArchitectureDomainGroup>();
+
+  for (const card of cards) {
+    const domainName = resolveCardDomainName(card, nodeById, parentByChildId);
+    const isUnassigned = domainName == null;
+    const id = isUnassigned ? UNASSIGNED_DOMAIN_KEY : domainName;
+    const existing = groups.get(id);
+    if (existing) {
+      existing.cards.push(card);
+      continue;
+    }
+    groups.set(id, {
+      id,
+      label: isUnassigned ? UNASSIGNED_DOMAIN_LABEL : domainName,
+      isUnassigned,
+      cards: [card],
+    });
+  }
+
+  return [...groups.values()].sort((left, right) => {
+    if (left.isUnassigned !== right.isUnassigned) return left.isUnassigned ? 1 : -1;
+    return left.label.localeCompare(right.label);
+  });
+}
+
+export function hasRecognizedArchitectureDomains(groups: ArchitectureDomainGroup[]): boolean {
+  return groups.some((group) => !group.isUnassigned);
 }

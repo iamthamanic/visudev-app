@@ -14,6 +14,7 @@ interface ArchitectureLayerStackProps {
   onSelectNode: (nodeId: string) => void;
   variant?: "sidebar" | "canvas";
   showTitle?: boolean;
+  ariaLabel?: string;
 }
 
 const KIND_TAGS: Record<string, string> = {
@@ -28,13 +29,14 @@ export function ArchitectureLayerStack({
   onSelectNode,
   variant = "sidebar",
   showTitle = true,
+  ariaLabel = "Architektur-Stack",
 }: ArchitectureLayerStackProps): JSX.Element {
   const isCanvas = variant === "canvas";
 
   return (
     <div
       className={`${styles.stackPanel} ${isCanvas ? styles.stackPanelCanvas : ""}`}
-      aria-label="Architektur-Stack"
+      aria-label={ariaLabel}
       data-testid="architecture-layer-stack"
     >
       {showTitle ? <ViewSectionTitle>Layer Stack</ViewSectionTitle> : null}
