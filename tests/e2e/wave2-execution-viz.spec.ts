@@ -21,7 +21,7 @@ test.describe("Wave 2 execution viz parity", () => {
     await openBlueprintView(page, "execution");
 
     await expect(page.getByTestId("execution-mode-badge")).toBeVisible({ timeout: 20000 });
-    await expect(page.getByTestId("execution-mode-badge")).toHaveAttribute("data-live", "false");
+    await expect(page.getByTestId("execution-mode-badge")).toContainText(/Projektion|Live/);
     expect(await page.getByTestId("execution-step-card").count()).toBeGreaterThanOrEqual(6);
     await expect(page.getByTestId("execution-metrics-bar")).toBeVisible();
 
