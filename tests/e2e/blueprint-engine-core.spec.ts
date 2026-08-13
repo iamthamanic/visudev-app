@@ -373,7 +373,17 @@ test.describe("Blueprint Engine Core UI", () => {
 
     await page.getByRole("button", { name: /Blueprint/i }).click();
     await expect(page.getByRole("heading", { name: "Diagnosen" })).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText(/Keine API-Routes erkannt|Keine Blueprint-Daten/i)).toBeVisible({
+    await expect(page.getByText("Blueprint wird analysiert...")).toBeHidden({ timeout: 25000 });
+    await expect(
+      page
+        .getByTestId("view-state-nothing-found")
+        .or(page.getByTestId("view-state-not-scanned"))
+        .or(
+          page.getByText(
+            /Keine API-Routes erkannt|Keine Blueprint-Daten|Nichts gefunden|Noch nicht analysiert/i,
+          ),
+        ),
+    ).toBeVisible({
       timeout: 20000,
     });
 
