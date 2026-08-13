@@ -22,8 +22,16 @@
   box-shadow: 0 0 12px color-mix(in srgb, var(--chip-accent) 25%, transparent);
 }
 
-.root:hover {
-  border-color: var(--chip-accent);
+.root:disabled,
+.root[data-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.root:disabled:hover,
+.root[data-disabled="true"]:hover {
+  border-color: color-mix(in srgb, var(--chip-accent) 35%, var(--color-border));
 }
 
 .dot {
