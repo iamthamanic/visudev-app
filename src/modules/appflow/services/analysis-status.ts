@@ -7,6 +7,7 @@ import type {
 } from "../../../lib/visudev/analysis-graph";
 import type { RuntimeCrawlResult } from "../../../lib/visudev/runtime-crawl";
 import type { GraphEdge } from "../layout";
+import { formatConfidence } from "../../../lib/format-confidence.js";
 
 export interface FlowNodeAnalysisBadge {
   label: string;
@@ -60,7 +61,7 @@ export function buildNodeAnalysisBadges(
         : isHeuristic
           ? "Heuristik"
           : "Statisch";
-    const details = [originLabel(node), `${Math.round(node.confidence * 100)} %`];
+    const details = [originLabel(node), formatConfidence(node.confidence) ?? "unbekannt"];
     if (issues.length > 0) {
       details.push(`${issues.length} Hinweis${issues.length === 1 ? "" : "e"}`);
     }
@@ -110,7 +111,7 @@ export function buildEdgeAnalysisMeta(
       titleParts.push("Runtime verifiziert");
     } else if (analysisEdge) {
       titleParts.push(originLabel(analysisEdge));
-      titleParts.push(`${Math.round(analysisEdge.confidence * 100)} %`);
+      titleParts.push(formatConfidence(analysisEdge.confidence) ?? "unbekannt");
     }
     metaByKey.set(edgeKey(edge), {
       isVerified,
