@@ -26,4 +26,4 @@ export type {
   SoftwareGraphSnapshot,
   SoftwareGraphDiffMetadata,
 } from "../../lib/visudev/software-graph-types";
-export type { GitSummary, GitSummaryCommit } from "../../lib/visudev-api/types";
+export type { GitSummary, GitSummaryCommit, GitBranchDiff } from "../../lib/visudev-api/types";

@@ -27,6 +27,7 @@ import type {
   VisuDevMode,
   AnalysisRunStatus,
   GitSummary,
+  GitBranchDiff,
 } from "./types";
 
 export interface VisuDevApiClient {
@@ -47,6 +48,7 @@ export interface VisuDevApiClient {
   getAppflowLatest(projectId: string): Promise<LocalAppflowLatest | null>;
   getDataLatest(projectId: string): Promise<LocalDataLatest | null>;
   getGitSummary(projectId: string): Promise<GitSummary>;
+  getGitBranchDiff(projectId: string, base: string, head: string): Promise<GitBranchDiff>;
 
   startPreview(projectId: string, input?: StartPreviewInput): Promise<PreviewStartResult>;
   getPreviewStatus(projectId: string): Promise<PreviewStatusResult>;

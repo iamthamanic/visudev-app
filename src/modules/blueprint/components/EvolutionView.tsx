@@ -13,6 +13,7 @@ import { EvolutionMetricsRow } from "./evolution/EvolutionMetricsRow.js";
 import { EvolutionSnapshotCards } from "./evolution/EvolutionSnapshotCards.js";
 import { EvolutionSubTabs } from "./evolution/EvolutionSubTabs.js";
 import { type EvolutionTabId } from "./evolution/evolution-tabs.js";
+import { EvolutionBranchCompare } from "./evolution/EvolutionBranchCompare.js";
 import { findSnapshot } from "./evolution/_diff.js";
 import { useEvolutionViewState } from "./evolution/useEvolutionViewState.js";
 import styles from "../styles/EvolutionView.module.css";
@@ -87,68 +88,79 @@ export function EvolutionView({
     <div className={styles.root}>
       <EvolutionSubTabs activeTab={activeTab} onSelectTab={setActiveTab} />
 
-      <section className={styles.commitTimelineSection}>
-        <EvolutionCommitTimeline
-          commits={gitSummary?.commits ?? []}
-          selectedCommitSha={selectedCommitSha ?? gitSummary?.commits[0]?.sha ?? null}
-          onSelectCommit={setSelectedCommitSha}
-        />
-      </section>
+      {activeTab === "timeline" ? (
+        <>
+          <section className={styles.commitTimelineSection}>
+            <EvolutionCommitTimeline
+              commits={gitSummary?.commits ?? []}
+              selectedCommitSha={selectedCommitSha ?? gitSummary?.commits[0]?.sha ?? null}
+              onSelectCommit={setSelectedCommitSha}
+            />
+          </section>
 
-      <EvolutionSnapshotCards
-        snapshots={snapshots}
-        baseSnapshotId={baseSnapshotId}
-        targetSnapshotId={targetSnapshotId}
-        onSelectBase={setBaseSnapshotId}
-        onSelectTarget={setTargetSnapshotId}
-      />
-      <EvolutionMetricsRow diff={diff} gitSummary={gitSummary} snapshots={snapshots} />
-      <EvolutionChangesGrid diff={diff} gitSummary={gitSummary} />
-
-      <BlueprintViewLayout
-        controls={
-          <EvolutionControls
+          <EvolutionSnapshotCards
             snapshots={snapshots}
-            gitSummary={gitSummary}
-            gitLoadError={gitLoadError}
             baseSnapshotId={baseSnapshotId}
             targetSnapshotId={targetSnapshotId}
-            identical={diff?.identical ?? false}
-            condensed={diff?.condensed ?? false}
             onSelectBase={setBaseSnapshotId}
             onSelectTarget={setTargetSnapshotId}
           />
-        }
-        canvas={
-          <div className={styles.canvasWrap}>
-            {hasDiffNodes ? (
-              <Suspense fallback={<p className={styles.loading}>Graph wird geladen...</p>}>
-                <GraphCanvas
-                  nodes={projection?.nodes ?? []}
-                  edges={projection?.edges ?? []}
-                  layoutPreset="force"
-                />
-              </Suspense>
-            ) : (
-              <div className={styles.filteredCanvasEmpty}>
-                <p>
-                  {diff?.identical
-                    ? "Identische Snapshots — keine hervorgehobenen Knoten."
-                    : "Wähle zwei verschiedene Snapshots mit Unterschieden."}
-                </p>
+          <EvolutionMetricsRow diff={diff} gitSummary={gitSummary} snapshots={snapshots} />
+          <EvolutionChangesGrid diff={diff} gitSummary={gitSummary} />
+
+          <BlueprintViewLayout
+            controls={
+              <EvolutionControls
+                snapshots={snapshots}
+                gitSummary={gitSummary}
+                gitLoadError={gitLoadError}
+                baseSnapshotId={baseSnapshotId}
+                targetSnapshotId={targetSnapshotId}
+                identical={diff?.identical ?? false}
+                condensed={diff?.condensed ?? false}
+                onSelectBase={setBaseSnapshotId}
+                onSelectTarget={setTargetSnapshotId}
+              />
+            }
+            canvas={
+              <div className={styles.canvasWrap}>
+                {hasDiffNodes ? (
+                  <Suspense fallback={<p className={styles.loading}>Graph wird geladen...</p>}>
+                    <GraphCanvas
+                      nodes={projection?.nodes ?? []}
+                      edges={projection?.edges ?? []}
+                      layoutPreset="force"
+                    />
+                  </Suspense>
+                ) : (
+                  <div className={styles.filteredCanvasEmpty}>
+                    <p>
+                      {diff?.identical
+                        ? "Identische Snapshots — keine hervorgehobenen Knoten."
+                        : "Wähle zwei verschiedene Snapshots mit Unterschieden."}
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        }
-        inspector={
-          <EvolutionInspector
-            targetSnapshot={targetSnapshot}
-            diff={diff}
-            gitSummary={gitSummary}
-            selectedCommit={selectedCommit}
+            }
+            inspector={
+              <EvolutionInspector
+                targetSnapshot={targetSnapshot}
+                diff={diff}
+                gitSummary={gitSummary}
+                selectedCommit={selectedCommit}
+              />
+            }
           />
-        }
-      />
+        </>
+      ) : activeTab === "branch-compare" ? (
+        <EvolutionBranchCompare projectId={projectId} gitSummary={gitSummary} />
+      ) : activeTab === "commit-diff" ? (
+        <div className={styles.placeholderPanel} data-testid="evolution-commit-diff">
+          <h2 className={styles.placeholderTitle}>Commit Diff</h2>
+          <p className={styles.emptyControls}>Commit-Diff folgt.</p>
+        </div>
+      ) : null}
     </div>
   );
 }
