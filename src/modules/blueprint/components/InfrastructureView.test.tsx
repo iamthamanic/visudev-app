@@ -128,6 +128,7 @@ describe("InfrastructureView", () => {
     };
     render(<InfrastructureView blueprint={withMeta} />);
     expect(screen.getByRole("button", { name: "prod" })).toBeInTheDocument();
+    expect(screen.getByTestId("infra-env-chip")).toHaveTextContent("prod");
     expect(screen.getByRole("button", { name: "eu-central-1" })).toBeInTheDocument();
   });
 
@@ -157,5 +158,89 @@ describe("InfrastructureView", () => {
     render(<InfrastructureView blueprint={withTelemetry} />);
     fireEvent.click(screen.getAllByRole("button", { name: /Web App/i })[0]);
     expect(screen.getByTestId("infra-resource-cpu")).toBeInTheDocument();
+  });
+
+  it("enables physical topology from compose descriptor nodes (AUF-3)", () => {
+    const withCompose: BlueprintData = {
+      ...graphBlueprint,
+      graph: {
+        ...graphBlueprint.graph!,
+        nodes: [
+          ...graphBlueprint.graph!.nodes,
+          {
+            id: "deploy:compose:api",
+            kind: "service",
+            label: "api",
+            metadata: {
+              source: "docker-compose",
+              env: "shop",
+              ports: "3000:3000",
+              networks: "frontend",
+            },
+          },
+          {
+            id: "deploy:compose:db",
+            kind: "service",
+            label: "db",
+            metadata: {
+              source: "docker-compose",
+              env: "shop",
+              ports: "5432:5432",
+              networks: "backend",
+            },
+          },
+        ],
+        edges: [
+          ...graphBlueprint.graph!.edges,
+          {
+            id: "e-dep",
+            kind: "external-dependency",
+            sourceId: "deploy:compose:api",
+            targetId: "deploy:compose:db",
+            metadata: { relation: "depends-on" },
+          },
+        ],
+      },
+    };
+    render(<InfrastructureView blueprint={withCompose} />);
+    const physical = screen.getByRole("button", { name: /Physische Topologie/i });
+    expect(physical).not.toBeDisabled();
+    expect(screen.getByTestId("infra-env-chip")).toHaveTextContent("shop");
+    fireEvent.click(physical);
+    expect(screen.getByTestId("infra-physical-topology")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-physical-topology")).toHaveTextContent(
+      "Quelle: Docker Compose",
+    );
+    expect(screen.getByTestId("infra-physical-topology")).toHaveTextContent("api");
+  });
+
+  it("stays on physical view when an env filter hides descriptor nodes", () => {
+    const withCompose: BlueprintData = {
+      ...graphBlueprint,
+      graph: {
+        ...graphBlueprint.graph!,
+        nodes: [
+          ...graphBlueprint.graph!.nodes,
+          {
+            id: "deploy:compose:api",
+            kind: "service",
+            label: "api",
+            metadata: { source: "docker-compose", env: "shop" },
+          },
+          {
+            id: "service:staging-web",
+            kind: "service",
+            label: "Staging Web",
+            metadata: { env: "staging" },
+          },
+        ],
+      },
+    };
+    render(<InfrastructureView blueprint={withCompose} />);
+    fireEvent.click(screen.getByRole("button", { name: /Physische Topologie/i }));
+    expect(screen.getByTestId("infra-physical-topology")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "staging" }));
+    expect(screen.getByTestId("infra-physical-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-physical-topology")).not.toBeInTheDocument();
   });
 });

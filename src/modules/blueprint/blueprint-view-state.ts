@@ -22,7 +22,7 @@ export const VIEW_NOTHING_FOUND_DETAIL: Record<string, string> = {
   execution:
     "Analyse abgeschlossen, keine Ausführungspipeline. Gesucht nach: Pipeline-Schritten und gemessenen Timings.",
   infrastructure:
-    "Analyse abgeschlossen, keine Infrastruktur. Gesucht nach: Runtime-, Service- und Database-Knoten.",
+    "Analyse abgeschlossen, keine Infrastruktur. Gesucht nach: Runtime-, Service- und Database-Knoten, docker-compose.yml und Kubernetes-Manifesten.",
   diagnostics:
     "Analyse abgeschlossen, keine Befunde. Gesucht nach: Security-, Coverage-, Qualitäts-Mustern.",
   evolution:

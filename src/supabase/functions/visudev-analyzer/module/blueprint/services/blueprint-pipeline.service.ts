@@ -6,6 +6,7 @@ import type {
   ProjectProfile,
 } from "../../dto/blueprint/blueprint-document.dto.ts";
 import { extractFactsFromFile } from "../facts/fact-extractors.ts";
+import { isYamlDescriptorPath } from "../facts/compose-k8s-descriptors.ts";
 import { createEmptyAstParseReport } from "../graph/ast-call-graph.ts";
 import {
   applyFileLimitWithSeeds,
@@ -73,12 +74,12 @@ export interface AnalyzeBlueprintFromFilesInput {
 
 export function isSupportedBlueprintFile(path: string): boolean {
   const ext = path.split(".").pop()?.toLowerCase();
-  return Boolean(
-    ext &&
-      ["ts", "tsx", "js", "jsx", "vue", "py", "prisma", "yml", "yaml"].includes(
-        ext,
-      ),
-  );
+  if (!ext) return false;
+  if (["ts", "tsx", "js", "jsx", "vue", "py", "prisma"].includes(ext)) {
+    return true;
+  }
+  if (ext === "yml" || ext === "yaml") return isYamlDescriptorPath(path);
+  return false;
 }
 
 export function analyzeFromFileEntries(

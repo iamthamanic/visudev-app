@@ -59,6 +59,7 @@ Der Vite-Dev-Server und `npm run preview` laufen fest auf **Port 3005** (`vite.c
 
 ## Recent changes
 
+- **2026-08-14** — Infrastruktur: Env-Chips und physische Topologie aus docker-compose / K8s (`#300`)
 - **2026-08-12** — Blueprint-Views unter `/blueprint/atlas` (statt `?view=`); alte Query-URLs werden umgeleitet (`feat/blueprint-nested-urls`)
 - **2026-08-12** — Memory-Viewer auf GitHub Pages; Status „Kürzlich erledigt“ + Decisions nachgezogen ([CHANGELOG](docs/CHANGELOG.md))
 - **2026-08-12** — Phase 0 Honest Core: Pfad-/Dateinamen-Domänen, Edges, Security-Ehrlichkeit, CI Golden-Set ([CHANGELOG](docs/CHANGELOG.md))
@@ -71,4 +72,4 @@ Der Vite-Dev-Server und `npm run preview` laufen fest auf **Port 3005** (`vite.c
 
 ---
 
-Last updated: 2026-08-13 (auto on push).
+Last updated: 2026-08-14 (auto on push).

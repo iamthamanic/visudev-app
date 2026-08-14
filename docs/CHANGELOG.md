@@ -1,5 +1,14 @@
 # Changelog (Memory)
 
+## 2026-08-14 — Infrastruktur aus docker-compose / K8s
+
+**Typ:** feature · **Review:** needs-review
+
+Env-Chips und physische Topologie kommen aus echten Compose-/K8s-Deskriptoren. Keine geratenen Regionen.
+
+**Nutzer:** Services, Ports, Netzwerke und Depends-on in der physischen Ansicht; Env aus Compose-Datei/Projekt oder K8s-Namespace.  
+**Entwickler:** `deploy-service` Facts; Graph-Nodes `kind: service`; `infra-physical-topology` / `infra-env-chip`.
+
 ## 2026-08-12 — Blueprint-Views als nested Paths
 
 **Typ:** feature · **Review:** needs-review

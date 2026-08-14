@@ -300,3 +300,23 @@ Deno.test("sanitizeFactMetadataForExport keeps infra-service promotion keys (P3-
   assertEquals("image" in metadata, false);
   assertEquals("password" in metadata, false);
 });
+
+Deno.test("sanitizeFactMetadataForExport keeps deploy-service keys (AUF-3)", () => {
+  const metadata = sanitizeFactMetadataForExport({
+    service: "api",
+    source: "docker-compose",
+    env: "prod",
+    region: "eu-central-1",
+    ports: "3000:3000",
+    networks: "frontend,backend",
+    dependsOn: "db,redis",
+    password: "secret",
+  });
+  assertEquals(metadata.service, "api");
+  assertEquals(metadata.env, "prod");
+  assertEquals(metadata.region, "eu-central-1");
+  assertEquals(metadata.ports, "3000:3000");
+  assertEquals(metadata.networks, "frontend,backend");
+  assertEquals(metadata.dependsOn, "db,redis");
+  assertEquals("password" in metadata, false);
+});

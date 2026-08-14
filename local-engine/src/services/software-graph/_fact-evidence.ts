@@ -6,6 +6,7 @@ import type { RawBlueprintFact } from "../../types/api.types.js";
 import { classifyFactKind } from "./_classification.js";
 import { createId, stableUniqueId } from "./_ids.js";
 import { infraServiceNodeId, isInfraServiceFact } from "./_infra-services.js";
+import { deployServiceNodeId, isDeployServiceFact } from "./_deploy-services.js";
 import { isPrismaSchemaModelFact, prismaTableNodeId } from "./_prisma-models.js";
 import { sanitizeExcerpt, sanitizeMetadata } from "./_sanitize.js";
 import {
@@ -48,15 +49,17 @@ export function addFactEvidence(
       : null;
   const inferredLabel = infraService ?? tableLabel ?? pathLabel ?? fact.kind;
 
-  const preferCritical = isInfraServiceFact(fact);
+  const preferCritical = isInfraServiceFact(fact) || isDeployServiceFact(fact);
   const inferredNodeId = stableUniqueId(
     state.registry,
     "node",
     infraService && isInfraServiceFact(fact)
       ? infraServiceNodeId(infraService)
-      : tableLabel && isPrismaSchemaModelFact(fact)
-        ? prismaTableNodeId(tableLabel)
-        : createId("inferred", fact.kind, fact.id),
+      : infraService && isDeployServiceFact(fact)
+        ? deployServiceNodeId(fact.filePath, infraService)
+        : tableLabel && isPrismaSchemaModelFact(fact)
+          ? prismaTableNodeId(tableLabel)
+          : createId("inferred", fact.kind, fact.id),
   );
   const nodePayload = {
     id: inferredNodeId,

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "recorded",
+  "packages": ["src", "local-engine", "preview-runner"],
+  "breaking_changes": [],
+  "migration_required": false,
+  "screenshots": [],
+  "confidence": 0.85,
+  "review_status": "needs-review",
+  "operational_impact": { "de": [], "en": [] },
+  "id": "2026-08-14-infra-compose-k8s",
+  "date": "2026-08-14",
+  "type": "feature",
+  "title": {
+    "de": "Infrastruktur aus docker-compose / K8s",
+    "en": "Infrastructure from docker-compose / K8s"
+  },
+  "summary": {
+    "de": "Env-Chips und physische Topologie aus echten Compose-/K8s-Deskriptoren; keine geratenen Regionen.",
+    "en": "Env chips and physical topology from real Compose/K8s descriptors; no guessed regions."
+  },
+  "plain_language": {
+    "de": "Die Infrastruktur-Ansicht zeigt Services, Ports und Netzwerke aus docker-compose.yml oder Kubernetes-Manifesten — oder ehrlich nichts, wenn es keine gibt.",
+    "en": "The infrastructure view shows services, ports and networks from docker-compose.yml or Kubernetes manifests — or honestly nothing if none exist."
+  },
+  "why_it_matters": {
+    "de": "Nach B2 fehlten Env/Region und physische Topologie; raten ist verboten.",
+    "en": "After B2, env/region and physical topology were missing; guessing is forbidden."
+  },
+  "user_impact": {
+    "de": ["Physische Topologie + Env-Chips aus Deskriptoren"],
+    "en": ["Physical topology + env chips from descriptors"]
+  },
+  "developer_impact": {
+    "de": ["deploy-service Facts, Graph kind service, keine Telemetrie-Meter"],
+    "en": ["deploy-service facts, graph kind service, no telemetry meters"]
+  },
+  "security_relevant": true,
+  "git": {
+    "base": "main",
+    "head": "feat/300-infra-compose-k8s",
+    "branch": "feat/300-infra-compose-k8s",
+    "pull_request": null
+  },
+  "affected_features": ["blueprint-views", "local-engine"],
+  "affected_components": [
+    "src/supabase/functions/visudev-analyzer",
+    "local-engine",
+    "src/modules/blueprint"
+  ],
+  "evidence": []
+}
