@@ -38,6 +38,8 @@ export type {
   GitSummaryBranch,
   GitSummaryCommit,
   GitWorkingTreeStatus,
+  GitBranchDiff,
+  GitBranchDiffFile,
 } from "../../../shared/visudev-api.types";
 
 import type { Project } from "../visudev/types";

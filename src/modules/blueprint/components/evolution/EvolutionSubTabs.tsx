@@ -19,8 +19,13 @@ export function EvolutionSubTabs({ activeTab, onSelectTab }: EvolutionSubTabsPro
           type="button"
           role="tab"
           aria-selected={activeTab === tab.id}
+          aria-disabled={tab.id === "working-tree"}
+          data-testid={`evolution-tab-${tab.id}`}
           className={`${styles.subTab} ${activeTab === tab.id ? styles.subTabActive : ""}`}
-          onClick={() => onSelectTab(tab.id)}
+          onClick={() => {
+            if (tab.id === "working-tree") return;
+            onSelectTab(tab.id);
+          }}
         >
           {tab.label}
         </button>

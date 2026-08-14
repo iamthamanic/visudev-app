@@ -77,4 +77,6 @@ export type {
   GitSummaryBranch,
   GitSummaryCommit,
   GitWorkingTreeStatus,
+  GitBranchDiff,
+  GitBranchDiffFile,
 } from "../../../shared/visudev-api.types.js";

@@ -282,6 +282,21 @@ export class SupabaseVisuDevClient implements VisuDevApiClient {
     };
   }
 
+  async getGitBranchDiff(
+    projectId: string,
+    base: string,
+    head: string,
+  ): Promise<import("./types").GitBranchDiff> {
+    void projectId;
+    void base;
+    void head;
+    throw new VisuDevApiError(
+      "Git branch diff is only available in local mode.",
+      "UNSUPPORTED_MODE",
+      "supabase",
+    );
+  }
+
   async startPreview(
     projectId: string,
     input: StartPreviewInput = { projectId },

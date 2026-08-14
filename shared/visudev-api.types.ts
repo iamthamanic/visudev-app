@@ -439,6 +439,23 @@ export interface GitSummary {
   partial?: boolean;
 }
 
+export interface GitBranchDiffFile {
+  filePath: string;
+  added: number;
+  removed: number;
+}
+
+export interface GitBranchDiff {
+  base: string;
+  head: string;
+  files: GitBranchDiffFile[];
+  addedLines: number;
+  removedLines: number;
+  changedFiles: number;
+  identical: boolean;
+  truncated: boolean;
+}
+
 export type VisuDevHealth = {
   ok: boolean;
   service: string;

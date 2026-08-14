@@ -5,6 +5,7 @@
 
 import type { Hono } from "hono";
 import type { GitSummaryService } from "../services/git-summary.service.js";
+import { readBranchDiff } from "../lib/git-branch-diff.js";
 import { checkRateLimit } from "../lib/simple-rate-limit.js";
 import { fail, getErrorStatus, ok } from "./http.js";
 
@@ -49,6 +50,45 @@ export function registerGitRoutes(app: Hono, gitSummaryService: GitSummaryServic
             ? "Too many git summary requests"
             : "Failed to read git summary";
       return fail(c, "GIT_SUMMARY_FAILED", message, status);
+    }
+  });
+
+  app.get("/api/projects/:projectId/git/diff", async (c) => {
+    try {
+      if (!checkRateLimit(`git-diff:${rateLimitKey(c)}`, RATE_WINDOW_MS, RATE_MAX_HITS)) {
+        return fail(c, "RATE_LIMITED", "Too many git diff requests", 429);
+      }
+
+      const projectId = parseProjectId(c.req.param("projectId"));
+      if (!projectId) {
+        return fail(c, "VALIDATION_ERROR", "Invalid projectId", 400);
+      }
+      const base = c.req.query("base")?.trim();
+      const head = c.req.query("head")?.trim();
+      if (!base || !head) {
+        return fail(c, "VALIDATION_ERROR", "base and head query params are required", 400);
+      }
+
+      const project = await gitSummaryService.getProjectSummary(projectId);
+      if (!project.localPath) {
+        return fail(c, "GIT_DIFF_FAILED", "Project has no local path", 400);
+      }
+
+      const diff = await readBranchDiff(project.localPath, base, head);
+      return ok(c, diff);
+    } catch (error) {
+      const status = getErrorStatus(error, 500);
+      const message =
+        error instanceof Error && error.message.startsWith("Branch not found")
+          ? error.message
+          : error instanceof Error && error.message === "Invalid branch name"
+            ? error.message
+            : status === 404
+              ? "Project not found"
+              : status === 429
+                ? "Too many git diff requests"
+                : "Failed to compute git diff";
+      return fail(c, "GIT_DIFF_FAILED", message, status);
     }
   });
 }

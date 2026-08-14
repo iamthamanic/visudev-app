@@ -25,6 +25,7 @@ import type {
   PreviewStatusResult,
   PreviewStopResult,
   GitSummary,
+  GitBranchDiff,
   StartAnalysisResponse,
   StartPreviewInput,
   UpdateProjectInput,
@@ -203,6 +204,13 @@ export class LocalVisuDevClient implements VisuDevApiClient {
 
   async getGitSummary(projectId: string): Promise<GitSummary> {
     return request<GitSummary>(`/api/projects/${encodeURIComponent(projectId)}/git/summary`);
+  }
+
+  async getGitBranchDiff(projectId: string, base: string, head: string): Promise<GitBranchDiff> {
+    const params = new URLSearchParams({ base, head });
+    return request<GitBranchDiff>(
+      `/api/projects/${encodeURIComponent(projectId)}/git/diff?${params.toString()}`,
+    );
   }
 
   async startPreview(
