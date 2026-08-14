@@ -154,7 +154,11 @@ export function EvolutionView({
           />
         </>
       ) : activeTab === "branch-compare" ? (
-        <EvolutionBranchCompare projectId={projectId} gitSummary={gitSummary} />
+        <EvolutionBranchCompare
+          projectId={projectId}
+          gitSummary={gitSummary}
+          graphNodes={graph.nodes}
+        />
       ) : activeTab === "commit-diff" ? (
         <div className={styles.placeholderPanel} data-testid="evolution-commit-diff">
           <h2 className={styles.placeholderTitle}>Commit Diff</h2>

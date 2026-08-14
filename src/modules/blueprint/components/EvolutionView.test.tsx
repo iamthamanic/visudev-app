@@ -81,6 +81,7 @@ describe("EvolutionView", () => {
     render(<EvolutionView blueprint={graphWithSnapshots} />);
     const tab = screen.getByTestId("evolution-tab-working-tree");
     expect(tab).toHaveAttribute("aria-disabled", "true");
+    expect(tab).toBeDisabled();
     fireEvent.click(tab);
     expect(screen.getByRole("tab", { name: "Timeline", selected: true })).toBeInTheDocument();
   });

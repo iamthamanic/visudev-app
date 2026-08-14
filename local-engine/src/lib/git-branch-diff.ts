@@ -44,11 +44,14 @@ function isValidBranchName(name: string): boolean {
 }
 
 async function listBranches(repoPath: string, runGit: GitCommandRunner): Promise<string[]> {
-  const raw = await runGit(repoPath, ["for-each-ref", "--format=%(refname:short)", "refs/heads"]);
-  return raw
-    .split("\0")
-    .map((branch) => branch.trim())
-    .filter((branch) => branch.length > 0);
+  const raw = await runGit(repoPath, [
+    "for-each-ref",
+    "-z",
+    "--format=%(refname:short)",
+    "refs/heads",
+  ]);
+  const records = raw.includes("\0") ? raw.split("\0") : raw.split("\n");
+  return records.map((branch) => branch.trim()).filter((branch) => branch.length > 0);
 }
 
 function parseNumstatZ(raw: string): GitBranchDiffFile[] {
@@ -113,4 +116,13 @@ export async function readBranchDiff(
     identical: files.length === 0,
     truncated: files.length >= MAX_DIFF_FILES,
   };
+}
+
+export function gitBranchDiffErrorStatus(error: unknown): number {
+  if (error instanceof Error) {
+    if (error.message === "Invalid branch name" || error.message.startsWith("Branch not found")) {
+      return 400;
+    }
+  }
+  return 500;
 }

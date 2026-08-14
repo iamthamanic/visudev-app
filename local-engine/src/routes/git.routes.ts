@@ -5,7 +5,7 @@
 
 import type { Hono } from "hono";
 import type { GitSummaryService } from "../services/git-summary.service.js";
-import { readBranchDiff } from "../lib/git-branch-diff.js";
+import { readBranchDiff, gitBranchDiffErrorStatus } from "../lib/git-branch-diff.js";
 import { checkRateLimit } from "../lib/simple-rate-limit.js";
 import { fail, getErrorStatus, ok } from "./http.js";
 
@@ -77,7 +77,8 @@ export function registerGitRoutes(app: Hono, gitSummaryService: GitSummaryServic
       const diff = await readBranchDiff(project.localPath, base, head);
       return ok(c, diff);
     } catch (error) {
-      const status = getErrorStatus(error, 500);
+      const validationStatus = gitBranchDiffErrorStatus(error);
+      const status = validationStatus === 400 ? 400 : getErrorStatus(error, 500);
       const message =
         error instanceof Error && error.message.startsWith("Branch not found")
           ? error.message

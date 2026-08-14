@@ -494,9 +494,9 @@
 }
 
 .branchDiffItem {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 0.5rem;
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: 0.5rem;
@@ -513,6 +513,12 @@
 .branchDiffStats {
   color: var(--color-muted-foreground);
   font-family: var(--font-mono, monospace);
+}
+
+.branchDiffNodes {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
 }
 
 .placeholderPanel {
