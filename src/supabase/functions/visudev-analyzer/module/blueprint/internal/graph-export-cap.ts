@@ -25,6 +25,7 @@ export const FACT_EXPORT_PRIORITY: readonly string[] = [
   "ast-import",
   "ast-call",
   "infra-service",
+  "deploy-service",
 ];
 
 /** visudev-gapclose P1-3: never first-N truncate prisma schema models. */
@@ -45,8 +46,18 @@ export function isInfraServiceExportFact(fact: CodeFact): boolean {
   );
 }
 
+/** AUF-3: keep compose/k8s deploy-service facts past route flood. */
+export function isDeployServiceExportFact(fact: CodeFact): boolean {
+  return (
+    fact.kind === "deploy-service" &&
+    typeof fact.metadata?.service === "string" &&
+    fact.metadata.service.trim().length > 0
+  );
+}
+
 /** Soft bound so malformed floods cannot unbounded-bypass MAX_BLUEPRINT_FACTS. */
 export const MAX_PRESERVED_INFRA_SERVICE_FACTS = 16;
+export const MAX_PRESERVED_DEPLOY_SERVICE_FACTS = 48;
 
 /**
  * P0-9: dependency facts must survive prisma-model soft-cap starvation, otherwise
@@ -193,9 +204,11 @@ export function selectFactsPreservingPrismaModels(
 ): { facts: CodeFact[]; report: FactSelectionReport } {
   const models: CodeFact[] = [];
   const infra: CodeFact[] = [];
+  const deploy: CodeFact[] = [];
   const dependencies: CodeFact[] = [];
   const rest: CodeFact[] = [];
   const seenInfraServices = new Set<string>();
+  const seenDeployServices = new Set<string>();
   for (const fact of facts) {
     if (isPrismaSchemaModelFact(fact)) {
       models.push(fact);
@@ -215,14 +228,28 @@ export function selectFactsPreservingPrismaModels(
       }
       continue;
     }
+    if (isDeployServiceExportFact(fact)) {
+      const service = `${fact.filePath}:${
+        String(fact.metadata?.service ?? "").trim().toLowerCase()
+      }`;
+      if (
+        service &&
+        !seenDeployServices.has(service) &&
+        deploy.length < MAX_PRESERVED_DEPLOY_SERVICE_FACTS
+      ) {
+        seenDeployServices.add(service);
+        deploy.push(fact);
+      }
+      continue;
+    }
     if (isDependencyExportFact(fact)) {
       dependencies.push(fact);
       continue;
     }
     rest.push(fact);
   }
-  // Honesty: keep every model + bounded infra engines even if over limit.
-  const preserved = [...models, ...infra];
+  // Honesty: keep every model + bounded infra engines + deploy services even if over limit.
+  const preserved = [...models, ...infra, ...deploy];
   const remaining = Math.max(0, limit - preserved.length);
   const selectedRest = selectRestFactsByPriorityAndCoverage(rest, remaining);
   // P0-9: dependency edges need exported metadata — prefer resolved targets.

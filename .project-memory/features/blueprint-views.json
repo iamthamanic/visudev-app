@@ -32,7 +32,8 @@
     "2026-07-17-infra-postgres-redis",
     "2026-07-14-atlas-2d-3d",
     "2026-08-12-phase0-honest-core",
-    "2026-08-12-blueprint-nested-urls"
+    "2026-08-12-blueprint-nested-urls",
+    "2026-08-14-infra-compose-k8s"
   ],
   "review_status": "needs-review",
   "confidence": 0.7,

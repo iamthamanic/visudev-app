@@ -11,11 +11,14 @@ import { InfrastructureConnectionLegend } from "./infrastructure/InfrastructureC
 import { InfrastructureInspector } from "./infrastructure/InfrastructureInspector.js";
 import { InfrastructureServiceList } from "./infrastructure/InfrastructureServiceList.js";
 import { InfrastructureTopologyDiagram } from "./infrastructure/InfrastructureTopologyDiagram.js";
+import { InfrastructurePhysicalTopology } from "./infrastructure/InfrastructurePhysicalTopology.js";
 import { InfrastructureTopologyFilters } from "./infrastructure/InfrastructureTopologyFilters.js";
 import {
   buildTopologyNodes,
   deploymentFiltersFromGraph,
   filterProjectedNodesByDeployment,
+  graphHasPhysicalDescriptors,
+  projectPhysicalTopology,
   type TopologyViewFilter,
 } from "./infrastructure/build-topology.js";
 import { projectInfrastructureGraph } from "./infrastructure/_projection.js";
@@ -57,6 +60,11 @@ export function InfrastructureView({
   }, [nodes, graph, activeEnv, activeRegion]);
 
   const topologyNodes = useMemo(() => buildTopologyNodes(filteredNodes), [filteredNodes]);
+  const hasPhysicalTopology = Boolean(graph && graphHasPhysicalDescriptors(graph));
+  const physicalProjection = useMemo(() => {
+    if (!graph || activeView !== "Physische Topologie") return null;
+    return projectPhysicalTopology(graph, new Set(filteredNodes.map((node) => node.id)));
+  }, [graph, activeView, filteredNodes]);
 
   useInfrastructureDefaultNodeSelection(
     topologyNodes,
@@ -118,13 +126,22 @@ export function InfrastructureView({
             onSelectRegion={setActiveRegion}
             onSelectView={setActiveView}
             onRefresh={() => setRefreshTick((tick) => tick + 1)}
+            hasPhysicalTopology={hasPhysicalTopology}
           />
-          <InfrastructureTopologyDiagram
-            nodes={topologyNodes}
-            selectedNodeId={selectedNodeId}
-            onSelectNode={setSelectedNodeId}
-          />
-          <InfrastructureConnectionLegend />
+          {physicalProjection ? (
+            <InfrastructurePhysicalTopology
+              projection={physicalProjection}
+              selectedNodeId={selectedNodeId}
+              onSelectNode={setSelectedNodeId}
+            />
+          ) : (
+            <InfrastructureTopologyDiagram
+              nodes={topologyNodes}
+              selectedNodeId={selectedNodeId}
+              onSelectNode={setSelectedNodeId}
+            />
+          )}
+          {physicalProjection ? null : <InfrastructureConnectionLegend />}
           {edges.length > 0 ? (
             <p className={styles.topologyMeta}>{edges.length} Verbindungen im Graph</p>
           ) : null}

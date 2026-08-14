@@ -81,6 +81,12 @@ export function prioritizeBlueprintFiles<T extends { path: string }>(
       /(?:^|\/)compose\.(ya?ml)$/.test(path)
     ) {
       s = 97;
+    } else if (
+      /(?:^|\/)(k8s|kubernetes|manifests)\//.test(path) ||
+      /(?:^|\/)(deployment|deployments|service|services|statefulset|daemonset)s?\.(ya?ml)$/
+        .test(path)
+    ) {
+      s = 96.5;
     } else if (/(?:^|\/)schema\.prisma$/.test(path)) s = 78;
     else if (path.endsWith(".prisma")) s = 70;
     else if (/(?:^|\/)manage\.py$/.test(path)) s = 99;
@@ -141,6 +147,15 @@ export function isCriticalWalkSeedPath(relPath: string): boolean {
     return true;
   }
   if (
+    /(?:^|\/)(k8s|kubernetes|manifests)\//.test(path) ||
+    /(?:^|\/)(deployment|deployments|service|services|statefulset|daemonset)s?\.(ya?ml)$/
+      .test(
+        path,
+      )
+  ) {
+    return true;
+  }
+  if (
     path.includes("/packages/database/") ||
     path.startsWith("packages/database/")
   ) {
@@ -168,6 +183,15 @@ function seedSortKey(relPath: string): number {
     /(?:^|\/)compose\.(ya?ml)$/.test(path)
   ) {
     return 2.6;
+  }
+  if (
+    /(?:^|\/)(k8s|kubernetes|manifests)\//.test(path) ||
+    /(?:^|\/)(deployment|deployments|service|services|statefulset|daemonset)s?\.(ya?ml)$/
+      .test(
+        path,
+      )
+  ) {
+    return 2.7;
   }
   if (
     path.includes("/packages/database/") ||

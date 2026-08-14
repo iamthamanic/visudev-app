@@ -162,10 +162,43 @@
   cursor: pointer;
 }
 
-.filterChipActive {
-  border-color: var(--color-primary);
-  color: var(--color-foreground);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 45%, transparent);
+.filterChip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.physicalTopology {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  overflow: auto;
+}
+
+.physicalSource {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+}
+
+.physicalNetworks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.physicalNetwork {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 10rem;
+}
+
+.physicalDepends {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
 }
 
 .filterStatusDot {

@@ -302,19 +302,20 @@ services:
     image: node:20-alpine
 `;
   const facts = extractFactsFromFile("docker-compose.yml", content);
-  const services = facts
+  const engines = facts
     .filter((f) => f.kind === "infra-service")
     .map((f) => f.metadata?.service)
     .sort();
-  assertEquals(services, ["PostgreSQL", "Redis"]);
-  assertEquals(
-    facts.every((f) => f.metadata?.source === "docker-compose"),
-    true,
+  assertEquals(engines, ["PostgreSQL", "Redis"]);
+  const deploy = facts
+    .filter((f) => f.kind === "deploy-service")
+    .map((f) => f.metadata?.service)
+    .sort();
+  assertEquals(deploy, ["api", "db", "redis"]);
+  const api = facts.find((f) =>
+    f.kind === "deploy-service" && f.metadata?.service === "api"
   );
-  assertEquals(
-    facts.every((f) => f.metadata?.framework === "docker-compose"),
-    true,
-  );
+  assertEquals(api?.metadata?.source, "docker-compose");
 });
 
 Deno.test("extractFactsFromFile maps plane valkey image to Redis (P3-2)", () => {
@@ -327,7 +328,30 @@ services:
   assertEquals(facts[0]?.metadata?.service, "Redis");
 });
 
+Deno.test("extractFactsFromFile emits k8s deploy-service facts (AUF-3)", () => {
+  const content = `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: prod
+spec:
+  template:
+    spec:
+      containers:
+        - ports:
+            - containerPort: 8080
+`;
+  const facts = extractFactsFromFile("k8s/web-deployment.yaml", content);
+  assertEquals(facts.length, 1);
+  assertEquals(facts[0]?.kind, "deploy-service");
+  assertEquals(facts[0]?.metadata?.service, "web");
+  assertEquals(facts[0]?.metadata?.env, "prod");
+  assertEquals(facts[0]?.metadata?.ports, "8080");
+  assertEquals(facts[0]?.metadata?.source, "kubernetes");
+});
+
 Deno.test("extractFactsFromFile invents no infra without compose/datasource evidence", () => {
   const facts = extractFactsFromFile("README.md", "hello postgres redis");
   assertEquals(facts.some((f) => f.kind === "infra-service"), false);
+  assertEquals(facts.some((f) => f.kind === "deploy-service"), false);
 });

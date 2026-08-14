@@ -54,7 +54,7 @@ describe("Blueprint view nothing-found states", () => {
   it("infrastructure names runtime nodes", () => {
     render(<InfrastructureView blueprint={emptyBlueprint} scanStatus="completed" />);
     expect(screen.getByTestId("view-state-nothing-found")).toHaveTextContent(
-      "Runtime-, Service- und Database-Knoten",
+      "docker-compose.yml und Kubernetes-Manifesten",
     );
   });
 

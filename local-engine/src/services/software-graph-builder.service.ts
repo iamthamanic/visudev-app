@@ -19,6 +19,10 @@ import { ensureFileContext } from "./software-graph/_file-context.js";
 import { createId, stableUniqueId } from "./software-graph/_ids.js";
 import { partitionPrismaModelFacts } from "./software-graph/_prisma-models.js";
 import { partitionInfraServiceFacts } from "./software-graph/_infra-services.js";
+import {
+  linkDeployServiceDependencies,
+  partitionDeployServiceFacts,
+} from "./software-graph/_deploy-services.js";
 import { addRouteNodes } from "./software-graph/_route-nodes.js";
 import { buildRuntimeGroups, dropDanglingEdges } from "./software-graph/_runtime-groups.js";
 import { createApplicationScope, createOrganizationScope } from "./software-graph/_scopes.js";
@@ -94,7 +98,8 @@ export function buildSoftwareGraph(scan: RawBlueprintScan): SoftwareGraph {
   // consumes the soft node budget (browo: 473 routes starved LeaveRequest @ idx 36).
   // P3-2: promote compose/datasource infra engines first (Postgres/Redis).
   const { prismaModels, other: afterPrisma } = partitionPrismaModelFacts(facts);
-  const { infraServices, other: otherFacts } = partitionInfraServiceFacts(afterPrisma);
+  const { infraServices, other: afterInfra } = partitionInfraServiceFacts(afterPrisma);
+  const { deployServices, other: otherFacts } = partitionDeployServiceFacts(afterInfra);
 
   const ingestFact = (fact: RawBlueprintFact): void => {
     const { fileId } = ensureFileContext(fact.filePath, projectId, state);
@@ -103,6 +108,7 @@ export function buildSoftwareGraph(scan: RawBlueprintScan): SoftwareGraph {
   };
 
   for (const fact of infraServices) ingestFact(fact);
+  for (const fact of deployServices) ingestFact(fact);
   for (const fact of prismaModels) ingestFact(fact);
 
   for (const route of routes) {
@@ -111,6 +117,8 @@ export function buildSoftwareGraph(scan: RawBlueprintScan): SoftwareGraph {
   }
 
   for (const fact of otherFacts) ingestFact(fact);
+
+  linkDeployServiceDependencies(state);
 
   // P0-14 Pass 2: filename stems for layer-first files still on unassigned/none.
   applyFilenameDomains(state, projectId);

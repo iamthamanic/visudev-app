@@ -48,6 +48,7 @@ const SEED_METEOR_SERVER_BUDGET = Math.max(
   Number(process.env.BLUEPRINT_SEED_METEOR_BUDGET) || 120,
 );
 const SEED_SCHEMA_FIND_BUDGET = Math.max(5, Number(process.env.BLUEPRINT_SEED_SCHEMA_BUDGET) || 24);
+const SEED_K8S_BUDGET = Math.max(8, Number(process.env.BLUEPRINT_SEED_K8S_BUDGET) || 24);
 const MAX_FILE_BYTES = 512 * 1024;
 const MAX_STDIN_BYTES = 8 * 1024 * 1024;
 const DENO_TIMEOUT_MS = Math.max(30_000, Number(process.env.BLUEPRINT_DENO_TIMEOUT_MS) || 120_000);
@@ -81,6 +82,13 @@ function prioritizeBlueprintFiles(files) {
       /(?:^|\/)compose\.(ya?ml)$/.test(path)
     ) {
       s = 97;
+    } else if (
+      /(?:^|\/)(k8s|kubernetes|manifests)\//.test(path) ||
+      /(?:^|\/)(deployment|deployments|service|services|statefulset|daemonset)s?\.(ya?ml)$/.test(
+        path,
+      )
+    ) {
+      s = 96;
     } else if (/(?:^|\/)schema\.prisma$/.test(path)) s = 78;
     else if (path.endsWith(".prisma")) s = 70;
     else if (/(?:^|\/)manage\.py$/.test(path)) s = 99;
@@ -202,11 +210,10 @@ function walkCodeFiles(rootDir, maxFiles = MAX_WALK_CANDIDATES, jailRoot = rootD
       }
       const ext = entry.name.split(".").pop()?.toLowerCase();
       if (!ext || !SUPPORTED_EXT.has(ext)) continue;
-      // Only compose YAML — generic .yml (CI/k8s) must not flood FILE_LIMIT.
+      // Only compose + k8s YAML — generic .yml (CI) must not flood FILE_LIMIT.
       if (
         (ext === "yml" || ext === "yaml") &&
-        !/^docker-compose/i.test(entry.name) &&
-        !/^compose\.(ya?ml)$/i.test(entry.name)
+        !isAllowedYamlDescriptor(relative(rootReal, full), entry.name)
       ) {
         continue;
       }
@@ -215,6 +222,18 @@ function walkCodeFiles(rootDir, maxFiles = MAX_WALK_CANDIDATES, jailRoot = rootD
   }
 
   return results;
+}
+
+function isAllowedYamlDescriptor(relPath, name) {
+  const path = String(relPath || "")
+    .replace(/\\/g, "/")
+    .toLowerCase();
+  const base = String(name || path.split("/").pop() || "").toLowerCase();
+  if (/^docker-compose/i.test(base) || /^compose\.(ya?ml)$/i.test(base)) return true;
+  if (/(?:^|\/)(k8s|kubernetes|manifests)\//.test(path)) return true;
+  return /(?:^|\/)(deployment|deployments|service|services|statefulset|daemonset)s?\.(ya?ml)$/.test(
+    path,
+  );
 }
 
 /**
@@ -229,6 +248,12 @@ function isCriticalWalkSeedPath(relPath) {
   if (
     /(?:^|\/)docker-compose[^/]*\.(ya?ml)$/.test(path) ||
     /(?:^|\/)compose\.(ya?ml)$/.test(path)
+  ) {
+    return true;
+  }
+  if (
+    /(?:^|\/)(k8s|kubernetes|manifests)\//.test(path) ||
+    /(?:^|\/)(deployment|deployments|service|services|statefulset|daemonset)s?\.(ya?ml)$/.test(path)
   ) {
     return true;
   }
@@ -254,6 +279,12 @@ function seedSortKey(relPath) {
     /(?:^|\/)compose\.(ya?ml)$/.test(path)
   ) {
     return 2.6;
+  }
+  if (
+    /(?:^|\/)(k8s|kubernetes|manifests)\//.test(path) ||
+    /(?:^|\/)(deployment|deployments|service|services|statefulset|daemonset)s?\.(ya?ml)$/.test(path)
+  ) {
+    return 2.7;
   }
   if (path.includes("/packages/database/") || path.startsWith("packages/database/")) {
     return 3;
@@ -326,6 +357,12 @@ function collectCriticalSeedRelPaths(workspaceRoot) {
   pushFile("docker-compose-local.yml");
   pushFile("docker-compose-test.yml");
   pushFile("deployments/cli/community/docker-compose.yml");
+
+  walkSub("k8s", SEED_K8S_BUDGET);
+  walkSub("kubernetes", SEED_K8S_BUDGET);
+  walkSub("manifests", SEED_K8S_BUDGET);
+  pushFile("deployment.yaml");
+  pushFile("deployment.yml");
 
   // Meteor: meteor-methods / publications / models first (Rocket.Chat layout).
   const methodsBudget = Math.max(40, Math.floor(SEED_METEOR_SERVER_BUDGET * 0.55));

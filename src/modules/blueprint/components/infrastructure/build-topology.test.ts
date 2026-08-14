@@ -8,6 +8,7 @@ import {
   classifyGraphNodeTopologyTier,
   deploymentFiltersFromGraph,
   filterProjectedNodesByDeployment,
+  projectPhysicalTopology,
 } from "./build-topology.js";
 import type { GraphCanvasNode } from "../../types";
 import type { SoftwareGraph } from "../../types";
@@ -158,5 +159,81 @@ describe("build-topology", () => {
     const filters = deploymentFiltersFromGraph(softwareGraph);
     expect(filters.envs).toEqual([]);
     expect(filters.regions).toEqual([]);
+  });
+
+  it("projects physical topology from compose service nodes (AUF-3)", () => {
+    const softwareGraph: SoftwareGraph = {
+      version: 1,
+      projectId: "proj-test",
+      analyzedAt: new Date().toISOString(),
+      scopes: [],
+      nodes: [
+        {
+          id: "deploy:compose:api",
+          kind: "service",
+          label: "api",
+          metadata: {
+            source: "docker-compose",
+            env: "shop",
+            ports: "3000:3000",
+            networks: "frontend,backend",
+          },
+        },
+        {
+          id: "deploy:compose:db",
+          kind: "service",
+          label: "db",
+          metadata: {
+            source: "docker-compose",
+            env: "shop",
+            ports: "5432:5432",
+            networks: "backend",
+          },
+        },
+      ],
+      edges: [
+        {
+          id: "e-dep",
+          kind: "external-dependency",
+          sourceId: "deploy:compose:api",
+          targetId: "deploy:compose:db",
+          metadata: { relation: "depends-on" },
+        },
+      ],
+      evidence: [],
+      groups: [],
+      metrics: [],
+      condensed: false,
+      limits: { maxNodes: 100, maxEdges: 100 },
+      snapshots: [],
+    };
+    const visible = new Set(softwareGraph.nodes.map((node) => node.id));
+    const physical = projectPhysicalTopology(softwareGraph, visible);
+    expect(physical).not.toBeNull();
+    expect(physical?.sourceLabel).toBe("Quelle: Docker Compose");
+    expect(physical?.nodes.map((node) => node.id)).toEqual([
+      "deploy:compose:api",
+      "deploy:compose:db",
+    ]);
+    expect(physical?.networks.map((network) => network.name)).toEqual(["backend", "frontend"]);
+    expect(physical?.dependencies).toHaveLength(1);
+  });
+
+  it("returns no physical topology without compose/k8s descriptors", () => {
+    const softwareGraph: SoftwareGraph = {
+      version: 1,
+      projectId: "proj-test",
+      analyzedAt: new Date().toISOString(),
+      scopes: [],
+      nodes: [{ id: "a", kind: "service", label: "A", metadata: {} }],
+      edges: [],
+      evidence: [],
+      groups: [],
+      metrics: [],
+      condensed: false,
+      limits: { maxNodes: 100, maxEdges: 100 },
+      snapshots: [],
+    };
+    expect(projectPhysicalTopology(softwareGraph, new Set(["a"]))).toBeNull();
   });
 });

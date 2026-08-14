@@ -6,6 +6,11 @@ import type {
 } from "../../dto/blueprint/blueprint-document.dto.ts";
 import { extractAstFactsFromFile } from "../graph/ast-call-graph.ts";
 import type { FileIndexEntry } from "../graph/call-graph.builder.ts";
+import {
+  isComposeDescriptorPath,
+  isK8sDescriptorPath,
+  parseDeployDescriptors,
+} from "./compose-k8s-descriptors.ts";
 
 function makeFactId(filePath: string, line: number, kind: string): string {
   const safePath = filePath.replace(/[^a-zA-Z0-9]+/g, "-").replace(
@@ -33,11 +38,11 @@ function isPrismaFile(filePath: string): boolean {
 }
 
 function isComposeFile(filePath: string): boolean {
-  const path = filePath.replace(/\\/g, "/").toLowerCase();
-  return (
-    /(?:^|\/)docker-compose[^/]*\.(ya?ml)$/.test(path) ||
-    /(?:^|\/)compose\.(ya?ml)$/.test(path)
-  );
+  return isComposeDescriptorPath(filePath);
+}
+
+function isK8sFile(filePath: string): boolean {
+  return isK8sDescriptorPath(filePath);
 }
 
 export function extractFactsFromFile(
@@ -51,7 +56,13 @@ export function extractFactsFromFile(
     return extractPrismaFacts(filePath, content);
   }
   if (isComposeFile(filePath)) {
-    return extractComposeInfraFacts(filePath, content);
+    return [
+      ...extractComposeInfraFacts(filePath, content),
+      ...extractDeployDescriptorFacts(filePath, content),
+    ];
+  }
+  if (isK8sFile(filePath)) {
+    return extractDeployDescriptorFacts(filePath, content);
   }
   if (isPythonFile(filePath)) {
     return extractDjangoFacts(filePath, content);
@@ -230,6 +241,41 @@ function extractComposeInfraFacts(
     });
   });
   return facts;
+}
+
+function joinMetaList(values: string[]): string | undefined {
+  if (values.length === 0) return undefined;
+  return values.join(",");
+}
+
+/** Compose/K8s descriptors → service facts with env/ports/networks (AUF-3). */
+function extractDeployDescriptorFacts(
+  filePath: string,
+  content: string,
+): CodeFact[] {
+  return parseDeployDescriptors(filePath, content).map((service) => {
+    const metadata: Record<string, string> = {
+      service: service.name,
+      source: service.source,
+      framework: service.source,
+    };
+    if (service.env) metadata.env = service.env;
+    if (service.region) metadata.region = service.region;
+    const ports = joinMetaList(service.ports);
+    if (ports) metadata.ports = ports;
+    const networks = joinMetaList(service.networks);
+    if (networks) metadata.networks = networks;
+    const dependsOn = joinMetaList(service.dependsOn);
+    if (dependsOn) metadata.dependsOn = dependsOn;
+    return {
+      id: makeFactId(filePath, service.line, "deploy-service"),
+      kind: "deploy-service",
+      filePath,
+      line: service.line,
+      snippet: trimSnippet(service.snippet),
+      metadata,
+    };
+  });
 }
 
 /** Normalize Django path()/re_path() route strings into slash paths. */

@@ -22,6 +22,12 @@ const ALLOWED_METADATA_KEYS = new Set([
   // P0-9: dependency edges need the resolved target path
   "resolvedpath",
   "targetfile",
+  // AUF-3: compose/k8s deploy-service promotion
+  "env",
+  "region",
+  "ports",
+  "networks",
+  "dependson",
 ]);
 
 function normalizeMetadataKey(key: string): string {

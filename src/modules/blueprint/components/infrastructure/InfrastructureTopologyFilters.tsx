@@ -21,6 +21,8 @@ interface InfrastructureTopologyFiltersProps {
   onSelectRegion: (region: string | null) => void;
   onSelectView: (view: TopologyViewFilter | null) => void;
   onRefresh: () => void;
+  /** True when compose/k8s service nodes exist in the graph. */
+  hasPhysicalTopology: boolean;
 }
 
 export function InfrastructureTopologyFilters({
@@ -33,6 +35,7 @@ export function InfrastructureTopologyFilters({
   onSelectRegion,
   onSelectView,
   onRefresh,
+  hasPhysicalTopology,
 }: InfrastructureTopologyFiltersProps): JSX.Element {
   return (
     <div className={styles.filterBar} aria-label="Infrastruktur-Filter">
@@ -46,6 +49,7 @@ export function InfrastructureTopologyFilters({
                 type="button"
                 className={`${styles.filterChip} ${activeEnv === env ? styles.filterChipActive : ""}`}
                 aria-pressed={activeEnv === env}
+                data-testid="infra-env-chip"
                 onClick={() => onSelectEnv(activeEnv === env ? null : env)}
               >
                 {env}
@@ -76,7 +80,7 @@ export function InfrastructureTopologyFilters({
         <span className={styles.filterLabel}>Ansicht</span>
         <div className={styles.filterChips}>
           {TOPOLOGY_VIEW_FILTERS.map((view) => {
-            const physicalUnbuilt = view === "Physische Topologie";
+            const physicalUnbuilt = view === "Physische Topologie" && !hasPhysicalTopology;
             const chip = (
               <button
                 type="button"

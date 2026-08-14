@@ -2,7 +2,7 @@
  * Groups projected infrastructure nodes into topology tiers for the diagram.
  */
 
-import type { GraphCanvasNode, SoftwareGraph } from "../../types";
+import type { GraphCanvasNode, SoftwareGraph, SoftwareGraphNode } from "../../types";
 
 export type TopologyTier =
   | "internet"
@@ -163,3 +163,124 @@ export function deploymentFiltersFromGraph(softwareGraph: SoftwareGraph): {
 }
 
 export type TopologyViewFilter = (typeof TOPOLOGY_VIEW_FILTERS)[number];
+
+const PHYSICAL_SOURCES = new Set(["docker-compose", "kubernetes"]);
+
+export function isPhysicalDescriptorNode(node: SoftwareGraphNode): boolean {
+  if (node.kind !== "service") return false;
+  const source = node.metadata?.source;
+  return typeof source === "string" && PHYSICAL_SOURCES.has(source);
+}
+
+export function graphHasPhysicalDescriptors(softwareGraph: SoftwareGraph): boolean {
+  return softwareGraph.nodes.some(isPhysicalDescriptorNode);
+}
+
+function splitCsv(value: unknown): string[] {
+  if (typeof value !== "string" || !value.trim()) return [];
+  return value
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+}
+
+export function physicalSourceLabel(nodes: SoftwareGraphNode[]): string {
+  const sources = new Set(
+    nodes
+      .map((node) => node.metadata?.source)
+      .filter((source): source is string => typeof source === "string"),
+  );
+  const hasCompose = sources.has("docker-compose");
+  const hasK8s = sources.has("kubernetes");
+  if (hasCompose && hasK8s) return "Quelle: Docker Compose und Kubernetes";
+  if (hasK8s) return "Quelle: Kubernetes";
+  return "Quelle: Docker Compose";
+}
+
+export interface PhysicalNetworkGroup {
+  name: string;
+  nodeIds: string[];
+}
+
+export interface PhysicalDependency {
+  sourceId: string;
+  targetId: string;
+  sourceLabel: string;
+  targetLabel: string;
+}
+
+export interface PhysicalTopologyProjection {
+  nodes: TopologyNodeRef[];
+  networks: PhysicalNetworkGroup[];
+  dependencies: PhysicalDependency[];
+  sourceLabel: string;
+}
+
+export function projectPhysicalTopology(
+  softwareGraph: SoftwareGraph,
+  visibleNodeIds: Set<string>,
+): PhysicalTopologyProjection | null {
+  const descriptorNodes = softwareGraph.nodes.filter(
+    (node) => isPhysicalDescriptorNode(node) && visibleNodeIds.has(node.id),
+  );
+  if (descriptorNodes.length === 0) return null;
+
+  const nodes: TopologyNodeRef[] = [];
+  for (const node of descriptorNodes) {
+    const nodeId = sanitizeNodeId(node.id);
+    if (!nodeId) continue;
+    const ports = splitCsv(node.metadata.ports);
+    nodes.push({
+      id: nodeId,
+      label:
+        ports.length > 0
+          ? `${sanitizeLabel(node.label)} (${ports.join(", ")})`
+          : sanitizeLabel(node.label),
+      kind: node.kind,
+      tier: "service",
+    });
+  }
+
+  const nodeIds = new Set(nodes.map((node) => node.id));
+  const labelById = new Map(nodes.map((node) => [node.id, node.label]));
+  const ungrouped: string[] = [];
+  const networkMap = new Map<string, string[]>();
+  for (const node of descriptorNodes) {
+    if (!nodeIds.has(node.id)) continue;
+    const networks = splitCsv(node.metadata.networks);
+    if (networks.length === 0) {
+      ungrouped.push(node.id);
+      continue;
+    }
+    for (const network of networks) {
+      const list = networkMap.get(network) ?? [];
+      list.push(node.id);
+      networkMap.set(network, list);
+    }
+  }
+  const networks: PhysicalNetworkGroup[] = [...networkMap.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([name, groupedNodeIds]) => ({ name, nodeIds: groupedNodeIds }));
+  if (ungrouped.length > 0) {
+    networks.push({ name: "Ohne Netzwerk", nodeIds: ungrouped });
+  }
+
+  const dependencies: PhysicalDependency[] = [];
+  for (const edge of softwareGraph.edges) {
+    if (edge.kind !== "external-dependency") continue;
+    if (!nodeIds.has(edge.sourceId) || !nodeIds.has(edge.targetId)) continue;
+    dependencies.push({
+      sourceId: edge.sourceId,
+      targetId: edge.targetId,
+      sourceLabel: labelById.get(edge.sourceId) ?? edge.sourceId,
+      targetLabel: labelById.get(edge.targetId) ?? edge.targetId,
+    });
+  }
+
+  return {
+    nodes,
+    networks,
+    dependencies,
+    sourceLabel: physicalSourceLabel(descriptorNodes),
+  };
+}

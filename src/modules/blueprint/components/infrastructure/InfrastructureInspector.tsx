@@ -27,11 +27,17 @@ interface ConnectionEndpoint {
 function overviewFromGraphNode(graphNode: SoftwareGraphNode | null) {
   const metadata = graphNode?.metadata ?? {};
   const portValue = metadata.port;
+  const portsValue = metadata.ports;
   const frameworkValue = metadata.framework;
   const instancesValue = metadata.instances;
+  const portFromList =
+    typeof portsValue === "string" && portsValue.trim() ? portsValue.trim() : null;
 
   return {
-    port: typeof portValue === "number" || typeof portValue === "string" ? String(portValue) : null,
+    port:
+      typeof portValue === "number" || typeof portValue === "string"
+        ? String(portValue)
+        : portFromList,
     instances: typeof instancesValue === "string" ? instancesValue : null,
     version: typeof frameworkValue === "string" ? frameworkValue : null,
   };

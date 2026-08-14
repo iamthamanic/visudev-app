@@ -271,6 +271,33 @@ Deno.test("selectFactsPreservingPrismaModels bounds infra-service preservation (
   assertEquals(infra.length, 16);
 });
 
+Deno.test("selectFactsPreservingPrismaModels keeps deploy-service past route flood (AUF-3)", () => {
+  const deploy: CodeFact = {
+    id: "fact-compose-api",
+    kind: "deploy-service",
+    filePath: "docker-compose.yml",
+    line: 4,
+    snippet: "api:",
+    metadata: {
+      service: "api",
+      source: "docker-compose",
+      env: "shop",
+      ports: "3000:3000",
+    },
+  };
+  const noise = Array.from({ length: 400 }, (_, i) => routeFact(i));
+  const { facts: selected } = selectFactsPreservingPrismaModels([
+    ...noise,
+    deploy,
+  ], 50);
+  assertEquals(
+    selected.some((f) =>
+      f.kind === "deploy-service" && f.metadata?.service === "api"
+    ),
+    true,
+  );
+});
+
 Deno.test("selection spreads across files before deepening", () => {
   const facts: CodeFact[] = [];
   for (let file = 0; file < 100; file += 1) {

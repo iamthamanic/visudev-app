@@ -28,6 +28,8 @@ app.post('/api/employees', async (c) => {
 Deno.test("isSupportedBlueprintFile accepts compose yaml (P3-2c)", () => {
   assertEquals(isSupportedBlueprintFile("docker-compose.yml"), true);
   assertEquals(isSupportedBlueprintFile("compose.yaml"), true);
+  assertEquals(isSupportedBlueprintFile("k8s/deployment.yaml"), true);
+  assertEquals(isSupportedBlueprintFile(".github/workflows/ci.yml"), false);
   assertEquals(isSupportedBlueprintFile("README.md"), false);
 });
 

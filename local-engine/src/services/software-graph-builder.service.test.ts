@@ -557,4 +557,78 @@ describe("buildSoftwareGraph", () => {
     // No invented Stub LB from this path
     expect(graph.nodes.some((n) => /LOAD BALANCER/i.test(n.label))).toBe(false);
   });
+
+  it("promotes compose deploy-service facts to service nodes with depends_on edges (AUF-3)", () => {
+    const scan = makeScan({
+      filesAnalyzed: 1,
+      facts: [
+        {
+          id: "fact:deploy-api",
+          kind: "deploy-service",
+          filePath: "docker-compose.yml",
+          line: 4,
+          snippet: "api:",
+          metadata: {
+            service: "api",
+            source: "docker-compose",
+            env: "shop",
+            ports: "3000:3000",
+            networks: "frontend,backend",
+            dependsOn: "db,redis",
+          },
+        },
+        {
+          id: "fact:deploy-db",
+          kind: "deploy-service",
+          filePath: "docker-compose.yml",
+          line: 12,
+          snippet: "db:",
+          metadata: {
+            service: "db",
+            source: "docker-compose",
+            env: "shop",
+            ports: "5432:5432",
+            networks: "backend",
+          },
+        },
+        {
+          id: "fact:deploy-redis",
+          kind: "deploy-service",
+          filePath: "docker-compose.yml",
+          line: 20,
+          snippet: "redis:",
+          metadata: {
+            service: "redis",
+            source: "docker-compose",
+            env: "shop",
+            networks: "backend",
+          },
+        },
+      ],
+    });
+    const graph = buildSoftwareGraph(scan);
+    const api = graph.nodes.find((node) => node.kind === "service" && node.label === "api");
+    const db = graph.nodes.find((node) => node.kind === "service" && node.label === "db");
+    const redis = graph.nodes.find((node) => node.kind === "service" && node.label === "redis");
+    expect(api).toBeDefined();
+    expect(api?.metadata.env).toBe("shop");
+    expect(api?.metadata.ports).toBe("3000:3000");
+    expect(api?.metadata.networks).toBe("frontend,backend");
+    expect(api?.metadata.region).toBeUndefined();
+    expect(db?.kind).toBe("service");
+    const depends = graph.edges.filter(
+      (edge) => edge.kind === "external-dependency" && edge.metadata.relation === "depends-on",
+    );
+    expect(depends.some((edge) => edge.sourceId === api?.id && edge.targetId === db?.id)).toBe(
+      true,
+    );
+    expect(depends.some((edge) => edge.sourceId === api?.id && edge.targetId === redis?.id)).toBe(
+      true,
+    );
+  });
+
+  it("invents no deploy-service nodes without descriptor facts (AUF-3)", () => {
+    const graph = buildSoftwareGraph(makeScan({ filesAnalyzed: 1, facts: [] }));
+    expect(graph.nodes.some((node) => String(node.id).startsWith("deploy:"))).toBe(false);
+  });
 });
