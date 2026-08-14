@@ -24,6 +24,7 @@ jobs:
       USE_DOCKER: "0"
       PORT: "4000"
       VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjIwOTAxMjUyODV9.e2e-ci-placeholder-signature
+      VISUDEV_AUDIT_OUT: /tmp/visudev-real-visual-audit
 
     steps:
       - name: Checkout VisuDev audit branch
@@ -58,12 +59,12 @@ jobs:
         run: |
           set -euo pipefail
           export VISUDEV_STORAGE_DIR="$GITHUB_WORKSPACE/.audit-visudev-storage"
-          mkdir -p "$VISUDEV_STORAGE_DIR" "$GITHUB_WORKSPACE/audit-output/runtime-logs"
-          npm run dev:runner > "$GITHUB_WORKSPACE/audit-output/runtime-logs/runner.log" 2>&1 &
+          mkdir -p "$VISUDEV_STORAGE_DIR" "$VISUDEV_AUDIT_OUT/runtime-logs"
+          npm run dev:runner > "$VISUDEV_AUDIT_OUT/runtime-logs/runner.log" 2>&1 &
           echo $! > /tmp/visudev-runner.pid
-          npm run dev:engine > "$GITHUB_WORKSPACE/audit-output/runtime-logs/engine.log" 2>&1 &
+          npm run dev:engine > "$VISUDEV_AUDIT_OUT/runtime-logs/engine.log" 2>&1 &
           echo $! > /tmp/visudev-engine.pid
-          npm run dev:app -- --host 127.0.0.1 > "$GITHUB_WORKSPACE/audit-output/runtime-logs/app.log" 2>&1 &
+          npm run dev:app -- --host 127.0.0.1 > "$VISUDEV_AUDIT_OUT/runtime-logs/app.log" 2>&1 &
           echo $! > /tmp/visudev-app.pid
 
           for url in http://127.0.0.1:4000/health http://127.0.0.1:4317/health http://127.0.0.1:3005; do
@@ -88,26 +89,26 @@ jobs:
           VISUDEV_AUDIT_TARGET: ${{ github.workspace }}/target-repo
           VISUDEV_AUDIT_PROJECT_NAME: hrkoordinator
           VISUDEV_AUDIT_REPOSITORY_URL: https://github.com/iamthamanic/hrkoordinator
-          VISUDEV_AUDIT_OUT: ${{ github.workspace }}/audit-output
         run: node scripts/real-visual-audit.mjs
 
       - name: Record environment proof
         if: always()
         shell: bash
         run: |
+          mkdir -p "$VISUDEV_AUDIT_OUT"
           {
             echo "VISUDEV_DEMO_ENRICHMENT=$VISUDEV_DEMO_ENRICHMENT"
             echo "VITE_BLUEPRINT_DEMO_ENRICHMENT=$VITE_BLUEPRINT_DEMO_ENRICHMENT"
             echo "target=iamthamanic/hrkoordinator"
             echo "visudev_commit=$GITHUB_SHA"
             git -C target-repo rev-parse HEAD | sed 's/^/target_commit=/'
-          } > audit-output/environment.txt
+          } > "$VISUDEV_AUDIT_OUT/environment.txt"
 
       - name: Upload real visual audit
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: real-visual-audit-hrkoordinator
-          path: audit-output/
+          path: /tmp/visudev-real-visual-audit/
           if-no-files-found: error
           retention-days: 7
