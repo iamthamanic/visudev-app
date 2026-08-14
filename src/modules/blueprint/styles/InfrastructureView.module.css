@@ -162,6 +162,12 @@
   cursor: pointer;
 }
 
+.filterChipActive {
+  border-color: var(--color-primary);
+  color: var(--color-foreground);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
 .filterChip:disabled {
   opacity: 0.55;
   cursor: not-allowed;

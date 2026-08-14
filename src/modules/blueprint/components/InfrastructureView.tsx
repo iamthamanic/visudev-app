@@ -128,20 +128,28 @@ export function InfrastructureView({
             onRefresh={() => setRefreshTick((tick) => tick + 1)}
             hasPhysicalTopology={hasPhysicalTopology}
           />
-          {physicalProjection ? (
-            <InfrastructurePhysicalTopology
-              projection={physicalProjection}
-              selectedNodeId={selectedNodeId}
-              onSelectNode={setSelectedNodeId}
-            />
+          {activeView === "Physische Topologie" ? (
+            physicalProjection ? (
+              <InfrastructurePhysicalTopology
+                projection={physicalProjection}
+                selectedNodeId={selectedNodeId}
+                onSelectNode={setSelectedNodeId}
+              />
+            ) : (
+              <p className={styles.topologyMeta} data-testid="infra-physical-empty">
+                Keine Compose-/K8s-Services in diesem Filter.
+              </p>
+            )
           ) : (
-            <InfrastructureTopologyDiagram
-              nodes={topologyNodes}
-              selectedNodeId={selectedNodeId}
-              onSelectNode={setSelectedNodeId}
-            />
+            <>
+              <InfrastructureTopologyDiagram
+                nodes={topologyNodes}
+                selectedNodeId={selectedNodeId}
+                onSelectNode={setSelectedNodeId}
+              />
+              <InfrastructureConnectionLegend />
+            </>
           )}
-          {physicalProjection ? null : <InfrastructureConnectionLegend />}
           {edges.length > 0 ? (
             <p className={styles.topologyMeta}>{edges.length} Verbindungen im Graph</p>
           ) : null}

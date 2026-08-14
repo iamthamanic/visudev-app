@@ -81,6 +81,19 @@ function unquote(value: string): string {
   return trimmed;
 }
 
+function parseFlowSequence(value: string): string[] {
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) {
+    return trimmed ? [unquote(trimmed)] : [];
+  }
+  const inner = trimmed.slice(1, -1).trim();
+  if (!inner) return [];
+  return inner
+    .split(",")
+    .map((part) => unquote(part.trim()))
+    .filter((part) => part.length > 0);
+}
+
 function stripInlineComment(line: string): string {
   let inSingle = false;
   let inDouble = false;
@@ -253,11 +266,22 @@ export function parseComposeDeployServices(
         field = kv.key;
         fieldIndent = indent;
         fieldItemIndent = -1;
-        if (kv.key === "ports" && kv.value) {
-          const port = sanitizePort(
-            kv.value.replace(/^\[/, "").replace(/\]$/, ""),
-          );
-          if (port) current.ports.push(port);
+        if (kv.value) {
+          const items = parseFlowSequence(kv.value);
+          if (kv.key === "ports") {
+            for (const item of items) {
+              const port = sanitizePort(item);
+              if (port) current.ports.push(port);
+            }
+          } else if (kv.key === "networks" || kv.key === "depends_on") {
+            const bucket = kv.key === "networks"
+              ? current.networks
+              : current.dependsOn;
+            for (const item of items) {
+              const name = sanitizeName(item.split(":")[0] ?? item);
+              if (name) bucket.push(name);
+            }
+          }
         }
         continue;
       }

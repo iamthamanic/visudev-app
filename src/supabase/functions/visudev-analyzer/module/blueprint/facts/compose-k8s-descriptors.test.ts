@@ -54,6 +54,27 @@ Deno.test("parseComposeDeployServices reads services, ports, networks, depends_o
   assertEquals(api?.source, "docker-compose");
 });
 
+Deno.test("parseComposeDeployServices reads inline flow sequences and host-bound ports", () => {
+  const services = parseComposeDeployServices(
+    "docker-compose.yml",
+    `services:
+  api:
+    image: nginx
+    ports: ["127.0.0.1:8080:80", "3000:3000"]
+    networks: [frontend, backend]
+    depends_on: [db, redis]
+  db:
+    image: postgres
+  redis:
+    image: redis
+`,
+  );
+  const api = services[0];
+  assertEquals(api?.ports, ["8080:80", "3000:3000"]);
+  assertEquals(api?.networks, ["frontend", "backend"]);
+  assertEquals(api?.dependsOn, ["db", "redis"]);
+});
+
 Deno.test("parseComposeDeployServices uses filename suffix as env", () => {
   const services = parseComposeDeployServices(
     "docker-compose.prod.yml",

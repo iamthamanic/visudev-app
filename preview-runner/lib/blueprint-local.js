@@ -48,7 +48,10 @@ const SEED_METEOR_SERVER_BUDGET = Math.max(
   Number(process.env.BLUEPRINT_SEED_METEOR_BUDGET) || 120,
 );
 const SEED_SCHEMA_FIND_BUDGET = Math.max(5, Number(process.env.BLUEPRINT_SEED_SCHEMA_BUDGET) || 24);
-const SEED_K8S_BUDGET = Math.max(8, Number(process.env.BLUEPRINT_SEED_K8S_BUDGET) || 24);
+const SEED_K8S_BUDGET = Math.min(
+  64,
+  Math.max(8, Number(process.env.BLUEPRINT_SEED_K8S_BUDGET) || 24),
+);
 const MAX_FILE_BYTES = 512 * 1024;
 const MAX_STDIN_BYTES = 8 * 1024 * 1024;
 const DENO_TIMEOUT_MS = Math.max(30_000, Number(process.env.BLUEPRINT_DENO_TIMEOUT_MS) || 120_000);
