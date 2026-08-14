@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - audit/real-visual-parity-hrkoordinator-20260814
+  pull_request:
+    branches:
+      - main
 
 jobs:
   audit:
