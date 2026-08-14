@@ -53,5 +53,6 @@ Der Evolution-Tab `branch-compare` zeigt einen echten `git diff` zwischen zwei B
 
 ## Implementation Notes
 
-- Files touched: `local-engine/src/lib/git-branch-diff.ts`, `local-engine/src/routes/git.routes.ts`, `src/modules/blueprint/components/evolution/EvolutionBranchCompare.tsx`, `EvolutionView.tsx`
-- Unit tests: `local-engine/src/lib/git-branch-diff.test.ts`, `EvolutionView.test.tsx`
+- Files touched: `local-engine/src/lib/git-branch-diff.ts`, `local-engine/src/routes/git.routes.ts`, `src/modules/blueprint/components/evolution/EvolutionBranchCompare.tsx`, `EvolutionView.tsx`, `EvolutionSubTabs.tsx`
+- Unit tests: `local-engine/src/lib/git-branch-diff.test.ts`, `EvolutionView.test.tsx`, `EvolutionBranchCompare.test.tsx`
+- Follow-up after DeepSeek review of #313: NUL-terminated `for-each-ref`, HTTP 400 for invalid branches, identical-branch nothing-found, graph-node linking, working-tree `disabled`
