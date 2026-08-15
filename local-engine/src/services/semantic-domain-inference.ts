@@ -166,7 +166,8 @@ function displayLabel(key: string): string {
 
 function candidateConfidence(candidate: DomainCandidate): number {
   const corroboration = Math.max(0, candidate.sourceKinds.size - 1) * 0.05;
-  return Math.min(0.98, candidate.maxConfidence + corroboration);
+  const bounded = Math.min(0.98, candidate.maxConfidence + corroboration);
+  return Math.round(bounded * 100) / 100;
 }
 
 export function inferBusinessDomainEntities(graph: SoftwareGraph): SemanticEntity[] {
