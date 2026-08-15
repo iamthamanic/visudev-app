@@ -1,9 +1,9 @@
 /**
  * Conservative projection from SoftwareGraph into the semantic Blueprint model.
  *
- * Only graph kinds with unambiguous semantics are promoted here. Business
- * domain inference, roll-ups and execution/deployment projections are separate
- * follow-up concerns and must not be guessed in this base builder.
+ * Only graph kinds with unambiguous semantics are promoted directly. Business
+ * domains are inferred separately from corroborated resource evidence; roll-ups
+ * and execution/deployment projections remain follow-up concerns.
  */
 
 import type {
@@ -18,6 +18,7 @@ import type {
   SemanticRelationKind,
   SemanticSystemModel,
 } from "../../../shared/semantic-system-model.types.js";
+import { inferBusinessDomainEntities } from "./semantic-domain-inference.js";
 
 const DIRECT_ENTITY_KINDS: Partial<Record<SoftwareGraphNodeKind, SemanticEntityKind>> = {
   application: "application",
@@ -71,12 +72,14 @@ function projectEntities(graph: SoftwareGraph): {
     });
   }
 
+  entities.push(...inferBusinessDomainEntities(graph));
   entities.sort((left, right) => left.id.localeCompare(right.id));
   return { entities, entityIdByGraphNodeId };
 }
 
 function projectRelations(
   graph: SoftwareGraph,
+  entities: readonly SemanticEntity[],
   entityIdByGraphNodeId: ReadonlyMap<string, string>,
 ): SemanticRelation[] {
   const relationIds = new Set<string>();
@@ -105,6 +108,24 @@ function projectRelations(
     });
   }
 
+  const application = entities.find((entity) => entity.kind === "application");
+  if (application) {
+    for (const domain of entities.filter((entity) => entity.kind === "business-domain")) {
+      const id = `semantic-relation:contains:${application.id}:${domain.id}`;
+      if (relationIds.has(id)) continue;
+      relationIds.add(id);
+      relations.push({
+        id,
+        kind: "contains",
+        sourceId: application.id,
+        targetId: domain.id,
+        confidence: domain.confidence,
+        evidence: [...domain.evidence],
+        metadata: { derivedFrom: "business-domain-inference" },
+      });
+    }
+  }
+
   relations.sort((left, right) => left.id.localeCompare(right.id));
   return relations;
 }
@@ -116,6 +137,6 @@ export function buildSemanticSystemModel(graph: SoftwareGraph): SemanticSystemMo
     projectId: graph.projectId,
     analyzedAt: graph.analyzedAt,
     entities,
-    relations: projectRelations(graph, entityIdByGraphNodeId),
+    relations: projectRelations(graph, entities, entityIdByGraphNodeId),
   };
 }
