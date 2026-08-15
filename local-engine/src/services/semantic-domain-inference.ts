@@ -76,7 +76,7 @@ const STRUCTURAL_DOMAIN_NAMES = new Set([
 ]);
 
 const TECHNICAL_SUFFIX =
-  /(?:[-_. ]?(?:service|controller|repository|screen|page|store|hook|handler|model|entity|route|routes))$/i;
+  /(?:[-_. ]?(?:services?|controllers?|repositor(?:y|ies)|screens?|pages?|stores?|hooks?|handlers?|models?|entit(?:y|ies)|routes?))$/i;
 
 const ROUTE_PREFIX = /^(?:api|rest|graphql|v\d+)$/i;
 
@@ -147,6 +147,15 @@ function addCandidate(
   candidates.set(key, current);
 }
 
+function addCorroboratingGraphDomain(
+  candidates: Map<string, DomainCandidate>,
+  node: SoftwareGraphNode,
+): void {
+  const key = normalizeBusinessDomainCandidate(node.label);
+  if (!key || !candidates.has(key)) return;
+  addCandidate(candidates, node.label, "graph-domain", node.id, 0.65);
+}
+
 function displayLabel(key: string): string {
   return key
     .split("-")
@@ -174,11 +183,11 @@ export function inferBusinessDomainEntities(graph: SoftwareGraph): SemanticEntit
     }
     if (node.kind === "service" || node.kind === "repository") {
       addCandidate(candidates, node.label, node.kind, node.id, 0.75);
-      continue;
     }
-    if (node.kind === "domain") {
-      addCandidate(candidates, node.label, "graph-domain", node.id, 0.65);
-    }
+  }
+
+  for (const node of graph.nodes) {
+    if (node.kind === "domain") addCorroboratingGraphDomain(candidates, node);
   }
 
   return [...candidates.values()]
