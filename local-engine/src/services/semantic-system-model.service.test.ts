@@ -44,11 +44,12 @@ describe("buildSemanticSystemModel", () => {
     expect(buildSemanticSystemModel(reversed)).toEqual(buildSemanticSystemModel(graph));
   });
 
-  it("promotes only unambiguous base kinds and keeps evidence backlinks", () => {
+  it("promotes conservative base kinds plus evidence-driven business domains", () => {
     const model = buildSemanticSystemModel(graphFixture());
 
     expect(model.entities.map((entity) => entity.kind)).toEqual([
       "application",
+      "business-domain",
       "component",
       "data-store",
       "external-system",
@@ -56,20 +57,28 @@ describe("buildSemanticSystemModel", () => {
     ]);
     expect(model.entities.every((entity) => entity.evidence.length > 0)).toBe(true);
     expect(model.entities.some((entity) => entity.label === "components")).toBe(false);
+    expect(model.entities.some((entity) => entity.label === "Habit")).toBe(true);
     expect(model.entities.some((entity) => entity.label === "habit.ts")).toBe(false);
   });
 
-  it("projects relations only when both endpoints have semantic entities", () => {
+  it("projects graph relations and an application-to-domain relation", () => {
     const model = buildSemanticSystemModel(graphFixture());
 
     expect(model.relations.map((relation) => relation.kind)).toEqual([
-      "calls",
-      "contains",
       "accesses-data",
+      "calls",
       "communicates-with",
-    ].sort());
+      "contains",
+      "contains",
+    ]);
     expect(model.relations.every((relation) => relation.evidence.length > 0)).toBe(true);
     expect(model.relations.some((relation) => relation.evidence[0]?.refId === "file-import")).toBe(false);
+    expect(
+      model.relations.some(
+        (relation) =>
+          relation.kind === "contains" && relation.targetId === "semantic:business-domain:habit",
+      ),
+    ).toBe(true);
   });
 
   it("returns an empty model for an empty graph", () => {
