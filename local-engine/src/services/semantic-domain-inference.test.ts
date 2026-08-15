@@ -25,6 +25,9 @@ describe("normalizeBusinessDomainCandidate", () => {
   it("merges plural and technical suffix variants", () => {
     expect(normalizeBusinessDomainCandidate("Employees")).toBe("employee");
     expect(normalizeBusinessDomainCandidate("EmployeeService")).toBe("employee");
+    expect(normalizeBusinessDomainCandidate("EmployeeServices")).toBe("employee");
+    expect(normalizeBusinessDomainCandidate("EmployeeRepositories")).toBe("employee");
+    expect(normalizeBusinessDomainCandidate("EmployeeEntities")).toBe("employee");
     expect(normalizeBusinessDomainCandidate("employee-controller")).toBe("employee");
   });
 
@@ -77,14 +80,35 @@ describe("inferBusinessDomainEntities", () => {
     ]);
   });
 
-  it("does not promote structural folder domains", () => {
+  it("does not promote folder domains without semantic corroboration", () => {
     const graph = makeGraph([
       { id: "domain-components", kind: "domain", label: "components", metadata: {} },
       { id: "domain-services", kind: "domain", label: "services", metadata: {} },
       { id: "domain-payroll", kind: "domain", label: "payroll", metadata: {} },
     ]);
 
-    expect(inferBusinessDomainEntities(graph).map((domain) => domain.label)).toEqual(["Payroll"]);
+    expect(inferBusinessDomainEntities(graph)).toEqual([]);
+  });
+
+  it("uses a graph domain only to corroborate an existing semantic candidate", () => {
+    const graph = makeGraph([
+      { id: "domain-payroll", kind: "domain", label: "payroll", metadata: {} },
+      {
+        id: "route-payroll",
+        kind: "route",
+        label: "GET /api/payroll/summary",
+        metadata: { path: "/api/payroll/summary" },
+      },
+    ]);
+
+    expect(inferBusinessDomainEntities(graph)).toEqual([
+      expect.objectContaining({
+        id: "semantic:business-domain:payroll",
+        label: "Payroll",
+        confidence: 0.95,
+        metadata: { candidateKey: "payroll", sourceKinds: ["graph-domain", "route"] },
+      }),
+    ]);
   });
 
   it("extracts the first non-technical route resource", () => {
