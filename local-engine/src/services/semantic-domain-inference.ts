@@ -17,17 +17,21 @@ import type {
 } from "../../../shared/semantic-system-model.types.js";
 
 const STRUCTURAL_DOMAIN_NAMES = new Set([
+  "api",
   "app",
   "backend",
+  "browser",
   "client",
   "common",
   "components",
   "config",
   "controllers",
+  "edge",
   "features",
   "frontend",
   "hooks",
   "imports",
+  "index",
   "layouts",
   "lib",
   "libs",
@@ -50,6 +54,8 @@ const STRUCTURAL_DOMAIN_NAMES = new Set([
   "unknown",
   "utils",
   "views",
+  "web",
+  "worker",
 ]);
 
 const TECHNICAL_SUFFIX =
