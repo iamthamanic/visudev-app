@@ -2,23 +2,23 @@
  * Conservative projection from SoftwareGraph into the semantic Blueprint model.
  *
  * Only graph kinds with unambiguous semantics are promoted directly. Business
- * domains are inferred separately from corroborated resource evidence; roll-ups
- * and execution/deployment projections remain follow-up concerns.
+ * domains are inferred from corroborated resource evidence and roll-up keeps
+ * low-level graph membership/evidence available for view-specific projections.
  */
 
 import type {
   SoftwareGraph,
-  SoftwareGraphEdgeKind,
   SoftwareGraphNodeKind,
 } from "../../../shared/software-graph.types.js";
 import type {
   SemanticEntity,
   SemanticEntityKind,
   SemanticRelation,
-  SemanticRelationKind,
   SemanticSystemModel,
 } from "../../../shared/semantic-system-model.types.js";
 import { inferBusinessDomainEntities } from "./semantic-domain-inference.js";
+import { resolveSemanticRelationKind } from "./semantic-relation-kind.js";
+import { buildSemanticRollup } from "./semantic-rollup.service.js";
 
 const DIRECT_ENTITY_KINDS: Partial<Record<SoftwareGraphNodeKind, SemanticEntityKind>> = {
   application: "application",
@@ -26,20 +26,6 @@ const DIRECT_ENTITY_KINDS: Partial<Record<SoftwareGraphNodeKind, SemanticEntityK
   repository: "component",
   table: "data-store",
   external: "external-system",
-};
-
-const DIRECT_RELATION_KINDS: Partial<Record<SoftwareGraphEdgeKind, SemanticRelationKind>> = {
-  contains: "contains",
-  references: "depends-on",
-  implements: "depends-on",
-  imports: "depends-on",
-  calls: "calls",
-  api: "communicates-with",
-  event: "communicates-with",
-  data: "accesses-data",
-  "external-dependency": "depends-on",
-  authenticates: "authenticates",
-  validates: "validates",
 };
 
 function semanticEntityId(kind: SemanticEntityKind, graphNodeId: string): string {
@@ -86,7 +72,7 @@ function projectRelations(
   const relations: SemanticRelation[] = [];
 
   for (const edge of graph.edges) {
-    const kind = DIRECT_RELATION_KINDS[edge.kind];
+    const kind = resolveSemanticRelationKind(edge.kind);
     const sourceId = entityIdByGraphNodeId.get(edge.sourceId);
     const targetId = entityIdByGraphNodeId.get(edge.targetId);
     if (!kind || !sourceId || !targetId) continue;
@@ -132,11 +118,16 @@ function projectRelations(
 
 export function buildSemanticSystemModel(graph: SoftwareGraph): SemanticSystemModel {
   const { entities, entityIdByGraphNodeId } = projectEntities(graph);
+  const directRelations = projectRelations(graph, entities, entityIdByGraphNodeId);
+  const rollup = buildSemanticRollup(graph, entities);
   return {
     version: 1,
     projectId: graph.projectId,
     analyzedAt: graph.analyzedAt,
     entities,
-    relations: projectRelations(graph, entities, entityIdByGraphNodeId),
+    memberships: rollup.memberships,
+    relations: [...directRelations, ...rollup.relations].sort((left, right) =>
+      left.id.localeCompare(right.id),
+    ),
   };
 }
