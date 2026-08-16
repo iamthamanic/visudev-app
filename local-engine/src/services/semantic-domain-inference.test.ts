@@ -80,6 +80,21 @@ describe("inferBusinessDomainEntities", () => {
     ]);
   });
 
+  it("does not promote synthetic pipeline service labels", () => {
+    const graph = makeGraph([
+      { id: "auth-check", kind: "service", label: "auth-check", metadata: {} },
+      {
+        id: "validation-deny",
+        kind: "service",
+        label: "validation-deny-400",
+        metadata: {},
+      },
+      { id: "employee-service", kind: "service", label: "EmployeeService", metadata: {} },
+    ]);
+
+    expect(inferBusinessDomainEntities(graph).map((domain) => domain.label)).toEqual(["Employee"]);
+  });
+
   it("does not promote folder domains without semantic corroboration", () => {
     const graph = makeGraph([
       { id: "domain-components", kind: "domain", label: "components", metadata: {} },
