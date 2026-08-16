@@ -105,12 +105,12 @@ describe("AtlasView", () => {
 
   it("renders semantic application/domain nodes instead of route/file labels", () => {
     render(<AtlasView blueprint={graphBlueprint} />);
-    const controls = screen.getByLabelText("Atlas-Steuerung");
-    expect(within(controls).getByText("Example App")).toBeInTheDocument();
-    expect(within(controls).getByText("Auth")).toBeInTheDocument();
-    expect(within(controls).getByText("Billing")).toBeInTheDocument();
-    expect(within(controls).queryByText("GET /api/auth")).not.toBeInTheDocument();
-    expect(within(controls).queryByText("auth.ts")).not.toBeInTheDocument();
+    const visibleNodes = screen.getByLabelText("Sichtbare Knoten");
+    expect(within(visibleNodes).getByText("Example App")).toBeInTheDocument();
+    expect(within(visibleNodes).getByText("Auth")).toBeInTheDocument();
+    expect(within(visibleNodes).getByText("Billing")).toBeInTheDocument();
+    expect(within(visibleNodes).queryByText("GET /api/auth")).not.toBeInTheDocument();
+    expect(within(visibleNodes).queryByText("auth.ts")).not.toBeInTheDocument();
   });
 
   it("uses search as progressive disclosure for semantic services", () => {
@@ -118,9 +118,9 @@ describe("AtlasView", () => {
     fireEvent.change(screen.getByPlaceholderText("Label durchsuchen…"), {
       target: { value: "AuthService" },
     });
-    const controls = screen.getByLabelText("Atlas-Steuerung");
-    expect(within(controls).getByText("AuthService")).toBeInTheDocument();
-    expect(within(controls).queryByText("auth.ts")).not.toBeInTheDocument();
+    const visibleNodes = screen.getByLabelText("Sichtbare Knoten");
+    expect(within(visibleNodes).getByText("AuthService")).toBeInTheDocument();
+    expect(within(visibleNodes).queryByText("auth.ts")).not.toBeInTheDocument();
   });
 
   it("keeps domain membership available for raw graph drill-down", () => {
