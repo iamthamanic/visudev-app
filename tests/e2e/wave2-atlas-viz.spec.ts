@@ -27,8 +27,11 @@ test.describe("Wave 2 atlas viz parity", () => {
     await expect(page.getByTestId("atlas-legend-item")).toHaveCount(7);
     await expect(page.getByTestId("atlas-zoom-controls")).toBeVisible();
 
-    await page.getByTestId("atlas-cluster").first().click();
-    await expect(page.getByRole("heading", { name: /WEB APP|API SERVICE|WORKER/i })).toBeVisible();
+    const firstCluster = page.getByTestId("atlas-cluster").first();
+    await firstCluster.click();
+    await expect(firstCluster).toHaveAttribute("data-selected", "true");
+    await expect(page.getByTestId("atlas-inspector")).toBeVisible();
+    await expect(page.getByTestId("atlas-inspector-overview")).toBeVisible();
 
     await page.screenshot({
       path: `${EVIDENCE_DIR}/atlas-canvas-inspector.png`,

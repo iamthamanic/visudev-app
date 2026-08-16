@@ -18,10 +18,22 @@ function graphFixture(): SoftwareGraph {
       { id: "file", kind: "file", label: "habit.ts", metadata: {} },
     ],
     edges: [
-      { id: "contains-service", kind: "contains", sourceId: "app", targetId: "service", metadata: {} },
+      {
+        id: "contains-service",
+        kind: "contains",
+        sourceId: "app",
+        targetId: "service",
+        metadata: {},
+      },
       { id: "calls-repo", kind: "calls", sourceId: "service", targetId: "repo", metadata: {} },
       { id: "data-table", kind: "data", sourceId: "repo", targetId: "table", metadata: {} },
-      { id: "external-call", kind: "api", sourceId: "service", targetId: "external", metadata: {} },
+      {
+        id: "external-call",
+        kind: "api",
+        sourceId: "service",
+        targetId: "external",
+        metadata: {},
+      },
       { id: "file-import", kind: "imports", sourceId: "file", targetId: "service", metadata: {} },
     ],
     evidence: [],
@@ -72,13 +84,30 @@ describe("buildSemanticSystemModel", () => {
       "contains",
     ]);
     expect(model.relations.every((relation) => relation.evidence.length > 0)).toBe(true);
-    expect(model.relations.some((relation) => relation.evidence[0]?.refId === "file-import")).toBe(false);
+    expect(model.relations.some((relation) => relation.evidence[0]?.refId === "file-import")).toBe(
+      false,
+    );
     expect(
       model.relations.some(
         (relation) =>
           relation.kind === "contains" && relation.targetId === "semantic:business-domain:habit",
       ),
     ).toBe(true);
+  });
+
+  it("does not assign inferred domains to an arbitrary application", () => {
+    const graph = graphFixture();
+    graph.nodes.push({ id: "app-2", kind: "application", label: "Worker", metadata: {} });
+    const model = buildSemanticSystemModel(graph);
+
+    expect(
+      model.relations.filter(
+        (relation) =>
+          relation.kind === "contains" &&
+          relation.targetId === "semantic:business-domain:habit" &&
+          relation.metadata.derivedFrom === "business-domain-inference",
+      ),
+    ).toHaveLength(0);
   });
 
   it("returns an empty model for an empty graph", () => {

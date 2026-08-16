@@ -1,18 +1,15 @@
-/**
- * Atlas view state — search, selection, projection, view mode, reduced-motion policy.
- */
+/** Atlas view state orchestration. */
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import type { SemanticEntity } from "../../../../../shared/semantic-system-model.types.js";
 import type { BlueprintData, SoftwareGraphGroup, SoftwareGraphNode } from "../../types";
-import { useAtlasDefaultClusterSelection } from "../../hooks/useAtlasDefaultClusterSelection.js";
 import { buildGraphSnapshotKey } from "../../services/graph-snapshot-key.js";
-import { buildCityBlocks } from "./build-city-blocks.js";
-import type { CityBlock } from "./build-city-blocks.js";
-import { findGraphNode, listVisibleGroups } from "./atlas-display.js";
-import { projectAtlasGraph } from "./_projection.js";
+import { buildCityBlocks, type CityBlock } from "./build-city-blocks.js";
 import type { AtlasProjection } from "./_projection.js";
 import type { AtlasViewMode } from "./atlas-view-mode.js";
-import { usePrefersReducedMotion } from "./usePrefersReducedMotion.js";
+import { useAtlasProjection } from "./useAtlasProjection.js";
+import { useAtlasSelection } from "./useAtlasSelection.js";
+import { useAtlasViewModeState } from "./useAtlasViewModeState.js";
 
 export interface AtlasViewState {
   searchQuery: string;
@@ -23,6 +20,7 @@ export interface AtlasViewState {
   cityBlocks: CityBlock[];
   selectedNodeId: string | null;
   selectedGroupId: string | null;
+  selectedSemanticEntity: SemanticEntity | null;
   selectedNode: SoftwareGraphNode | null;
   selectedCluster: SoftwareGraphGroup | null;
   setSearchQuery: (value: string) => void;
@@ -34,97 +32,24 @@ export interface AtlasViewState {
 
 export function useAtlasViewState(graph: BlueprintData["graph"]): AtlasViewState {
   const [searchQuery, setSearchQuery] = useState("");
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const threeDisabled = prefersReducedMotion;
-  const [viewMode, setViewMode] = useState<AtlasViewMode>(() =>
-    prefersReducedMotion ? "2d" : "3d",
-  );
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-  const graphSnapshotKey = buildGraphSnapshotKey(graph);
-
-  const projection = useMemo(() => {
-    if (!graph) {
-      return { nodes: [], edges: [], condensed: false, totalNodes: 0, visibleNodes: 0 };
-    }
-    return projectAtlasGraph(graph, { searchQuery });
-  }, [graph, searchQuery]);
-
-  const visibleGroups = useMemo(() => {
-    if (!graph) return [];
-    const visibleIds = new Set(projection.nodes.map((node) => node.id));
-    return listVisibleGroups(graph, visibleIds);
-  }, [graph, projection.nodes]);
-
+  const projection = useAtlasProjection(graph, searchQuery);
+  const visibleGroups = projection.groups;
   const cityBlocks = useMemo(
     () => buildCityBlocks(projection.nodes, visibleGroups),
     [projection.nodes, visibleGroups],
   );
-
-  const selectedNode = useMemo(() => {
-    if (!graph || !selectedNodeId) return null;
-    return findGraphNode(graph, selectedNodeId);
-  }, [graph, selectedNodeId]);
-
-  const selectedCluster = useMemo(() => {
-    if (!selectedGroupId) return null;
-    return visibleGroups.find((group) => group.id === selectedGroupId) ?? null;
-  }, [selectedGroupId, visibleGroups]);
-
-  const handleSelectNode = (nodeId: string) => {
-    setSelectedNodeId(nodeId);
-    setSelectedGroupId(null);
-  };
-
-  const handleSelectGroup = (groupId: string) => {
-    setSelectedGroupId(groupId);
-    setSelectedNodeId(null);
-  };
-
-  const handleSelectViewMode = (mode: AtlasViewMode) => {
-    if (mode === "3d" && threeDisabled) return;
-    setViewMode(mode);
-  };
-
-  useEffect(() => {
-    setViewMode(threeDisabled ? "2d" : "3d");
-  }, [threeDisabled]);
-
-  useAtlasDefaultClusterSelection(
-    graph,
-    visibleGroups,
-    selectedGroupId,
-    selectedNodeId,
-    setSelectedGroupId,
-    setSelectedNodeId,
-    graphSnapshotKey,
-  );
-
-  useEffect(() => {
-    const visibleIds = new Set(projection.nodes.map((node) => node.id));
-    if (selectedNodeId && !visibleIds.has(selectedNodeId)) {
-      setSelectedNodeId(null);
-    }
-    if (selectedGroupId && !visibleGroups.some((group) => group.id === selectedGroupId)) {
-      setSelectedGroupId(null);
-    }
-  }, [projection.nodes, selectedGroupId, selectedNodeId, visibleGroups]);
+  const graphSnapshotKey = buildGraphSnapshotKey(graph);
+  const selection = useAtlasSelection(graph, projection, graphSnapshotKey);
+  const mode = useAtlasViewModeState();
 
   return {
     searchQuery,
-    viewMode,
-    threeDisabled,
     projection,
     visibleGroups,
     cityBlocks,
-    selectedNodeId,
-    selectedGroupId,
-    selectedNode,
-    selectedCluster,
+    ...selection,
+    ...mode,
     setSearchQuery,
-    handleSelectNode,
-    handleSelectGroup,
-    handleSelectViewMode,
     resetSearch: () => setSearchQuery(""),
   };
 }

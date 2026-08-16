@@ -1,0 +1,114 @@
+name: Real Visual Audit
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled]
+
+jobs:
+  audit:
+    name: Real Project Gate (hrkoordinator, enrichment OFF)
+    if: contains(github.event.pull_request.labels.*.name, 'visudev-gapclose')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VITE_VISUDEV_MODE: local
+      VITE_VISUDEV_ENGINE_URL: http://127.0.0.1:4317
+      VISUDEV_ENGINE_HOST: 127.0.0.1
+      VISUDEV_ENGINE_PORT: "4317"
+      VISUDEV_PREVIEW_RUNNER_URL: http://127.0.0.1:4000
+      VISUDEV_DEMO_ENRICHMENT: "false"
+      VITE_BLUEPRINT_DEMO_ENRICHMENT: "false"
+      USE_DOCKER: "0"
+      PORT: "4000"
+      VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjIwOTAxMjUyODV9.e2e-ci-placeholder-signature
+      VISUDEV_AUDIT_OUT: /tmp/visudev-real-visual-audit
+
+    steps:
+      - name: Checkout VisuDev
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned target repository
+        uses: actions/checkout@v4
+        with:
+          repository: iamthamanic/hrkoordinator
+          ref: d34842f922d1fab330e4df7bb6ab99a4b2e1f905
+          path: target-repo
+          fetch-depth: 20
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install VisuDev dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Start VisuDev stack with demo enrichment OFF
+        shell: bash
+        run: |
+          set -euo pipefail
+          export VISUDEV_STORAGE_DIR="$GITHUB_WORKSPACE/.audit-visudev-storage"
+          mkdir -p "$VISUDEV_STORAGE_DIR" "$VISUDEV_AUDIT_OUT/runtime-logs"
+          npm run dev:runner > "$VISUDEV_AUDIT_OUT/runtime-logs/runner.log" 2>&1 &
+          echo $! > /tmp/visudev-runner.pid
+          npm run dev:engine > "$VISUDEV_AUDIT_OUT/runtime-logs/engine.log" 2>&1 &
+          echo $! > /tmp/visudev-engine.pid
+          npm run dev:app -- --host 127.0.0.1 > "$VISUDEV_AUDIT_OUT/runtime-logs/app.log" 2>&1 &
+          echo $! > /tmp/visudev-app.pid
+
+          for url in http://127.0.0.1:4000/health http://127.0.0.1:4317/health http://127.0.0.1:3005; do
+            echo "Waiting for $url"
+            ok=0
+            for i in $(seq 1 120); do
+              if curl -fsS "$url" >/dev/null 2>&1; then
+                ok=1
+                break
+              fi
+              sleep 1
+            done
+            if [ "$ok" -ne 1 ]; then
+              echo "Timed out waiting for $url"
+              exit 1
+            fi
+          done
+
+      - name: Analyze hrkoordinator, assert Atlas semantics, capture all seven screens
+        env:
+          VISUDEV_STORAGE_DIR: ${{ github.workspace }}/.audit-visudev-storage
+          VISUDEV_AUDIT_TARGET: ${{ github.workspace }}/target-repo
+          VISUDEV_AUDIT_PROJECT_NAME: hrkoordinator
+          VISUDEV_AUDIT_REPOSITORY_URL: https://github.com/iamthamanic/hrkoordinator
+        run: node scripts/real-visual-audit.mjs
+
+      - name: Record environment proof
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p "$VISUDEV_AUDIT_OUT"
+          {
+            echo "VISUDEV_DEMO_ENRICHMENT=$VISUDEV_DEMO_ENRICHMENT"
+            echo "VITE_BLUEPRINT_DEMO_ENRICHMENT=$VITE_BLUEPRINT_DEMO_ENRICHMENT"
+            echo "target=iamthamanic/hrkoordinator"
+            echo "expected_target_commit=d34842f922d1fab330e4df7bb6ab99a4b2e1f905"
+            echo "visudev_commit=$GITHUB_SHA"
+            git -C target-repo rev-parse HEAD | sed 's/^/target_commit=/'
+          } > "$VISUDEV_AUDIT_OUT/environment.txt"
+
+      - name: Upload real visual audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-visual-audit-hrkoordinator
+          path: /tmp/visudev-real-visual-audit/
+          if-no-files-found: error
+          retention-days: 7

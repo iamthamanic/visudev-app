@@ -92,7 +92,7 @@
     "dev:local:no-runner": "node scripts/dev-local.js --no-runner",
     "dev:engine": "tsx watch local-engine/src/index.ts",
     "build:engine": "tsc -p local-engine/tsconfig.json",
-    "start:engine": "node local-engine/dist/index.js",
+    "start:engine": "node local-engine/dist/local-engine/src/index.js",
     "dev:supabase": "node scripts/dev-hybrid.js",
     "dev:legacy": "npm run dev:supabase",
     "dev:hybrid": "npm run dev:supabase",
