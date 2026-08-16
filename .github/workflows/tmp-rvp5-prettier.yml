@@ -1,0 +1,62 @@
+name: Temporary RVP-5 Prettier Fix
+
+on:
+  push:
+    branches:
+      - feat/321-atlas-semantic-projection
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/321-atlas-semantic-projection
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Format gate files
+        run: |
+          npx prettier --write \
+            scripts/real-visual-audit.mjs \
+            shared/semantic-domain-inference.ts \
+            shared/semantic-relation-kind.ts \
+            shared/semantic-rollup.ts \
+            src/modules/blueprint/blueprint-metrics.test.ts \
+            src/modules/blueprint/blueprint-metrics.ts \
+            src/modules/blueprint/components/atlas/_projection.test.ts \
+            src/modules/blueprint/components/atlas/_projection.ts \
+            src/modules/blueprint/components/atlas/useAtlasViewModeState.ts \
+            tests/e2e/wave5-shell-footer-health.spec.ts
+
+      - name: Commit formatting when needed
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No formatting changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- \
+            scripts/real-visual-audit.mjs \
+            shared/semantic-domain-inference.ts \
+            shared/semantic-relation-kind.ts \
+            shared/semantic-rollup.ts \
+            src/modules/blueprint/blueprint-metrics.test.ts \
+            src/modules/blueprint/blueprint-metrics.ts \
+            src/modules/blueprint/components/atlas/_projection.test.ts \
+            src/modules/blueprint/components/atlas/_projection.ts \
+            src/modules/blueprint/components/atlas/useAtlasViewModeState.ts \
+            tests/e2e/wave5-shell-footer-health.spec.ts
+          git commit -m "style: apply Prettier for RVP-5 gate"
+          git push origin HEAD:feat/321-atlas-semantic-projection
