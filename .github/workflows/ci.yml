@@ -11,7 +11,7 @@ jobs:
     name: Quality (lint, typecheck, unit)
     runs-on: ubuntu-latest
     env:
-      # Unit tests import supabase info; placeholder JWT only (demo path stays in e2e-demo).
+      # Placeholder JWT only; no deploy secret.
       VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjIwOTAxMjUyODV9.e2e-ci-placeholder-signature
     steps:
       - uses: actions/checkout@v4
@@ -22,17 +22,16 @@ jobs:
           node-version: "20"
           cache: "npm"
 
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Unit tests
-        run: npm run test:run
+      - name: Full repository checks
+        run: npm run checks
 
   e2e-demo:
     name: E2E (Playwright, Demo-Enrichment)
