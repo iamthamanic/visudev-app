@@ -76,10 +76,17 @@ const GRAPH_EDGE_KIND_BY_SEMANTIC_KIND: Record<SemanticRelationKind, SoftwareGra
   validates: "validates",
 };
 
+const UUID_LABEL = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 function truncateLabel(label: string): string {
   const trimmed = label.trim();
   if (trimmed.length <= ATLAS_MAX_LABEL_LEN) return trimmed;
   return `${trimmed.slice(0, ATLAS_MAX_LABEL_LEN - 1)}…`;
+}
+
+function isReadableOverviewEntity(entity: SemanticEntity): boolean {
+  if (entity.kind !== "application") return true;
+  return !UUID_LABEL.test(entity.label.trim());
 }
 
 function representativeGraphNodeId(
@@ -95,13 +102,17 @@ function representativeGraphNodeId(
 }
 
 function defaultEntities(model: SemanticSystemModel): SemanticEntity[] {
-  const applications = model.entities.filter((entity) => entity.kind === "application");
+  const applications = model.entities.filter(
+    (entity) => entity.kind === "application" && isReadableOverviewEntity(entity),
+  );
   const domains = model.entities.filter((entity) => entity.kind === "business-domain");
   if (domains.length > 0) return [...applications, ...domains];
   return [
     ...applications,
-    ...model.entities.filter((entity) =>
-      ["service", "component", "data-store", "external-system"].includes(entity.kind),
+    ...model.entities.filter(
+      (entity) =>
+        isReadableOverviewEntity(entity) &&
+        ["service", "component", "data-store", "external-system"].includes(entity.kind),
     ),
   ];
 }
@@ -111,7 +122,9 @@ function selectEntities(
   searchQuery: string,
 ): { entities: SemanticEntity[]; condensed: boolean; total: number } {
   const normalizedSearch = searchQuery.trim().toLowerCase();
-  const searchable = model.entities.filter((entity) => PRIMARY_SEARCH_KINDS.has(entity.kind));
+  const searchable = model.entities.filter(
+    (entity) => PRIMARY_SEARCH_KINDS.has(entity.kind) && isReadableOverviewEntity(entity),
+  );
   if (normalizedSearch) {
     const matches = searchable.filter((entity) =>
       entity.label.toLowerCase().includes(normalizedSearch),
