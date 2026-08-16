@@ -65,6 +65,20 @@ describe("projectAtlasGraph", () => {
     );
   });
 
+  it("does not expose opaque application UUIDs as overview labels", () => {
+    const graph = makeGraph();
+    graph.nodes[0] = {
+      id: "app",
+      kind: "application",
+      label: "e9afc94b-b2e3-47a3-b24f-ac07284cb34f",
+      metadata: {},
+    };
+
+    const projection = projectAtlasGraph(graph);
+    expect(projection.nodes.some((node) => node.kind === "application")).toBe(false);
+    expect(projection.nodes.some((node) => node.label === "Habit")).toBe(true);
+  });
+
   it("reveals semantic services through search without promoting raw files", () => {
     const projection = projectAtlasGraph(makeGraph(), { searchQuery: "HabitService" });
     expect(projection.nodes).toHaveLength(1);
