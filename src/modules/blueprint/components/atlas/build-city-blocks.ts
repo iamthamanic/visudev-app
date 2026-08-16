@@ -107,10 +107,16 @@ export function buildCityBlocks(
 ): CityBlock[] {
   const districts = groupNodesByDistrict(nodes, groups);
   const blocks: CityBlock[] = [];
+  const districtColumns = Math.max(1, Math.ceil(Math.sqrt(districts.length)));
 
   districts.forEach((district, districtIndex) => {
-    const originX = districtIndex * DISTRICT_GAP;
-    blocks.push(...layoutDistrict(district.nodes, district.label, district.kind, originX, 0));
+    const row = Math.floor(districtIndex / districtColumns);
+    const column = districtIndex % districtColumns;
+    const originX = column * DISTRICT_GAP;
+    const originZ = row * DISTRICT_GAP;
+    blocks.push(
+      ...layoutDistrict(district.nodes, district.label, district.kind, originX, originZ),
+    );
   });
 
   if (blocks.length === 0) return blocks;
