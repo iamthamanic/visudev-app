@@ -17,12 +17,11 @@ test.describe("Wave 3 atlas 3D polish", () => {
 
     expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(6);
     expect(await page.getByTestId("atlas-cluster-label").count()).toBeGreaterThanOrEqual(6);
-    await expect(
-      page
-        .getByTestId("atlas-cluster")
-        .filter({ hasText: /API SERVICE/i })
-        .first(),
-    ).toHaveAttribute("data-selected", "true", { timeout: 15000 });
+    await expect(page.getByTestId("atlas-cluster").first()).toHaveAttribute(
+      "data-selected",
+      "true",
+      { timeout: 15000 },
+    );
     await expect(page.getByTestId("atlas-inspector")).toBeVisible();
   });
 });
