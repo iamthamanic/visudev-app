@@ -4,13 +4,62 @@ import type { SoftwareGraph, SoftwareGraphNode } from "./software-graph.types.js
 import type { SemanticEntity, SemanticEvidenceRef } from "./semantic-system-model.types.js";
 
 const STRUCTURAL_DOMAIN_NAMES = new Set([
-  "api", "app", "backend", "browser", "client", "common", "component", "components",
-  "config", "controller", "controllers", "edge", "feature", "features", "frontend", "hook",
-  "hooks", "import", "imports", "index", "layout", "layouts", "lib", "libs", "model",
-  "models", "module", "modules", "page", "pages", "repository", "repositories", "root",
-  "route", "routes", "screen", "screens", "script", "scripts", "server", "service",
-  "services", "shared", "src", "store", "stores", "type", "types", "unassigned",
-  "unknown", "util", "utils", "view", "views", "web", "worker",
+  "api",
+  "app",
+  "backend",
+  "browser",
+  "client",
+  "common",
+  "component",
+  "components",
+  "config",
+  "controller",
+  "controllers",
+  "edge",
+  "feature",
+  "features",
+  "frontend",
+  "hook",
+  "hooks",
+  "import",
+  "imports",
+  "index",
+  "layout",
+  "layouts",
+  "lib",
+  "libs",
+  "model",
+  "models",
+  "module",
+  "modules",
+  "page",
+  "pages",
+  "repository",
+  "repositories",
+  "root",
+  "route",
+  "routes",
+  "screen",
+  "screens",
+  "script",
+  "scripts",
+  "server",
+  "service",
+  "services",
+  "shared",
+  "src",
+  "store",
+  "stores",
+  "type",
+  "types",
+  "unassigned",
+  "unknown",
+  "util",
+  "utils",
+  "view",
+  "views",
+  "web",
+  "worker",
 ]);
 
 const TECHNICAL_SUFFIX =
@@ -19,7 +68,7 @@ const ROUTE_PREFIX = /^(?:api|rest|graphql|v\d+)$/i;
 
 interface DomainCandidate {
   key: string;
-  evidence: SemanticEvidenceRef[];
+  evidenceIds: Set<string>;
   sourceKinds: Set<string>;
   maxConfidence: number;
 }
@@ -47,11 +96,13 @@ export function normalizeBusinessDomainCandidate(raw: string): string | null {
 function routeResource(node: SoftwareGraphNode): string | null {
   const path = node.metadata.path;
   if (typeof path !== "string") return null;
-  return path
-    .split("/")
-    .map((part) => part.trim())
-    .filter((part) => part && !part.startsWith(":"))
-    .find((part) => !ROUTE_PREFIX.test(part)) ?? null;
+  return (
+    path
+      .split("/")
+      .map((part) => part.trim())
+      .filter((part) => part && !part.startsWith(":"))
+      .find((part) => !ROUTE_PREFIX.test(part)) ?? null
+  );
 }
 
 function addCandidate(
@@ -66,14 +117,11 @@ function addCandidate(
   if (!key) return;
   const current = candidates.get(key) ?? {
     key,
-    evidence: [],
+    evidenceIds: new Set<string>(),
     sourceKinds: new Set<string>(),
     maxConfidence: 0,
   };
-  const evidenceKey = `graph-node:${refId}`;
-  if (!current.evidence.some((item) => `${item.source}:${item.refId}` === evidenceKey)) {
-    current.evidence.push({ source: "graph-node", refId });
-  }
+  current.evidenceIds.add(refId);
   current.sourceKinds.add(sourceKind);
   current.maxConfidence = Math.max(current.maxConfidence, confidence);
   candidates.set(key, current);
@@ -101,6 +149,12 @@ function candidateConfidence(candidate: DomainCandidate): number {
   return Math.round(Math.min(0.98, candidate.maxConfidence + corroboration) * 100) / 100;
 }
 
+function candidateEvidence(candidate: DomainCandidate): SemanticEvidenceRef[] {
+  return [...candidate.evidenceIds]
+    .sort((left, right) => left.localeCompare(right))
+    .map((refId): SemanticEvidenceRef => ({ source: "graph-node", refId }));
+}
+
 export function inferBusinessDomainEntities(graph: SoftwareGraph): SemanticEntity[] {
   const candidates = new Map<string, DomainCandidate>();
   for (const node of graph.nodes) {
@@ -121,7 +175,7 @@ export function inferBusinessDomainEntities(graph: SoftwareGraph): SemanticEntit
       kind: "business-domain",
       label: displayLabel(candidate.key),
       confidence: candidateConfidence(candidate),
-      evidence: [...candidate.evidence].sort((left, right) => left.refId.localeCompare(right.refId)),
+      evidence: candidateEvidence(candidate),
       metadata: {
         candidateKey: candidate.key,
         sourceKinds: [...candidate.sourceKinds].sort(),
