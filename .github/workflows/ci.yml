@@ -27,11 +27,30 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Install quality tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+
       - name: Install dependencies
         run: npm ci
 
       - name: Full repository checks
         run: npm run checks
+
+      - name: Frontend dependency audit
+        run: npm audit --audit-level=high
+
+      - name: Backend dependency audit
+        shell: bash
+        run: |
+          if [ -d src/supabase/functions/server ]; then
+            (cd src/supabase/functions/server && deno audit)
+          elif [ -d supabase/functions/server ]; then
+            (cd supabase/functions/server && deno audit)
+          else
+            echo "No server function found; deno audit not applicable."
+          fi
 
   e2e-demo:
     name: E2E (Playwright, Demo-Enrichment)
