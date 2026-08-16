@@ -3,6 +3,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
+import type { SemanticEntity } from "../../../../../shared/semantic-system-model.types.js";
 import type { BlueprintData, SoftwareGraphGroup, SoftwareGraphNode } from "../../types";
 import { useAtlasDefaultClusterSelection } from "../../hooks/useAtlasDefaultClusterSelection.js";
 import { buildGraphSnapshotKey } from "../../services/graph-snapshot-key.js";
@@ -23,6 +24,7 @@ export interface AtlasViewState {
   cityBlocks: CityBlock[];
   selectedNodeId: string | null;
   selectedGroupId: string | null;
+  selectedSemanticEntity: SemanticEntity | null;
   selectedNode: SoftwareGraphNode | null;
   selectedCluster: SoftwareGraphGroup | null;
   setSearchQuery: (value: string) => void;
@@ -43,12 +45,15 @@ export function useAtlasViewState(graph: BlueprintData["graph"]): AtlasViewState
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const graphSnapshotKey = buildGraphSnapshotKey(graph);
 
-  const projection = useMemo(() => {
+  const projection = useMemo<AtlasProjection>(() => {
     if (!graph) {
       return {
         nodes: [],
         edges: [],
         groups: [],
+        inspectorGroups: [],
+        semanticEntities: [],
+        sourceGraphNodeIdBySemanticId: {},
         condensed: false,
         totalNodes: 0,
         visibleNodes: 0,
@@ -64,15 +69,21 @@ export function useAtlasViewState(graph: BlueprintData["graph"]): AtlasViewState
     [projection.nodes, visibleGroups],
   );
 
+  const selectedSemanticEntity = useMemo(() => {
+    if (!selectedNodeId) return null;
+    return projection.semanticEntities.find((entity) => entity.id === selectedNodeId) ?? null;
+  }, [projection.semanticEntities, selectedNodeId]);
+
   const selectedNode = useMemo(() => {
     if (!graph || !selectedNodeId) return null;
-    return findGraphNode(graph, selectedNodeId);
-  }, [graph, selectedNodeId]);
+    const graphNodeId = projection.sourceGraphNodeIdBySemanticId[selectedNodeId];
+    return graphNodeId ? findGraphNode(graph, graphNodeId) : null;
+  }, [graph, projection.sourceGraphNodeIdBySemanticId, selectedNodeId]);
 
   const selectedCluster = useMemo(() => {
     if (!selectedGroupId) return null;
-    return visibleGroups.find((group) => group.id === selectedGroupId) ?? null;
-  }, [selectedGroupId, visibleGroups]);
+    return projection.inspectorGroups.find((group) => group.id === selectedGroupId) ?? null;
+  }, [projection.inspectorGroups, selectedGroupId]);
 
   const handleSelectNode = (nodeId: string) => {
     setSelectedNodeId(nodeId);
@@ -120,6 +131,7 @@ export function useAtlasViewState(graph: BlueprintData["graph"]): AtlasViewState
     cityBlocks,
     selectedNodeId,
     selectedGroupId,
+    selectedSemanticEntity,
     selectedNode,
     selectedCluster,
     setSearchQuery,
