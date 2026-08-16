@@ -30,8 +30,8 @@ export function AtlasInspectorDetailsTab({
     return (
       <>
         <ul className={styles.checklist}>
-          {labels.map((member) => (
-            <li key={member}>{member}</li>
+          {labels.map((member, index) => (
+            <li key={`${cluster.nodeIds[index] ?? member}:${index}`}>{member}</li>
           ))}
         </ul>
         {omittedCount > 0 ? (
