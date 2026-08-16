@@ -1,5 +1,5 @@
 /**
- * Atlas view state — search, selection, projection, view mode, reduced-motion policy.
+ * Atlas view state — search, selection, semantic projection, view mode, reduced-motion policy.
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -8,7 +8,7 @@ import { useAtlasDefaultClusterSelection } from "../../hooks/useAtlasDefaultClus
 import { buildGraphSnapshotKey } from "../../services/graph-snapshot-key.js";
 import { buildCityBlocks } from "./build-city-blocks.js";
 import type { CityBlock } from "./build-city-blocks.js";
-import { findGraphNode, listVisibleGroups } from "./atlas-display.js";
+import { findGraphNode } from "./atlas-display.js";
 import { projectAtlasGraph } from "./_projection.js";
 import type { AtlasProjection } from "./_projection.js";
 import type { AtlasViewMode } from "./atlas-view-mode.js";
@@ -45,16 +45,19 @@ export function useAtlasViewState(graph: BlueprintData["graph"]): AtlasViewState
 
   const projection = useMemo(() => {
     if (!graph) {
-      return { nodes: [], edges: [], condensed: false, totalNodes: 0, visibleNodes: 0 };
+      return {
+        nodes: [],
+        edges: [],
+        groups: [],
+        condensed: false,
+        totalNodes: 0,
+        visibleNodes: 0,
+      };
     }
     return projectAtlasGraph(graph, { searchQuery });
   }, [graph, searchQuery]);
 
-  const visibleGroups = useMemo(() => {
-    if (!graph) return [];
-    const visibleIds = new Set(projection.nodes.map((node) => node.id));
-    return listVisibleGroups(graph, visibleIds);
-  }, [graph, projection.nodes]);
+  const visibleGroups = projection.groups;
 
   const cityBlocks = useMemo(
     () => buildCityBlocks(projection.nodes, visibleGroups),
@@ -102,9 +105,7 @@ export function useAtlasViewState(graph: BlueprintData["graph"]): AtlasViewState
 
   useEffect(() => {
     const visibleIds = new Set(projection.nodes.map((node) => node.id));
-    if (selectedNodeId && !visibleIds.has(selectedNodeId)) {
-      setSelectedNodeId(null);
-    }
+    if (selectedNodeId && !visibleIds.has(selectedNodeId)) setSelectedNodeId(null);
     if (selectedGroupId && !visibleGroups.some((group) => group.id === selectedGroupId)) {
       setSelectedGroupId(null);
     }
