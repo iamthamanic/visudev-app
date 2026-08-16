@@ -68,11 +68,9 @@ export function computeCanonicalBlueprintMetrics(
   }
 
   const edges = Array.isArray(graph.edges) ? graph.edges : [];
-  const explicitFiles = options.filesAnalyzed && options.filesAnalyzed > 0 ? options.filesAnalyzed : null;
-  const files =
-    explicitFiles ??
-    metricValue(graph, "files") ??
-    countNodeKind(graph, "file");
+  const explicitFiles =
+    options.filesAnalyzed && options.filesAnalyzed > 0 ? options.filesAnalyzed : null;
+  const files = explicitFiles ?? metricValue(graph, "files") ?? countNodeKind(graph, "file");
   const coverage = metricValue(graph, "coverage");
 
   return {

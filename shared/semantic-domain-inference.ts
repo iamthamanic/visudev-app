@@ -170,16 +170,18 @@ export function inferBusinessDomainEntities(graph: SoftwareGraph): SemanticEntit
     if (node.kind === "domain") addCorroboratingGraphDomain(candidates, node);
   }
   return [...candidates.values()]
-    .map((candidate): SemanticEntity => ({
-      id: `semantic:business-domain:${candidate.key}`,
-      kind: "business-domain",
-      label: displayLabel(candidate.key),
-      confidence: candidateConfidence(candidate),
-      evidence: candidateEvidence(candidate),
-      metadata: {
-        candidateKey: candidate.key,
-        sourceKinds: [...candidate.sourceKinds].sort(),
-      },
-    }))
+    .map(
+      (candidate): SemanticEntity => ({
+        id: `semantic:business-domain:${candidate.key}`,
+        kind: "business-domain",
+        label: displayLabel(candidate.key),
+        confidence: candidateConfidence(candidate),
+        evidence: candidateEvidence(candidate),
+        metadata: {
+          candidateKey: candidate.key,
+          sourceKinds: [...candidate.sourceKinds].sort(),
+        },
+      }),
+    )
     .sort((left, right) => left.id.localeCompare(right.id));
 }

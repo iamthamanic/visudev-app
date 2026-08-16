@@ -52,12 +52,12 @@ describe("computeCanonicalBlueprintMetrics", () => {
   });
 
   it("prefers explicit filesAnalyzed over a legacy graph file metric", () => {
-    expect(
-      computeCanonicalBlueprintMetrics(graphFixture(), { filesAnalyzed: 1872 }),
-    ).toMatchObject({
-      files: 1872,
-      coveragePercent: 82,
-    });
+    expect(computeCanonicalBlueprintMetrics(graphFixture(), { filesAnalyzed: 1872 })).toMatchObject(
+      {
+        files: 1872,
+        coveragePercent: 82,
+      },
+    );
   });
 
   it("falls back to a graph file metric when explicit scan metadata is absent", () => {
@@ -74,9 +74,42 @@ describe("computeCanonicalBlueprintMetrics", () => {
     const blueprint: BlueprintData = {
       graph: graphFixture(),
       findings: [
-        { id: "high", ruleId: "a", category: "security", severity: "high", scopeId: "s", message: "x", expectedState: "x", actualState: "y", evidenceFactIds: [], confidence: 1 },
-        { id: "critical", ruleId: "b", category: "security", severity: "critical", scopeId: "s", message: "x", expectedState: "x", actualState: "y", evidenceFactIds: [], confidence: 1 },
-        { id: "low", ruleId: "c", category: "quality", severity: "low", scopeId: "s", message: "x", expectedState: "x", actualState: "y", evidenceFactIds: [], confidence: 1 },
+        {
+          id: "high",
+          ruleId: "a",
+          category: "security",
+          severity: "high",
+          scopeId: "s",
+          message: "x",
+          expectedState: "x",
+          actualState: "y",
+          evidenceFactIds: [],
+          confidence: 1,
+        },
+        {
+          id: "critical",
+          ruleId: "b",
+          category: "security",
+          severity: "critical",
+          scopeId: "s",
+          message: "x",
+          expectedState: "x",
+          actualState: "y",
+          evidenceFactIds: [],
+          confidence: 1,
+        },
+        {
+          id: "low",
+          ruleId: "c",
+          category: "quality",
+          severity: "low",
+          scopeId: "s",
+          message: "x",
+          expectedState: "x",
+          actualState: "y",
+          evidenceFactIds: [],
+          confidence: 1,
+        },
       ],
       filesAnalyzed: 1872,
     };

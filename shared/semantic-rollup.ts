@@ -149,7 +149,8 @@ function addDomainDescendantMemberships(
     const ancestorDomainId = findAncestorGraphDomain(node, nodeById);
     if (!ancestorDomainId) continue;
     const semanticDomain = domainByGraphDomainId.get(ancestorDomainId);
-    if (semanticDomain) addMembership(memberships, node.id, semanticDomain.id, 0.85, ancestorDomainId);
+    if (semanticDomain)
+      addMembership(memberships, node.id, semanticDomain.id, 0.85, ancestorDomainId);
   }
 }
 
@@ -179,14 +180,16 @@ function finalizeMemberships(
   accumulated: ReadonlyMap<string, MembershipAccumulator>,
 ): SemanticMembership[] {
   return [...accumulated.values()]
-    .map((membership): SemanticMembership => ({
-      graphNodeId: membership.graphNodeId,
-      semanticEntityId: membership.semanticEntityId,
-      confidence: Math.round(membership.confidence * 100) / 100,
-      evidence: [...membership.evidenceIds]
-        .sort(compareStrings)
-        .map((refId) => ({ source: "graph-node" as const, refId })),
-    }))
+    .map(
+      (membership): SemanticMembership => ({
+        graphNodeId: membership.graphNodeId,
+        semanticEntityId: membership.semanticEntityId,
+        confidence: Math.round(membership.confidence * 100) / 100,
+        evidence: [...membership.evidenceIds]
+          .sort(compareStrings)
+          .map((refId) => ({ source: "graph-node" as const, refId })),
+      }),
+    )
     .sort(
       (left, right) =>
         compareStrings(left.semanticEntityId, right.semanticEntityId) ||

@@ -235,9 +235,7 @@ export function projectAtlasSemanticModel(
         target: relation.targetId,
         kind,
         label:
-          typeof weight === "number" && weight > 1
-            ? `${relation.kind} ×${weight}`
-            : relation.kind,
+          typeof weight === "number" && weight > 1 ? `${relation.kind} ×${weight}` : relation.kind,
       };
     })
     .filter((edge): edge is GraphCanvasEdge => edge !== null);

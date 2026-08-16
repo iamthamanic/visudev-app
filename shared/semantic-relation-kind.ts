@@ -1,10 +1,7 @@
 import type { SoftwareGraphEdgeKind } from "./software-graph.types.js";
 import type { SemanticRelationKind } from "./semantic-system-model.types.js";
 
-const SEMANTIC_RELATION_KIND_BY_GRAPH_KIND: Record<
-  SoftwareGraphEdgeKind,
-  SemanticRelationKind
-> = {
+const SEMANTIC_RELATION_KIND_BY_GRAPH_KIND: Record<SoftwareGraphEdgeKind, SemanticRelationKind> = {
   contains: "contains",
   references: "depends-on",
   implements: "depends-on",

@@ -10,9 +10,7 @@ export interface AtlasViewModeState {
 
 export function useAtlasViewModeState(): AtlasViewModeState {
   const threeDisabled = usePrefersReducedMotion();
-  const [viewMode, setViewMode] = useState<AtlasViewMode>(() =>
-    threeDisabled ? "2d" : "3d",
-  );
+  const [viewMode, setViewMode] = useState<AtlasViewMode>(() => (threeDisabled ? "2d" : "3d"));
 
   useEffect(() => setViewMode(threeDisabled ? "2d" : "3d"), [threeDisabled]);
 

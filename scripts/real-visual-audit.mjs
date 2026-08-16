@@ -138,22 +138,29 @@ async function assertAtlasSemanticOverview(page) {
 
   const failures = [];
   if (nodeCount === 0) failures.push("Atlas has no visible semantic node cards.");
-  if (nodeCount > 40) failures.push(`Atlas shows ${nodeCount} primary objects; expected at most 40.`);
+  if (nodeCount > 40)
+    failures.push(`Atlas shows ${nodeCount} primary objects; expected at most 40.`);
   if (clusterCount === 0) failures.push("Atlas has no semantic clusters.");
 
   const rawKinds = nodes.filter((node) => node.kind === "route" || node.kind === "file");
   if (rawKinds.length > 0) {
-    failures.push(`Raw route/file nodes promoted to primary Atlas: ${JSON.stringify(rawKinds.slice(0, 10))}`);
+    failures.push(
+      `Raw route/file nodes promoted to primary Atlas: ${JSON.stringify(rawKinds.slice(0, 10))}`,
+    );
   }
 
   const routeNodes = nodes.filter((node) => ROUTE_LABEL.test(node.label));
   if (routeNodes.length > 0) {
-    failures.push(`HTTP routes promoted to primary Atlas labels: ${JSON.stringify(routeNodes.slice(0, 10))}`);
+    failures.push(
+      `HTTP routes promoted to primary Atlas labels: ${JSON.stringify(routeNodes.slice(0, 10))}`,
+    );
   }
 
   const routeClusters = clusterLabels.filter((label) => ROUTE_LABEL.test(label));
   if (routeClusters.length > 0) {
-    failures.push(`HTTP routes promoted to Atlas clusters: ${JSON.stringify(routeClusters.slice(0, 10))}`);
+    failures.push(
+      `HTTP routes promoted to Atlas clusters: ${JSON.stringify(routeClusters.slice(0, 10))}`,
+    );
   }
 
   const structuralClusters = clusterLabels.filter((label) =>
@@ -177,7 +184,8 @@ async function assertAtlasSemanticOverview(page) {
     const detailText = (await inspector.innerText()).trim();
     const hasRawMembers = !detailText.includes("Keine Knoten in diesem Cluster.");
     drilldown = { selectedCluster, detailText: detailText.slice(0, 4000), hasRawMembers };
-    if (!hasRawMembers) failures.push("Selected semantic cluster has no raw graph members in Details drill-down.");
+    if (!hasRawMembers)
+      failures.push("Selected semantic cluster has no raw graph members in Details drill-down.");
   }
 
   const result = {
@@ -213,7 +221,10 @@ async function captureView(page, view, index) {
     await page.waitForTimeout(view.id === "atlas" ? 5000 : 2000);
   }
 
-  const bodyText = await page.locator("body").innerText().catch(() => "");
+  const bodyText = await page
+    .locator("body")
+    .innerText()
+    .catch(() => "");
   await fs.writeFile(path.join(outDir, `${prefix}.txt`), bodyText);
   await fs.writeFile(path.join(outDir, `${prefix}.html`), await page.content());
   await page.screenshot({ path: path.join(outDir, `${prefix}.png`), fullPage: false });

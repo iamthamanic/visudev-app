@@ -60,9 +60,9 @@ describe("projectAtlasGraph", () => {
     expect(projection.nodes.some((node) => node.label.startsWith("GET "))).toBe(false);
     expect(projection.nodes.some((node) => node.kind === "file")).toBe(false);
     expect(projection.groups.some((group) => group.label === "Habit")).toBe(true);
-    expect(
-      projection.inspectorGroups.find((group) => group.label === "Habit")?.nodeIds,
-    ).toContain("habit-file");
+    expect(projection.inspectorGroups.find((group) => group.label === "Habit")?.nodeIds).toContain(
+      "habit-file",
+    );
   });
 
   it("reveals semantic services through search without promoting raw files", () => {
