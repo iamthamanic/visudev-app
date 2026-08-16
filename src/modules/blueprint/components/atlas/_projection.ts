@@ -82,7 +82,10 @@ function truncateLabel(label: string): string {
   return `${trimmed.slice(0, ATLAS_MAX_LABEL_LEN - 1)}…`;
 }
 
-function representativeGraphNodeId(entity: SemanticEntity, graphNodeIds: ReadonlySet<string>): string | null {
+function representativeGraphNodeId(
+  entity: SemanticEntity,
+  graphNodeIds: ReadonlySet<string>,
+): string | null {
   const direct = entity.metadata.sourceGraphNodeId;
   if (typeof direct === "string" && graphNodeIds.has(direct)) return direct;
   for (const evidence of entity.evidence) {
@@ -103,15 +106,16 @@ function defaultEntities(model: SemanticSystemModel): SemanticEntity[] {
   ];
 }
 
-function selectEntities(model: SemanticSystemModel, searchQuery: string): {
-  entities: SemanticEntity[];
-  condensed: boolean;
-  total: number;
-} {
+function selectEntities(
+  model: SemanticSystemModel,
+  searchQuery: string,
+): { entities: SemanticEntity[]; condensed: boolean; total: number } {
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const searchable = model.entities.filter((entity) => PRIMARY_SEARCH_KINDS.has(entity.kind));
   if (normalizedSearch) {
-    const matches = searchable.filter((entity) => entity.label.toLowerCase().includes(normalizedSearch));
+    const matches = searchable.filter((entity) =>
+      entity.label.toLowerCase().includes(normalizedSearch),
+    );
     return {
       entities: matches.slice(0, ATLAS_SEARCH_MATCH_LIMIT),
       condensed: matches.length > ATLAS_SEARCH_MATCH_LIMIT,
@@ -181,20 +185,29 @@ function buildGroups(
   return { groups: groups.sort(byLabel), inspectorGroups: inspectorGroups.sort(byLabel) };
 }
 
-export function projectAtlasGraph(
+function buildRepresentativeMap(
   graph: SoftwareGraph,
-  options: AtlasProjectionOptions = {},
-): AtlasProjection {
-  const model = buildSemanticSystemModel(graph);
+  model: SemanticSystemModel,
+): Map<string, string> {
   const graphNodeIds = new Set(graph.nodes.map((node) => node.id));
-  const representativeByEntityId = new Map<string, string>();
+  const result = new Map<string, string>();
   for (const entity of model.entities) {
     const representativeId = representativeGraphNodeId(entity, graphNodeIds);
-    if (representativeId) representativeByEntityId.set(entity.id, representativeId);
+    if (representativeId) result.set(entity.id, representativeId);
   }
+  return result;
+}
 
+export function projectAtlasSemanticModel(
+  graph: SoftwareGraph,
+  model: SemanticSystemModel,
+  options: AtlasProjectionOptions = {},
+): AtlasProjection {
+  const representativeByEntityId = buildRepresentativeMap(graph, model);
   const selection = selectEntities(model, options.searchQuery ?? "");
-  const selectedEntities = selection.entities.filter((entity) => representativeByEntityId.has(entity.id));
+  const selectedEntities = selection.entities.filter((entity) =>
+    representativeByEntityId.has(entity.id),
+  );
   const visibleSemanticIds = new Set(selectedEntities.map((entity) => entity.id));
 
   const nodes: GraphCanvasNode[] = selectedEntities.map((entity) => {
@@ -221,12 +234,14 @@ export function projectAtlasGraph(
         source: relation.sourceId,
         target: relation.targetId,
         kind,
-        label: typeof weight === "number" && weight > 1 ? `${relation.kind} ×${weight}` : relation.kind,
+        label:
+          typeof weight === "number" && weight > 1
+            ? `${relation.kind} ×${weight}`
+            : relation.kind,
       };
     })
     .filter((edge): edge is GraphCanvasEdge => edge !== null);
   const edges = candidateEdges.slice(0, ATLAS_MAX_EDGES);
-
   const { groups, inspectorGroups } = buildGroups(
     model,
     selectedEntities,
@@ -244,4 +259,11 @@ export function projectAtlasGraph(
     totalNodes: selection.total,
     visibleNodes: nodes.length,
   };
+}
+
+export function projectAtlasGraph(
+  graph: SoftwareGraph,
+  options: AtlasProjectionOptions = {},
+): AtlasProjection {
+  return projectAtlasSemanticModel(graph, buildSemanticSystemModel(graph), options);
 }
