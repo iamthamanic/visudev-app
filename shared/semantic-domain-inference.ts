@@ -64,6 +64,8 @@ const STRUCTURAL_DOMAIN_NAMES = new Set([
 
 const TECHNICAL_SUFFIX =
   /(?:[-_. ]?(?:services?|controllers?|repositor(?:y|ies)|screens?|pages?|stores?|hooks?|handlers?|models?|entit(?:y|ies)|routes?))$/i;
+const NAMED_SEMANTIC_ARTIFACT_SUFFIX =
+  /(?:services?|controllers?|repositor(?:y|ies)|handlers?|use[-_. ]?cases?)$/i;
 const ROUTE_PREFIX = /^(?:api|rest|graphql|v\d+)$/i;
 
 interface DomainCandidate {
@@ -103,6 +105,11 @@ function routeResource(node: SoftwareGraphNode): string | null {
       .filter((part) => part && !part.startsWith(":"))
       .find((part) => !ROUTE_PREFIX.test(part)) ?? null
   );
+}
+
+function namedSemanticArtifact(node: SoftwareGraphNode): string | null {
+  const label = node.label.trim();
+  return NAMED_SEMANTIC_ARTIFACT_SUFFIX.test(label) ? label : null;
 }
 
 function addCandidate(
@@ -163,7 +170,7 @@ export function inferBusinessDomainEntities(graph: SoftwareGraph): SemanticEntit
     } else if (node.kind === "table") {
       addCandidate(candidates, node.label, "table", node.id, 0.95);
     } else if (node.kind === "service" || node.kind === "repository") {
-      addCandidate(candidates, node.label, node.kind, node.id, 0.75);
+      addCandidate(candidates, namedSemanticArtifact(node), node.kind, node.id, 0.75);
     }
   }
   for (const node of graph.nodes) {
