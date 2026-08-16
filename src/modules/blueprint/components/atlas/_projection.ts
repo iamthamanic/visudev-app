@@ -1,7 +1,7 @@
 /**
  * Atlas projection: SoftwareGraph -> SemanticSystemModel -> readable system overview.
- * Routes/files never become default Atlas districts; raw graph nodes stay available
- * through semantic memberships and the existing inspector drill-down.
+ * Semantic entity IDs are the projected identities. Raw graph nodes remain evidence
+ * targets for the inspector and never masquerade as semantic nodes.
  */
 
 import { buildSemanticSystemModel } from "../../../../../shared/semantic-system-model.js";
@@ -34,7 +34,12 @@ export interface AtlasProjectionOptions {
 export interface AtlasProjection {
   nodes: GraphCanvasNode[];
   edges: GraphCanvasEdge[];
+  /** Groups whose nodeIds reference projected semantic node IDs. */
   groups: SoftwareGraphGroup[];
+  /** Same groups with raw graph memberships for evidence drill-down. */
+  inspectorGroups: SoftwareGraphGroup[];
+  semanticEntities: SemanticEntity[];
+  sourceGraphNodeIdBySemanticId: Record<string, string>;
   condensed: boolean;
   totalNodes: number;
   visibleNodes: number;
@@ -121,32 +126,59 @@ function selectEntities(model: SemanticSystemModel, searchQuery: string): {
   };
 }
 
+function membershipsByDomain(model: SemanticSystemModel): Map<string, Set<string>> {
+  const entityById = new Map(model.entities.map((entity) => [entity.id, entity]));
+  const result = new Map<string, Set<string>>();
+  for (const membership of model.memberships) {
+    if (entityById.get(membership.semanticEntityId)?.kind !== "business-domain") continue;
+    const ids = result.get(membership.semanticEntityId) ?? new Set<string>();
+    ids.add(membership.graphNodeId);
+    result.set(membership.semanticEntityId, ids);
+  }
+  return result;
+}
+
 function buildGroups(
   model: SemanticSystemModel,
+  selectedEntities: readonly SemanticEntity[],
   representativeByEntityId: ReadonlyMap<string, string>,
-): SoftwareGraphGroup[] {
-  const membershipsByEntityId = new Map<string, Set<string>>();
-  for (const membership of model.memberships) {
-    const ids = membershipsByEntityId.get(membership.semanticEntityId) ?? new Set<string>();
-    ids.add(membership.graphNodeId);
-    membershipsByEntityId.set(membership.semanticEntityId, ids);
+): { groups: SoftwareGraphGroup[]; inspectorGroups: SoftwareGraphGroup[] } {
+  const rawMemberships = membershipsByDomain(model);
+  const selectedById = new Set(selectedEntities.map((entity) => entity.id));
+  const groups: SoftwareGraphGroup[] = [];
+  const inspectorGroups: SoftwareGraphGroup[] = [];
+
+  for (const domain of model.entities.filter((entity) => entity.kind === "business-domain")) {
+    const rawIds = new Set(rawMemberships.get(domain.id) ?? []);
+    const representativeId = representativeByEntityId.get(domain.id);
+    if (representativeId) rawIds.add(representativeId);
+
+    const semanticNodeIds = new Set<string>();
+    if (selectedById.has(domain.id)) semanticNodeIds.add(domain.id);
+    for (const entity of selectedEntities) {
+      const rawRepresentative = representativeByEntityId.get(entity.id);
+      if (rawRepresentative && rawIds.has(rawRepresentative)) semanticNodeIds.add(entity.id);
+    }
+    if (semanticNodeIds.size === 0) continue;
+
+    const id = `atlas-domain:${domain.id}`;
+    groups.push({
+      id,
+      kind: "domain",
+      label: domain.label,
+      nodeIds: [...semanticNodeIds].sort(),
+    });
+    inspectorGroups.push({
+      id,
+      kind: "domain",
+      label: domain.label,
+      nodeIds: [...rawIds].sort(),
+    });
   }
 
-  return model.entities
-    .filter((entity) => entity.kind === "business-domain")
-    .map((entity): SoftwareGraphGroup => {
-      const nodeIds = membershipsByEntityId.get(entity.id) ?? new Set<string>();
-      const representativeId = representativeByEntityId.get(entity.id);
-      if (representativeId) nodeIds.add(representativeId);
-      return {
-        id: `atlas-domain:${entity.id}`,
-        kind: "domain",
-        label: entity.label,
-        nodeIds: [...nodeIds].sort(),
-      };
-    })
-    .filter((group) => group.nodeIds.length > 0)
-    .sort((left, right) => left.label.localeCompare(right.label));
+  const byLabel = (left: SoftwareGraphGroup, right: SoftwareGraphGroup) =>
+    left.label.localeCompare(right.label);
+  return { groups: groups.sort(byLabel), inspectorGroups: inspectorGroups.sort(byLabel) };
 }
 
 export function projectAtlasGraph(
@@ -162,62 +194,53 @@ export function projectAtlasGraph(
   }
 
   const selection = selectEntities(model, options.searchQuery ?? "");
-  const selectedByRepresentative = new Map<string, SemanticEntity>();
-  for (const entity of selection.entities) {
-    const representativeId = representativeByEntityId.get(entity.id);
-    if (!representativeId) continue;
-    const existing = selectedByRepresentative.get(representativeId);
-    if (!existing || entity.kind === "business-domain") {
-      selectedByRepresentative.set(representativeId, entity);
-    }
-  }
-  const selected = [...selectedByRepresentative.entries()];
-  const visibleIds = new Set(selected.map(([id]) => id));
-  const visibleSemanticIds = new Set(selected.map(([, entity]) => entity.id));
+  const selectedEntities = selection.entities.filter((entity) => representativeByEntityId.has(entity.id));
+  const visibleSemanticIds = new Set(selectedEntities.map((entity) => entity.id));
 
-  const nodes: GraphCanvasNode[] = selected.map(([id, entity]) => {
+  const nodes: GraphCanvasNode[] = selectedEntities.map((entity) => {
     const kind = GRAPH_KIND_BY_SEMANTIC_KIND[entity.kind];
     return {
-      id,
+      id: entity.id,
       label: truncateLabel(entity.label),
       kind,
       color: getNodeKindColor(kind),
     };
   });
 
-  const edges: GraphCanvasEdge[] = model.relations
+  const candidateEdges = model.relations
     .filter(
       (relation) =>
         visibleSemanticIds.has(relation.sourceId) && visibleSemanticIds.has(relation.targetId),
     )
     .map((relation): GraphCanvasEdge | null => {
-      const source = representativeByEntityId.get(relation.sourceId);
-      const target = representativeByEntityId.get(relation.targetId);
-      if (!source || !target || source === target || !visibleIds.has(source) || !visibleIds.has(target)) {
-        return null;
-      }
+      if (relation.sourceId === relation.targetId) return null;
       const kind = GRAPH_EDGE_KIND_BY_SEMANTIC_KIND[relation.kind];
       const weight = relation.metadata.weight;
       return {
         id: relation.id,
-        source,
-        target,
+        source: relation.sourceId,
+        target: relation.targetId,
         kind,
         label: typeof weight === "number" && weight > 1 ? `${relation.kind} ×${weight}` : relation.kind,
       };
     })
-    .filter((edge): edge is GraphCanvasEdge => edge !== null)
-    .slice(0, ATLAS_MAX_EDGES);
+    .filter((edge): edge is GraphCanvasEdge => edge !== null);
+  const edges = candidateEdges.slice(0, ATLAS_MAX_EDGES);
 
-  const groups = buildGroups(model, representativeByEntityId).filter((group) =>
-    group.nodeIds.some((nodeId) => visibleIds.has(nodeId)),
+  const { groups, inspectorGroups } = buildGroups(
+    model,
+    selectedEntities,
+    representativeByEntityId,
   );
 
   return {
     nodes,
     edges,
     groups,
-    condensed: graph.condensed || selection.condensed || edges.length >= ATLAS_MAX_EDGES,
+    inspectorGroups,
+    semanticEntities: selectedEntities,
+    sourceGraphNodeIdBySemanticId: Object.fromEntries(representativeByEntityId.entries()),
+    condensed: graph.condensed || selection.condensed || candidateEdges.length > ATLAS_MAX_EDGES,
     totalNodes: selection.total,
     visibleNodes: nodes.length,
   };
