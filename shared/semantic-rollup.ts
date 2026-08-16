@@ -8,7 +8,7 @@ import type {
 import { normalizeBusinessDomainCandidate } from "./semantic-domain-inference.js";
 import { resolveSemanticRelationKind } from "./semantic-relation-kind.js";
 
-interface SemanticRollup {
+export interface SemanticRollup {
   memberships: SemanticMembership[];
   relations: SemanticRelation[];
 }
@@ -31,6 +31,12 @@ interface RelationAccumulator {
 
 function membershipKey(graphNodeId: string, semanticEntityId: string): string {
   return `${graphNodeId}\u0000${semanticEntityId}`;
+}
+
+function compareStrings(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }
 
 function addMembership(
@@ -65,8 +71,11 @@ function businessDomainKey(entity: SemanticEntity): string | null {
 
 function graphNodePathTokens(node: SoftwareGraphNode): string[] {
   if (!node.filePath) return [];
-  return node.filePath
-    .split(/[\\/]/)
+  const segments = node.filePath.split(/[\\/]/);
+  const lastIndex = segments.length - 1;
+  const last = segments[lastIndex];
+  if (last) segments[lastIndex] = last.replace(/\.[^.]+$/, "");
+  return segments
     .map((part) => normalizeBusinessDomainCandidate(part))
     .filter((part): part is string => Boolean(part));
 }
@@ -175,13 +184,13 @@ function finalizeMemberships(
       semanticEntityId: membership.semanticEntityId,
       confidence: Math.round(membership.confidence * 100) / 100,
       evidence: [...membership.evidenceIds]
-        .sort()
+        .sort(compareStrings)
         .map((refId) => ({ source: "graph-node" as const, refId })),
     }))
-    .sort((left, right) =>
-      `${left.semanticEntityId}\u0000${left.graphNodeId}`.localeCompare(
-        `${right.semanticEntityId}\u0000${right.graphNodeId}`,
-      ),
+    .sort(
+      (left, right) =>
+        compareStrings(left.semanticEntityId, right.semanticEntityId) ||
+        compareStrings(left.graphNodeId, right.graphNodeId),
     );
 }
 
@@ -221,7 +230,7 @@ function aggregateRelations(
     const kind = resolveSemanticRelationKind(edge.kind);
     const source = preferred.get(edge.sourceId);
     const target = preferred.get(edge.targetId);
-    if (!kind || !source || !target || source.semanticEntityId === target.semanticEntityId) continue;
+    if (!source || !target || source.semanticEntityId === target.semanticEntityId) continue;
     const id = `semantic-rollup:${kind}:${source.semanticEntityId}:${target.semanticEntityId}`;
     const current = accumulated.get(id) ?? {
       id,
@@ -237,7 +246,7 @@ function aggregateRelations(
   }
   return [...accumulated.values()]
     .map((relation): SemanticRelation => {
-      const edgeIds = [...relation.edgeIds].sort();
+      const edgeIds = [...relation.edgeIds].sort(compareStrings);
       return {
         id: relation.id,
         kind: relation.kind,
@@ -252,7 +261,7 @@ function aggregateRelations(
         },
       };
     })
-    .sort((left, right) => left.id.localeCompare(right.id));
+    .sort((left, right) => compareStrings(left.id, right.id));
 }
 
 export function buildSemanticRollup(
