@@ -24,4 +24,22 @@ describe("buildCityBlocks", () => {
     ]);
     expect(blocks.every((block) => block.districtLabel === "core")).toBe(true);
   });
+
+  it("places many semantic districts across both city axes", () => {
+    const districtNodes = Array.from({ length: 9 }, (_, index): GraphCanvasNode => ({
+      id: `domain-${index}`,
+      label: `Domain ${index}`,
+      kind: "domain",
+    }));
+    const groups = districtNodes.map((node, index) => ({
+      id: `group-${index}`,
+      kind: "domain" as const,
+      label: node.label,
+      nodeIds: [node.id],
+    }));
+
+    const blocks = buildCityBlocks(districtNodes, groups);
+    expect(new Set(blocks.map((block) => block.x)).size).toBeGreaterThan(1);
+    expect(new Set(blocks.map((block) => block.z)).size).toBeGreaterThan(1);
+  });
 });
