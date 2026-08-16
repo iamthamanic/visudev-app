@@ -1,8 +1,9 @@
 import type { SoftwareGraphEdgeKind } from "./software-graph.types.js";
 import type { SemanticRelationKind } from "./semantic-system-model.types.js";
 
-const SEMANTIC_RELATION_KIND_BY_GRAPH_KIND: Partial<
-  Record<SoftwareGraphEdgeKind, SemanticRelationKind>
+const SEMANTIC_RELATION_KIND_BY_GRAPH_KIND: Record<
+  SoftwareGraphEdgeKind,
+  SemanticRelationKind
 > = {
   contains: "contains",
   references: "depends-on",
@@ -19,6 +20,6 @@ const SEMANTIC_RELATION_KIND_BY_GRAPH_KIND: Partial<
 
 export function resolveSemanticRelationKind(
   graphKind: SoftwareGraphEdgeKind,
-): SemanticRelationKind | undefined {
+): SemanticRelationKind {
   return SEMANTIC_RELATION_KIND_BY_GRAPH_KIND[graphKind];
 }
