@@ -1,6 +1,6 @@
 /**
- * Honest-Core P0-1: coveragePercent is null when the graph carries no real
- * coverage metric — never derived from node ratios (inverse heuristic lied).
+ * Honest-Core: coveragePercent is null when the graph carries no real coverage
+ * metric, and Atlas counters use the same canonical definitions as the footer.
  */
 
 import { describe, it, expect } from "vitest";
@@ -44,9 +44,16 @@ describe("computeAtlasStats", () => {
   });
 
   it("never derives coverage from module/node ratio", () => {
-    // 2 modules of 3 nodes would be 67% under the old inverse heuristic.
     const stats = computeAtlasStats(baseGraph([]), 0);
     expect(stats.coveragePercent).not.toBe(67);
     expect(stats.coveragePercent).toBeNull();
+  });
+
+  it("does not let the legacy modules metric override exact module nodes", () => {
+    const stats = computeAtlasStats(
+      baseGraph([{ id: "legacy-modules", name: "modules", value: 561 }]),
+      0,
+    );
+    expect(stats.modules).toBe(2);
   });
 });

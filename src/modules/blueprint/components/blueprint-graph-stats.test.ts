@@ -29,15 +29,15 @@ const sampleGraph: SoftwareGraph = {
 };
 
 describe("computeBlueprintGraphStats", () => {
-  it("counts modules, files, and dependency edges", () => {
+  it("counts exact modules, analyzed files, and dependency edges", () => {
     expect(computeBlueprintGraphStats(sampleGraph)).toEqual({
-      moduleCount: 2,
+      moduleCount: 1,
       fileCount: 2,
       dependencyCount: 1,
     });
   });
 
-  it("prefers graph metrics for Zielbild-scale demo stats", () => {
+  it("ignores legacy module-scale metrics while preserving file scan metrics", () => {
     expect(
       computeBlueprintGraphStats({
         ...sampleGraph,
@@ -47,7 +47,7 @@ describe("computeBlueprintGraphStats", () => {
         ],
       }),
     ).toEqual({
-      moduleCount: 1248,
+      moduleCount: 1,
       fileCount: 5732,
       dependencyCount: 1,
     });
