@@ -3,7 +3,7 @@
  *
  * This layer never replaces the SoftwareGraph. It gives Blueprint views a
  * stable semantic contract while retaining backlinks to the graph evidence
- * that justified every projected entity and relation.
+ * that justified every projected entity, membership and relation.
  */
 
 export type SemanticEntityKind =
@@ -42,6 +42,18 @@ export interface SemanticEntity {
   metadata: Record<string, unknown>;
 }
 
+/**
+ * Connects a low-level graph node to one semantic level. A graph node may have
+ * multiple memberships (for example a service entity and its business domain),
+ * which keeps roll-up lossless while allowing each view to pick its level.
+ */
+export interface SemanticMembership {
+  graphNodeId: string;
+  semanticEntityId: string;
+  confidence: number;
+  evidence: SemanticEvidenceRef[];
+}
+
 export interface SemanticRelation {
   id: string;
   kind: SemanticRelationKind;
@@ -57,5 +69,6 @@ export interface SemanticSystemModel {
   projectId: string;
   analyzedAt: string;
   entities: SemanticEntity[];
+  memberships: SemanticMembership[];
   relations: SemanticRelation[];
 }
