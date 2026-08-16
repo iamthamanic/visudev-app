@@ -31,14 +31,13 @@ function useSelectionValidity(
   }, [projection, selectedGroupId, selectedNodeId, setSelectedGroupId, setSelectedNodeId]);
 }
 
-export function useAtlasSelection(
+function useResolvedSelection(
   graph: BlueprintData["graph"],
   projection: AtlasProjection,
-  graphSnapshotKey: string,
-): AtlasSelectionState {
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-  const entity = useMemo(
+  selectedNodeId: string | null,
+  selectedGroupId: string | null,
+): Pick<AtlasSelectionState, "selectedSemanticEntity" | "selectedNode" | "selectedCluster"> {
+  const selectedSemanticEntity = useMemo(
     () => projection.semanticEntities.find((item) => item.id === selectedNodeId) ?? null,
     [projection.semanticEntities, selectedNodeId],
   );
@@ -50,6 +49,17 @@ export function useAtlasSelection(
     () => projection.inspectorGroups.find((group) => group.id === selectedGroupId) ?? null,
     [projection.inspectorGroups, selectedGroupId],
   );
+  return { selectedSemanticEntity, selectedNode, selectedCluster };
+}
+
+export function useAtlasSelection(
+  graph: BlueprintData["graph"],
+  projection: AtlasProjection,
+  graphSnapshotKey: string,
+): AtlasSelectionState {
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const resolved = useResolvedSelection(graph, projection, selectedNodeId, selectedGroupId);
   useAtlasDefaultClusterSelection(
     graph,
     projection.groups,
@@ -82,9 +92,7 @@ export function useAtlasSelection(
   return {
     selectedNodeId,
     selectedGroupId,
-    selectedSemanticEntity: entity,
-    selectedNode,
-    selectedCluster,
+    ...resolved,
     handleSelectNode,
     handleSelectGroup,
   };
