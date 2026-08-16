@@ -14,7 +14,7 @@ const DEPENDENCY_EDGE_KINDS = new Set([
 ]);
 
 export interface CanonicalBlueprintMetrics {
-  /** Number of source files analyzed. Prefer explicit scan metadata over graph file nodes. */
+  /** Number of source files analyzed. Prefer explicit scan metadata over graph file metrics/nodes. */
   files: number;
   /** Exact SoftwareGraph nodes whose kind is `module`. */
   modules: number;
@@ -70,8 +70,8 @@ export function computeCanonicalBlueprintMetrics(
   const edges = Array.isArray(graph.edges) ? graph.edges : [];
   const explicitFiles = options.filesAnalyzed && options.filesAnalyzed > 0 ? options.filesAnalyzed : null;
   const files =
-    metricValue(graph, "files") ??
     explicitFiles ??
+    metricValue(graph, "files") ??
     countNodeKind(graph, "file");
   const coverage = metricValue(graph, "coverage");
 
