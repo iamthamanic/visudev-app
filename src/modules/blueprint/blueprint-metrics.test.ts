@@ -28,7 +28,7 @@ function graphFixture(): SoftwareGraph {
     groups: [],
     metrics: [
       { id: "fake-module-scale", name: "modules", value: 561 },
-      { id: "files-analyzed", name: "files", value: 400 },
+      { id: "legacy-files-scale", name: "files", value: 5732 },
       { id: "coverage", name: "coverage", value: 82 },
     ],
     condensed: false,
@@ -51,11 +51,17 @@ describe("computeCanonicalBlueprintMetrics", () => {
     expect(computeCanonicalBlueprintMetrics(graphFixture()).modules).toBe(1);
   });
 
-  it("keeps analyzed-file and real coverage metrics explicit", () => {
-    expect(computeCanonicalBlueprintMetrics(graphFixture())).toMatchObject({
-      files: 400,
+  it("prefers explicit filesAnalyzed over a legacy graph file metric", () => {
+    expect(
+      computeCanonicalBlueprintMetrics(graphFixture(), { filesAnalyzed: 1872 }),
+    ).toMatchObject({
+      files: 1872,
       coveragePercent: 82,
     });
+  });
+
+  it("falls back to a graph file metric when explicit scan metadata is absent", () => {
+    expect(computeCanonicalBlueprintMetrics(graphFixture()).files).toBe(5732);
   });
 
   it("keeps coverage unknown when the analyzer did not provide it", () => {
@@ -72,7 +78,11 @@ describe("computeCanonicalBlueprintMetrics", () => {
         { id: "critical", ruleId: "b", category: "security", severity: "critical", scopeId: "s", message: "x", expectedState: "x", actualState: "y", evidenceFactIds: [], confidence: 1 },
         { id: "low", ruleId: "c", category: "quality", severity: "low", scopeId: "s", message: "x", expectedState: "x", actualState: "y", evidenceFactIds: [], confidence: 1 },
       ],
+      filesAnalyzed: 1872,
     };
-    expect(canonicalMetricsFromBlueprint(blueprint).criticalFindings).toBe(2);
+    expect(canonicalMetricsFromBlueprint(blueprint)).toMatchObject({
+      files: 1872,
+      criticalFindings: 2,
+    });
   });
 });
