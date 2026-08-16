@@ -48,6 +48,30 @@ function projectEntities(graph: SoftwareGraph): {
   return { entities, entityIdByGraphNodeId };
 }
 
+function appendInferredDomainRelations(
+  entities: readonly SemanticEntity[],
+  relationIds: Set<string>,
+  relations: SemanticRelation[],
+): void {
+  const applications = entities.filter((entity) => entity.kind === "application");
+  const application = applications.length === 1 ? applications[0] : undefined;
+  if (!application) return;
+  for (const domain of entities.filter((entity) => entity.kind === "business-domain")) {
+    const id = `semantic-relation:contains:${application.id}:${domain.id}`;
+    if (relationIds.has(id)) continue;
+    relationIds.add(id);
+    relations.push({
+      id,
+      kind: "contains",
+      sourceId: application.id,
+      targetId: domain.id,
+      confidence: domain.confidence,
+      evidence: [...domain.evidence],
+      metadata: { derivedFrom: "business-domain-inference" },
+    });
+  }
+}
+
 function projectRelations(
   graph: SoftwareGraph,
   entities: readonly SemanticEntity[],
@@ -59,7 +83,7 @@ function projectRelations(
     const kind = resolveSemanticRelationKind(edge.kind);
     const sourceId = entityIdByGraphNodeId.get(edge.sourceId);
     const targetId = entityIdByGraphNodeId.get(edge.targetId);
-    if (!kind || !sourceId || !targetId) continue;
+    if (!sourceId || !targetId) continue;
     const id = `semantic-relation:${kind}:${edge.id}`;
     if (relationIds.has(id)) continue;
     relationIds.add(id);
@@ -73,23 +97,7 @@ function projectRelations(
       metadata: { sourceGraphEdgeId: edge.id, sourceGraphEdgeKind: edge.kind },
     });
   }
-  const application = entities.find((entity) => entity.kind === "application");
-  if (application) {
-    for (const domain of entities.filter((entity) => entity.kind === "business-domain")) {
-      const id = `semantic-relation:contains:${application.id}:${domain.id}`;
-      if (relationIds.has(id)) continue;
-      relationIds.add(id);
-      relations.push({
-        id,
-        kind: "contains",
-        sourceId: application.id,
-        targetId: domain.id,
-        confidence: domain.confidence,
-        evidence: [...domain.evidence],
-        metadata: { derivedFrom: "business-domain-inference" },
-      });
-    }
-  }
+  appendInferredDomainRelations(entities, relationIds, relations);
   return relations.sort((left, right) => left.id.localeCompare(right.id));
 }
 
