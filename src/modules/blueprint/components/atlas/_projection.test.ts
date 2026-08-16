@@ -61,14 +61,20 @@ describe("projectAtlasGraph", () => {
     expect(projection.nodes.some((node) => node.kind === "file")).toBe(false);
     expect(projection.groups.some((group) => group.label === "Habit")).toBe(true);
     expect(
-      projection.groups.find((group) => group.label === "Habit")?.nodeIds,
+      projection.inspectorGroups.find((group) => group.label === "Habit")?.nodeIds,
     ).toContain("habit-file");
   });
 
   it("reveals semantic services through search without promoting raw files", () => {
     const projection = projectAtlasGraph(makeGraph(), { searchQuery: "HabitService" });
     expect(projection.nodes).toHaveLength(1);
-    expect(projection.nodes[0]).toMatchObject({ id: "habit-service", kind: "service" });
+    expect(projection.nodes[0]).toMatchObject({
+      id: "semantic:service:habit-service",
+      kind: "service",
+    });
+    expect(projection.sourceGraphNodeIdBySemanticId["semantic:service:habit-service"]).toBe(
+      "habit-service",
+    );
   });
 
   it("caps large semantic overviews at forty objects", () => {
