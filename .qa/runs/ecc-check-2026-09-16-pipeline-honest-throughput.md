@@ -23,7 +23,7 @@
 
 ### Phase B2 (composition-gate)
 - Verdict: CLEAR
-- HEAD_SHA: fd9f5d6ca11e49b104411edc6c5e0ae134c7ffd2
+- HEAD_SHA: c3ca1ecd5b1fb8a5990c3d68be2fbc2efa310a91
 - Proof: `.qa/runs/composition-gate-pipeline-honest-throughput.md`
 
 ### Phase C (review)

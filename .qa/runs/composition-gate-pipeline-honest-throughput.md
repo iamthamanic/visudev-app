@@ -1,8 +1,9 @@
 # Composition Gate — pipeline-honest-throughput
 
-- HEAD_SHA: fd9f5d6ca11e49b104411edc6c5e0ae134c7ffd2
+- HEAD_SHA: c3ca1ecd5b1fb8a5990c3d68be2fbc2efa310a91
 - Date: 2026-09-16
 - Verdict: CLEAR
+- Stamp note: SHA refers to product commit; optional docs tip may follow
 
 ## Event
 Blueprint scan produces SoftwareGraph shown in Blueprint views (Architecture / Dependencies / Execution / Atlas / Data).
