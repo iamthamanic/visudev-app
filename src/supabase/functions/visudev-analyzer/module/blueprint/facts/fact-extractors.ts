@@ -171,6 +171,7 @@ function extractPrismaFacts(filePath: string, content: string): CodeFact[] {
   const facts: CodeFact[] = [];
   const lines = content.split("\n");
   const seenServices = new Set<string>();
+  let currentModel: string | null = null;
   lines.forEach((line, index) => {
     const lineNum = index + 1;
     const providerMatch = line.match(
@@ -196,16 +197,54 @@ function extractPrismaFacts(filePath: string, content: string): CodeFact[] {
       }
     }
     const modelMatch = line.match(/^\s*model\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{/);
-    if (!modelMatch) return;
-    const table = modelMatch[1];
-    facts.push({
-      id: makeFactId(filePath, lineNum, "db-write"),
-      kind: "db-write",
-      filePath,
-      line: lineNum,
-      snippet: trimSnippet(line),
-      metadata: { table, operation: "prisma-model", framework: "prisma" },
-    });
+    if (modelMatch) {
+      currentModel = modelMatch[1] ?? null;
+      const table = modelMatch[1];
+      facts.push({
+        id: makeFactId(filePath, lineNum, "db-write"),
+        kind: "db-write",
+        filePath,
+        line: lineNum,
+        snippet: trimSnippet(line),
+        metadata: { table, operation: "prisma-model", framework: "prisma" },
+      });
+      return;
+    }
+    if (currentModel && /^\s*\}/.test(line)) {
+      currentModel = null;
+      return;
+    }
+    // Relation fields: user User @relation(...) or user User?
+    if (currentModel) {
+      const relationMatch = line.match(
+        /^\s*([A-Za-z_][A-Za-z0-9_]*)\s+([A-Za-z_][A-Za-z0-9_]*)(\[\])?\??\s*(@relation)?/,
+      );
+      if (
+        relationMatch &&
+        !["String", "Int", "Float", "Boolean", "DateTime", "Json", "Bytes", "Decimal", "BigInt"].includes(
+          relationMatch[2] ?? "",
+        )
+      ) {
+        const field = relationMatch[1];
+        const target = relationMatch[2];
+        if (field && target && target !== currentModel) {
+          facts.push({
+            id: makeFactId(filePath, lineNum, `prisma-fk-${currentModel}-${target}`),
+            kind: "db-write",
+            filePath,
+            line: lineNum,
+            snippet: trimSnippet(line),
+            metadata: {
+              table: currentModel,
+              relatedTable: target,
+              field,
+              operation: "prisma-relation",
+              framework: "prisma",
+            },
+          });
+        }
+      }
+    }
   });
   return facts;
 }

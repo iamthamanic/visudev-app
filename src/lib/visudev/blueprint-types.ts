@@ -113,10 +113,27 @@ export interface BlueprintData extends Record<string, unknown> {
   filesAnalyzed?: number;
   /** Total files in the repo, when known. Drives the partial-scan banner (P0-1). */
   totalFiles?: number;
+  /** Cap honesty report from scan (files/facts truncated). */
+  truncation?: {
+    filesAnalyzed: number;
+    filesDiscovered: number;
+    factsKept: number;
+    factsDropped: number;
+    truncated: boolean;
+  };
   frameworkHints?: string[];
   violations?: RuleViolation[];
   cycles?: BlueprintCycle[];
+  /** Optional absolute local project root for editor deep links. */
+  repo?: string;
+  /** Optional https GitHub/GitLab repo URL for „Auf GitHub öffnen“. */
+  repoUrl?: string;
   graph?: SoftwareGraph;
+  /** Optional semantic rollup (RVP) for level navigation. */
+  semanticSystemModel?: {
+    entities: Array<{ id: string; kind: string; label: string }>;
+    memberships?: Array<{ graphNodeId: string; semanticEntityId: string }>;
+  };
 }
 
 export type BlueprintUpdateInput = Record<string, unknown>;

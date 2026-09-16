@@ -92,6 +92,24 @@ export function normalizeBlueprintData(
       typeof raw.filesAnalyzed === "number" && Number.isFinite(raw.filesAnalyzed)
         ? raw.filesAnalyzed
         : 0,
+    totalFiles:
+      typeof raw.totalFiles === "number" && Number.isFinite(raw.totalFiles)
+        ? raw.totalFiles
+        : typeof (raw as { filesDiscovered?: unknown }).filesDiscovered === "number"
+          ? ((raw as { filesDiscovered: number }).filesDiscovered)
+          : undefined,
+    truncation:
+      raw.truncation && typeof raw.truncation === "object" && !Array.isArray(raw.truncation)
+        ? (raw.truncation as BlueprintData["truncation"])
+        : undefined,
+    semanticSystemModel:
+      raw.semanticSystemModel &&
+      typeof raw.semanticSystemModel === "object" &&
+      !Array.isArray(raw.semanticSystemModel)
+        ? (raw.semanticSystemModel as BlueprintData["semanticSystemModel"])
+        : undefined,
+    repo: typeof raw.repo === "string" ? raw.repo : undefined,
+    repoUrl: typeof raw.repoUrl === "string" ? raw.repoUrl : undefined,
     violations: Array.isArray(raw.violations) ? raw.violations : undefined,
     cycles: Array.isArray(raw.cycles) ? raw.cycles : undefined,
     graph,

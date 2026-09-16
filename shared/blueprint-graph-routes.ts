@@ -3,7 +3,21 @@
  */
 
 import type { SoftwareGraph } from "./software-graph.types.js";
-import type { ProjectedCodeFact, ProjectedRoute } from "./blueprint-graph-types.js";
+import type {
+  ConceptState,
+  ProjectedCodeFact,
+  ProjectedPipelineNode,
+  ProjectedRoute,
+} from "./blueprint-graph-types.js";
+
+const CONCEPT_STATES = new Set<ConceptState>([
+  "confirmed",
+  "partial",
+  "weak",
+  "missing",
+  "unknown",
+  "contradictory",
+]);
 
 /** Keep Meteor METHOD/PUBLISH (and HTTP verbs); unknown → PAGE for UI pages. */
 export function normalizeRouteMethod(method: unknown): string {
@@ -29,6 +43,43 @@ export function normalizeRoutePath(path: unknown): string {
   const trimmed = path.trim();
   if (!trimmed) return "/";
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+}
+
+function normalizePipelineState(value: unknown): ConceptState {
+  return typeof value === "string" && CONCEPT_STATES.has(value as ConceptState)
+    ? (value as ConceptState)
+    : "unknown";
+}
+
+/** Coerce Deno/legacy pipeline payloads into ProjectedPipelineNode[]. */
+export function normalizeProjectedPipeline(raw: unknown): ProjectedPipelineNode[] {
+  if (!Array.isArray(raw)) return [];
+  const steps: ProjectedPipelineNode[] = [];
+  for (const [index, entry] of raw.entries()) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+    const row = entry as Record<string, unknown>;
+    const type =
+      typeof row.type === "string"
+        ? row.type
+        : typeof row.kind === "string"
+          ? row.kind
+          : "step";
+    const id =
+      typeof row.id === "string" && row.id.trim().length > 0
+        ? row.id
+        : `pipeline-step-${index + 1}`;
+    const label =
+      typeof row.label === "string" && row.label.trim().length > 0 ? row.label : type;
+    steps.push({
+      id,
+      type,
+      label,
+      state: normalizePipelineState(row.state),
+      filePath: typeof row.filePath === "string" ? row.filePath : undefined,
+      line: typeof row.line === "number" ? row.line : undefined,
+    });
+  }
+  return steps;
 }
 
 export function deriveFactsFromGraph(graph: SoftwareGraph): ProjectedCodeFact[] {
@@ -57,7 +108,7 @@ export function deriveRoutesFromGraph(graph: SoftwareGraph): ProjectedRoute[] {
       path: normalizeRoutePath(node.metadata.path),
       filePath: node.filePath,
       line: node.line,
-      pipeline: [],
+      pipeline: normalizeProjectedPipeline(node.metadata.pipeline),
       concepts: {},
     });
   }

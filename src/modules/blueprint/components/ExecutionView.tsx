@@ -13,6 +13,7 @@ import { ExecutionMetricsBar } from "./execution/ExecutionMetricsBar.js";
 import { ExecutionSchritteList } from "./execution/ExecutionSchritteList.js";
 import { ExecutionStepPipeline } from "./execution/ExecutionStepPipeline.js";
 import { ExecutionTimelineRuler } from "./execution/ExecutionTimelineRuler.js";
+import { ExecutionSequenceStrip } from "./execution/ExecutionSequenceStrip.js";
 import {
   computeExecutionMetrics,
   computeStepTimings,
@@ -170,6 +171,10 @@ export function ExecutionView({ blueprint, scanStatus, scanError, onRetry }: Exe
           </select>
         )}
       </header>
+
+      <div style={{ padding: "0.5rem 1rem" }}>
+        <ExecutionSequenceStrip graph={graph} routeNodeId={activeRouteId} />
+      </div>
 
       <ExecutionStepPipeline
         stepNodeIds={projection?.stepNodeIds ?? []}

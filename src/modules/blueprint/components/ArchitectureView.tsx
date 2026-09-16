@@ -21,6 +21,10 @@ import {
   collectFileDomainSources,
   domainSourceHintText,
 } from "./architecture/domain-source-hint.js";
+import {
+  ArchitectureLevelNav,
+  type ArchitectureLevel,
+} from "./architecture/ArchitectureLevelNav.js";
 import { useArchitectureDefaultLayerSelection } from "../hooks/useArchitectureDefaultLayerSelection.js";
 import { buildGraphSnapshotKey } from "../services/graph-snapshot-key.js";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
@@ -30,6 +34,13 @@ import styles from "../styles/ArchitectureView.module.css";
 const GraphCanvas = lazy(() =>
   import("../../../components/GraphCanvas").then((module) => ({ default: module.GraphCanvas })),
 );
+
+const LEVEL_VISIBLE_KINDS: Record<ArchitectureLevel, SoftwareGraphNodeKind[]> = {
+  system: ["organization", "application"],
+  domain: ["domain", "application"],
+  module: ["module", "domain", "layer"],
+  file: ["file", "module", "route", "service"],
+};
 
 interface ArchitectureViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
@@ -43,6 +54,7 @@ export function ArchitectureView({
 }: ArchitectureViewProps) {
   const graph = blueprint.graph;
   const [groupingMode, setGroupingMode] = useState<ArchitectureGroupingMode>("layers");
+  const [level, setLevel] = useState<ArchitectureLevel>("domain");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => new Set());
   const [visibleKinds, setVisibleKinds] = useState<Set<SoftwareGraphNodeKind>>(
@@ -57,6 +69,10 @@ export function ArchitectureView({
       setSelectedNodeId(null);
     }
   }, [groupingMode]);
+
+  useEffect(() => {
+    setVisibleKinds(new Set(LEVEL_VISIBLE_KINDS[level]));
+  }, [level]);
 
   useArchitectureDefaultLayerSelection(graph, groupingMode, setSelectedNodeId, graphSnapshotKey);
 
@@ -130,6 +146,21 @@ export function ArchitectureView({
 
   const hasVisibleNodes = architectureProjection.nodes.length > 0;
   const showStackInCanvas = groupingMode !== "modules";
+  const semantic = blueprint.semanticSystemModel;
+  const levelAvailable = {
+    system:
+      !semantic ||
+      semantic.entities.some((entity) => entity.kind === "application") ||
+      graph.nodes.some((node) => node.kind === "application" || node.kind === "organization"),
+    domain:
+      !semantic ||
+      semantic.entities.some((entity) => entity.kind === "business-domain") ||
+      graph.nodes.some((node) => node.kind === "domain"),
+    module:
+      graph.nodes.some((node) => node.kind === "module") ||
+      Boolean(semantic?.entities.some((entity) => entity.kind === "service" || entity.kind === "component")),
+    file: graph.nodes.some((node) => node.kind === "file"),
+  };
 
   const controls = (
     <div className={styles.controlsColumn}>
@@ -191,6 +222,11 @@ export function ArchitectureView({
   return (
     <div className={styles.root}>
       <ArchitectureGroupingToggle mode={groupingMode} onSelectMode={setGroupingMode} />
+      <ArchitectureLevelNav
+        level={level}
+        onChange={setLevel}
+        available={levelAvailable}
+      />
       {domainHint ? (
         <p className={styles.domainSourceHint} role="status">
           {domainHint}

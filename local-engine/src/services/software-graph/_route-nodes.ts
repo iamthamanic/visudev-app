@@ -26,6 +26,7 @@ export function addRouteNodes(
       method: route.method,
       path: route.path,
       pipelineCount: route.pipeline?.length ?? 0,
+      pipeline: Array.isArray(route.pipeline) ? route.pipeline : [],
     },
   });
 
