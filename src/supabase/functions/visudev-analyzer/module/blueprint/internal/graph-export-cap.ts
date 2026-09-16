@@ -13,11 +13,21 @@ import { repairGraphReferences } from "./graph-export-integrity.ts";
 import { sanitizeGraphForExport } from "./graph-export-sanitize.ts";
 import { trimGraphEvidence } from "./graph-export-trim.ts";
 
-/** Soft fact export cap — overridable via BLUEPRINT_MAX_FACTS env in Deno. */
-export const MAX_BLUEPRINT_FACTS = Math.max(
-  250,
-  Number(Deno.env.get("BLUEPRINT_MAX_FACTS")) || 1000,
-);
+/** Soft fact export cap — overridable via BLUEPRINT_MAX_FACTS when env is allowed. */
+function readMaxBlueprintFacts(): number {
+  try {
+    const raw = Deno.env.get("BLUEPRINT_MAX_FACTS");
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return Math.max(250, parsed);
+    }
+  } catch {
+    // Deno NotCapable without --allow-env — keep default for local CLI.
+  }
+  return 1000;
+}
+
+export const MAX_BLUEPRINT_FACTS = readMaxBlueprintFacts();
 
 /** Lower index = higher priority. Facts of unlisted kinds rank last. */
 export const FACT_EXPORT_PRIORITY: readonly string[] = [

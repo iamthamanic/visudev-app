@@ -616,11 +616,21 @@ function runDenoAnalyze(payload) {
   }
 
   return new Promise((resolve, reject) => {
-    const child = spawn("deno", ["run", "--quiet", "--no-prompt", CLI_SCRIPT], {
+    const child = spawn(
+      "deno",
+      [
+        "run",
+        "--quiet",
+        "--no-prompt",
+        "--allow-env=BLUEPRINT_MAX_FACTS",
+        CLI_SCRIPT,
+      ],
+      {
       cwd: ANALYZER_DIR,
       stdio: ["pipe", "pipe", "pipe"],
       env: process.env,
-    });
+    },
+    );
 
     let stdout = "";
     let stderr = "";
