@@ -5,6 +5,8 @@
  * Single select (Hick): one primary control instead of four competing buttons.
  */
 
+import styles from "../../styles/ArchitectureView.module.css";
+
 export type ArchitectureLevel = "system" | "domain" | "module" | "file";
 
 const LEVELS: Array<{ id: ArchitectureLevel; label: string }> = [
@@ -27,11 +29,11 @@ export function ArchitectureLevelNav({
 }: ArchitectureLevelNavProps): JSX.Element {
   const currentLabel = LEVELS.find((entry) => entry.id === level)?.label ?? level;
   return (
-    <nav aria-label="Architektur-Ebenen" data-testid="architecture-level-nav">
-      <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: 13 }}>
+    <nav aria-label="Architektur-Ebenen" className={styles.levelNav} data-testid="architecture-level-nav">
+      <label className={styles.levelNavLabel}>
         <span>Ebene</span>
         <select
-          className="select select-bordered select-sm"
+          className={styles.levelNavSelect}
           value={level}
           aria-label="Architektur-Ebene wählen"
           data-testid="arch-level-select"

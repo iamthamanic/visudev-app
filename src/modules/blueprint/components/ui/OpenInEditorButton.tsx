@@ -3,6 +3,8 @@
  * Location: src/modules/blueprint/components/ui/OpenInEditorButton.tsx
  */
 
+import styles from "../../styles/DependenciesView.module.css";
+
 export interface OpenInEditorButtonProps {
   filePath?: string | null;
   line?: number | null;
@@ -82,11 +84,11 @@ export function OpenInEditorButton({
   if (links.length === 0) return null;
 
   return (
-    <div data-testid="open-in-editor" style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+    <div data-testid="open-in-editor" className={styles.openInEditor}>
       {links.map((link) => (
         <a
           key={link.id}
-          className="btn btn-sm btn-outline"
+          className={styles.openInEditorLink}
           href={link.href}
           target={link.id === "github" ? "_blank" : undefined}
           rel={link.id === "github" ? "noreferrer noopener" : undefined}

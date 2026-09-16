@@ -7,10 +7,11 @@ import { InspectorPanel } from "../ui/InspectorPanel.js";
 import styles from "../../styles/DependenciesView.module.css";
 
 function evidenceKindLabel(edge: SoftwareGraphEdge): string | null {
+  // Runtime observations must win over evidenceKind (often also "extracted").
+  if (edge.metadata?.provenance === "observed") return "beobachtet";
   const kind = edge.metadata?.evidenceKind;
   if (kind === "extracted") return "aus Code";
   if (kind === "inferred") return "abgeleitet";
-  if (edge.metadata?.provenance === "observed") return "beobachtet";
   return null;
 }
 

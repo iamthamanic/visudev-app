@@ -8,6 +8,7 @@ import type { RawBlueprintScan, SoftwareGraph } from "../types/api.types.js";
 import {
   adaptVisuDevGraphToSoftwareGraph,
   isUsableVisuDevGraph,
+  mergeSoftwareGraphs,
   resolveSoftwareGraphFromScan,
 } from "./visudev-to-software-graph.adapter.js";
 
@@ -157,5 +158,64 @@ describe("visudev-to-software-graph adapter", () => {
     expect(merged.edges.some((edge) => edge.id === "e-read")).toBe(true);
     expect(merged.nodes.some((node) => node.kind === "table")).toBe(true);
     expect(merged.edges.length).toBeGreaterThan(factBuilt.edges.length);
+  });
+
+  it("merges route nodes by method/path even when ids differ", () => {
+    const factBuilt: SoftwareGraph = {
+      version: 1,
+      projectId: "proj-nest",
+      analyzedAt: "2026-01-01T00:00:00.000Z",
+      scopes: [],
+      nodes: [
+        {
+          id: "route:GET /users",
+          kind: "route",
+          label: "GET /users",
+          filePath: "src/users.controller.ts",
+          line: 10,
+          metadata: { method: "GET", path: "/users", routeId: "GET /users", pipeline: [{ kind: "handler" }] },
+        },
+      ],
+      edges: [],
+      evidence: [],
+      groups: [],
+      metrics: [],
+      condensed: false,
+      limits: { maxNodes: 100, maxEdges: 200 },
+    };
+    const adapted: SoftwareGraph = {
+      ...factBuilt,
+      nodes: [
+        {
+          id: "node-route-1",
+          kind: "route",
+          label: "GET /users",
+          filePath: "src/users.controller.ts",
+          line: 10,
+          metadata: { method: "GET", path: "/users", routeId: "GET /users" },
+        },
+        {
+          id: "auth:jwt",
+          kind: "service",
+          label: "JWT",
+          metadata: { role: "auth" },
+        },
+      ],
+      edges: [
+        {
+          id: "e-auth",
+          kind: "authenticates",
+          sourceId: "node-route-1",
+          targetId: "auth:jwt",
+          metadata: {},
+        },
+      ],
+    };
+    const merged = mergeSoftwareGraphs(factBuilt, adapted);
+    const routes = merged.nodes.filter((node) => node.kind === "route");
+    expect(routes).toHaveLength(1);
+    expect(routes[0]?.id).toBe("route:GET /users");
+    expect(merged.edges.some((edge) => edge.sourceId === "route:GET /users")).toBe(true);
+    expect(merged.nodes.some((node) => node.id === "node-route-1")).toBe(false);
   });
 });

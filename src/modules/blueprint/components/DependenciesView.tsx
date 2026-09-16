@@ -269,8 +269,18 @@ export function DependenciesView({
           codeSelection={codeSelection}
           codeExcerpt={codeExcerpt}
           onSelectCodeNode={handleNodeSelect}
-          localPath={typeof blueprint.repo === "string" ? blueprint.repo : null}
-          repoUrl={typeof blueprint.repoUrl === "string" ? blueprint.repoUrl : null}
+          localPath={
+            typeof blueprint.repo === "string" && !/^https?:\/\//i.test(blueprint.repo)
+              ? blueprint.repo
+              : null
+          }
+          repoUrl={
+            (typeof blueprint.repoUrl === "string" && blueprint.repoUrl) ||
+            (typeof blueprint.repo === "string" &&
+            /^https:\/\/(github\.com|gitlab\.com)\//i.test(blueprint.repo)
+              ? blueprint.repo
+              : null)
+          }
         />
       }
     />

@@ -201,12 +201,38 @@ export function adaptVisuDevGraphToSoftwareGraph(
   };
 }
 
-/** Union two SoftwareGraphs; `base` wins on id collisions for nodes/edges. */
+/** Union two SoftwareGraphs; `base` wins on id collisions for nodes/edges.
+ * Route nodes are also reconciled by routeId / method+path so Deno `node-route-*`
+ * and fact `route:…` identities collapse to one node.
+ */
 export function mergeSoftwareGraphs(base: SoftwareGraph, extra: SoftwareGraph): SoftwareGraph {
   const nodesById = new Map(base.nodes.map((node) => [node.id, node]));
+  const routeKeyToId = new Map<string, string>();
+  for (const node of base.nodes) {
+    const key = routeSemanticKey(node);
+    if (key) routeKeyToId.set(key, node.id);
+  }
+
+  const idRemap = new Map<string, string>();
+
   for (const node of extra.nodes) {
-    if (!nodesById.has(node.id)) nodesById.set(node.id, node);
-    else {
+    const key = routeSemanticKey(node);
+    const existingId = key ? routeKeyToId.get(key) : undefined;
+    if (existingId && existingId !== node.id) {
+      idRemap.set(node.id, existingId);
+      const existing = nodesById.get(existingId)!;
+      nodesById.set(existingId, {
+        ...existing,
+        metadata: { ...node.metadata, ...existing.metadata },
+        filePath: existing.filePath ?? node.filePath,
+        line: existing.line ?? node.line,
+      });
+      continue;
+    }
+    if (!nodesById.has(node.id)) {
+      nodesById.set(node.id, node);
+      if (key) routeKeyToId.set(key, node.id);
+    } else {
       const existing = nodesById.get(node.id)!;
       nodesById.set(node.id, {
         ...existing,
@@ -217,14 +243,27 @@ export function mergeSoftwareGraphs(base: SoftwareGraph, extra: SoftwareGraph): 
     }
   }
 
+  const remapId = (id: string): string => idRemap.get(id) ?? id;
+
   const edgesById = new Map(base.edges.map((edge) => [edge.id, edge]));
   for (const edge of extra.edges) {
-    if (!edgesById.has(edge.id)) edgesById.set(edge.id, edge);
+    const remapped: SoftwareGraphEdge = {
+      ...edge,
+      sourceId: remapId(edge.sourceId),
+      targetId: remapId(edge.targetId),
+    };
+    if (!edgesById.has(remapped.id)) edgesById.set(remapped.id, remapped);
   }
 
   const evidenceById = new Map(base.evidence.map((item) => [item.id, item]));
   for (const item of extra.evidence) {
-    if (!evidenceById.has(item.id)) evidenceById.set(item.id, item);
+    if (!evidenceById.has(item.id)) {
+      evidenceById.set(item.id, {
+        ...item,
+        nodeId: item.nodeId ? remapId(item.nodeId) : item.nodeId,
+        edgeId: item.edgeId,
+      });
+    }
   }
 
   const scopesById = new Map(base.scopes.map((scope) => [scope.id, scope]));
@@ -253,6 +292,21 @@ export function mergeSoftwareGraphs(base: SoftwareGraph, extra: SoftwareGraph): 
     ],
     condensed: base.condensed || extra.condensed,
   };
+}
+
+function routeSemanticKey(node: SoftwareGraphNode): string | null {
+  if (node.kind !== "route") return null;
+  const routeId =
+    typeof node.metadata?.routeId === "string" && node.metadata.routeId.length > 0
+      ? node.metadata.routeId
+      : null;
+  if (routeId) return `routeId:${routeId}`;
+  const method =
+    typeof node.metadata?.method === "string" ? node.metadata.method.toUpperCase() : "";
+  const path = typeof node.metadata?.path === "string" ? node.metadata.path : "";
+  if (method && path) return `mp:${method} ${path}`;
+  const label = node.label?.trim();
+  return label ? `label:${label}` : null;
 }
 
 /**

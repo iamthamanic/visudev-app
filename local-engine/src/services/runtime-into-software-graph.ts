@@ -71,7 +71,6 @@ export function mergeRuntimeIntoSoftwareGraph(
       targetId: toRoute.id,
       metadata: {
         provenance: "observed",
-        evidenceKind: "extracted",
         runtimeType: verified.type,
         verification: verified.verification,
         crawledAt: runtime.crawledAt,

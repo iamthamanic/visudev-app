@@ -1,6 +1,6 @@
 # Composition Gate — pipeline-honest-throughput
 
-- HEAD_SHA: 18389fe86d7528fb527ea73a942cf7c9c82024d8
+- HEAD_SHA: 099444a9703005fea4d57df1b18c683a41e1676a
 - Date: 2026-09-16
 - Verdict: CLEAR
 
