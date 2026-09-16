@@ -4,6 +4,7 @@
  */
 
 import path from "node:path";
+import fs from "node:fs";
 import { appendJsonLog, readJsonFile, writeJsonFile } from "../storage/file-store.js";
 import { AutoGuideAnalysisProvider } from "../providers/autoguide-analysis.provider.js";
 import { AutoGuideStubProvider } from "../providers/autoguide-stub.provider.js";
@@ -22,6 +23,10 @@ import {
   type AnalysisOriginReader,
 } from "./analysis-origin.service.js";
 import { attachSnapshotsToGraph } from "./software-graph/_snapshots.js";
+import {
+  mergeRuntimeIntoSoftwareGraph,
+  type RuntimeCrawlLike,
+} from "./runtime-into-software-graph.js";
 import type { AnalysisOrigin } from "../../../shared/software-graph.types.js";
 import type {
   AnalysisChildRunStatus,
@@ -41,6 +46,7 @@ import type {
   LocalEngineAnalysisResult,
   LocalVisuDevProject,
   RawBlueprintScan,
+  SoftwareGraph,
   StartAnalysisResponse,
   SupportedScanType,
 } from "../types/api.types.js";
@@ -554,8 +560,10 @@ export class AnalysisService {
     rawScan: RawBlueprintScan,
     origin: AnalysisOrigin,
   ): LocalBlueprintAnalysisResult {
+    const enriched = enrichBlueprint(rawScan);
+    const withRuntime = this.applyRuntimeCrawlToBlueprintGraph(projectId, enriched);
     const blueprint: BlueprintDocument = {
-      ...enrichBlueprint(rawScan),
+      ...withRuntime,
       branch: origin.branch,
       commitSha: origin.commitSha,
       analysisOrigin: origin,
@@ -580,6 +588,30 @@ export class AnalysisService {
       blueprint,
       raw: rawScan.providerMetadata,
     };
+  }
+
+  /** Merge AppFlow runtime crawl into Blueprint SoftwareGraph when available. */
+  private applyRuntimeCrawlToBlueprintGraph(
+    projectId: string,
+    blueprint: BlueprintDocument,
+  ): BlueprintDocument {
+    const graph = blueprint.graph as SoftwareGraph | undefined;
+    if (!graph) return blueprint;
+    try {
+      const crawlPath = path.join(this.storageDir, "projects", projectId, "runtime-crawl.json");
+      if (!fs.existsSync(crawlPath)) return blueprint;
+      const raw = fs.readFileSync(crawlPath, "utf8");
+      const runtime = JSON.parse(raw) as RuntimeCrawlLike;
+      const merged = mergeRuntimeIntoSoftwareGraph(graph, runtime);
+      if (merged === graph) return blueprint;
+      return { ...blueprint, graph: merged };
+    } catch (error) {
+      console.warn(
+        `[analysis] runtime merge skipped for ${projectId}:`,
+        error instanceof Error ? error.message : error,
+      );
+      return blueprint;
+    }
   }
 
   private async persistBlueprintRun(

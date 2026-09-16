@@ -9,6 +9,11 @@ import { DependenciesControls } from "./dependencies/DependenciesControls.js";
 import { DependenciesGraphCanvas } from "./dependencies/DependenciesGraphCanvas.js";
 import { DependenciesInspector } from "./dependencies/DependenciesInspector.js";
 import {
+  DependenciesOverlayToggles,
+  type DependencyOverlayId,
+} from "./dependencies/DependenciesOverlayToggles.js";
+import { kindsForOverlays } from "./dependencies/dependencies-overlay.js";
+import {
   DEFAULT_VISIBLE_DEPENDENCY_KINDS,
   applyOrphanFilter,
   buildDependenciesGraphIndex,
@@ -42,14 +47,21 @@ export function DependenciesView({
   const [visibleEdgeKinds, setVisibleEdgeKinds] = useState<Set<DependencyEdgeKind>>(
     () => new Set(DEFAULT_VISIBLE_DEPENDENCY_KINDS),
   );
+  const [activeOverlays, setActiveOverlays] = useState<Set<DependencyOverlayId>>(() => new Set());
   const [showOrphans, setShowOrphans] = useState(true);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
+  const effectiveEdgeKinds = useMemo(() => {
+    const overlayKinds = kindsForOverlays(activeOverlays);
+    if (!overlayKinds) return visibleEdgeKinds;
+    return overlayKinds;
+  }, [activeOverlays, visibleEdgeKinds]);
+
   const baseProjection = useMemo(() => {
     if (!graph) return { nodes: [], edges: [], orphanNodeIds: [] };
-    return projectDependenciesGraph(graph, { visibleEdgeKinds });
-  }, [graph, visibleEdgeKinds]);
+    return projectDependenciesGraph(graph, { visibleEdgeKinds: effectiveEdgeKinds });
+  }, [graph, effectiveEdgeKinds]);
 
   const searchedProjection = useMemo(
     () =>
@@ -112,10 +124,10 @@ export function DependenciesView({
 
     if (visibleNodeIds.size === 0) return;
 
-    const centralId = findCentralDependencyNodeId(graph, { visibleEdgeKinds });
+    const centralId = findCentralDependencyNodeId(graph, { visibleEdgeKinds: effectiveEdgeKinds });
     if (!centralId || !visibleNodeIds.has(centralId)) return;
     setSelectedNodeId(centralId);
-  }, [graph, projection.nodes, selectedNodeId, visibleEdgeKinds]);
+  }, [graph, projection.nodes, selectedNodeId, effectiveEdgeKinds]);
 
   useEffect(() => {
     if (!selectedEdgeId) return;
@@ -137,6 +149,7 @@ export function DependenciesView({
 
   const resetFilters = () => {
     setVisibleEdgeKinds(new Set(DEFAULT_VISIBLE_DEPENDENCY_KINDS));
+    setActiveOverlays(new Set());
     setShowOrphans(true);
     setSelectedEdgeId(null);
     resetSearch();
@@ -161,7 +174,8 @@ export function DependenciesView({
   const filesAnalyzed = blueprint.filesAnalyzed ?? 0;
   const isPartialScan =
     graph.condensed === true ||
-    (totalFiles != null && filesAnalyzed > 0 && filesAnalyzed < totalFiles);
+    (totalFiles != null && filesAnalyzed > 0 && filesAnalyzed < totalFiles) ||
+    (blueprint.truncation as { truncated?: boolean } | undefined)?.truncated === true;
 
   const handleMinimapSelect = (nodeId: string) => {
     setSelectedNodeId(nodeId);
@@ -185,15 +199,29 @@ export function DependenciesView({
   return (
     <BlueprintViewLayout
       controls={
-        <DependenciesControls
-          visibleEdgeKinds={visibleEdgeKinds}
-          topDependencies={topDependencies}
-          showOrphans={showOrphans}
-          orphanCount={searchedProjection.orphanNodeIds.length}
-          onToggleEdgeKind={toggleEdgeKind}
-          onToggleOrphans={() => setShowOrphans((current) => !current)}
-          onResetFilters={resetFilters}
-        />
+        <div>
+          <DependenciesOverlayToggles
+            activeOverlays={activeOverlays}
+            onToggle={(overlay) => {
+              setActiveOverlays((current) => {
+                const next = new Set(current);
+                if (next.has(overlay)) next.delete(overlay);
+                else next.add(overlay);
+                return next;
+              });
+              setSelectedEdgeId(null);
+            }}
+          />
+          <DependenciesControls
+            visibleEdgeKinds={visibleEdgeKinds}
+            topDependencies={topDependencies}
+            showOrphans={showOrphans}
+            orphanCount={searchedProjection.orphanNodeIds.length}
+            onToggleEdgeKind={toggleEdgeKind}
+            onToggleOrphans={() => setShowOrphans((current) => !current)}
+            onResetFilters={resetFilters}
+          />
+        </div>
       }
       canvas={
         <div className={styles.canvasWrap}>
@@ -241,6 +269,18 @@ export function DependenciesView({
           codeSelection={codeSelection}
           codeExcerpt={codeExcerpt}
           onSelectCodeNode={handleNodeSelect}
+          localPath={
+            typeof blueprint.repo === "string" && !/^https?:\/\//i.test(blueprint.repo)
+              ? blueprint.repo
+              : null
+          }
+          repoUrl={
+            (typeof blueprint.repoUrl === "string" && blueprint.repoUrl) ||
+            (typeof blueprint.repo === "string" &&
+            /^https:\/\/(github\.com|gitlab\.com)\//i.test(blueprint.repo)
+              ? blueprint.repo
+              : null)
+          }
         />
       }
     />

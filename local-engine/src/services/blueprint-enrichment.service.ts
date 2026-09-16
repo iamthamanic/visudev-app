@@ -20,6 +20,8 @@ import {
 } from "./access-control/database-security-registry.js";
 import { evaluateTenantIsolationPolicy } from "./access-control/tenant-isolation-policy.js";
 import { buildSoftwareGraph } from "./software-graph-builder.service.js";
+import { resolveSoftwareGraphFromScan } from "./visudev-to-software-graph.adapter.js";
+import { buildSemanticSystemModel } from "./semantic-system-model.service.js";
 
 const DEFAULT_PROFILE = {
   appType: "saas",
@@ -29,10 +31,11 @@ const DEFAULT_PROFILE = {
 };
 
 export function enrichBlueprint(scan: RawBlueprintScan): BlueprintDocument {
-  const built = buildSoftwareGraph(scan);
+  const built = resolveSoftwareGraphFromScan(scan, buildSoftwareGraph(scan));
   // Opt-in only: avoids silently mixing demo fixtures into real thin scans.
   const demoEnrichmentEnabled = process.env.VISUDEV_DEMO_ENRICHMENT === "true";
   const graph = demoEnrichmentEnabled ? enrichSoftwareGraphIfThin(built, scan.projectId) : built;
+  const semanticSystemModel = buildSemanticSystemModel(graph);
   const { routes, securityMatrix, findings, facts } = deriveDiagnosticsFromGraph(graph);
 
   const appFindings = analyzeApplicationChain({ graph });
@@ -65,6 +68,9 @@ export function enrichBlueprint(scan: RawBlueprintScan): BlueprintDocument {
     })),
   ];
 
+  const totalFiles = scan.filesDiscovered ?? scan.truncation?.filesDiscovered;
+  const truncation = scan.truncation;
+
   return {
     version: 1,
     projectId: scan.projectId,
@@ -77,9 +83,12 @@ export function enrichBlueprint(scan: RawBlueprintScan): BlueprintDocument {
     facts,
     concepts: [],
     filesAnalyzed: scan.filesAnalyzed,
+    ...(typeof totalFiles === "number" ? { totalFiles } : {}),
+    ...(truncation ? { truncation } : {}),
     frameworkHints: [scan.providerId],
     providerMetadata: scan.providerMetadata,
     graph,
+    semanticSystemModel,
     accessControlFindings,
     accessControlMatrix,
     databaseSecurityDialect: dialect,

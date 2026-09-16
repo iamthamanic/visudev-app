@@ -12,8 +12,10 @@ import type {
   FactSelectionReport,
   RawBlueprintRoute,
   RawBlueprintScan,
+  ScanTruncationReport,
 } from "../types/api.types.js";
 import { isAnalysisOrigin } from "../services/analysis-origin.service.js";
+import { isUsableVisuDevGraph } from "../services/visudev-to-software-graph.adapter.js";
 import type { BlueprintProvider, BlueprintProviderInput } from "./blueprint-provider.interface.js";
 
 type RunnerBlueprintResponse = {
@@ -152,7 +154,10 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
       typeof blueprint.analyzedAt === "string" ? blueprint.analyzedAt : new Date().toISOString();
 
     const routes: RawBlueprintRoute[] = rawRoutes.map((raw, index) => ({
-      id: `legacy-route-${index + 1}`,
+      id:
+        typeof raw.id === "string" && raw.id.trim().length > 0
+          ? raw.id
+          : `legacy-route-${index + 1}`,
       method: typeof raw.method === "string" ? raw.method.toUpperCase() : "PAGE",
       path: typeof raw.path === "string" ? raw.path : "/",
       filePath: typeof raw.filePath === "string" ? raw.filePath : "",
@@ -177,6 +182,44 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
       ? blueprint.astParseReport
       : undefined;
     const pathCatalog = sanitizeIncomingPathCatalog(blueprint.pathCatalog);
+    const visuDevGraph = isUsableVisuDevGraph(blueprint.graph) ? blueprint.graph : undefined;
+
+    const filesAnalyzed =
+      typeof payload.data.filesAnalyzed === "number" ? payload.data.filesAnalyzed : routes.length;
+    const filesDiscovered =
+      typeof (payload.data as { filesDiscovered?: unknown }).filesDiscovered === "number"
+        ? (payload.data as { filesDiscovered: number }).filesDiscovered
+        : typeof blueprint.totalFiles === "number"
+          ? blueprint.totalFiles
+          : typeof (blueprint as { filesDiscovered?: unknown }).filesDiscovered === "number"
+            ? ((blueprint as { filesDiscovered: number }).filesDiscovered)
+            : undefined;
+
+    const truncationFromBlueprint = blueprint.truncation as ScanTruncationReport | undefined;
+    const truncation: ScanTruncationReport | undefined =
+      truncationFromBlueprint &&
+      isNonNegativeFiniteNumber(truncationFromBlueprint.filesAnalyzed) &&
+      isNonNegativeFiniteNumber(truncationFromBlueprint.filesDiscovered)
+        ? truncationFromBlueprint
+        : factSelection
+          ? {
+              filesAnalyzed,
+              filesDiscovered: filesDiscovered ?? filesAnalyzed,
+              factsKept: factSelection.selected,
+              factsDropped: Math.max(0, factSelection.extracted - factSelection.selected),
+              truncated:
+                (filesDiscovered != null && filesAnalyzed < filesDiscovered) ||
+                factSelection.selected < factSelection.extracted,
+            }
+          : filesDiscovered != null && filesAnalyzed < filesDiscovered
+            ? {
+                filesAnalyzed,
+                filesDiscovered,
+                factsKept: facts.length,
+                factsDropped: 0,
+                truncated: true,
+              }
+            : undefined;
 
     return {
       providerId: this.id,
@@ -188,8 +231,10 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
       factSelection,
       astParseReport,
       pathCatalog,
-      filesAnalyzed:
-        typeof payload.data.filesAnalyzed === "number" ? payload.data.filesAnalyzed : routes.length,
+      filesAnalyzed,
+      filesDiscovered,
+      truncation,
+      visuDevGraph,
       analysisOrigin: scanOrigin,
       providerMetadata: {
         legacy: {

@@ -17,6 +17,14 @@ import {
   type GraphBuilderState,
 } from "./_state.js";
 
+function isPrismaRelationFact(fact: RawBlueprintFact): boolean {
+  return (
+    fact.kind === "db-write" &&
+    fact.metadata?.framework === "prisma" &&
+    fact.metadata?.operation === "prisma-relation"
+  );
+}
+
 export function addFactEvidence(
   fact: RawBlueprintFact,
   fileId: string,
@@ -31,6 +39,39 @@ export function addFactEvidence(
     line: fact.line,
     excerpt: sanitizeExcerpt(fact.snippet),
   });
+
+  // Prisma FK/relation: link existing table nodes with a data edge (no fake nodes).
+  if (isPrismaRelationFact(fact)) {
+    const fromTable =
+      typeof fact.metadata?.table === "string" ? fact.metadata.table.trim() : "";
+    const toTable =
+      typeof fact.metadata?.relatedTable === "string"
+        ? fact.metadata.relatedTable.trim()
+        : "";
+    if (fromTable && toTable) {
+      const fromId = prismaTableNodeId(fromTable);
+      const toId = prismaTableNodeId(toTable);
+      if (state.nodes.has(fromId) && state.nodes.has(toId)) {
+        addEdge(state, {
+          id: stableUniqueId(
+            state.registry,
+            "edge",
+            createId("fk", fromId, toId, fact.id),
+          ),
+          kind: "data",
+          sourceId: fromId,
+          targetId: toId,
+          metadata: {
+            evidenceFactId: fact.id,
+            evidenceKind: "extracted",
+            provenance: "prisma-relation",
+            field: fact.metadata?.field,
+          },
+        });
+      }
+    }
+    return;
+  }
 
   const classification = classifyFactKind(fact.kind);
   if (!classification.nodeKind) return;
@@ -93,7 +134,7 @@ export function addFactEvidence(
       kind: classification.edgeKind,
       sourceId: fileId,
       targetId: inferredNodeId,
-      metadata: { evidenceFactId: fact.id },
+      metadata: { evidenceFactId: fact.id, evidenceKind: "inferred" as const },
     };
     if (preferCritical) addEdgePrefer(state, typedEdge);
     else addEdge(state, typedEdge);

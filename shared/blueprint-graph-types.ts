@@ -15,13 +15,23 @@ export interface ProjectedCodeFact {
   metadata: Record<string, unknown>;
 }
 
+export interface ProjectedPipelineNode {
+  id: string;
+  type: string;
+  label: string;
+  state: ConceptState;
+  filePath?: string;
+  line?: number;
+}
+
 export interface ProjectedRoute {
   id: string;
   method: string;
   path: string;
   filePath: string;
   line: number;
-  pipeline: [];
+  /** Deno pipeline steps when present on the route node; empty when unknown. */
+  pipeline: ProjectedPipelineNode[];
   concepts: Record<string, ConceptState>;
 }
 

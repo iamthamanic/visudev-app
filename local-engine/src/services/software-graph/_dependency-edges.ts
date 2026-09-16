@@ -67,6 +67,8 @@ export function addDependencyFactEdge(
       excerpt: sanitizeExcerpt(fact.snippet),
       line: fact.line,
       selfReference: false,
+      /** AST-resolved import/call edges are extracted; unresolved heuristics would be inferred. */
+      evidenceKind: "extracted" as const,
     },
   });
 }

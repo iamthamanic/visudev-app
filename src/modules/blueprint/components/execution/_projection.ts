@@ -286,6 +286,8 @@ function normalizedExecutionStatus(value: unknown): string | null {
 }
 
 export function isExecutionLive(graph: SoftwareGraph, routeId: string): boolean {
+  // Honest: "Live" only when an execution status is explicitly running.
+  // Observed runtime crawl edges are shown separately — never fake Live.
   const routeNode = findRouteNode(graph, routeId);
   const executionStatus = normalizedExecutionStatus(routeNode?.metadata?.executionStatus);
   const routeStatus = normalizedExecutionStatus(routeNode?.metadata?.status);

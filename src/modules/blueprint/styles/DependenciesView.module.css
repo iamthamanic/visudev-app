@@ -412,3 +412,25 @@
   color: var(--color-muted-foreground);
   max-width: 28rem;
 }
+
+.openInEditor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.openInEditorLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm, 0.375rem);
+  color: var(--color-foreground);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  background: transparent;
+}
+
+.openInEditorLink:hover {
+  border-color: var(--color-primary);
+}

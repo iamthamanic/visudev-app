@@ -8,6 +8,7 @@ import { InspectorPanel } from "../ui/InspectorPanel.js";
 import { GraphCodeHighlight } from "../ui/GraphCodeHighlight.js";
 import type { TopNodeDependency } from "./_projection.js";
 import { RELATIONSHIP_LABELS, type DependencyEdgeKind } from "./_projection.constants.js";
+import { OpenInEditorButton } from "../ui/OpenInEditorButton.js";
 import {
   formatDependencyAnalyzedAt,
   readDependencyNodeDescription,
@@ -27,6 +28,8 @@ export interface DependenciesNodeInspectorProps {
   codeExcerpt: string | null;
   relatedNodes: { id: string; label: string }[];
   onSelectCodeNode: (nodeId: string | null) => void;
+  localPath?: string | null;
+  repoUrl?: string | null;
 }
 
 export function DependenciesNodeInspector({
@@ -39,6 +42,8 @@ export function DependenciesNodeInspector({
   codeExcerpt,
   relatedNodes,
   onSelectCodeNode,
+  localPath,
+  repoUrl,
 }: DependenciesNodeInspectorProps): JSX.Element {
   return (
     <div data-testid="dependency-inspector">
@@ -46,6 +51,18 @@ export function DependenciesNodeInspector({
         title={node.label}
         subtitle={readDependencyNodeModuleLabel(node)}
         sections={[
+          {
+            id: "open",
+            title: "Öffnen",
+            content: (
+              <OpenInEditorButton
+                filePath={codeSelection?.filePath ?? node.filePath ?? readDependencyNodeFilePath(node)}
+                line={codeSelection?.line ?? node.line}
+                localPath={localPath}
+                repoUrl={repoUrl}
+              />
+            ),
+          },
           {
             id: "code",
             title: "Code",

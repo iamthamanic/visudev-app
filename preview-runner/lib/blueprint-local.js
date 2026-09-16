@@ -34,7 +34,7 @@ const SKIP_DIRS = new Set([
 
 /** JS/TS plus Python (Django), Prisma, and compose YAML for Softort infra truth. */
 const SUPPORTED_EXT = new Set(["ts", "tsx", "js", "jsx", "vue", "py", "prisma", "yml", "yaml"]);
-const FILE_LIMIT = Math.max(250, Number(process.env.BLUEPRINT_FILE_LIMIT) || 400);
+const FILE_LIMIT = Math.max(250, Number(process.env.BLUEPRINT_FILE_LIMIT) || 800);
 const MAX_WALK_CANDIDATES = Math.max(2000, Number(process.env.BLUEPRINT_MAX_WALK) || 4000);
 /** Walk paths shipped for Softort/domain spread (may exceed FILE_LIMIT content set). */
 const MAX_PATH_CATALOG = Math.max(
@@ -601,7 +601,12 @@ function collectFileEntries(workspaceRoot) {
     }
   }
 
-  return { files: entries, pathCatalog };
+  return {
+    files: entries,
+    pathCatalog,
+    filesDiscovered: prioritized.length,
+    filesAnalyzed: entries.length,
+  };
 }
 
 function runDenoAnalyze(payload) {
@@ -611,11 +616,21 @@ function runDenoAnalyze(payload) {
   }
 
   return new Promise((resolve, reject) => {
-    const child = spawn("deno", ["run", "--quiet", "--no-prompt", CLI_SCRIPT], {
+    const child = spawn(
+      "deno",
+      [
+        "run",
+        "--quiet",
+        "--no-prompt",
+        "--allow-env=BLUEPRINT_MAX_FACTS",
+        CLI_SCRIPT,
+      ],
+      {
       cwd: ANALYZER_DIR,
       stdio: ["pipe", "pipe", "pipe"],
       env: process.env,
-    });
+    },
+    );
 
     let stdout = "";
     let stderr = "";
@@ -706,7 +721,8 @@ export async function analyzeLocalBlueprint(input) {
     }
 
     const workspaceRoot = resolveWorkspaceRoot(validated.path);
-    const { files, pathCatalog } = collectFileEntries(workspaceRoot);
+    const { files, pathCatalog, filesDiscovered, filesAnalyzed } =
+      collectFileEntries(workspaceRoot);
     if (files.length === 0) {
       const err = new Error("No analyzable source files found in local project path");
       err.statusCode = 400;
@@ -726,6 +742,7 @@ export async function analyzeLocalBlueprint(input) {
       files,
       pathCatalog,
       fileLimit: FILE_LIMIT,
+      filesDiscovered,
     });
 
     if (!result?.blueprint) {
@@ -743,11 +760,21 @@ export async function analyzeLocalBlueprint(input) {
       delete result.blueprint.branch;
     }
     result.blueprint.analysisOrigin = analysisOrigin;
+    result.blueprint.totalFiles = filesDiscovered;
+    result.blueprint.filesDiscovered = filesDiscovered;
+    if (result.blueprint.truncation && typeof result.blueprint.truncation === "object") {
+      result.blueprint.truncation.filesDiscovered = filesDiscovered;
+      result.blueprint.truncation.filesAnalyzed =
+        result.blueprint.truncation.filesAnalyzed ?? filesAnalyzed;
+      result.blueprint.truncation.truncated =
+        result.blueprint.truncation.truncated || filesAnalyzed < filesDiscovered;
+    }
     return {
       blueprint: result.blueprint,
       origin: analysisOrigin,
       analysisId: result.analysisId ?? randomUUID(),
       filesAnalyzed: files.length,
+      filesDiscovered,
       workspaceRoot,
     };
   } finally {
