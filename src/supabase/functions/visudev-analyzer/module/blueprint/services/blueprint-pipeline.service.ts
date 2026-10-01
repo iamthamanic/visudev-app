@@ -150,17 +150,17 @@ export function analyzeFromFileEntries(
     rootHint,
   );
 
-  const filesDiscovered =
-    typeof input.filesDiscovered === "number" && Number.isFinite(input.filesDiscovered)
-      ? Math.max(input.filesDiscovered, analyzed)
-      : Math.max(input.fileEntries.length, analyzed);
+  const filesDiscovered = typeof input.filesDiscovered === "number" &&
+      Number.isFinite(input.filesDiscovered)
+    ? Math.max(input.filesDiscovered, analyzed)
+    : Math.max(input.fileEntries.length, analyzed);
   const truncation = {
     filesAnalyzed: analyzed,
     filesDiscovered,
     factsKept: factSelection.selected,
     factsDropped: Math.max(0, factSelection.extracted - factSelection.selected),
-    truncated:
-      analyzed < filesDiscovered || factSelection.selected < factSelection.extracted,
+    truncated: analyzed < filesDiscovered ||
+      factSelection.selected < factSelection.extracted,
   };
 
   return {

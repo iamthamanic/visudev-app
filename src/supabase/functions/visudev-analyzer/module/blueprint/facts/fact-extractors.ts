@@ -221,7 +221,17 @@ function extractPrismaFacts(filePath: string, content: string): CodeFact[] {
       );
       if (
         relationMatch &&
-        !["String", "Int", "Float", "Boolean", "DateTime", "Json", "Bytes", "Decimal", "BigInt"].includes(
+        ![
+          "String",
+          "Int",
+          "Float",
+          "Boolean",
+          "DateTime",
+          "Json",
+          "Bytes",
+          "Decimal",
+          "BigInt",
+        ].includes(
           relationMatch[2] ?? "",
         )
       ) {
@@ -229,7 +239,11 @@ function extractPrismaFacts(filePath: string, content: string): CodeFact[] {
         const target = relationMatch[2];
         if (field && target && target !== currentModel) {
           facts.push({
-            id: makeFactId(filePath, lineNum, `prisma-fk-${currentModel}-${target}`),
+            id: makeFactId(
+              filePath,
+              lineNum,
+              `prisma-fk-${currentModel}-${target}`,
+            ),
             kind: "db-write",
             filePath,
             line: lineNum,
