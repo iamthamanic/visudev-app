@@ -19,12 +19,14 @@ import {
   buildDependenciesGraphIndex,
   countDependencyEdgesByKind,
   filterDependenciesProjection,
-  findCentralDependencyNodeId,
   getEdgeEvidenceFromIndex,
   getNodeDependencySummaryFromIndex,
-  projectDependenciesGraph,
   type DependencyEdgeKind,
 } from "./dependencies/_projection.js";
+import {
+  projectDependenciesSemanticGraph,
+  type DependenciesViewLevel,
+} from "./dependencies/project-dependencies-semantic.js";
 import { useDependenciesSearch } from "./dependencies/useDependenciesSearch.js";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
@@ -51,6 +53,8 @@ export function DependenciesView({
   const [showOrphans, setShowOrphans] = useState(true);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+  const [drillLevel, setDrillLevel] = useState<DependenciesViewLevel>("semantic");
+  const [focusSemanticEntityId, setFocusSemanticEntityId] = useState<string | null>(null);
 
   const effectiveEdgeKinds = useMemo(() => {
     const overlayKinds = kindsForOverlays(activeOverlays);
@@ -60,8 +64,12 @@ export function DependenciesView({
 
   const baseProjection = useMemo(() => {
     if (!graph) return { nodes: [], edges: [], orphanNodeIds: [] };
-    return projectDependenciesGraph(graph, { visibleEdgeKinds: effectiveEdgeKinds });
-  }, [graph, effectiveEdgeKinds]);
+    return projectDependenciesSemanticGraph(graph, {
+      visibleEdgeKinds: effectiveEdgeKinds,
+      level: drillLevel,
+      focusSemanticEntityId,
+    });
+  }, [graph, effectiveEdgeKinds, drillLevel, focusSemanticEntityId]);
 
   const searchedProjection = useMemo(
     () =>
@@ -90,9 +98,21 @@ export function DependenciesView({
   }, [graphIndex, selectedNodeId]);
 
   const selection = useMemo(() => {
-    if (!graphIndex) return null;
-    return getEdgeEvidenceFromIndex(graphIndex, selectedEdgeId);
-  }, [graphIndex, selectedEdgeId]);
+    if (!graphIndex || !selectedEdgeId) return null;
+    const direct = getEdgeEvidenceFromIndex(graphIndex, selectedEdgeId);
+    if (direct) return direct;
+
+    const underlyingIds = baseProjection.underlyingEdgeIdsByEdgeId?.get(selectedEdgeId);
+    if (!underlyingIds || underlyingIds.length === 0) return null;
+
+    const firstEdge = graphIndex.edgeById.get(underlyingIds[0]!);
+    if (!firstEdge) return null;
+
+    const evidence = underlyingIds.flatMap(
+      (edgeId) => graphIndex.evidenceByEdgeId.get(edgeId) ?? [],
+    );
+    return { edge: firstEdge, evidence };
+  }, [baseProjection.underlyingEdgeIdsByEdgeId, graphIndex, selectedEdgeId]);
 
   const nodeSummary = useMemo(() => {
     if (!selectedNodeId || !graphIndex) return null;
@@ -122,12 +142,9 @@ export function DependenciesView({
       return;
     }
 
-    if (visibleNodeIds.size === 0) return;
-
-    const centralId = findCentralDependencyNodeId(graph, { visibleEdgeKinds: effectiveEdgeKinds });
-    if (!centralId || !visibleNodeIds.has(centralId)) return;
-    setSelectedNodeId(centralId);
-  }, [graph, projection.nodes, selectedNodeId, effectiveEdgeKinds]);
+    if (projection.nodes.length === 0) return;
+    setSelectedNodeId(projection.nodes[0]!.id);
+  }, [graph, projection.nodes, selectedNodeId]);
 
   useEffect(() => {
     if (!selectedEdgeId) return;
@@ -136,6 +153,24 @@ export function DependenciesView({
       setSelectedEdgeId(null);
     }
   }, [projection.edges, selectedEdgeId]);
+
+  const handleNodeSelect = (nodeId: string | null) => {
+    setSelectedNodeId(nodeId);
+    setSelectedEdgeId(null);
+    if (!nodeId) return;
+    if (drillLevel === "semantic" && nodeId.startsWith("semantic:")) {
+      setFocusSemanticEntityId(nodeId);
+      setDrillLevel("files");
+      setSelectedNodeId(null);
+    }
+  };
+
+  const handleBackToSemantic = () => {
+    setDrillLevel("semantic");
+    setFocusSemanticEntityId(null);
+    setSelectedNodeId(null);
+    setSelectedEdgeId(null);
+  };
 
   const toggleEdgeKind = (kind: DependencyEdgeKind) => {
     setVisibleEdgeKinds((current) => {
@@ -186,11 +221,6 @@ export function DependenciesView({
     searchInputRef.current?.focus();
   };
 
-  const handleNodeSelect = (nodeId: string | null) => {
-    setSelectedNodeId(nodeId);
-    if (nodeId) setSelectedEdgeId(null);
-  };
-
   const handleEdgeSelect = (edgeId: string | null) => {
     setSelectedEdgeId(edgeId);
     if (edgeId) setSelectedNodeId(null);
@@ -200,6 +230,15 @@ export function DependenciesView({
     <BlueprintViewLayout
       controls={
         <div>
+          {drillLevel === "files" ? (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm mb-2"
+              onClick={handleBackToSemantic}
+            >
+              ← Semantik-Übersicht
+            </button>
+          ) : null}
           <DependenciesOverlayToggles
             activeOverlays={activeOverlays}
             onToggle={(overlay) => {

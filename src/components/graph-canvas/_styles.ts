@@ -33,6 +33,18 @@ export function getCssVariable(name: string): string {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
+/** Resolve `var(--token)` or raw CSS colors to concrete values Cytoscape accepts. */
+export function resolveCytoscapeColor(value: unknown): string | undefined {
+  if (typeof value !== "string" || value.trim().length === 0) return undefined;
+  const trimmed = value.trim();
+  const varMatch = /^var\((--[a-zA-Z0-9-_]+)\)$/.exec(trimmed);
+  if (varMatch) {
+    const resolved = getCssVariable(varMatch[1]!);
+    return resolved || undefined;
+  }
+  return trimmed;
+}
+
 export function buildStylesheet(): cytoscape.StylesheetStyle[] {
   const nodeDefault = getCssVariable("--color-muted-foreground");
   const edgeColor = getCssVariable("--color-graph-edge");
@@ -74,7 +86,9 @@ export function buildStylesheet(): cytoscape.StylesheetStyle[] {
       style: {
         label: "data(label)",
         "background-color": (ele: cytoscape.NodeSingular) =>
-          ele.data("color") || getCssVariable(kindVariables[ele.data("kind")]) || nodeDefault,
+          resolveCytoscapeColor(ele.data("color")) ||
+          getCssVariable(kindVariables[ele.data("kind")]) ||
+          nodeDefault,
         color: foreground,
         "text-valign": "center",
         "text-halign": "center",
