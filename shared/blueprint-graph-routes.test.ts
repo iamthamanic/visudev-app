@@ -83,7 +83,10 @@ describe("deriveRoutesFromGraph", () => {
           metadata: {
             method: "GET",
             path: "/users",
-            pipeline: [{ kind: "auth" }, { id: "h1", type: "handler", label: "handler", state: "confirmed" }],
+            pipeline: [
+              { kind: "auth" },
+              { id: "h1", type: "handler", label: "handler", state: "confirmed" },
+            ],
           },
         },
       ],

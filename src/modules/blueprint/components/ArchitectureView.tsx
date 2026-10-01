@@ -158,7 +158,11 @@ export function ArchitectureView({
       graph.nodes.some((node) => node.kind === "domain"),
     module:
       graph.nodes.some((node) => node.kind === "module") ||
-      Boolean(semantic?.entities.some((entity) => entity.kind === "service" || entity.kind === "component")),
+      Boolean(
+        semantic?.entities.some(
+          (entity) => entity.kind === "service" || entity.kind === "component",
+        ),
+      ),
     file: graph.nodes.some((node) => node.kind === "file"),
   };
 
@@ -222,11 +226,7 @@ export function ArchitectureView({
   return (
     <div className={styles.root}>
       <ArchitectureGroupingToggle mode={groupingMode} onSelectMode={setGroupingMode} />
-      <ArchitectureLevelNav
-        level={level}
-        onChange={setLevel}
-        available={levelAvailable}
-      />
+      <ArchitectureLevelNav level={level} onChange={setLevel} available={levelAvailable} />
       {domainHint ? (
         <p className={styles.domainSourceHint} role="status">
           {domainHint}

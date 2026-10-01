@@ -56,7 +56,9 @@ export function DependenciesNodeInspector({
             title: "Öffnen",
             content: (
               <OpenInEditorButton
-                filePath={codeSelection?.filePath ?? node.filePath ?? readDependencyNodeFilePath(node)}
+                filePath={
+                  codeSelection?.filePath ?? node.filePath ?? readDependencyNodeFilePath(node)
+                }
                 line={codeSelection?.line ?? node.line}
                 localPath={localPath}
                 repoUrl={repoUrl}

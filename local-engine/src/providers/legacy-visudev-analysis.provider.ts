@@ -192,7 +192,7 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
         : typeof blueprint.totalFiles === "number"
           ? blueprint.totalFiles
           : typeof (blueprint as { filesDiscovered?: unknown }).filesDiscovered === "number"
-            ? ((blueprint as { filesDiscovered: number }).filesDiscovered)
+            ? (blueprint as { filesDiscovered: number }).filesDiscovered
             : undefined;
 
     const truncationFromBlueprint = blueprint.truncation as ScanTruncationReport | undefined;

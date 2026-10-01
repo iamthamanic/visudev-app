@@ -173,7 +173,12 @@ describe("visudev-to-software-graph adapter", () => {
           label: "GET /users",
           filePath: "src/users.controller.ts",
           line: 10,
-          metadata: { method: "GET", path: "/users", routeId: "GET /users", pipeline: [{ kind: "handler" }] },
+          metadata: {
+            method: "GET",
+            path: "/users",
+            routeId: "GET /users",
+            pipeline: [{ kind: "handler" }],
+          },
         },
       ],
       edges: [],

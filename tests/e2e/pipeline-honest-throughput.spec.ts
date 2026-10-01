@@ -98,7 +98,12 @@ function buildThroughputBlueprint(projectId: string) {
 test.describe("Pipeline honest throughput visuals", () => {
   test.beforeEach(async ({ page }) => {
     await seedSupabaseSession(page);
-    await installWave2Mocks(page, PROJECT_ID, "pipeline-honest-1", buildThroughputBlueprint(PROJECT_ID));
+    await installWave2Mocks(
+      page,
+      PROJECT_ID,
+      "pipeline-honest-1",
+      buildThroughputBlueprint(PROJECT_ID),
+    );
   });
 
   test("dependencies overlays collapse by default and filter when opened", async ({ page }) => {
@@ -149,7 +154,9 @@ test.describe("Pipeline honest throughput visuals", () => {
     });
   });
 
-  test("open-in-editor links appear for selected dependency node with repoUrl", async ({ page }) => {
+  test("open-in-editor links appear for selected dependency node with repoUrl", async ({
+    page,
+  }) => {
     test.setTimeout(60_000);
     await openBlueprintView(page, "dependencies");
 
@@ -164,7 +171,9 @@ test.describe("Pipeline honest throughput visuals", () => {
 
     const openEditor = page.getByTestId("open-in-editor");
     await expect(openEditor).toBeVisible({ timeout: 20_000 });
-    await expect(openEditor.getByRole("link", { name: /GitHub|Cursor|VS Code/i }).first()).toBeVisible();
+    await expect(
+      openEditor.getByRole("link", { name: /GitHub|Cursor|VS Code/i }).first(),
+    ).toBeVisible();
 
     await page.screenshot({
       path: `${EVIDENCE_DIR}/04-open-in-editor.png`,

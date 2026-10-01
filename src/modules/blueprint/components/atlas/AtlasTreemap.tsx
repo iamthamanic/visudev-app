@@ -34,7 +34,8 @@ export function AtlasTreemap({ graph }: AtlasTreemapProps): JSX.Element {
               minHeight: 36,
               padding: "0.35rem",
               background: "color-mix(in srgb, var(--color-primary, #2563eb) 18%, transparent)",
-              border: "1px solid color-mix(in srgb, var(--color-primary, #2563eb) 35%, transparent)",
+              border:
+                "1px solid color-mix(in srgb, var(--color-primary, #2563eb) 35%, transparent)",
               fontSize: 11,
               overflow: "hidden",
             }}

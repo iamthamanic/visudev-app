@@ -96,7 +96,7 @@ export function normalizeBlueprintData(
       typeof raw.totalFiles === "number" && Number.isFinite(raw.totalFiles)
         ? raw.totalFiles
         : typeof (raw as { filesDiscovered?: unknown }).filesDiscovered === "number"
-          ? ((raw as { filesDiscovered: number }).filesDiscovered)
+          ? (raw as { filesDiscovered: number }).filesDiscovered
           : undefined,
     truncation:
       raw.truncation && typeof raw.truncation === "object" && !Array.isArray(raw.truncation)
