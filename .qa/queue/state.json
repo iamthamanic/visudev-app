@@ -3,9 +3,9 @@
   "repo": "iamthamanic/visudev-app",
   "activeIssue": 323,
   "featureSlug": "rvp7-dependencies-semantic-aggregation",
-  "phase": "commit",
+  "phase": "babysit",
   "branch": "feat/323-dependencies-semantic-aggregation",
-  "prUrl": null,
+  "prUrl": "https://github.com/iamthamanic/visudev-app/pull/352",
   "milestoneFilter": null,
   "paused": false,
   "runMode": "loop",
@@ -32,11 +32,18 @@
     328,
     350
   ],
-  "completedIssues": [321, 322],
-  "mergedIssues": [321, 322],
+  "completedIssues": [
+    321,
+    322
+  ],
+  "mergedIssues": [
+    321,
+    322
+  ],
   "prUrls": {
     "321": "https://github.com/iamthamanic/visudev-app/pull/333",
-    "322": "https://github.com/iamthamanic/visudev-app/pull/351"
+    "322": "https://github.com/iamthamanic/visudev-app/pull/351",
+    "323": "https://github.com/iamthamanic/visudev-app/pull/352"
   },
   "retries": {
     "implement": 0,
@@ -56,7 +63,7 @@
   "lastError": null,
   "lastErrorCount": 0,
   "issuesProcessedInSession": 2,
-  "updatedAt": "2026-10-01T22:42:00.000Z",
+  "updatedAt": "2026-10-01T22:45:00.000Z",
   "notes": "order-01 #321 + order-02 #322 MERGED; shipping order-03 #323",
   "currentIssue": 323,
   "lastCompletedIssue": 322,

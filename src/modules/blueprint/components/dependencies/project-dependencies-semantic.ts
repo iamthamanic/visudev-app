@@ -298,3 +298,34 @@ export function projectDependenciesSemanticGraph(
 
   return buildSemanticOverview(graph, semantic, visibleKinds);
 }
+
+/** Prefer a file-bearing member for inspector deep-links (open-in-editor). */
+export function resolveSemanticRepresentativeNode(
+  semanticEntityId: string,
+  graph: SoftwareGraph,
+  semantic: SemanticSystemModel,
+): SoftwareGraphNode | null {
+  const nodeById = new Map(
+    (Array.isArray(graph.nodes) ? graph.nodes : []).map((node) => [node.id, node]),
+  );
+  const memberIds = semantic.memberships
+    .filter((membership) => membership.semanticEntityId === semanticEntityId)
+    .map((membership) => membership.graphNodeId);
+
+  for (const id of memberIds) {
+    const node = nodeById.get(id);
+    if (node?.filePath) return node;
+  }
+  for (const id of memberIds) {
+    const node = nodeById.get(id);
+    if (node) return node;
+  }
+
+  const entity = semantic.entities.find((item) => item.id === semanticEntityId);
+  const sourceId =
+    entity && typeof entity.metadata?.sourceGraphNodeId === "string"
+      ? entity.metadata.sourceGraphNodeId
+      : null;
+  if (sourceId) return nodeById.get(sourceId) ?? null;
+  return null;
+}
