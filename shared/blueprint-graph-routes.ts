@@ -59,17 +59,12 @@ export function normalizeProjectedPipeline(raw: unknown): ProjectedPipelineNode[
     if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
     const row = entry as Record<string, unknown>;
     const type =
-      typeof row.type === "string"
-        ? row.type
-        : typeof row.kind === "string"
-          ? row.kind
-          : "step";
+      typeof row.type === "string" ? row.type : typeof row.kind === "string" ? row.kind : "step";
     const id =
       typeof row.id === "string" && row.id.trim().length > 0
         ? row.id
         : `pipeline-step-${index + 1}`;
-    const label =
-      typeof row.label === "string" && row.label.trim().length > 0 ? row.label : type;
+    const label = typeof row.label === "string" && row.label.trim().length > 0 ? row.label : type;
     steps.push({
       id,
       type,

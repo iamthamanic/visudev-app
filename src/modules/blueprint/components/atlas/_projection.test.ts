@@ -1,25 +1,48 @@
-/**
- * Tests for Atlas graph projection condensation and search.
- */
+/** Tests for semantic Atlas projection and progressive disclosure. */
 
 import { describe, expect, it } from "vitest";
 import { projectAtlasGraph } from "./_projection";
 import type { SoftwareGraph } from "../../types";
 
-function makeGraph(nodeCount: number): SoftwareGraph {
-  const nodes = Array.from({ length: nodeCount }, (_, index) => ({
-    id: `n${index}`,
-    kind: index % 3 === 0 ? ("file" as const) : ("module" as const),
-    label: index === 7 ? "payments-core" : `node-${index}`,
-    metadata: {},
-  }));
+function makeGraph(): SoftwareGraph {
   return {
     version: 1,
     projectId: "p1",
     analyzedAt: "2026-01-01T00:00:00.000Z",
     scopes: [],
-    nodes,
-    edges: [],
+    nodes: [
+      { id: "app", kind: "application", label: "Habit Tracker", metadata: {} },
+      {
+        id: "route-habits",
+        kind: "route",
+        label: "GET /api/habits",
+        filePath: "src/habits/routes.ts",
+        metadata: { path: "/api/habits" },
+      },
+      {
+        id: "habit-service",
+        kind: "service",
+        label: "HabitService",
+        filePath: "src/habits/habit-service.ts",
+        metadata: {},
+      },
+      {
+        id: "habit-file",
+        kind: "file",
+        label: "habit.ts",
+        filePath: "src/habits/habit.ts",
+        metadata: {},
+      },
+    ],
+    edges: [
+      {
+        id: "route-call",
+        kind: "calls",
+        sourceId: "route-habits",
+        targetId: "habit-service",
+        metadata: {},
+      },
+    ],
     evidence: [],
     groups: [],
     metrics: [],
@@ -29,16 +52,61 @@ function makeGraph(nodeCount: number): SoftwareGraph {
 }
 
 describe("projectAtlasGraph", () => {
-  it("condenses large graphs to overview kinds", () => {
-    const projection = projectAtlasGraph(makeGraph(500));
-    expect(projection.condensed).toBe(true);
-    expect(projection.visibleNodes).toBeLessThanOrEqual(400);
-    expect(projection.nodes.every((node) => node.kind === "module")).toBe(true);
+  it("shows application and business-domain districts instead of routes/files", () => {
+    const projection = projectAtlasGraph(makeGraph());
+    expect(projection.nodes.map((node) => node.label)).toEqual(
+      expect.arrayContaining(["Habit Tracker", "Habit"]),
+    );
+    expect(projection.nodes.some((node) => node.label.startsWith("GET "))).toBe(false);
+    expect(projection.nodes.some((node) => node.kind === "file")).toBe(false);
+    expect(projection.groups.some((group) => group.label === "Habit")).toBe(true);
+    expect(projection.inspectorGroups.find((group) => group.label === "Habit")?.nodeIds).toContain(
+      "habit-file",
+    );
   });
 
-  it("filters nodes by search query", () => {
-    const projection = projectAtlasGraph(makeGraph(20), { searchQuery: "payments" });
+  it("does not expose opaque application UUIDs as overview labels", () => {
+    const graph = makeGraph();
+    graph.nodes[0] = {
+      id: "app",
+      kind: "application",
+      label: "e9afc94b-b2e3-47a3-b24f-ac07284cb34f",
+      metadata: {},
+    };
+
+    const projection = projectAtlasGraph(graph);
+    expect(projection.nodes.some((node) => node.kind === "application")).toBe(false);
+    expect(projection.nodes.some((node) => node.label === "Habit")).toBe(true);
+  });
+
+  it("reveals semantic services through search without promoting raw files", () => {
+    const projection = projectAtlasGraph(makeGraph(), { searchQuery: "HabitService" });
     expect(projection.nodes).toHaveLength(1);
-    expect(projection.nodes[0]?.label).toContain("payments");
+    expect(projection.nodes[0]).toMatchObject({
+      id: "semantic:service:habit-service",
+      kind: "service",
+    });
+    expect(projection.sourceGraphNodeIdBySemanticId["semantic:service:habit-service"]).toBe(
+      "habit-service",
+    );
+  });
+
+  it("caps large semantic overviews at forty objects", () => {
+    const graph = makeGraph();
+    graph.nodes.push(
+      ...Array.from({ length: 60 }, (_, index) => ({
+        id: `service-${index}`,
+        kind: "service" as const,
+        label: `Area${index}Service`,
+        filePath: `src/area-${index}/service.ts`,
+        metadata: {},
+      })),
+    );
+    const projection = projectAtlasGraph(graph);
+    expect(projection.condensed).toBe(true);
+    expect(projection.visibleNodes).toBeLessThanOrEqual(40);
+    expect(projection.nodes.every((node) => node.kind !== "route" && node.kind !== "file")).toBe(
+      true,
+    );
   });
 });

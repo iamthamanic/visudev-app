@@ -172,7 +172,7 @@ export function ExecutionView({ blueprint, scanStatus, scanError, onRetry }: Exe
         )}
       </header>
 
-      <div style={{ padding: "0.5rem 1rem" }}>
+      <div className={styles.sequenceSlot}>
         <ExecutionSequenceStrip graph={graph} routeNodeId={activeRouteId} />
       </div>
 

@@ -789,3 +789,7 @@
   font-size: 0.875rem;
   color: var(--color-muted-foreground);
 }
+
+.treemapSlot {
+  padding: 0.75rem 1rem;
+}

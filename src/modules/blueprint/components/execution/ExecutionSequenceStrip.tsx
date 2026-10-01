@@ -5,6 +5,7 @@
 
 import type { SoftwareGraph } from "../../types";
 import { projectSequenceSteps } from "./execution-sequence-projection.js";
+import styles from "../../styles/ExecutionSequenceStrip.module.css";
 
 export interface ExecutionSequenceStripProps {
   graph: SoftwareGraph | null | undefined;
@@ -24,12 +25,9 @@ export function ExecutionSequenceStrip({
     );
   }
   return (
-    <ol
-      data-testid="execution-sequence"
-      style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", listStyle: "none", padding: 0 }}
-    >
+    <ol data-testid="execution-sequence" className={styles.list}>
       {steps.map((step, index) => (
-        <li key={step.id} style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+        <li key={step.id} className={styles.item}>
           {index > 0 ? <span aria-hidden="true">→</span> : null}
           <span
             className={`badge ${step.observed ? "badge-success" : "badge-ghost"}`}

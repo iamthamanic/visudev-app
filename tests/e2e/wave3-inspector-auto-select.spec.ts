@@ -25,18 +25,16 @@ test.describe("Wave 3 inspector auto-select", () => {
     await expect(page.getByTestId("architecture-inspector")).toBeVisible();
   });
 
-  test("atlas pre-selects API SERVICE cluster", async ({ page }) => {
+  test("atlas pre-selects the first semantic cluster", async ({ page }) => {
     test.setTimeout(60_000);
     await seedSupabaseSession(page);
     await installWave2Mocks(page, PROJECT_ID, "wave3-auto-atlas");
     await openBlueprintView(page, "atlas");
 
-    await expect(
-      page
-        .getByTestId("atlas-cluster")
-        .filter({ hasText: /API SERVICE/i })
-        .first(),
-    ).toHaveAttribute("data-selected", "true");
+    await expect(page.getByTestId("atlas-cluster").first()).toHaveAttribute(
+      "data-selected",
+      "true",
+    );
     await expect(page.getByTestId("atlas-inspector")).toBeVisible();
   });
 

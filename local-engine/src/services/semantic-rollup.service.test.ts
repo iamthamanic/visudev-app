@@ -42,13 +42,50 @@ function graphFixture(): SoftwareGraph {
         filePath: "src/documents/documents.repository.ts",
         metadata: {},
       },
+      {
+        id: "route-orders",
+        kind: "route",
+        label: "GET /api/orders",
+        metadata: { path: "/api/orders" },
+      },
+      {
+        id: "file-orders",
+        kind: "file",
+        label: "orders.ts",
+        filePath: "src/orders.ts",
+        metadata: {},
+      },
       { id: "service-payroll", kind: "service", label: "PayrollService", metadata: {} },
     ],
     edges: [
-      { id: "import-1", kind: "imports", sourceId: "file-payroll", targetId: "file-docs", metadata: {} },
-      { id: "import-2", kind: "imports", sourceId: "file-payroll", targetId: "file-docs", metadata: {} },
-      { id: "call-1", kind: "calls", sourceId: "file-payroll", targetId: "file-docs", metadata: {} },
-      { id: "internal", kind: "imports", sourceId: "file-payroll", targetId: "route-payroll", metadata: {} },
+      {
+        id: "import-1",
+        kind: "imports",
+        sourceId: "file-payroll",
+        targetId: "file-docs",
+        metadata: {},
+      },
+      {
+        id: "import-2",
+        kind: "imports",
+        sourceId: "file-payroll",
+        targetId: "file-docs",
+        metadata: {},
+      },
+      {
+        id: "call-1",
+        kind: "calls",
+        sourceId: "file-payroll",
+        targetId: "file-docs",
+        metadata: {},
+      },
+      {
+        id: "internal",
+        kind: "imports",
+        sourceId: "file-payroll",
+        targetId: "route-payroll",
+        metadata: {},
+      },
     ],
     evidence: [],
     groups: [],
@@ -76,6 +113,18 @@ describe("semantic roll-up", () => {
           graphNodeId: "service-payroll",
           semanticEntityId: "semantic:service:service-payroll",
           confidence: 1,
+        }),
+      ]),
+    );
+  });
+
+  it("uses a flat file stem as domain-path evidence", () => {
+    const model = buildSemanticSystemModel(graphFixture());
+    expect(model.memberships).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          graphNodeId: "file-orders",
+          semanticEntityId: "semantic:business-domain:order",
         }),
       ]),
     );

@@ -7,10 +7,12 @@
     "strict": true,
     "noImplicitAny": true,
     "skipLibCheck": true,
+    "rootDir": "..",
     "outDir": "dist",
     "declaration": false,
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "../shared/**/*.ts"],
+  "exclude": ["../shared/**/*.test.ts"]
 }

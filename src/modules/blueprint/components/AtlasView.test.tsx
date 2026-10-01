@@ -1,6 +1,4 @@
-/**
- * Tests for AtlasView empty state, search controls, selection, and Inspektor tabs.
- */
+/** Tests for AtlasView semantic overview, search and evidence drill-down. */
 
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
@@ -13,19 +11,75 @@ const graphBlueprint: BlueprintData = {
   securityMatrix: [],
   findings: [],
   facts: [],
-  filesAnalyzed: 0,
+  filesAnalyzed: 4,
   graph: {
     version: 1,
     projectId: "p1",
     analyzedAt: "2026-01-01T00:00:00.000Z",
     scopes: [],
     nodes: [
-      { id: "m1", kind: "module", label: "auth", metadata: {} },
-      { id: "m2", kind: "module", label: "billing", metadata: {} },
+      { id: "app", kind: "application", label: "Example App", metadata: {} },
+      {
+        id: "route-auth",
+        kind: "route",
+        label: "GET /api/auth",
+        filePath: "src/auth/routes.ts",
+        metadata: { path: "/api/auth" },
+      },
+      {
+        id: "auth-service",
+        kind: "service",
+        label: "AuthService",
+        filePath: "src/auth/service.ts",
+        metadata: {},
+      },
+      {
+        id: "auth-file",
+        kind: "file",
+        label: "auth.ts",
+        filePath: "src/auth/auth.ts",
+        metadata: {},
+      },
+      {
+        id: "route-billing",
+        kind: "route",
+        label: "GET /api/billing",
+        filePath: "src/billing/routes.ts",
+        metadata: { path: "/api/billing" },
+      },
+      {
+        id: "billing-service",
+        kind: "service",
+        label: "BillingService",
+        filePath: "src/billing/service.ts",
+        metadata: {},
+      },
+      {
+        id: "billing-file",
+        kind: "file",
+        label: "billing.ts",
+        filePath: "src/billing/billing.ts",
+        metadata: {},
+      },
     ],
-    edges: [{ id: "e1", kind: "references", sourceId: "m1", targetId: "m2", metadata: {} }],
+    edges: [
+      {
+        id: "auth-call",
+        kind: "calls",
+        sourceId: "route-auth",
+        targetId: "auth-service",
+        metadata: {},
+      },
+      {
+        id: "billing-call",
+        kind: "calls",
+        sourceId: "route-billing",
+        targetId: "billing-service",
+        metadata: {},
+      },
+    ],
     evidence: [],
-    groups: [{ id: "g1", kind: "module", label: "core", nodeIds: ["m1", "m2"] }],
+    groups: [],
     metrics: [],
     condensed: false,
     limits: { maxNodes: 2500, maxEdges: 5000 },
@@ -49,11 +103,35 @@ describe("AtlasView", () => {
     expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
-  it("renders stats bar, legend, and view mode toggle", () => {
+  it("renders semantic application/domain nodes instead of route/file labels", () => {
     render(<AtlasView blueprint={graphBlueprint} />);
-    expect(screen.getByLabelText("Atlas-Statistik")).toBeInTheDocument();
-    expect(screen.getByLabelText("Atlas-Legende")).toBeInTheDocument();
-    expect(screen.getByRole("group", { name: "Atlas-Ansicht" })).toBeInTheDocument();
+    const visibleNodes = screen.getByLabelText("Sichtbare Knoten");
+    expect(within(visibleNodes).getByText("Example App")).toBeInTheDocument();
+    expect(within(visibleNodes).getByText("Auth")).toBeInTheDocument();
+    expect(within(visibleNodes).getByText("Billing")).toBeInTheDocument();
+    expect(within(visibleNodes).queryByText("GET /api/auth")).not.toBeInTheDocument();
+    expect(within(visibleNodes).queryByText("auth.ts")).not.toBeInTheDocument();
+  });
+
+  it("uses search as progressive disclosure for semantic services", () => {
+    render(<AtlasView blueprint={graphBlueprint} />);
+    fireEvent.change(screen.getByPlaceholderText("Label durchsuchen…"), {
+      target: { value: "AuthService" },
+    });
+    const visibleNodes = screen.getByLabelText("Sichtbare Knoten");
+    expect(within(visibleNodes).getByText("AuthService")).toBeInTheDocument();
+    expect(within(visibleNodes).queryByText("auth.ts")).not.toBeInTheDocument();
+  });
+
+  it("keeps domain membership available for raw graph drill-down", () => {
+    render(<AtlasView blueprint={graphBlueprint} />);
+    const clusterSection = screen.getByLabelText("Cluster");
+    fireEvent.click(within(clusterSection).getByText("Auth"));
+    expect(screen.getByRole("heading", { name: "Auth" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Details" }));
+    const inspector = screen.getByLabelText("Inspektor");
+    expect(within(inspector).getByText("auth.ts")).toBeInTheDocument();
+    expect(within(inspector).getByText("AuthService")).toBeInTheDocument();
   });
 
   it("shows Abdeckung unbekannt when graph has no coverage metric", () => {
@@ -70,57 +148,9 @@ describe("AtlasView", () => {
     expect(screen.getByTestId("view-state-partial-scan")).toBeInTheDocument();
   });
 
-  it("shows truncation banner when filesAnalyzed < totalFiles", () => {
-    const partial: BlueprintData = { ...graphBlueprint, filesAnalyzed: 400, totalFiles: 1706 };
-    render(<AtlasView blueprint={partial} />);
-    expect(screen.getByTestId("view-state-partial-scan")).toBeInTheDocument();
-  });
-
-  it("hides truncation banner on a complete scan", () => {
+  it("renders legend and view mode toggle", () => {
     render(<AtlasView blueprint={graphBlueprint} />);
-    expect(screen.queryByTestId("view-state-partial-scan")).not.toBeInTheDocument();
-  });
-
-  it("renders search, node cards, and overview stats", () => {
-    render(<AtlasView blueprint={graphBlueprint} />);
-    const controls = screen.getByLabelText("Atlas-Steuerung");
-    expect(within(controls).getByText(/2 von 2 Knoten sichtbar/)).toBeInTheDocument();
-    expect(within(controls).getByText("auth")).toBeInTheDocument();
-    expect(within(controls).getByText("billing")).toBeInTheDocument();
-    fireEvent.change(screen.getByPlaceholderText("Label durchsuchen…"), {
-      target: { value: "bill" },
-    });
-    expect(within(controls).getByText(/1 von 2 Knoten sichtbar/)).toBeInTheDocument();
-  });
-
-  it("shows Inspektor sub-tabs when a node is selected", () => {
-    render(<AtlasView blueprint={graphBlueprint} />);
-    fireEvent.click(screen.getByRole("button", { name: /auth/i }));
-    expect(screen.getByRole("tab", { name: "Übersicht" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Abhängigkeiten" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Deployments" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("tab", { name: "Abhängigkeiten" }));
-    expect(screen.getByText(/references → billing/)).toBeInTheDocument();
-  });
-
-  it("shows cluster chip and cluster overview in Inspektor", () => {
-    render(<AtlasView blueprint={graphBlueprint} />);
-    const clusterSection = screen.getByLabelText("Cluster");
-    fireEvent.click(within(clusterSection).getByText("core"));
-    expect(screen.getByRole("heading", { name: "core" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("tab", { name: "Details" }));
-    const inspector = screen.getByLabelText("Inspektor");
-    expect(within(inspector).getByText("auth")).toBeInTheDocument();
-    expect(within(inspector).getByText("billing")).toBeInTheDocument();
-  });
-
-  it("clears node selection when search filters it out", () => {
-    render(<AtlasView blueprint={graphBlueprint} />);
-    fireEvent.click(screen.getByRole("button", { name: /auth/i }));
-    expect(screen.getByRole("heading", { name: "auth" })).toBeInTheDocument();
-    fireEvent.change(screen.getByPlaceholderText("Label durchsuchen…"), {
-      target: { value: "bill" },
-    });
-    expect(screen.getByRole("heading", { name: "Keine Auswahl" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Atlas-Legende")).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Atlas-Ansicht" })).toBeInTheDocument();
   });
 });

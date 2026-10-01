@@ -1,0 +1,27 @@
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.cell {
+  min-width: 48px;
+  min-height: 36px;
+  padding: 0.35rem;
+  background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+  font-size: 0.6875rem;
+  overflow: hidden;
+}
+
+.cell[data-weight-tier="sm"] {
+  flex: 1 1 12%;
+}
+
+.cell[data-weight-tier="md"] {
+  flex: 1 1 20%;
+}
+
+.cell[data-weight-tier="lg"] {
+  flex: 1 1 32%;
+}

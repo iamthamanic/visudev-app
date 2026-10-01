@@ -7,10 +7,7 @@
  */
 
 import { useState } from "react";
-import {
-  OVERLAY_LABELS,
-  type DependencyOverlayId,
-} from "./dependencies-overlay.js";
+import { OVERLAY_LABELS, type DependencyOverlayId } from "./dependencies-overlay.js";
 import styles from "../../styles/DependenciesView.module.css";
 
 export type { DependencyOverlayId };
@@ -26,17 +23,11 @@ export function DependenciesOverlayToggles({
 }: DependenciesOverlayTogglesProps): JSX.Element {
   const [open, setOpen] = useState(false);
   const activeCount = activeOverlays.size;
-  const summary =
-    activeCount === 0
-      ? "Overlays (keine)"
-      : `Overlays (${activeCount} aktiv)`;
+  const summary = activeCount === 0 ? "Overlays (keine)" : `Overlays (${activeCount} aktiv)`;
 
   return (
     <section className={styles.section} data-testid="dep-overlays">
-      <details
-        open={open}
-        onToggle={(event) => setOpen((event.target as HTMLDetailsElement).open)}
-      >
+      <details open={open} onToggle={(event) => setOpen((event.target as HTMLDetailsElement).open)}>
         <summary className={styles.orphanToggle} data-testid="dep-overlays-summary">
           {summary}
         </summary>

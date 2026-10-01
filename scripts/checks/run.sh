@@ -69,6 +69,9 @@ fi
 echo "\n[Frontend] build (always)"
 npm run build
 
+echo "\n[Local Engine] build (always)"
+npm run build:engine
+
 if [ "$has_backend_changes" = true ]; then
   if [ ${#backend_files[@]} -eq 0 ]; then
     # Fallback to entire backend folder when running all

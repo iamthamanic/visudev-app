@@ -29,7 +29,11 @@ export function ArchitectureLevelNav({
 }: ArchitectureLevelNavProps): JSX.Element {
   const currentLabel = LEVELS.find((entry) => entry.id === level)?.label ?? level;
   return (
-    <nav aria-label="Architektur-Ebenen" className={styles.levelNav} data-testid="architecture-level-nav">
+    <nav
+      aria-label="Architektur-Ebenen"
+      className={styles.levelNav}
+      data-testid="architecture-level-nav"
+    >
       <label className={styles.levelNavLabel}>
         <span>Ebene</span>
         <select

@@ -377,3 +377,7 @@
   color: var(--color-muted-foreground);
   max-width: 28rem;
 }
+
+.sequenceSlot {
+  padding: 0.5rem 1rem;
+}

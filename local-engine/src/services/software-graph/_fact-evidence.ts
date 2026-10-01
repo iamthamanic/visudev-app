@@ -42,22 +42,15 @@ export function addFactEvidence(
 
   // Prisma FK/relation: link existing table nodes with a data edge (no fake nodes).
   if (isPrismaRelationFact(fact)) {
-    const fromTable =
-      typeof fact.metadata?.table === "string" ? fact.metadata.table.trim() : "";
+    const fromTable = typeof fact.metadata?.table === "string" ? fact.metadata.table.trim() : "";
     const toTable =
-      typeof fact.metadata?.relatedTable === "string"
-        ? fact.metadata.relatedTable.trim()
-        : "";
+      typeof fact.metadata?.relatedTable === "string" ? fact.metadata.relatedTable.trim() : "";
     if (fromTable && toTable) {
       const fromId = prismaTableNodeId(fromTable);
       const toId = prismaTableNodeId(toTable);
       if (state.nodes.has(fromId) && state.nodes.has(toId)) {
         addEdge(state, {
-          id: stableUniqueId(
-            state.registry,
-            "edge",
-            createId("fk", fromId, toId, fact.id),
-          ),
+          id: stableUniqueId(state.registry, "edge", createId("fk", fromId, toId, fact.id)),
           kind: "data",
           sourceId: fromId,
           targetId: toId,

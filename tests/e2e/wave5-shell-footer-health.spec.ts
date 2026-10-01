@@ -14,7 +14,9 @@ import {
 const PROJECT_ID = "proj-wave5-footer";
 
 test.describe("Wave 5 shell footer health", () => {
-  test("health line and canonical module count persist across blueprint views", async ({ page }) => {
+  test("health line and canonical module count persist across blueprint views", async ({
+    page,
+  }) => {
     test.setTimeout(60_000);
     const blueprint = buildMockBlueprint(PROJECT_ID);
     const expectedModules = blueprint.graph.nodes.filter((node) => node.kind === "module").length;

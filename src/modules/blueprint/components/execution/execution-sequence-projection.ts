@@ -26,8 +26,7 @@ export function projectSequenceSteps(
   const group =
     graph.groups.find(
       (entry) =>
-        entry.id.startsWith("execution:") &&
-        (!routeNodeId || entry.nodeIds.includes(routeNodeId)),
+        entry.id.startsWith("execution:") && (!routeNodeId || entry.nodeIds.includes(routeNodeId)),
     ) ?? graph.groups.find((entry) => entry.id.startsWith("execution:"));
 
   if (!group || group.nodeIds.length === 0) return [];

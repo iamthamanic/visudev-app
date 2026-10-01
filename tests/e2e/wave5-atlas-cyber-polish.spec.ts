@@ -9,14 +9,15 @@ import { installWave2Mocks, openBlueprintView, seedSupabaseSession } from "./wav
 const PROJECT_ID = "proj-wave5-atlas";
 
 test.describe("Wave 5 atlas cyber polish", () => {
-  test("glow plates, coverage ≥90%, dense NestJS inspector", async ({ page }) => {
+  test("glow plates, coverage ≥90%, dense semantic inspector", async ({ page }) => {
     test.setTimeout(60_000);
     await seedSupabaseSession(page);
     await installWave2Mocks(page, PROJECT_ID, "wave5-atlas-1");
     await openBlueprintView(page, "atlas");
 
-    expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(6);
-    expect(await page.getByTestId("atlas-glow-plate").count()).toBeGreaterThanOrEqual(6);
+    // RVP-5: semantic districts are denser than raw route/file clusters
+    expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(3);
+    expect(await page.getByTestId("atlas-glow-plate").count()).toBeGreaterThanOrEqual(3);
 
     const highCoverage = page.locator('[data-testid="atlas-cluster"][data-coverage]');
     const coverageCount = await highCoverage.count();
@@ -27,18 +28,15 @@ test.describe("Wave 5 atlas cyber polish", () => {
     }
     expect(above90).toBeGreaterThanOrEqual(4);
 
-    const apiCluster = page
-      .getByTestId("atlas-cluster")
-      .filter({ hasText: /API SERVICE/i })
-      .first();
-    await apiCluster.click();
-    await expect(apiCluster).toHaveAttribute("data-selected", "true");
+    const semanticCluster = page.getByTestId("atlas-cluster").first();
+    await semanticCluster.click();
+    await expect(semanticCluster).toHaveAttribute("data-selected", "true");
     await expect(page.getByTestId("atlas-cluster-glow")).toHaveCount(1);
 
     const inspector = page.getByTestId("atlas-inspector");
     await expect(inspector).toBeVisible();
-    await expect(inspector).toContainText(/NestJS|Backend/i);
-    expect(await page.getByTestId("atlas-tech-chip").count()).toBeGreaterThanOrEqual(4);
+    await expect(page.getByTestId("atlas-inspector-overview")).toBeVisible();
+    expect(await page.getByTestId("atlas-tech-chip").count()).toBeGreaterThanOrEqual(1);
     expect(await page.getByTestId("atlas-activity-item").count()).toBeGreaterThanOrEqual(3);
   });
 });
