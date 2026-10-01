@@ -99,7 +99,9 @@ describe("scan-detector contracts", () => {
   });
 
   it("keeps scan-detector sources free of Node/Deno/DOM/React/Supabase imports", () => {
-    const files = readdirSync(SCAN_DETECTOR_DIR).filter((name) => name.endsWith(".ts"));
+    const files = readdirSync(SCAN_DETECTOR_DIR).filter(
+      (name) => name.endsWith(".ts") && !name.endsWith(".test.ts"),
+    );
     expect(files.length).toBeGreaterThan(0);
     const banned = /from\s+["'](?:node:|deno:|react|react-dom|@supabase\/|fs|path|child_process)/;
     for (const file of files) {
