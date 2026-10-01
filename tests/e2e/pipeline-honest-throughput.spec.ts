@@ -163,10 +163,15 @@ test.describe("Pipeline honest throughput visuals", () => {
     const inspector = page.getByTestId("dependency-inspector");
     await expect(inspector).toBeVisible({ timeout: 20_000 });
 
-    // Prefer a file-bearing node from the search list / canvas.
+    // RVP-7: semantic overview → explicit drill-down → prefer a file-bearing node.
+    const drill = page.getByTestId("dependencies-drill-down");
+    if ((await drill.count()) > 0) {
+      await drill.click();
+    }
+
     const search = page.getByPlaceholder(/suchen/i);
     if ((await search.count()) > 0) {
-      await search.fill("employees");
+      await search.fill("leave-repository");
     }
 
     const openEditor = page.getByTestId("open-in-editor");

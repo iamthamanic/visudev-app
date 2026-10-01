@@ -67,13 +67,17 @@ export interface DependenciesProjectionOptions {
   visibleEdgeKinds?: Set<DependencyEdgeKind>;
 }
 
-export const ORPHAN_NODE_COLOR = "var(--color-muted-foreground)";
+export const ORPHAN_NODE_COLOR_CSS_VAR = "--color-muted-foreground";
+/** Token form; Cytoscape resolves via `resolveCytoscapeColor` in graph-canvas styles. */
+export const ORPHAN_NODE_COLOR = `var(${ORPHAN_NODE_COLOR_CSS_VAR})`;
 
 export interface DependenciesProjection {
   nodes: GraphCanvasNode[];
   edges: GraphCanvasEdge[];
   /** Nodes with no visible dependency edge (Honest-Core P1-1). */
   orphanNodeIds: string[];
+  /** Semantic aggregate edges → underlying SoftwareGraph edge ids (evidence backlinks). */
+  underlyingEdgeIdsByEdgeId?: ReadonlyMap<string, readonly string[]>;
 }
 
 function truncateLabel(label: string): string {
@@ -162,6 +166,7 @@ export function applyOrphanFilter(
     nodes: projection.nodes.filter((node) => !orphanSet.has(node.id)),
     edges: projection.edges,
     orphanNodeIds: [],
+    underlyingEdgeIdsByEdgeId: projection.underlyingEdgeIdsByEdgeId,
   };
 }
 
@@ -408,5 +413,10 @@ export function filterDependenciesProjection(
   const nodes = projection.nodes.filter((node) => visibleNodeIds.has(node.id));
   const orphanNodeIds = projection.orphanNodeIds.filter((id) => visibleNodeIds.has(id));
 
-  return { nodes, edges, orphanNodeIds };
+  return {
+    nodes,
+    edges,
+    orphanNodeIds,
+    underlyingEdgeIdsByEdgeId: projection.underlyingEdgeIdsByEdgeId,
+  };
 }
