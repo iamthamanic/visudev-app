@@ -41,7 +41,9 @@ async function waitForScanAndEnrichment(page: Page, viewId: string) {
 
   switch (viewId) {
     case "architecture":
-      await expect(page.getByTestId("architecture-layer-stack")).toBeVisible({ timeout: 15000 });
+      await expect(page.getByTestId("architecture-layer-stack").first()).toBeVisible({
+        timeout: 15000,
+      });
       await expect(page.getByTestId("layer-card")).toHaveCount(7);
       break;
     case "dependencies":

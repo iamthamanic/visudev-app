@@ -155,7 +155,7 @@ describe("ArchitectureView", () => {
   it("shows nothing-found when no domains are recognized", () => {
     render(<ArchitectureView blueprint={noDomainBlueprint} />);
     expect(screen.getByTestId("arch-nothing-found")).toHaveTextContent(
-      "Keine Domänen erkannt — gesucht nach Domain-Zuordnung in den Modul-Pfaden.",
+      "Keine fachlichen Domänen erkannt — technische Ordner/Layer bleiben unter Ohne Domäne.",
     );
     expect(screen.queryByTestId("arch-domain-group")).not.toBeInTheDocument();
     expect(screen.queryByTestId("arch-no-domain")).not.toBeInTheDocument();
