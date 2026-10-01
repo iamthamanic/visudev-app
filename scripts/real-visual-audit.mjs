@@ -227,8 +227,16 @@ async function captureView(page, view, index) {
     .catch(() => "");
   await fs.writeFile(path.join(outDir, `${prefix}.txt`), bodyText);
   await fs.writeFile(path.join(outDir, `${prefix}.html`), await page.content());
-  await page.screenshot({ path: path.join(outDir, `${prefix}.png`), fullPage: false });
-  await page.screenshot({ path: path.join(outDir, `${prefix}-full.png`), fullPage: true });
+  await page.screenshot({
+    path: path.join(outDir, `${prefix}.png`),
+    fullPage: false,
+    timeout: 60_000,
+  });
+  await page.screenshot({
+    path: path.join(outDir, `${prefix}-full.png`),
+    fullPage: true,
+    timeout: 60_000,
+  });
 }
 
 async function main() {

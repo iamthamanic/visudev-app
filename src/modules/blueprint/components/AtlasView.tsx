@@ -106,7 +106,7 @@ export function AtlasView({ blueprint, scanStatus, scanError, onRetry }: AtlasVi
           {isPartialScan ? <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} /> : null}
           <AtlasStatsBar stats={atlasStats} />
           <div className={styles.canvasMain}>{canvasContent}</div>
-          <div style={{ padding: "0.75rem 1rem" }}>
+          <div className={styles.treemapSlot}>
             <AtlasTreemap graph={graph} />
           </div>
           <AtlasClusterLabels

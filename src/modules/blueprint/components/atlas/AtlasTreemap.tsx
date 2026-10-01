@@ -5,9 +5,18 @@
 
 import type { SoftwareGraph } from "../../types";
 import { projectTreemapCells } from "./atlas-treemap-projection.js";
+import styles from "../../styles/AtlasTreemap.module.css";
 
 export interface AtlasTreemapProps {
   graph: SoftwareGraph | null | undefined;
+}
+
+function weightTier(weight: number, total: number): "sm" | "md" | "lg" {
+  if (total <= 0) return "sm";
+  const ratio = weight / total;
+  if (ratio >= 0.25) return "lg";
+  if (ratio >= 0.1) return "md";
+  return "sm";
 }
 
 export function AtlasTreemap({ graph }: AtlasTreemapProps): JSX.Element {
@@ -21,29 +30,17 @@ export function AtlasTreemap({ graph }: AtlasTreemapProps): JSX.Element {
   }
   const total = cells.reduce((sum, cell) => sum + cell.weight, 0);
   return (
-    <div data-testid="atlas-treemap" style={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-      {cells.map((cell) => {
-        const pct = Math.max(4, Math.round((cell.weight / total) * 100));
-        return (
-          <div
-            key={cell.id}
-            title={`${cell.label} (${cell.weight})`}
-            style={{
-              flex: `1 1 ${pct}%`,
-              minWidth: 48,
-              minHeight: 36,
-              padding: "0.35rem",
-              background: "color-mix(in srgb, var(--color-primary, #2563eb) 18%, transparent)",
-              border:
-                "1px solid color-mix(in srgb, var(--color-primary, #2563eb) 35%, transparent)",
-              fontSize: 11,
-              overflow: "hidden",
-            }}
-          >
-            {cell.label}
-          </div>
-        );
-      })}
+    <div data-testid="atlas-treemap" className={styles.root}>
+      {cells.map((cell) => (
+        <div
+          key={cell.id}
+          title={`${cell.label} (${cell.weight})`}
+          className={styles.cell}
+          data-weight-tier={weightTier(cell.weight, total)}
+        >
+          {cell.label}
+        </div>
+      ))}
     </div>
   );
 }
