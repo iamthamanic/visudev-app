@@ -99,13 +99,24 @@ describe("scan-detector contracts", () => {
   });
 
   it("keeps scan-detector sources free of Node/Deno/DOM/React/Supabase imports", () => {
-    const files = readdirSync(SCAN_DETECTOR_DIR).filter(
-      (name) => name.endsWith(".ts") && !name.endsWith(".test.ts"),
-    );
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walk(full);
+          continue;
+        }
+        if (entry.name.endsWith(".ts") && !entry.name.endsWith(".test.ts")) {
+          files.push(full);
+        }
+      }
+    };
+    walk(SCAN_DETECTOR_DIR);
     expect(files.length).toBeGreaterThan(0);
     const banned = /from\s+["'](?:node:|deno:|react|react-dom|@supabase\/|fs|path|child_process)/;
     for (const file of files) {
-      const source = readFileSync(join(SCAN_DETECTOR_DIR, file), "utf8");
+      const source = readFileSync(file, "utf8");
       expect(source, file).not.toMatch(banned);
     }
   });
