@@ -1,11 +1,13 @@
 /**
- * Golden-set gate: real analyzer on fixture, plus P0-6 missing-auth upper bound.
+ * Golden-set gate: real analyzer on fixture, plus P0-6 missing-auth upper bound,
+ * plus SDE-01 semantic migration baseline / shadow-parity freeze.
  * Location: scripts/golden-set/run.mjs
  */
 
 import { readFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { analyzeLocalBlueprint } from "../../preview-runner/lib/blueprint-local.js";
+import { compareShadowParity, extractSemanticBaseline } from "../../shared/migration-baseline.ts";
 
 const METRIC_NAMES = [
   "nodes",
@@ -21,6 +23,10 @@ const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const fixturePath = fileURLToPath(new URL("../../tests/fixtures/golden-repo/", import.meta.url));
 const expectedMetricsPath = new URL(
   "../../tests/fixtures/golden-repo/expected-metrics.json",
+  import.meta.url,
+);
+const expectedSemanticBaselinePath = new URL(
+  "../../tests/fixtures/golden-repo/expected-semantic-baseline.json",
   import.meta.url,
 );
 
@@ -182,4 +188,34 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`golden-set: OK (${formatMetrics(measured)})`);
+const expectedSemanticRaw = await readFile(expectedSemanticBaselinePath, "utf8");
+let expectedSemantic;
+try {
+  expectedSemantic = JSON.parse(expectedSemanticRaw);
+} catch {
+  console.error("golden-set: expected-semantic-baseline.json is not valid JSON");
+  process.exit(1);
+}
+
+const liveSemantic = extractSemanticBaseline({
+  projectId: "golden-set",
+  enrichment: "off",
+  allowedUnknownKeys: Array.isArray(expectedSemantic.allowedUnknownKeys)
+    ? expectedSemantic.allowedUnknownKeys
+    : ["partial-scan", "inferred-route"],
+  graph: result.blueprint.graph,
+  routes: result.blueprint.routes,
+  screens: [],
+  flows: [],
+});
+
+const parity = compareShadowParity(expectedSemantic, liveSemantic);
+if (parity.status !== "pass") {
+  console.error("golden-set: semantic baseline shadow parity FAILED");
+  for (const finding of [...parity.missing, ...parity.unexpected, ...parity.conflicts]) {
+    console.error(`  ${finding.path}: expected=${finding.expected} actual=${finding.actual}`);
+  }
+  process.exit(1);
+}
+
+console.log(`golden-set: OK (${formatMetrics(measured)}; semantic-baseline=pass)`);

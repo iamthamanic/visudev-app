@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "projectId": "golden-set",
+  "enrichment": "off",
+  "allowedUnknownKeys": [
+    "inferred-route",
+    "partial-scan"
+  ],
+  "blueprint": {
+    "nodeKindCounts": {
+      "auth": 5,
+      "route": 9,
+      "table": 2,
+      "validation": 2
+    },
+    "edgeKindCounts": {
+      "authenticates": 5,
+      "reads": 8,
+      "validates": 2,
+      "writes": 8
+    },
+    "routeIds": [
+      "DELETE /sessions/:token",
+      "GET /",
+      "GET /:orderId",
+      "GET /:userId",
+      "GET /@src/routes/users.route.ts:7",
+      "GET /health",
+      "POST /",
+      "POST /@src/routes/users.route.ts:27",
+      "POST /sessions"
+    ],
+    "tableNodeIds": [
+      "node-table-order",
+      "node-table-user"
+    ]
+  },
+  "semantic": {
+    "entityKindCounts": {
+      "business-domain": 4,
+      "data-store": 2
+    },
+    "relationKindCounts": {},
+    "businessDomainLabels": [
+      "Health",
+      "Order",
+      "Session",
+      "User"
+    ]
+  },
+  "appflow": {
+    "screenIds": [],
+    "flowIds": []
+  },
+  "data": {
+    "tableIds": [
+      "node-table-order",
+      "node-table-user"
+    ],
+    "tableLabels": [
+      "order",
+      "user"
+    ]
+  }
+}
