@@ -20,8 +20,10 @@ test.describe("Wave 2 architecture viz parity", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await openBlueprintView(page, "architecture");
 
-    const stack = page.getByTestId("architecture-layer-stack");
-    await expect(stack).toBeVisible({ timeout: 20000 });
+    // RVP-6: each BusinessDomain owns a layer stack; assert across all stacks
+    const stacks = page.getByTestId("architecture-layer-stack");
+    await expect(stacks.first()).toBeVisible({ timeout: 20000 });
+    expect(await stacks.count()).toBeGreaterThanOrEqual(1);
     await expect(page.getByTestId("layer-card")).toHaveCount(7);
 
     await page.getByRole("button", { name: /Application Layer/i }).click();
