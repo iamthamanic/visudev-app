@@ -70,4 +70,28 @@ describe("deriveRoutesFromGraph", () => {
     expect(meteor?.method).toBe("METHOD");
     expect(routes.find((r) => r.path === "/")?.method).toBe("PAGE");
   });
+
+  it("normalizes Deno pipeline metadata into ProjectedPipelineNode shape", () => {
+    const graph = emptyGraph({
+      nodes: [
+        {
+          id: "GET /users",
+          kind: "route",
+          label: "GET /users",
+          filePath: "src/users.ts",
+          line: 4,
+          metadata: {
+            method: "GET",
+            path: "/users",
+            pipeline: [{ kind: "auth" }, { id: "h1", type: "handler", label: "handler", state: "confirmed" }],
+          },
+        },
+      ],
+    });
+    const route = deriveRoutesFromGraph(graph)[0];
+    expect(route?.pipeline).toEqual([
+      { id: "pipeline-step-1", type: "auth", label: "auth", state: "unknown" },
+      { id: "h1", type: "handler", label: "handler", state: "confirmed" },
+    ]);
+  });
 });

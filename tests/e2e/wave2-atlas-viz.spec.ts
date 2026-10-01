@@ -23,7 +23,8 @@ test.describe("Wave 2 atlas viz parity", () => {
     const statsBar = page.getByTestId("atlas-stats-bar");
     await expect(statsBar).toBeVisible({ timeout: 20000 });
     expect(await page.locator('[data-testid^="atlas-stat-"]').count()).toBeGreaterThanOrEqual(4);
-    expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(6);
+    // RVP-5: semantic districts are denser than raw route/file clusters
+    expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(3);
     await expect(page.getByTestId("atlas-legend-item")).toHaveCount(7);
     await expect(page.getByTestId("atlas-zoom-controls")).toBeVisible();
 

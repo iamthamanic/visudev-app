@@ -15,8 +15,9 @@ test.describe("Wave 3 atlas 3D polish", () => {
     await installWave2Mocks(page, PROJECT_ID, "wave3-atlas-1");
     await openBlueprintView(page, "atlas");
 
-    expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(6);
-    expect(await page.getByTestId("atlas-cluster-label").count()).toBeGreaterThanOrEqual(6);
+    // RVP-5: semantic districts are denser than raw route/file clusters
+    expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(3);
+    expect(await page.getByTestId("atlas-cluster-label").count()).toBeGreaterThanOrEqual(3);
     await expect(page.getByTestId("atlas-cluster").first()).toHaveAttribute(
       "data-selected",
       "true",

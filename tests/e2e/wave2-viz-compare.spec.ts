@@ -57,7 +57,8 @@ async function waitForScanAndEnrichment(page: Page, viewId: string) {
       break;
     case "atlas":
       await expect(page.getByTestId("atlas-stats-bar")).toBeVisible();
-      expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(6);
+      // RVP-5: semantic districts replace dense route/file cluster walls
+      expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(3);
       break;
     case "evolution":
       await expect(page.getByTestId("evolution-timeline")).toBeVisible();

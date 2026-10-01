@@ -15,8 +15,9 @@ test.describe("Wave 5 atlas cyber polish", () => {
     await installWave2Mocks(page, PROJECT_ID, "wave5-atlas-1");
     await openBlueprintView(page, "atlas");
 
-    expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(6);
-    expect(await page.getByTestId("atlas-glow-plate").count()).toBeGreaterThanOrEqual(6);
+    // RVP-5: semantic districts are denser than raw route/file clusters
+    expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(3);
+    expect(await page.getByTestId("atlas-glow-plate").count()).toBeGreaterThanOrEqual(3);
 
     const highCoverage = page.locator('[data-testid="atlas-cluster"][data-coverage]');
     const coverageCount = await highCoverage.count();

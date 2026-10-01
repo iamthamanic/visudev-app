@@ -69,6 +69,8 @@ export interface AnalyzeBlueprintFromFilesInput {
    */
   pathCatalog?: string[];
   fileLimit?: number;
+  /** Total walk-discovered files before content FILE_LIMIT (truncation honesty). */
+  filesDiscovered?: number;
   projectProfile?: ProjectProfile;
 }
 
@@ -148,6 +150,19 @@ export function analyzeFromFileEntries(
     rootHint,
   );
 
+  const filesDiscovered =
+    typeof input.filesDiscovered === "number" && Number.isFinite(input.filesDiscovered)
+      ? Math.max(input.filesDiscovered, analyzed)
+      : Math.max(input.fileEntries.length, analyzed);
+  const truncation = {
+    filesAnalyzed: analyzed,
+    filesDiscovered,
+    factsKept: factSelection.selected,
+    factsDropped: Math.max(0, factSelection.extracted - factSelection.selected),
+    truncated:
+      analyzed < filesDiscovered || factSelection.selected < factSelection.extracted,
+  };
+
   return {
     version: 1,
     projectId: input.projectId,
@@ -166,6 +181,9 @@ export function analyzeFromFileEntries(
     concepts,
     graph,
     filesAnalyzed: analyzed,
+    filesDiscovered,
+    totalFiles: filesDiscovered,
+    truncation,
     frameworkHints: detectFrameworkHints(allFacts),
   };
 }

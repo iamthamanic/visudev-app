@@ -6,6 +6,15 @@ import type { SoftwareGraphEdge, SoftwareGraphEvidence } from "../../types";
 import { InspectorPanel } from "../ui/InspectorPanel.js";
 import styles from "../../styles/DependenciesView.module.css";
 
+function evidenceKindLabel(edge: SoftwareGraphEdge): string | null {
+  // Runtime observations must win over evidenceKind (often also "extracted").
+  if (edge.metadata?.provenance === "observed") return "beobachtet";
+  const kind = edge.metadata?.evidenceKind;
+  if (kind === "extracted") return "aus Code";
+  if (kind === "inferred") return "abgeleitet";
+  return null;
+}
+
 export interface DependenciesEdgeInspectorProps {
   sourceLabel: string;
   targetLabel: string;
@@ -19,12 +28,28 @@ export function DependenciesEdgeInspector({
   edge,
   evidence,
 }: DependenciesEdgeInspectorProps): JSX.Element {
+  const honesty = evidenceKindLabel(edge);
   return (
     <div data-testid="dependency-inspector">
       <InspectorPanel
         title={`${sourceLabel} → ${targetLabel}`}
-        subtitle={edge.kind}
+        subtitle={honesty ? `${edge.kind} · ${honesty}` : edge.kind}
         sections={[
+          {
+            id: "honesty",
+            title: "Herkunft",
+            content: (
+              <p className={styles.emptyControls} data-testid="edge-evidence-kind">
+                {honesty
+                  ? honesty === "aus Code"
+                    ? "Kante aus AST/Code extrahiert."
+                    : honesty === "beobachtet"
+                      ? "Kante aus Runtime-Crawl beobachtet."
+                      : "Kante heuristisch abgeleitet."
+                  : "Keine Herkunftsangabe."}
+              </p>
+            ),
+          },
           {
             id: "evidence",
             title: "Evidence",

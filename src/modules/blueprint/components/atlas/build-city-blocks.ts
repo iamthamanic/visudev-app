@@ -114,9 +114,7 @@ export function buildCityBlocks(
     const column = districtIndex % districtColumns;
     const originX = column * DISTRICT_GAP;
     const originZ = row * DISTRICT_GAP;
-    blocks.push(
-      ...layoutDistrict(district.nodes, district.label, district.kind, originX, originZ),
-    );
+    blocks.push(...layoutDistrict(district.nodes, district.label, district.kind, originX, originZ));
   });
 
   if (blocks.length === 0) return blocks;

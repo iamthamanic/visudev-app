@@ -16,6 +16,14 @@ export type ErdColumn = {
   default?: string;
 };
 
+export type ErdFkEdge = {
+  id: string;
+  fromTable: string;
+  toTable: string;
+  fromColumn: string;
+  toColumn: string;
+};
+
 export type ErdTableNode = {
   id: string;
   name?: string;
@@ -26,6 +34,7 @@ export type ErdTableNode = {
 export type DataIntrospectionResult = {
   nodes: ErdTableNode[];
   tables: ErdTableNode[];
+  edges?: ErdFkEdge[];
   message?: string;
   source?: string;
   dialect?: "postgres" | "sqlite";
@@ -90,7 +99,38 @@ async function introspectPostgres(connectionString: string): Promise<DataIntrosp
         columnDefault: row.column_default,
       })),
     );
-    return { nodes, tables: nodes, dialect: "postgres" };
+    const fkResult = await client.query<{
+      constraint_name: string;
+      table_name: string;
+      column_name: string;
+      foreign_table_name: string;
+      foreign_column_name: string;
+    }>(
+      `SELECT
+         tc.constraint_name,
+         tc.table_name,
+         kcu.column_name,
+         ccu.table_name AS foreign_table_name,
+         ccu.column_name AS foreign_column_name
+       FROM information_schema.table_constraints AS tc
+       JOIN information_schema.key_column_usage AS kcu
+         ON tc.constraint_name = kcu.constraint_name
+        AND tc.table_schema = kcu.table_schema
+       JOIN information_schema.constraint_column_usage AS ccu
+         ON ccu.constraint_name = tc.constraint_name
+        AND ccu.table_schema = tc.table_schema
+       WHERE tc.constraint_type = 'FOREIGN KEY'
+         AND tc.table_schema = 'public'
+       ORDER BY tc.table_name, kcu.ordinal_position`,
+    );
+    const edges: ErdFkEdge[] = fkResult.rows.map((row) => ({
+      id: `fk:${row.table_name}.${row.column_name}->${row.foreign_table_name}.${row.foreign_column_name}`,
+      fromTable: row.table_name,
+      toTable: row.foreign_table_name,
+      fromColumn: row.column_name,
+      toColumn: row.foreign_column_name,
+    }));
+    return { nodes, tables: nodes, edges, dialect: "postgres" };
   } finally {
     await client.end().catch(() => undefined);
   }
@@ -137,7 +177,22 @@ async function introspectSqlite(filePath: string): Promise<DataIntrospectionResu
     }
 
     const nodes = buildNodesFromRows(rows);
-    return { nodes, tables: nodes, dialect: "sqlite" };
+    const edges: ErdFkEdge[] = [];
+    for (const table of tables) {
+      const fks = db
+        .prepare(`PRAGMA foreign_key_list(${JSON.stringify(table.name)})`)
+        .all() as Array<{ id: number; table: string; from: string; to: string }>;
+      for (const fk of fks) {
+        edges.push({
+          id: `fk:${table.name}.${fk.from}->${fk.table}.${fk.to}`,
+          fromTable: table.name,
+          toTable: fk.table,
+          fromColumn: fk.from,
+          toColumn: fk.to,
+        });
+      }
+    }
+    return { nodes, tables: nodes, edges, dialect: "sqlite" };
   } finally {
     db.close();
   }

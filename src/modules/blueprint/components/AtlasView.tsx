@@ -12,6 +12,7 @@ import { AtlasLegend } from "./atlas/AtlasLegend.js";
 import { computeAtlasStats } from "./atlas/atlas-stats.js";
 import { AtlasStatsBar } from "./atlas/AtlasStatsBar.js";
 import { AtlasZoomControls } from "./atlas/AtlasZoomControls.js";
+import { AtlasTreemap } from "./atlas/AtlasTreemap.js";
 import { useAtlasViewState } from "./atlas/useAtlasViewState.js";
 import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
@@ -54,7 +55,8 @@ export function AtlasView({ blueprint, scanStatus, scanError, onRetry }: AtlasVi
   const filesAnalyzed = blueprint.filesAnalyzed ?? 0;
   const isPartialScan =
     graph.condensed === true ||
-    (totalFiles != null && filesAnalyzed > 0 && filesAnalyzed < totalFiles);
+    (totalFiles != null && filesAnalyzed > 0 && filesAnalyzed < totalFiles) ||
+    (blueprint.truncation as { truncated?: boolean } | undefined)?.truncated === true;
 
   const canvasContent = !hasVisibleNodes ? (
     <div className={styles.filteredCanvasEmpty}>
@@ -104,6 +106,9 @@ export function AtlasView({ blueprint, scanStatus, scanError, onRetry }: AtlasVi
           {isPartialScan ? <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} /> : null}
           <AtlasStatsBar stats={atlasStats} />
           <div className={styles.canvasMain}>{canvasContent}</div>
+          <div style={{ padding: "0.75rem 1rem" }}>
+            <AtlasTreemap graph={graph} />
+          </div>
           <AtlasClusterLabels
             groups={state.visibleGroups}
             selectedGroupId={state.selectedGroupId}

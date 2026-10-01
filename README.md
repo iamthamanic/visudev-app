@@ -59,6 +59,7 @@ Der Vite-Dev-Server und `npm run preview` laufen fest auf **Port 3005** (`vite.c
 
 ## Recent changes
 
+- **2026-09-16** — Pipeline-honest throughput: VisuDevGraph→SoftwareGraph, Truncation-Banner, Runtime-Provenance, Overlays/Level-Nav/Treemap/Open-in-Editor (`feat/pipeline-honest-throughput`)
 - **2026-08-14** — Infrastruktur: Env-Chips und physische Topologie aus docker-compose / K8s (`#300`)
 - **2026-08-12** — Blueprint-Views unter `/blueprint/atlas` (statt `?view=`); alte Query-URLs werden umgeleitet (`feat/blueprint-nested-urls`)
 - **2026-08-12** — Memory-Viewer auf GitHub Pages; Status „Kürzlich erledigt“ + Decisions nachgezogen ([CHANGELOG](docs/CHANGELOG.md))
@@ -68,8 +69,7 @@ Der Vite-Dev-Server und `npm run preview` laufen fest auf **Port 3005** (`vite.c
 - **2026-07-07** — Local Blueprint: `visudev-blueprint` basePath + Gastmodus; lokale Projekte mit `local_path` (`issue/7-blueprint-local-runner`)
 - **2026-07-07** — `npm run dev` Fast-Start: Vite parallel zu Edge Functions (kein blockierender Health-Wait) (`issue/1-blueprint-engine-core`)
 - **2026-07-07** — Fix `npm run dev` wenn Supabase-CLI Text vor/nach `status -o json` ausgibt (`issue/1-blueprint-engine-core`)
-- **2026-07-07** — `npm run dev` startet lokales Supabase (Docker); Demo-Login `demo@visudev.local` / `npm run seed:demo-user` (`issue/1-blueprint-engine-core`)
 
 ---
 
-Last updated: 2026-08-14 (auto on push).
+Last updated: 2026-09-16 (auto on push).

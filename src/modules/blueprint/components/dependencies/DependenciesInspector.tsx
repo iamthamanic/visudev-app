@@ -27,6 +27,8 @@ export interface DependenciesInspectorProps {
   codeSelection: GraphCodeSelection | null;
   codeExcerpt: string | null;
   onSelectCodeNode: (nodeId: string | null) => void;
+  localPath?: string | null;
+  repoUrl?: string | null;
 }
 
 export function DependenciesInspector({
@@ -42,6 +44,8 @@ export function DependenciesInspector({
   codeSelection,
   codeExcerpt,
   onSelectCodeNode,
+  localPath,
+  repoUrl,
 }: DependenciesInspectorProps): JSX.Element {
   if (selectedNode) {
     return (
@@ -60,6 +64,8 @@ export function DependenciesInspector({
             .map((node) => ({ id: node.id, label: node.label })) ?? []
         }
         onSelectCodeNode={onSelectCodeNode}
+        localPath={localPath}
+        repoUrl={repoUrl}
       />
     );
   }

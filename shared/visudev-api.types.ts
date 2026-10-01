@@ -175,6 +175,63 @@ export type AstParseReport = {
   failedSamples: string[];
 };
 
+/** Honest truncation stats from the Deno/local scan boundary. */
+export type ScanTruncationReport = {
+  filesAnalyzed: number;
+  filesDiscovered: number;
+  factsKept: number;
+  factsDropped: number;
+  truncated: boolean;
+};
+
+/**
+ * Deno VisuDevGraph passthrough shape (control-centric IR).
+ * Kept structural so local-engine can adapt without importing Deno DTOs.
+ */
+export type RawVisuDevGraph = {
+  version: 1;
+  nodes: Array<{
+    id: string;
+    kind: string;
+    label: string;
+    state?: string;
+    scopeId?: string;
+    filePath?: string;
+    line?: number;
+    metadata?: Record<string, unknown>;
+    evidenceIds?: string[];
+  }>;
+  edges: Array<{
+    id: string;
+    fromNodeId: string;
+    toNodeId: string;
+    kind: string;
+    state?: string;
+    scopeId?: string;
+    evidenceIds?: string[];
+    metadata?: Record<string, unknown>;
+  }>;
+  evidence: Array<{
+    id: string;
+    factId: string;
+    subjectType?: string;
+    subjectId?: string;
+    filePath: string;
+    line: number;
+    snippet: string;
+    summary?: string;
+  }>;
+  scopes?: Array<{
+    id: string;
+    kind: string;
+    label: string;
+    nodeIds?: string[];
+    edgeIds?: string[];
+    metadata?: Record<string, unknown>;
+  }>;
+  findings?: unknown[];
+};
+
 export type RawBlueprintScan = {
   providerId: BlueprintAnalysisProviderId;
   projectId: string;
@@ -190,6 +247,15 @@ export type RawBlueprintScan = {
    */
   pathCatalog?: string[];
   filesAnalyzed: number;
+  /** Total walk-discovered files before FILE_LIMIT (drives truncation honesty). */
+  filesDiscovered?: number;
+  /** Cap honesty report when facts/files were truncated. */
+  truncation?: ScanTruncationReport;
+  /**
+   * Deno VisuDevGraph when the runner returned one. Enrichment adapts/merges
+   * this into SoftwareGraph instead of silently rebuilding from facts alone.
+   */
+  visuDevGraph?: RawVisuDevGraph;
   /** Captured at scan time by the provider; avoids re-reading git after analysis. */
   analysisOrigin?: AnalysisOrigin;
   providerMetadata?: Record<string, unknown>;

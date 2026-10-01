@@ -26,11 +26,14 @@ describe("buildCityBlocks", () => {
   });
 
   it("places many semantic districts across both city axes", () => {
-    const districtNodes = Array.from({ length: 9 }, (_, index): GraphCanvasNode => ({
-      id: `domain-${index}`,
-      label: `Domain ${index}`,
-      kind: "domain",
-    }));
+    const districtNodes = Array.from(
+      { length: 9 },
+      (_, index): GraphCanvasNode => ({
+        id: `domain-${index}`,
+        label: `Domain ${index}`,
+        kind: "domain",
+      }),
+    );
     const groups = districtNodes.map((node, index) => ({
       id: `group-${index}`,
       kind: "domain" as const,

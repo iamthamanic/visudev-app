@@ -38,6 +38,8 @@ export type {
   RawBlueprintFact,
   RawBlueprintRoute,
   RawBlueprintScan,
+  RawVisuDevGraph,
+  ScanTruncationReport,
   FactSelectionReport,
   AstParseReport,
   StartAnalysisResponse,
