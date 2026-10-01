@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { buildSemanticSystemModel } from "../../../../shared/semantic-system-model.js";
 import type { BlueprintData, SoftwareGraphNodeKind } from "../types";
 import { BlueprintViewLayout } from "./ui/BlueprintViewLayout.js";
 import { applyArchitectureNodeColors } from "./architecture/_apply-colors.js";
@@ -14,7 +15,7 @@ import {
 } from "./architecture/architecture-grouping.js";
 import {
   buildArchitectureStackCards,
-  groupArchitectureCardsByDomain,
+  groupArchitectureCardsBySemanticDomains,
 } from "./architecture/build-layer-stack.js";
 import { projectArchitectureGraph } from "./architecture/_projection.js";
 import {
@@ -92,10 +93,15 @@ export function ArchitectureView({
     return buildArchitectureStackCards(graph, GROUPING_STACK_KIND[groupingMode]);
   }, [graph, groupingMode]);
 
+  const semanticModel = useMemo(() => {
+    if (!graph) return null;
+    return buildSemanticSystemModel(graph);
+  }, [graph]);
+
   const domainGroups = useMemo(() => {
     if (!graph || groupingMode !== "layers") return [];
-    return groupArchitectureCardsByDomain(graph, stackCards);
-  }, [graph, groupingMode, stackCards]);
+    return groupArchitectureCardsBySemanticDomains(graph, stackCards, semanticModel);
+  }, [graph, groupingMode, stackCards, semanticModel]);
 
   const domainHint = useMemo(() => {
     if (!graph) return null;
@@ -146,7 +152,7 @@ export function ArchitectureView({
 
   const hasVisibleNodes = architectureProjection.nodes.length > 0;
   const showStackInCanvas = groupingMode !== "modules";
-  const semantic = blueprint.semanticSystemModel;
+  const semantic = semanticModel;
   const levelAvailable = {
     system:
       !semantic ||

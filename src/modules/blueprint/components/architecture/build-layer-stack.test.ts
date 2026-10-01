@@ -6,6 +6,7 @@ import { describe, it, expect } from "vitest";
 import {
   buildArchitectureStackCards,
   groupArchitectureCardsByDomain,
+  groupArchitectureCardsBySemanticDomains,
   hasRecognizedArchitectureDomains,
 } from "./build-layer-stack.js";
 import type { SoftwareGraph } from "../../types";
@@ -92,29 +93,135 @@ describe("buildArchitectureStackCards", () => {
     expect(hasRecognizedArchitectureDomains(groups)).toBe(true);
   });
 
-  it("treats unassigned domain nodes as Ohne Domäne", () => {
-    const unassigned: SoftwareGraph = {
+  it("rejects structural folder domains such as components/hooks/services", () => {
+    const structural: SoftwareGraph = {
       ...graph,
       nodes: [
-        { id: "domain:unassigned", kind: "domain", label: "unassigned", metadata: {} },
-        { id: "layer:x", kind: "layer", label: "ui", metadata: {} },
+        { id: "domain:components", kind: "domain", label: "components", metadata: {} },
+        { id: "domain:hooks", kind: "domain", label: "hooks", metadata: {} },
+        { id: "domain:services", kind: "domain", label: "services", metadata: {} },
+        { id: "layer:c", kind: "layer", label: "ui", metadata: {} },
+        { id: "layer:h", kind: "layer", label: "hooks", metadata: {} },
+        { id: "layer:s", kind: "layer", label: "application", metadata: {} },
       ],
       edges: [
         {
-          id: "e1",
+          id: "e-c",
           kind: "contains",
-          sourceId: "domain:unassigned",
-          targetId: "layer:x",
+          sourceId: "domain:components",
+          targetId: "layer:c",
+          metadata: {},
+        },
+        {
+          id: "e-h",
+          kind: "contains",
+          sourceId: "domain:hooks",
+          targetId: "layer:h",
+          metadata: {},
+        },
+        {
+          id: "e-s",
+          kind: "contains",
+          sourceId: "domain:services",
+          targetId: "layer:s",
           metadata: {},
         },
       ],
     };
     const groups = groupArchitectureCardsByDomain(
-      unassigned,
-      buildArchitectureStackCards(unassigned, "layer"),
+      structural,
+      buildArchitectureStackCards(structural, "layer"),
     );
     expect(groups).toHaveLength(1);
     expect(groups[0].label).toBe("Ohne Domäne");
     expect(hasRecognizedArchitectureDomains(groups)).toBe(false);
+  });
+
+  it("groups layers by SemanticSystemModel business domains first", () => {
+    const semanticGraph: SoftwareGraph = {
+      ...graph,
+      nodes: [
+        { id: "domain:components", kind: "domain", label: "components", metadata: {} },
+        { id: "layer:ui", kind: "layer", label: "ui", metadata: {} },
+        { id: "svc:leave", kind: "service", label: "LeaveService", metadata: {} },
+        { id: "layer:data", kind: "layer", label: "data", metadata: {} },
+        { id: "svc:pay", kind: "service", label: "PayrollService", metadata: {} },
+      ],
+      edges: [
+        {
+          id: "e1",
+          kind: "contains",
+          sourceId: "domain:components",
+          targetId: "layer:ui",
+          metadata: {},
+        },
+        {
+          id: "e2",
+          kind: "contains",
+          sourceId: "layer:ui",
+          targetId: "svc:leave",
+          metadata: {},
+        },
+        {
+          id: "e3",
+          kind: "contains",
+          sourceId: "layer:data",
+          targetId: "svc:pay",
+          metadata: {},
+        },
+      ],
+    };
+    const semantic = {
+      version: 1 as const,
+      projectId: "p1",
+      analyzedAt: "2026-01-01T00:00:00.000Z",
+      entities: [
+        {
+          id: "semantic:business-domain:leave",
+          kind: "business-domain" as const,
+          label: "Leave",
+          confidence: 0.9,
+          evidence: [{ source: "graph-node" as const, refId: "svc:leave" }],
+          metadata: { candidateKey: "leave" },
+        },
+        {
+          id: "semantic:business-domain:payroll",
+          kind: "business-domain" as const,
+          label: "Payroll",
+          confidence: 0.9,
+          evidence: [{ source: "graph-node" as const, refId: "svc:pay" }],
+          metadata: { candidateKey: "payroll" },
+        },
+      ],
+      memberships: [
+        {
+          graphNodeId: "svc:leave",
+          semanticEntityId: "semantic:business-domain:leave",
+          confidence: 0.9,
+          evidence: [{ source: "graph-node" as const, refId: "svc:leave" }],
+        },
+        {
+          graphNodeId: "svc:pay",
+          semanticEntityId: "semantic:business-domain:payroll",
+          confidence: 0.9,
+          evidence: [{ source: "graph-node" as const, refId: "svc:pay" }],
+        },
+      ],
+      relations: [],
+    };
+
+    const groups = groupArchitectureCardsBySemanticDomains(
+      semanticGraph,
+      buildArchitectureStackCards(semanticGraph, "layer"),
+      semantic,
+    );
+    expect(groups.map((group) => group.label)).toEqual(["Leave", "Payroll"]);
+    expect(groups.find((group) => group.label === "Leave")?.cards.map((c) => c.label)).toEqual([
+      "ui",
+    ]);
+    expect(groups.find((group) => group.label === "Payroll")?.cards.map((c) => c.label)).toEqual([
+      "data",
+    ]);
+    expect(hasRecognizedArchitectureDomains(groups)).toBe(true);
   });
 });
