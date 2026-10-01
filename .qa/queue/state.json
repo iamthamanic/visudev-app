@@ -1,21 +1,52 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 336,
-  "featureSlug": "sde-01-migration-baseline",
-  "phase": "commit",
-  "branch": "feat/336-sde-01-migration-baseline-und-compatibility-contra",
+  "activeIssue": 337,
+  "featureSlug": "sde-02",
+  "phase": "setup",
+  "branch": null,
   "prUrl": null,
   "milestoneFilter": null,
   "paused": false,
   "runMode": "loop",
-  "queue": [336, 337, 338, 339, 340, 341, 342, 343, 324, 325, 326, 344, 345, 346, 347, 348, 327, 349, 328, 350],
-  "completedIssues": [321, 322, 323],
-  "mergedIssues": [321, 322, 323],
+  "queue": [
+    337,
+    338,
+    339,
+    340,
+    341,
+    342,
+    343,
+    324,
+    325,
+    326,
+    344,
+    345,
+    346,
+    347,
+    348,
+    327,
+    349,
+    328,
+    350
+  ],
+  "completedIssues": [
+    321,
+    322,
+    323,
+    336
+  ],
+  "mergedIssues": [
+    321,
+    322,
+    323,
+    336
+  ],
   "prUrls": {
     "321": "https://github.com/iamthamanic/visudev-app/pull/333",
     "322": "https://github.com/iamthamanic/visudev-app/pull/351",
-    "323": "https://github.com/iamthamanic/visudev-app/pull/352"
+    "323": "https://github.com/iamthamanic/visudev-app/pull/352",
+    "336": "https://github.com/iamthamanic/visudev-app/pull/353"
   },
   "retries": {
     "implement": 0,
@@ -34,10 +65,10 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 3,
-  "updatedAt": "2026-10-01T22:58:00.000Z",
-  "notes": "order-01..03 MERGED; shipping order-04 #336",
-  "currentIssue": 336,
-  "lastCompletedIssue": 323,
+  "issuesProcessedInSession": 4,
+  "updatedAt": "2026-10-01T23:10:42.000Z",
+  "notes": "order-01..04 MERGED (#321,#322,#323,#336); starting order-05 #337",
+  "currentIssue": 337,
+  "lastCompletedIssue": 336,
   "activeBranch": "feat/336-sde-01-migration-baseline-und-compatibility-contra"
 }
