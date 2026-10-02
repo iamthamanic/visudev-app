@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 343,
-  "featureSlug": "sde-08-blueprint-cutover",
+  "activeIssue": 324,
+  "featureSlug": "rvp8-execution-usecase-pipeline",
   "phase": "commit-pr",
-  "branch": "feat/343-sde-08",
+  "branch": "feat/324-rvp8-execution-usecase",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    343,
     324,
     325,
     326,
@@ -33,7 +32,8 @@
     339,
     340,
     341,
-    342
+    342,
+    343
   ],
   "mergedIssues": [
     321,
@@ -45,7 +45,8 @@
     339,
     340,
     341,
-    342
+    342,
+    343
   ],
   "prUrls": {
     "321": "https://github.com/iamthamanic/visudev-app/pull/333",
@@ -57,7 +58,8 @@
     "339": "https://github.com/iamthamanic/visudev-app/pull/356",
     "340": "https://github.com/iamthamanic/visudev-app/pull/357",
     "341": "https://github.com/iamthamanic/visudev-app/pull/358",
-    "342": "https://github.com/iamthamanic/visudev-app/pull/359"
+    "342": "https://github.com/iamthamanic/visudev-app/pull/359",
+    "343": "https://github.com/iamthamanic/visudev-app/pull/360"
   },
   "retries": {
     "implement": 0,
@@ -76,11 +78,11 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 8,
-  "updatedAt": "2026-10-02T08:00:27.000Z",
-  "notes": "order-11 #343 shipping",
-  "currentIssue": 343,
-  "lastCompletedIssue": 342,
-  "activeBranch": "feat/343-sde-08",
+  "issuesProcessedInSession": 9,
+  "updatedAt": "2026-10-02T08:11:31.000Z",
+  "notes": "order-12 #324 shipping",
+  "currentIssue": 324,
+  "lastCompletedIssue": 343,
+  "activeBranch": "feat/324-rvp8-execution-usecase",
   "milestoneFilter": null
 }
