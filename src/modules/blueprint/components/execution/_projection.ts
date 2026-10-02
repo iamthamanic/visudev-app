@@ -1,5 +1,6 @@
 /**
  * Projects SoftwareGraph execution path groups into a left-to-right pipeline graph.
+ * Prefers RVP-8 evidenced use-case stations when available.
  */
 
 import type {
@@ -9,6 +10,10 @@ import type {
   SoftwareGraphGroup,
   SoftwareGraphNode,
 } from "../../types";
+import {
+  buildExecutionUseCasePipeline,
+  pipelineToStepNodeIds,
+} from "./execution-usecase-pipeline.js";
 
 export interface ExecutionProjectionOptions {
   routeId: string;
@@ -118,6 +123,33 @@ export function projectExecutionGraph(
     typeof routeNode.metadata.routeId === "string" && routeNode.metadata.routeId.length > 0
       ? routeNode.metadata.routeId
       : routeNode.id;
+
+  const semanticPipeline = buildExecutionUseCasePipeline(graph, options.routeId);
+  if (semanticPipeline && semanticPipeline.steps.length >= 2) {
+    const stepNodeIds = pipelineToStepNodeIds(semanticPipeline);
+    const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
+    const cycleNodeId =
+      typeof routeNode.metadata.executionCycleNodeId === "string"
+        ? routeNode.metadata.executionCycleNodeId
+        : null;
+    const nodes = stepNodeIds
+      .map((nodeId) => nodeById.get(nodeId))
+      .filter((node): node is SoftwareGraphNode => node != null)
+      .map((node) => toCanvasNode(node, cycleNodeId));
+    const edges: GraphCanvasEdge[] = [];
+    for (let index = 1; index < stepNodeIds.length; index += 1) {
+      const source = stepNodeIds[index - 1]!;
+      const target = stepNodeIds[index]!;
+      edges.push({
+        id: `execution-station:${source}->${target}`,
+        source,
+        target,
+        kind: "executes",
+        label: "→",
+      });
+    }
+    return { nodes, edges, stepNodeIds, cycleNodeId };
+  }
 
   const executionGroups = findExecutionGroups(graph, routeKey);
   const selectedGroup =
