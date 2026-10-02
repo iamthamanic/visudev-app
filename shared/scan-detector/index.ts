@@ -93,3 +93,44 @@ export {
   shadowCompareSoftwareGraphs,
   type ShadowCompareGraphsInput,
 } from "./application/shadow-compare-graphs.js";
+
+export {
+  projectAppFlowReadModel,
+  projectBlueprintReadModel,
+  projectDataReadModel,
+  type ProjectReadModelInput,
+} from "./application/project-read-models.js";
+
+export type {
+  AppFlowProjectionReadModel,
+  BlueprintProjectionReadModel,
+  DataProjectionReadModel,
+  ProjectionEntity,
+  ProjectionEvidenceLink,
+  ProjectionPageMeta,
+  ProjectionQueryOptions,
+  ProjectionQueryScope,
+  ProjectionReadModel,
+  ProjectionRelation,
+  ProjectionSlice,
+} from "./domain/projection/types.js";
+
+export { PROJECTION_DEFAULT_LIMIT, PROJECTION_HARD_MAX_LIMIT } from "./domain/projection/types.js";
+
+export {
+  APPFLOW_FLOW_KIND_PREFIXES,
+  APPFLOW_SCREEN_KIND_PREFIXES,
+  APPFLOW_TRANSITION_KIND_PREFIXES,
+  BLUEPRINT_ENTITY_KIND_PREFIXES,
+  BLUEPRINT_RELATION_KIND_PREFIXES,
+  DATA_RELATION_KIND_PREFIXES,
+  DATA_TABLE_KIND_PREFIXES,
+  isAppFlowFlowFact,
+  isAppFlowScreenFact,
+  isAppFlowTransitionFact,
+  isBlueprintEntityFact,
+  isBlueprintRelationFact,
+  isDataRelationFact,
+  isDataTableFact,
+  isProjectionClaimedFact,
+} from "./domain/projection/selectors.js";

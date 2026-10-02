@@ -11,6 +11,28 @@ import type { VisuDevMode } from "./types";
 export type { VisuDevApiClient } from "./client";
 export { VisuDevApiError } from "./errors";
 export * from "./types";
+/** SDE-07 Projection/Query surface for Blueprint / AppFlow / Data consumers. */
+export {
+  PROJECTION_DEFAULT_LIMIT,
+  PROJECTION_HARD_MAX_LIMIT,
+  projectAppFlowReadModel,
+  projectBlueprintReadModel,
+  projectDataReadModel,
+} from "./scan-projection";
+export type {
+  AppFlowProjectionReadModel,
+  BlueprintProjectionReadModel,
+  DataProjectionReadModel,
+  ProjectReadModelInput,
+  ProjectionEntity,
+  ProjectionEvidenceLink,
+  ProjectionPageMeta,
+  ProjectionQueryOptions,
+  ProjectionQueryScope,
+  ProjectionReadModel,
+  ProjectionRelation,
+  ProjectionSlice,
+} from "./scan-projection";
 
 let client: VisuDevApiClient | null = null;
 let supabaseClient: SupabaseVisuDevClient | null = null;
