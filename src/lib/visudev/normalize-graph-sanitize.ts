@@ -16,6 +16,7 @@ const ALLOWED_METADATA_KEYS = new Set([
   "traceId",
   "durationMs",
   "port",
+  "ports",
   "tier",
   "env",
   "region",
@@ -24,6 +25,14 @@ const ALLOWED_METADATA_KEYS = new Set([
   "technology",
   "version",
   "kind",
+  // RVP-9 / SDE infrastructure projection markers
+  "infrastructure",
+  "source",
+  "networks",
+  "runtimeObserved",
+  "runtimeStatus",
+  "live",
+  "deploymentUnitId",
 ]);
 
 function positiveLine(value: unknown): value is number {
