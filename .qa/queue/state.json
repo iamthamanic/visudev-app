@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 340,
-  "featureSlug": "sde-05-evidence-identity",
+  "activeIssue": 341,
+  "featureSlug": "sde-06-static-detector-migration",
   "phase": "commit",
-  "branch": "feat/340-sde-05",
+  "branch": "feat/341-sde-06",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    340,
     341,
     342,
     343,
@@ -33,7 +32,8 @@
     336,
     337,
     338,
-    339
+    339,
+    340
   ],
   "mergedIssues": [
     321,
@@ -42,7 +42,8 @@
     336,
     337,
     338,
-    339
+    339,
+    340
   ],
   "prUrls": {
     "321": "https://github.com/iamthamanic/visudev-app/pull/333",
@@ -51,7 +52,8 @@
     "336": "https://github.com/iamthamanic/visudev-app/pull/353",
     "337": "https://github.com/iamthamanic/visudev-app/pull/354",
     "338": "https://github.com/iamthamanic/visudev-app/pull/355",
-    "339": "https://github.com/iamthamanic/visudev-app/pull/356"
+    "339": "https://github.com/iamthamanic/visudev-app/pull/356",
+    "340": "https://github.com/iamthamanic/visudev-app/pull/357"
   },
   "retries": {
     "implement": 0,
@@ -71,9 +73,9 @@
   "lastError": null,
   "lastErrorCount": 0,
   "issuesProcessedInSession": 7,
-  "updatedAt": "2026-10-02T07:26:34.000Z",
-  "notes": "shipping #340",
-  "currentIssue": 340,
-  "lastCompletedIssue": 339,
+  "updatedAt": "2026-10-02T07:35:23.000Z",
+  "notes": "shipping #341",
+  "currentIssue": 341,
+  "lastCompletedIssue": 340,
   "activeBranch": null
 }
