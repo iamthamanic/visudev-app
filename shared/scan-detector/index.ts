@@ -82,3 +82,14 @@ export {
 } from "./domain/identity/types.js";
 
 export { redactEvidence, redactFact, redactFactsAndEvidence } from "./domain/evidence/redact.js";
+
+export {
+  scanFactsToSoftwareGraph,
+  softwareGraphToScanFacts,
+  type SoftwareGraphFactBundle,
+} from "./application/software-graph-fact-bridge.js";
+
+export {
+  shadowCompareSoftwareGraphs,
+  type ShadowCompareGraphsInput,
+} from "./application/shadow-compare-graphs.js";
