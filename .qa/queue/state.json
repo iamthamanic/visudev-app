@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 326,
-  "featureSlug": "rvp10-diagnostics-clustering",
-  "phase": "commit",
-  "branch": "feat/326-rvp10-diagnostics-clustering",
+  "activeIssue": 344,
+  "featureSlug": "sde-09-runtime-observer",
+  "phase": "setup",
+  "branch": "feat/344-sde-09-runtime-observer",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    326,
     344,
     345,
     346,
@@ -26,6 +25,7 @@
     323,
     324,
     325,
+    326,
     336,
     337,
     338,
@@ -41,6 +41,7 @@
     323,
     324,
     325,
+    326,
     336,
     337,
     338,
@@ -63,7 +64,8 @@
     "342": "https://github.com/iamthamanic/visudev-app/pull/359",
     "343": "https://github.com/iamthamanic/visudev-app/pull/360",
     "324": "https://github.com/iamthamanic/visudev-app/pull/361",
-    "325": "https://github.com/iamthamanic/visudev-app/pull/362"
+    "325": "https://github.com/iamthamanic/visudev-app/pull/362",
+    "326": "https://github.com/iamthamanic/visudev-app/pull/363"
   },
   "retries": {
     "implement": 0,
@@ -82,11 +84,11 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 9,
-  "updatedAt": "2026-10-02T15:45:00.000Z",
-  "notes": "order-14 #326 implement+verify READY; opening PR",
-  "currentIssue": 326,
-  "lastCompletedIssue": 325,
-  "activeBranch": "feat/326-rvp10-diagnostics-clustering",
+  "issuesProcessedInSession": 10,
+  "updatedAt": "2026-10-02T15:55:00.000Z",
+  "notes": "order-14 #326 MERGED (PR #363); next #344 SDE-09",
+  "currentIssue": 344,
+  "lastCompletedIssue": 326,
+  "activeBranch": "feat/344-sde-09-runtime-observer",
   "milestoneFilter": null
 }
