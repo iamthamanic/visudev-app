@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 325,
-  "featureSlug": "rvp9-infrastructure-entities",
-  "phase": "commit-pr",
-  "branch": "feat/325-rvp9-infrastructure-entities",
+  "activeIssue": 326,
+  "featureSlug": "rvp10-diagnostics-clustering",
+  "phase": "commit",
+  "branch": "feat/326-rvp10-diagnostics-clustering",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    325,
     326,
     344,
     345,
@@ -26,6 +25,7 @@
     322,
     323,
     324,
+    325,
     336,
     337,
     338,
@@ -40,6 +40,7 @@
     322,
     323,
     324,
+    325,
     336,
     337,
     338,
@@ -61,7 +62,8 @@
     "341": "https://github.com/iamthamanic/visudev-app/pull/358",
     "342": "https://github.com/iamthamanic/visudev-app/pull/359",
     "343": "https://github.com/iamthamanic/visudev-app/pull/360",
-    "324": "https://github.com/iamthamanic/visudev-app/pull/361"
+    "324": "https://github.com/iamthamanic/visudev-app/pull/361",
+    "325": "https://github.com/iamthamanic/visudev-app/pull/362"
   },
   "retries": {
     "implement": 0,
@@ -81,10 +83,10 @@
   "lastError": null,
   "lastErrorCount": 0,
   "issuesProcessedInSession": 9,
-  "updatedAt": "2026-10-02T11:09:57.000Z",
-  "notes": "order-13 #325 shipping",
-  "currentIssue": 325,
-  "lastCompletedIssue": 324,
-  "activeBranch": "feat/325-rvp9-infrastructure-entities",
+  "updatedAt": "2026-10-02T15:45:00.000Z",
+  "notes": "order-14 #326 implement+verify READY; opening PR",
+  "currentIssue": 326,
+  "lastCompletedIssue": 325,
+  "activeBranch": "feat/326-rvp10-diagnostics-clustering",
   "milestoneFilter": null
 }
