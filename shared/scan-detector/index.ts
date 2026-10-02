@@ -151,3 +151,39 @@ export {
   type ResolveBlueprintAnalysisInput,
   type ResolveBlueprintAnalysisResult,
 } from "./application/resolve-blueprint-analysis.js";
+
+export {
+  DANGEROUS_RUNTIME_ACTION_RE,
+  isDangerousRuntimeAction,
+  isSafeRuntimeInteractionCandidate,
+  type RuntimeInteractionCandidate,
+} from "./domain/runtime/safe-action-policy.js";
+
+export type {
+  RuntimeObserverCrawlResult,
+  RuntimeObserverIssue,
+  RuntimeObserverIssueCode,
+  RuntimeObserverRouteSnapshot,
+  RuntimeObserverStateCapture,
+  RuntimeObserverSummary,
+  RuntimeObserverTrigger,
+  RuntimeObserverVerifiedEdge,
+} from "./domain/runtime/crawl-result.js";
+
+export {
+  RUNTIME_OBSERVER_CAPABILITY,
+  RUNTIME_OBSERVER_DETECTOR_ID,
+  type RuntimeEvidenceProvider,
+  type RuntimeObserverRunRequest,
+} from "./domain/runtime/runtime-observer-port.js";
+
+export {
+  normalizeRuntimeEvidence,
+  type NormalizeRuntimeEvidenceInput,
+  type NormalizeRuntimeEvidenceResult,
+} from "./application/normalize-runtime-evidence.js";
+
+export {
+  createRuntimeObserverDetector,
+  type CreateRuntimeObserverDetectorOptions,
+} from "./application/create-runtime-observer-detector.js";

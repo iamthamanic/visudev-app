@@ -1,7 +1,6 @@
 import { chromium } from "@playwright/test";
+import { isSafeRuntimeInteractionCandidate } from "../shared/scan-detector/domain/runtime/safe-action-policy.mjs";
 
-const DANGEROUS_ACTION_RE =
-  /\b(delete|remove|destroy|drop|truncate|logout|sign out|signout|buy|purchase|checkout|pay|billing|subscribe)\b/i;
 const CLICKABLE_SELECTOR =
   'button,[role="button"],a[href],[role="tab"],[role="menuitem"],[data-visudev-trigger]';
 
@@ -324,8 +323,7 @@ async function collectDomSnapshot(page) {
 }
 
 function isSafeCandidate(candidate) {
-  const label = `${candidate.label ?? ""} ${candidate.href ?? ""}`.trim();
-  return candidate.visible && candidate.enabled && !DANGEROUS_ACTION_RE.test(label);
+  return isSafeRuntimeInteractionCandidate(candidate);
 }
 
 async function resolveLocator(page, candidate) {
