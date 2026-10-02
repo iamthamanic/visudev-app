@@ -31,3 +31,32 @@ export type {
 export { InMemoryDetectorRegistry } from "./application/detector-registry.js";
 export { ScanDetectorOrchestrator } from "./application/orchestrator.js";
 export type { OrchestratorInput, OrchestratorPorts } from "./application/orchestrator.js";
+
+export {
+  discoverProjectCapabilities,
+  type DiscoverProjectCapabilitiesInput,
+  type DiscoveryPathEntry,
+} from "./application/discover-project-capabilities.js";
+
+export type {
+  DeploymentHint,
+  DetectedDatastore,
+  DetectedFramework,
+  DetectedLanguage,
+  DiscoveryFrameworkId,
+  DiscoveryLanguageId,
+  ProjectApplicationScope,
+  ProjectCapabilities,
+  UnsupportedSourceEntry,
+} from "./domain/project-capabilities.js";
+
+export { scopedSubjectId } from "./domain/project-capabilities.js";
+
+export {
+  DISCOVERY_INVENTORY_ONLY_EXTENSIONS,
+  DISCOVERY_MAX_FILE_BYTES,
+  DISCOVERY_SKIP_DIR_NAMES,
+  DISCOVERY_SUPPORTED_EXTENSIONS,
+  extensionOf,
+  isSkippedDiscoveryDirName,
+} from "./domain/discovery-policy.js";

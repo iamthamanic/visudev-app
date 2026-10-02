@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 338,
-  "featureSlug": "sde-03-engine-orchestrator",
+  "activeIssue": 339,
+  "featureSlug": "sde-04-project-discovery",
   "phase": "commit",
-  "branch": "feat/338-sde-03-orchestrator-registry",
+  "branch": "feat/339-sde-04-project-discovery",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    338,
     339,
     340,
     341,
@@ -33,21 +32,24 @@
     322,
     323,
     336,
-    337
+    337,
+    338
   ],
   "mergedIssues": [
     321,
     322,
     323,
     336,
-    337
+    337,
+    338
   ],
   "prUrls": {
     "321": "https://github.com/iamthamanic/visudev-app/pull/333",
     "322": "https://github.com/iamthamanic/visudev-app/pull/351",
     "323": "https://github.com/iamthamanic/visudev-app/pull/352",
     "336": "https://github.com/iamthamanic/visudev-app/pull/353",
-    "337": "https://github.com/iamthamanic/visudev-app/pull/354"
+    "337": "https://github.com/iamthamanic/visudev-app/pull/354",
+    "338": "https://github.com/iamthamanic/visudev-app/pull/355"
   },
   "retries": {
     "implement": 0,
@@ -66,10 +68,10 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 5,
-  "updatedAt": "2026-10-01T23:24:10.000Z",
-  "notes": "shipping order-06 #338",
-  "currentIssue": 338,
-  "lastCompletedIssue": 337,
+  "issuesProcessedInSession": 6,
+  "updatedAt": "2026-10-02T07:19:45.000Z",
+  "notes": "shipping order-07 #339",
+  "currentIssue": 339,
+  "lastCompletedIssue": 338,
   "activeBranch": null
 }
