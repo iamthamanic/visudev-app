@@ -60,3 +60,25 @@ export {
   extensionOf,
   isSkippedDiscoveryDirName,
 } from "./domain/discovery-policy.js";
+
+export {
+  fuseEvidenceAndIdentities,
+  type FuseEvidenceInput,
+} from "./domain/identity/fuse-evidence.js";
+
+export type {
+  EvidenceFusionResult,
+  IdentityCandidate,
+  IdentityMatchRecord,
+  IdentityMatchRuleId,
+  IdentityMatchStatus,
+  SemanticIdentityKey,
+} from "./domain/identity/types.js";
+
+export {
+  dominantKnowledgeStatus,
+  isLlmOnlyEvidence,
+  readSemanticKey,
+} from "./domain/identity/types.js";
+
+export { redactEvidence, redactFact, redactFactsAndEvidence } from "./domain/evidence/redact.js";
