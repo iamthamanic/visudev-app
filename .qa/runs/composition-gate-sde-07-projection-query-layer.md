@@ -20,11 +20,11 @@ Single-hop pure projection library + API re-export port. No producer→consumer 
 
 ## Simulations
 
-| Sim | Result |
-|-----|--------|
-| N-actors | N/A — no shared mutable consumer |
-| Invalid fallback | Scope mismatch throws; empty snapshot returns empty honest models |
-| Concurrent consumers | Pure functions; no shared write |
+| Sim                  | Result                                                            |
+| -------------------- | ----------------------------------------------------------------- |
+| N-actors             | N/A — no shared mutable consumer                                  |
+| Invalid fallback     | Scope mismatch throws; empty snapshot returns empty honest models |
+| Concurrent consumers | Pure functions; no shared write                                   |
 
 ## Findings
 

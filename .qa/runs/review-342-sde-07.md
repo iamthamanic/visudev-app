@@ -7,13 +7,13 @@
 
 ## Scope vs acceptance
 
-| AC | Status |
-|----|--------|
-| Typed Blueprint/AppFlow/Data read models without engine internals | PASS — contracts + visudev-api port |
-| Evidence backlinks + confidence/status | PASS — ProjectionEvidenceLink |
-| No source/framework inference | PASS — kind-prefix selectors only |
-| Limits / progressive disclosure | PASS — limit/offset/hasMore/truncated |
-| Zero type escape hatches | PASS |
+| AC                                                                | Status                                |
+| ----------------------------------------------------------------- | ------------------------------------- |
+| Typed Blueprint/AppFlow/Data read models without engine internals | PASS — contracts + visudev-api port   |
+| Evidence backlinks + confidence/status                            | PASS — ProjectionEvidenceLink         |
+| No source/framework inference                                     | PASS — kind-prefix selectors only     |
+| Limits / progressive disclosure                                   | PASS — limit/offset/hasMore/truncated |
+| Zero type escape hatches                                          | PASS                                  |
 
 ## Architecture
 
@@ -23,9 +23,9 @@
 
 ## Findings
 
-| Severity | Finding | Action |
-|----------|---------|--------|
-| Info | Consumers not yet wired to product views | Intentional (Non-Goal: no view redesign) |
+| Severity | Finding                                  | Action                                   |
+| -------- | ---------------------------------------- | ---------------------------------------- |
+| Info     | Consumers not yet wired to product views | Intentional (Non-Goal: no view redesign) |
 
 ## Prerequisites
 
