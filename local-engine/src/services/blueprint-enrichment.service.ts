@@ -22,6 +22,10 @@ import { evaluateTenantIsolationPolicy } from "./access-control/tenant-isolation
 import { buildSoftwareGraph } from "./software-graph-builder.service.js";
 import { resolveSoftwareGraphFromScan } from "./visudev-to-software-graph.adapter.js";
 import { buildSemanticSystemModel } from "./semantic-system-model.service.js";
+import {
+  parseBlueprintAnalysisMode,
+  resolveBlueprintAnalysis,
+} from "../../../shared/scan-detector/index.js";
 
 const DEFAULT_PROFILE = {
   appType: "saas",
@@ -34,7 +38,17 @@ export function enrichBlueprint(scan: RawBlueprintScan): BlueprintDocument {
   const built = resolveSoftwareGraphFromScan(scan, buildSoftwareGraph(scan));
   // Opt-in only: avoids silently mixing demo fixtures into real thin scans.
   const demoEnrichmentEnabled = process.env.VISUDEV_DEMO_ENRICHMENT === "true";
-  const graph = demoEnrichmentEnabled ? enrichSoftwareGraphIfThin(built, scan.projectId) : built;
+  const legacyGraph = demoEnrichmentEnabled
+    ? enrichSoftwareGraphIfThin(built, scan.projectId)
+    : built;
+
+  const analysisMode = parseBlueprintAnalysisMode(process.env.VISUDEV_BLUEPRINT_ANALYSIS_MODE);
+  const resolved = resolveBlueprintAnalysis({
+    mode: analysisMode,
+    legacyGraph,
+    enrichment: demoEnrichmentEnabled ? "on" : "off",
+  });
+  const graph = resolved.graph;
   const semanticSystemModel = buildSemanticSystemModel(graph);
   const { routes, securityMatrix, findings, facts } = deriveDiagnosticsFromGraph(graph);
 
@@ -86,7 +100,25 @@ export function enrichBlueprint(scan: RawBlueprintScan): BlueprintDocument {
     ...(typeof totalFiles === "number" ? { totalFiles } : {}),
     ...(truncation ? { truncation } : {}),
     frameworkHints: [scan.providerId],
-    providerMetadata: scan.providerMetadata,
+    providerMetadata: {
+      ...(scan.providerMetadata && typeof scan.providerMetadata === "object"
+        ? scan.providerMetadata
+        : {}),
+      blueprintAnalysisMode: resolved.mode,
+      blueprintAnalysisSource: resolved.source,
+      blueprintFallbackUsed: resolved.fallbackUsed,
+      ...(resolved.fallbackReason ? { blueprintFallbackReason: resolved.fallbackReason } : {}),
+      blueprintProjectionTruncated: resolved.projectionTruncated,
+      ...(resolved.parity
+        ? {
+            blueprintShadowParityOk: resolved.parity.status === "pass",
+            blueprintShadowFindingCount:
+              resolved.parity.missing.length +
+              resolved.parity.unexpected.length +
+              resolved.parity.conflicts.length,
+          }
+        : {}),
+    },
     graph,
     semanticSystemModel,
     accessControlFindings,

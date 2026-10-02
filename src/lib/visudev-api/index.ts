@@ -34,6 +34,18 @@ export type {
   ProjectionSlice,
 } from "./scan-projection";
 
+/** SDE-08 Blueprint analysis mode helpers (legacy | shadow | engine). */
+export {
+  DEFAULT_BLUEPRINT_ANALYSIS_MODE,
+  parseBlueprintAnalysisMode,
+  resolveBlueprintAnalysis,
+} from "../../../shared/scan-detector/index.js";
+export type {
+  BlueprintAnalysisMode,
+  BlueprintAnalysisSource,
+  ResolveBlueprintAnalysisResult,
+} from "../../../shared/scan-detector/index.js";
+
 let client: VisuDevApiClient | null = null;
 let supabaseClient: SupabaseVisuDevClient | null = null;
 

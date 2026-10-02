@@ -134,3 +134,20 @@ export {
   isDataTableFact,
   isProjectionClaimedFact,
 } from "./domain/projection/selectors.js";
+
+export {
+  BLUEPRINT_ANALYSIS_MODES,
+  DEFAULT_BLUEPRINT_ANALYSIS_MODE,
+  isBlueprintAnalysisMode,
+  parseBlueprintAnalysisMode,
+  type BlueprintAnalysisMode,
+} from "./domain/blueprint-analysis-mode.js";
+
+export {
+  buildEngineGraphViaProjection,
+  resolveBlueprintAnalysis,
+  softwareGraphFromBlueprintProjection,
+  type BlueprintAnalysisSource,
+  type ResolveBlueprintAnalysisInput,
+  type ResolveBlueprintAnalysisResult,
+} from "./application/resolve-blueprint-analysis.js";
