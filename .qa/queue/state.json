@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 342,
-  "featureSlug": "sde-07-projection-query-layer",
+  "activeIssue": 343,
+  "featureSlug": "sde-08-blueprint-cutover",
   "phase": "commit-pr",
-  "branch": "feat/342-sde-07-projection-query-layer",
+  "branch": "feat/343-sde-08",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    342,
     343,
     324,
     325,
@@ -33,7 +32,8 @@
     338,
     339,
     340,
-    341
+    341,
+    342
   ],
   "mergedIssues": [
     321,
@@ -44,7 +44,8 @@
     338,
     339,
     340,
-    341
+    341,
+    342
   ],
   "prUrls": {
     "321": "https://github.com/iamthamanic/visudev-app/pull/333",
@@ -55,7 +56,8 @@
     "338": "https://github.com/iamthamanic/visudev-app/pull/355",
     "339": "https://github.com/iamthamanic/visudev-app/pull/356",
     "340": "https://github.com/iamthamanic/visudev-app/pull/357",
-    "341": "https://github.com/iamthamanic/visudev-app/pull/358"
+    "341": "https://github.com/iamthamanic/visudev-app/pull/358",
+    "342": "https://github.com/iamthamanic/visudev-app/pull/359"
   },
   "retries": {
     "implement": 0,
@@ -74,11 +76,11 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 7,
-  "updatedAt": "2026-10-02T07:49:01.000Z",
-  "notes": "order-10 #342 gates READY; opening PR",
-  "currentIssue": 342,
-  "lastCompletedIssue": 341,
-  "activeBranch": "feat/342-sde-07-projection-query-layer",
+  "issuesProcessedInSession": 8,
+  "updatedAt": "2026-10-02T08:00:27.000Z",
+  "notes": "order-11 #343 shipping",
+  "currentIssue": 343,
+  "lastCompletedIssue": 342,
+  "activeBranch": "feat/343-sde-08",
   "milestoneFilter": null
 }
