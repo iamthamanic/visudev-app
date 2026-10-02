@@ -212,11 +212,44 @@ describe("DiagnosticsView", () => {
     );
 
     expect(screen.getByText("1-5 von 11 Findings")).toBeInTheDocument();
-    expect(screen.queryByText("Finding 11")).not.toBeInTheDocument();
+    const findingsTable = screen.getByTestId("findings-table");
+    expect(findingsTable).not.toHaveTextContent("Finding 11");
     fireEvent.click(screen.getByRole("button", { name: "Weiter" }));
     fireEvent.click(screen.getByRole("button", { name: "Weiter" }));
-    expect(screen.getByText("Finding 11")).toBeInTheDocument();
+    expect(findingsTable).toHaveTextContent("Finding 11");
     expect(screen.getByText("11-11 von 11 Findings")).toBeInTheDocument();
+  });
+
+  it("clusters findings by root cause and drills into original findings", () => {
+    const clustered = [
+      makeFinding(1),
+      { ...makeFinding(2), ruleId: "rule.1", message: "Finding 2 same cause" },
+      makeFinding(3),
+    ];
+    render(
+      <DiagnosticsView
+        blueprint={{
+          ...blueprint,
+          findings: clustered,
+          facts: clustered.map((finding) => ({
+            id: finding.evidenceFactIds[0],
+            kind: "source",
+            filePath: `src/routes/${finding.id}.ts`,
+            line: 1,
+            snippet: "x",
+            metadata: {},
+          })),
+          securityMatrix: [{ ...blueprint.securityMatrix![0], findingCount: 3 }],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Ursachen (2)")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("root-cause-cluster-rule.1"));
+    expect(screen.getByText(/Findings in Ursache/)).toBeInTheDocument();
+    expect(screen.getByTestId("findings-table")).toHaveTextContent("Finding 1");
+    expect(screen.getByTestId("findings-table")).toHaveTextContent("Finding 2 same cause");
+    expect(screen.getByTestId("findings-table")).not.toHaveTextContent("Finding 3");
   });
 
   it("marks finding as resolved from Problem-Inspektor", async () => {
