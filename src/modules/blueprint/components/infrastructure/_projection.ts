@@ -1,6 +1,7 @@
 /**
- * Maps SoftwareGraph runtime/service nodes into the smaller edge set used by
- * InfrastructureView (hosts, stores-in, external-dependency).
+ * Maps SoftwareGraph infrastructure entities into the smaller edge set used by
+ * InfrastructureView (RVP-9: deployment/runtime/data/external only).
+ * Location: src/modules/blueprint/components/infrastructure/_projection.ts
  */
 
 import type {
@@ -9,39 +10,15 @@ import type {
   SoftwareGraph,
   SoftwareGraphNode,
 } from "../../types";
-import { getNodeKindColor, getRuntimeColor } from "./_colors.js";
+import type { SemanticSystemModel } from "../../../../../shared/semantic-system-model.types.js";
+import { getNodeKindColor } from "./_colors.js";
+import { selectInfrastructureNodes } from "./infrastructure-entities.js";
 
 const INFRA_ID_PREFIX = "infra:v1:";
-
-const infraNodeKinds = new Set<SoftwareGraphNode["kind"]>([
-  "runtime",
-  "service",
-  "external",
-  "table",
-  "file",
-  "route",
-]);
 
 interface InfrastructureGraph {
   nodes: GraphCanvasNode[];
   edges: GraphCanvasEdge[];
-}
-
-const MAX_RUNTIME_LABEL_LEN = 64;
-
-function readRuntimeLabel(metadata: Record<string, unknown>): string | undefined {
-  const runtimeValue = metadata.runtime;
-  if (typeof runtimeValue !== "string" || runtimeValue.length === 0) return undefined;
-  if (runtimeValue.length > MAX_RUNTIME_LABEL_LEN) return undefined;
-  return runtimeValue;
-}
-
-function infraRuntimeNodeId(runtime: string): string {
-  return `${INFRA_ID_PREFIX}runtime:${runtime}`;
-}
-
-function infraHostsEdgeId(fileId: string): string {
-  return `${INFRA_ID_PREFIX}edge:hosts:${fileId}`;
 }
 
 function infraProjectedEdgeId(edgeId: string): string {
@@ -60,89 +37,62 @@ function reserveEdgeId(edgeIds: Set<string>, edge: GraphCanvasEdge): boolean {
   return true;
 }
 
-export function projectInfrastructureGraph(graph: SoftwareGraph): InfrastructureGraph {
-  const graphNodes = Array.isArray(graph.nodes) ? graph.nodes : [];
-  const graphEdges = Array.isArray(graph.edges) ? graph.edges : [];
-  const nodeById = new Map(graphNodes.map((graphNode) => [graphNode.id, graphNode]));
-  const graphNodeIds = new Set(graphNodes.map((graphNode) => graphNode.id));
-  const graphEdgeIds = new Set(graphEdges.map((graphEdge) => graphEdge.id));
+function toCanvasNode(graphNode: SoftwareGraphNode): GraphCanvasNode {
+  return {
+    id: graphNode.id,
+    label: graphNode.label,
+    kind: graphNode.kind,
+    color: getNodeKindColor(graphNode.kind),
+  };
+}
+
+/**
+ * Project only evidenced infrastructure entities.
+ * Does not synthesize browser/edge/shared runtimes from file metadata.
+ * Does not project files or routes.
+ */
+export function projectInfrastructureGraph(
+  graph: SoftwareGraph,
+  semantic?: SemanticSystemModel | null,
+): InfrastructureGraph {
+  const infraNodes = selectInfrastructureNodes(graph, semantic);
+  const infraIdSet = new Set(infraNodes.map((node) => node.id));
+  const nodeById = new Map(infraNodes.map((node) => [node.id, node]));
+  const graphEdgeIds = new Set((Array.isArray(graph.edges) ? graph.edges : []).map((e) => e.id));
+
   const nodes: GraphCanvasNode[] = [];
   const edges: GraphCanvasEdge[] = [];
   const reservedNodeIds = new Set<string>();
   const reservedEdgeIds = new Set<string>();
-  const syntheticRuntimeIds = new Set<string>();
 
-  const runtimes = [
-    ...new Set(
-      graphNodes
-        .filter((graphNode) => graphNode.kind === "file")
-        .map((graphNode) => readRuntimeLabel(graphNode.metadata))
-        .filter((runtime): runtime is string => runtime != null),
-    ),
-  ];
-
-  for (const runtime of runtimes) {
-    const runtimeNode: GraphCanvasNode = {
-      id: infraRuntimeNodeId(runtime),
-      label: runtime,
-      kind: "runtime",
-      color: getRuntimeColor(runtime),
-    };
-    if (graphNodeIds.has(runtimeNode.id)) continue;
-    if (reserveNodeId(reservedNodeIds, runtimeNode)) {
-      nodes.push(runtimeNode);
-      syntheticRuntimeIds.add(runtimeNode.id);
+  for (const graphNode of infraNodes) {
+    const projected = toCanvasNode(graphNode);
+    if (reserveNodeId(reservedNodeIds, projected)) {
+      nodes.push(projected);
     }
   }
 
-  for (const graphNode of graphNodes) {
-    if (!infraNodeKinds.has(graphNode.kind)) continue;
-    const projectedNode: GraphCanvasNode = {
-      id: graphNode.id,
-      label: graphNode.label,
-      kind: graphNode.kind,
-      color: getNodeKindColor(graphNode.kind),
-    };
-    if (reserveNodeId(reservedNodeIds, projectedNode)) {
-      nodes.push(projectedNode);
-    }
-  }
-
-  const fileNodes = graphNodes.filter((graphNode) => graphNode.kind === "file");
-  for (const fileNode of fileNodes) {
-    const runtime = readRuntimeLabel(fileNode.metadata);
-    if (!runtime) continue;
-    const runtimeSourceId = infraRuntimeNodeId(runtime);
-    if (!syntheticRuntimeIds.has(runtimeSourceId)) continue;
-    const hostsEdge: GraphCanvasEdge = {
-      id: infraHostsEdgeId(fileNode.id),
-      source: runtimeSourceId,
-      target: fileNode.id,
-      label: "hosts",
-      kind: "hosts",
-    };
-    if (graphEdgeIds.has(hostsEdge.id)) continue;
+  for (const graphEdge of Array.isArray(graph.edges) ? graph.edges : []) {
     if (
-      reservedNodeIds.has(hostsEdge.source) &&
-      reservedNodeIds.has(hostsEdge.target) &&
-      reserveEdgeId(reservedEdgeIds, hostsEdge)
+      graphEdge.kind !== "external-dependency" &&
+      graphEdge.kind !== "data" &&
+      graphEdge.kind !== "contains"
     ) {
-      edges.push(hostsEdge);
+      continue;
     }
-  }
-
-  for (const graphEdge of graphEdges) {
-    if (graphEdge.kind !== "external-dependency" && graphEdge.kind !== "data") continue;
-    const sourceNode = nodeById.get(graphEdge.sourceId);
-    const targetNode = nodeById.get(graphEdge.targetId);
-    if (!sourceNode || !targetNode) continue;
-    if (!infraNodeKinds.has(sourceNode.kind) || !infraNodeKinds.has(targetNode.kind)) continue;
+    if (!infraIdSet.has(graphEdge.sourceId) || !infraIdSet.has(graphEdge.targetId)) continue;
+    if (!nodeById.has(graphEdge.sourceId) || !nodeById.has(graphEdge.targetId)) continue;
 
     const projectedEdge: GraphCanvasEdge = {
       id: infraProjectedEdgeId(graphEdge.id),
       source: graphEdge.sourceId,
       target: graphEdge.targetId,
-      label: graphEdge.kind === "data" ? "stores-in" : "external-dependency",
+      label:
+        graphEdge.kind === "data"
+          ? "stores-in"
+          : graphEdge.kind === "contains"
+            ? "deploys"
+            : "external-dependency",
       kind: graphEdge.kind,
     };
     if (graphEdgeIds.has(projectedEdge.id)) continue;

@@ -106,6 +106,7 @@ export function buildHrToolDemoGraph(projectId: string): SoftwareGraph {
         tier: "web",
         env: "prod",
         region: "eu-central-1",
+        infrastructure: true,
       },
     }),
     node("service:api", "service", "API Service", {
@@ -115,6 +116,7 @@ export function buildHrToolDemoGraph(projectId: string): SoftwareGraph {
         tier: "api",
         env: "prod",
         region: "eu-central-1",
+        infrastructure: true,
       },
     }),
     node("service:worker-infra", "service", "Worker", {
@@ -124,6 +126,7 @@ export function buildHrToolDemoGraph(projectId: string): SoftwareGraph {
         tier: "worker",
         env: "prod",
         region: "eu-central-1",
+        infrastructure: true,
       },
     }),
     node("service:auth-infra", "service", "Auth Service", {
@@ -133,6 +136,7 @@ export function buildHrToolDemoGraph(projectId: string): SoftwareGraph {
         tier: "auth",
         env: "prod",
         region: "eu-central-1",
+        infrastructure: true,
       },
     }),
     node("runtime:lb", "runtime", "LOAD BALANCER / GATEWAY", {
@@ -140,10 +144,17 @@ export function buildHrToolDemoGraph(projectId: string): SoftwareGraph {
     }),
     node("runtime:internet", "runtime", "Internet", { metadata: { tier: "edge" } }),
     node("table:pg", "table", "PostgreSQL", {
-      metadata: { version: "15", port: 5432, durationMs: 89 },
+      filePath: "docker-compose.yml",
+      metadata: { version: "15", port: 5432, durationMs: 89, source: "docker-compose" },
     }),
-    node("table:redis", "table", "Redis", { metadata: { version: "7", port: 6379 } }),
-    node("table:storage", "table", "STORAGE", { metadata: { kind: "S3 Compatible" } }),
+    node("table:redis", "table", "Redis", {
+      filePath: "docker-compose.yml",
+      metadata: { version: "7", port: 6379, source: "docker-compose" },
+    }),
+    node("table:storage", "table", "STORAGE", {
+      filePath: "infra/storage.md",
+      metadata: { kind: "S3 Compatible" },
+    }),
     node("external:stripe", "external", "Payment API (Stripe)", {}),
     node("external:sso", "external", "SSO (OIDC)", {}),
     node("external:hr-data", "external", "HR Datenanbieter", {}),

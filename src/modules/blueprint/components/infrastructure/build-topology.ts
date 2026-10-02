@@ -63,14 +63,18 @@ function isExternalApiNode(graphNode: GraphCanvasNode): boolean {
 }
 
 function isInfraServiceNode(graphNode: GraphCanvasNode): boolean {
-  if (graphNode.kind === "route") return true;
+  // RVP-9: routes/files are never infrastructure services.
+  if (graphNode.kind === "route" || graphNode.kind === "file") return false;
   if (graphNode.kind === "service") return true;
   if (graphNode.kind === "runtime") {
     const label = normalizeLabel(graphNode.label);
     if (label === "internet") return false;
     if (label.includes("load balancer") || label.includes("gateway")) return false;
-    // Softort: browser/server/edge runtimes from real scans → service tier
-    return label === "browser" || label === "server" || label === "edge" || label === "shared";
+    // Reject softort code runtimes (browser/edge/shared/server).
+    if (label === "browser" || label === "server" || label === "edge" || label === "shared") {
+      return false;
+    }
+    return true;
   }
   return false;
 }
