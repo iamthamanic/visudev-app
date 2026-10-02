@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 324,
-  "featureSlug": "rvp8-execution-usecase-pipeline",
+  "activeIssue": 325,
+  "featureSlug": "rvp9-infrastructure-entities",
   "phase": "commit-pr",
-  "branch": "feat/324-rvp8-execution-usecase",
+  "branch": "feat/325-rvp9-infrastructure-entities",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    324,
     325,
     326,
     344,
@@ -26,6 +25,7 @@
     321,
     322,
     323,
+    324,
     336,
     337,
     338,
@@ -39,6 +39,7 @@
     321,
     322,
     323,
+    324,
     336,
     337,
     338,
@@ -59,7 +60,8 @@
     "340": "https://github.com/iamthamanic/visudev-app/pull/357",
     "341": "https://github.com/iamthamanic/visudev-app/pull/358",
     "342": "https://github.com/iamthamanic/visudev-app/pull/359",
-    "343": "https://github.com/iamthamanic/visudev-app/pull/360"
+    "343": "https://github.com/iamthamanic/visudev-app/pull/360",
+    "324": "https://github.com/iamthamanic/visudev-app/pull/361"
   },
   "retries": {
     "implement": 0,
@@ -79,10 +81,10 @@
   "lastError": null,
   "lastErrorCount": 0,
   "issuesProcessedInSession": 9,
-  "updatedAt": "2026-10-02T08:11:31.000Z",
-  "notes": "order-12 #324 shipping",
-  "currentIssue": 324,
-  "lastCompletedIssue": 343,
-  "activeBranch": "feat/324-rvp8-execution-usecase",
+  "updatedAt": "2026-10-02T11:09:57.000Z",
+  "notes": "order-13 #325 shipping",
+  "currentIssue": 325,
+  "lastCompletedIssue": 324,
+  "activeBranch": "feat/325-rvp9-infrastructure-entities",
   "milestoneFilter": null
 }

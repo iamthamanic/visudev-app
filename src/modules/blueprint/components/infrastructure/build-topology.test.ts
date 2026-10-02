@@ -37,15 +37,23 @@ describe("build-topology", () => {
   });
 
   it("maps Softort scan nodes (routes/runtimes/tables) into topology tiers", () => {
+    // RVP-9: routes and softort code runtimes are not infrastructure services.
     expect(
       classifyGraphNodeTopologyTier({ id: "r1", label: "GET /app/health", kind: "route" }),
-    ).toBe("service");
-    expect(classifyGraphNodeTopologyTier({ id: "rt1", label: "server", kind: "runtime" })).toBe(
-      "service",
-    );
+    ).toBeNull();
+    expect(
+      classifyGraphNodeTopologyTier({ id: "rt1", label: "server", kind: "runtime" }),
+    ).toBeNull();
     expect(classifyGraphNodeTopologyTier({ id: "t1", label: "Survey", kind: "table" })).toBe(
       "database",
     );
+    expect(
+      classifyGraphNodeTopologyTier({
+        id: "svc:api",
+        label: "api",
+        kind: "service",
+      }),
+    ).toBe("service");
   });
 
   it("projects graph nodes without injecting synthetic topology nodes", () => {

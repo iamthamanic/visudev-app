@@ -3,7 +3,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
-import type { BlueprintData } from "../types";
+import type { BlueprintData, SoftwareGraphNode } from "../types";
 import { useInfrastructureDefaultNodeSelection } from "../hooks/useInfrastructureDefaultNodeSelection.js";
 import { buildGraphSnapshotKey } from "../services/graph-snapshot-key.js";
 import { BlueprintViewLayout } from "./ui/BlueprintViewLayout.js";
@@ -47,6 +47,15 @@ export function InfrastructureView({
   const { nodes, edges } = useMemo(() => {
     if (!graph) return { nodes: [], edges: [] };
     return projectInfrastructureGraph(graph);
+  }, [graph]);
+
+  const graphNodesById = useMemo(() => {
+    const map = new Map<string, SoftwareGraphNode>();
+    if (!graph) return map;
+    for (const node of graph.nodes) {
+      map.set(node.id, node);
+    }
+    return map;
   }, [graph]);
 
   const deploymentFilters = useMemo(
@@ -110,6 +119,7 @@ export function InfrastructureView({
       controls={
         <InfrastructureServiceList
           nodes={filteredNodes}
+          graphNodesById={graphNodesById}
           selectedNodeId={selectedNodeId}
           onSelectNode={setSelectedNodeId}
         />

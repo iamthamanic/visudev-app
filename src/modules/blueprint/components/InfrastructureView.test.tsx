@@ -34,18 +34,19 @@ const graphBlueprint: BlueprintData = {
         id: "service:web",
         kind: "service",
         label: "Web App",
-        metadata: {},
+        metadata: { infrastructure: true },
       },
       {
         id: "service:api",
         kind: "service",
         label: "API Service",
-        metadata: {},
+        metadata: { infrastructure: true },
       },
       {
         id: "tbl:users",
         kind: "table",
         label: "PostgreSQL",
+        filePath: "prisma/schema.prisma",
         metadata: {},
       },
       {
@@ -121,7 +122,7 @@ describe("InfrastructureView", () => {
         ...graphBlueprint.graph!,
         nodes: graphBlueprint.graph!.nodes.map((node) =>
           node.id === "service:web"
-            ? { ...node, metadata: { env: "prod", region: "eu-central-1" } }
+            ? { ...node, metadata: { ...node.metadata, env: "prod", region: "eu-central-1" } }
             : node,
         ),
       },
@@ -150,7 +151,16 @@ describe("InfrastructureView", () => {
         ...graphBlueprint.graph!,
         nodes: graphBlueprint.graph!.nodes.map((node) =>
           node.id === "service:web"
-            ? { ...node, metadata: { cpu: 55, ram: 61, networkIn: 10, networkOut: 8 } }
+            ? {
+                ...node,
+                metadata: {
+                  ...node.metadata,
+                  cpu: 55,
+                  ram: 61,
+                  networkIn: 10,
+                  networkOut: 8,
+                },
+              }
             : node,
         ),
       },
@@ -231,7 +241,7 @@ describe("InfrastructureView", () => {
             id: "service:staging-web",
             kind: "service",
             label: "Staging Web",
-            metadata: { env: "staging" },
+            metadata: { infrastructure: true, env: "staging" },
           },
         ],
       },

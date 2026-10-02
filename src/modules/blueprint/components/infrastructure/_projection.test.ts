@@ -2,9 +2,7 @@ import { describe, expect, it } from "vitest";
 import { projectInfrastructureGraph } from "./_projection";
 
 describe("projectInfrastructureGraph", () => {
-  it("does not emit hosts edges when synthetic runtime ids collide with graph nodes", () => {
-    const runtime = "node";
-    const syntheticId = `infra:v1:runtime:${runtime}`;
+  it("projects compose services and datastore edges without files/routes", () => {
     const graph = projectInfrastructureGraph({
       version: 1,
       projectId: "p1",
@@ -16,23 +14,49 @@ describe("projectInfrastructureGraph", () => {
       condensed: false,
       limits: { maxNodes: 2500, maxEdges: 5000 },
       nodes: [
-        { id: syntheticId, kind: "service", label: "Crafted", metadata: {} },
+        {
+          id: "svc-api",
+          kind: "service",
+          label: "api",
+          metadata: { source: "docker-compose" },
+        },
+        {
+          id: "table-pg",
+          kind: "table",
+          label: "postgres",
+          filePath: "docker-compose.yml",
+          metadata: { source: "docker-compose" },
+        },
         {
           id: "file-1",
           kind: "file",
           label: "app.ts",
-          metadata: { runtime },
+          metadata: { runtime: "browser" },
+        },
+        {
+          id: "route-1",
+          kind: "route",
+          label: "GET /",
+          metadata: {},
         },
       ],
-      edges: [],
+      edges: [
+        {
+          id: "e-data",
+          kind: "data",
+          sourceId: "svc-api",
+          targetId: "table-pg",
+          metadata: {},
+        },
+      ],
     });
 
-    expect(graph.nodes.some((node) => node.id === syntheticId)).toBe(true);
-    expect(graph.edges).toHaveLength(0);
+    expect(graph.nodes.map((node) => node.id).sort()).toEqual(["svc-api", "table-pg"]);
+    expect(graph.edges).toHaveLength(1);
+    expect(graph.edges[0]?.kind).toBe("data");
   });
 
-  it("does not merge distinct runtime labels that share a long prefix", () => {
-    const prefix = "r".repeat(63);
+  it("returns empty projection when only code nodes exist", () => {
     const graph = projectInfrastructureGraph({
       version: 1,
       projectId: "p1",
@@ -48,20 +72,12 @@ describe("projectInfrastructureGraph", () => {
           id: "file-a",
           kind: "file",
           label: "a.ts",
-          metadata: { runtime: `${prefix}a` },
-        },
-        {
-          id: "file-b",
-          kind: "file",
-          label: "b.ts",
-          metadata: { runtime: `${prefix}b` },
+          metadata: { runtime: "edge" },
         },
       ],
       edges: [],
     });
-
-    const runtimeNodes = graph.nodes.filter((node) => node.kind === "runtime");
-    expect(runtimeNodes).toHaveLength(2);
-    expect(graph.edges).toHaveLength(2);
+    expect(graph.nodes).toEqual([]);
+    expect(graph.edges).toEqual([]);
   });
 });

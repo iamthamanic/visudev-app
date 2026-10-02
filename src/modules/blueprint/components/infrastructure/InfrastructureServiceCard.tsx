@@ -1,30 +1,33 @@
 /** Figma service card; left-border color maps graph node kind to runtime accent tokens. */
 
-import type { GraphCanvasNode } from "../../types";
+import type { GraphCanvasNode, SoftwareGraphNode } from "../../types";
 import { StatusBadge } from "../ui/StatusBadge.js";
+import { resolveInfrastructureRuntimeStatus } from "./infrastructure-entities.js";
 import styles from "../../styles/InfrastructureView.module.css";
 
 const KIND_LABELS: Record<string, string> = {
   runtime: "Laufzeit",
-  service: "API Service",
-  external: "External Service",
-  table: "Datenbank",
-  file: "Web App",
-  route: "Route",
+  service: "Deployment Service",
+  external: "External System",
+  table: "Datastore",
+  repository: "Datastore",
 };
 
 export interface InfrastructureServiceCardProps {
   node: GraphCanvasNode;
+  graphNode?: SoftwareGraphNode | null;
   selected: boolean;
   onSelect: () => void;
 }
 
 export function InfrastructureServiceCard({
   node,
+  graphNode = null,
   selected,
   onSelect,
 }: InfrastructureServiceCardProps): JSX.Element {
   const kindLabel = KIND_LABELS[node.kind] ?? node.kind;
+  const status = resolveInfrastructureRuntimeStatus(graphNode);
 
   return (
     <button
@@ -37,7 +40,7 @@ export function InfrastructureServiceCard({
     >
       <span className={styles.serviceCardHeader}>
         <span className={styles.serviceCardTitle}>{node.label}</span>
-        <StatusBadge variant="running" label="RUNNING" />
+        <StatusBadge variant={status.variant} label={status.label} />
       </span>
       <span className={styles.serviceCardMeta}>{kindLabel}</span>
     </button>

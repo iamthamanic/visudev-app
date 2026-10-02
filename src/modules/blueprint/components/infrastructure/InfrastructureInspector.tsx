@@ -7,16 +7,16 @@ import { InspectorPanel } from "../ui/InspectorPanel.js";
 import { StatusBadge } from "../ui/StatusBadge.js";
 import { InfrastructureResourceMeters } from "./InfrastructureResourceMeters.js";
 import { resourceMetersFromMetadata } from "./infrastructure-resource-meters.js";
+import { resolveInfrastructureRuntimeStatus } from "./infrastructure-entities.js";
 import { ControlHint } from "../../../../components/ui/ControlHint.js";
 import styles from "../../styles/InfrastructureView.module.css";
 
 const KIND_LABELS: Record<string, string> = {
   runtime: "Laufzeit",
-  service: "API Service",
-  external: "External Service",
-  table: "Datenbank",
-  file: "Web App",
-  route: "Route",
+  service: "Deployment Service",
+  external: "External System",
+  table: "Datastore",
+  repository: "Datastore",
 };
 
 interface ConnectionEndpoint {
@@ -90,6 +90,7 @@ export function InfrastructureInspector({
   const overview = overviewFromGraphNode(graphNode);
   const meterValues = resourceMetersFromMetadata(graphNode?.metadata);
   const connections = connectionEndpoints(node.id, edges, nodes);
+  const status = resolveInfrastructureRuntimeStatus(graphNode);
 
   const overviewRows: Array<{ term: string; value: string | null }> = [
     { term: "Port", value: overview.port },
@@ -101,7 +102,7 @@ export function InfrastructureInspector({
     <InspectorPanel
       title={node.label}
       subtitle={kindLabel}
-      badges={<StatusBadge variant="running" label="RUNNING" />}
+      badges={<StatusBadge variant={status.variant} label={status.label} />}
       sections={[
         {
           id: "overview",
