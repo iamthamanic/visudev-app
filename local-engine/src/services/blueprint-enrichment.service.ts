@@ -48,11 +48,14 @@ export function enrichBlueprint(scan: RawBlueprintScan): BlueprintDocument {
     legacyGraph,
     enrichment: demoEnrichmentEnabled ? "on" : "off",
   });
+  // Render/semantic authority: engine projection. Security diagnostics stay on the
+  // materialized scan graph so auth/validation evidence is not lost in projection (SDE-15).
   const graph = resolved.graph;
+  const diagnosticGraph = legacyGraph;
   const semanticSystemModel = buildSemanticSystemModel(graph);
-  const { routes, securityMatrix, findings, facts } = deriveDiagnosticsFromGraph(graph);
+  const { routes, securityMatrix, findings, facts } = deriveDiagnosticsFromGraph(diagnosticGraph);
 
-  const appFindings = analyzeApplicationChain({ graph });
+  const appFindings = analyzeApplicationChain({ graph: diagnosticGraph });
   const dialect = resolveDialectFromHints({
     frameworkHints: [scan.providerId],
   });

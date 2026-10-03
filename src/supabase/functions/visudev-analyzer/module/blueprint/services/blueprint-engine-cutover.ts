@@ -1,6 +1,7 @@
 /**
  * Deno cloud adapter: VisuDev document → shared engine cutover (SDE-15).
- * Applies engine-projection graph to document.graph when resolve succeeds.
+ * Engine resolve is authoritative for semantics/capabilities; VisuDev `graph` IR
+ * stays for API shape (lossy SoftwareGraph→VisuDev reverse is not applied).
  * Secrets/tokens must never be passed into this module.
  * Location: src/supabase/functions/visudev-analyzer/module/blueprint/services/blueprint-engine-cutover.ts
  */
@@ -9,9 +10,7 @@ import type {
   BlueprintDocument,
   BlueprintEngineCutoverDto,
 } from "../../dto/blueprint/blueprint-document.dto.ts";
-import type { VisuDevGraph } from "../../dto/graph/visudev-graph.dto.ts";
 import {
-  adaptSoftwareGraphToVisuDevGraph,
   adaptVisuDevGraphToSoftwareGraph,
   isUsableVisuDevGraph,
 } from "@visudev/shared/visudev-to-software-graph.ts";
@@ -25,21 +24,8 @@ function readCloudAnalysisMode(): string | undefined {
   }
 }
 
-function toDocumentGraph(
-  raw: ReturnType<typeof adaptSoftwareGraphToVisuDevGraph>,
-): VisuDevGraph {
-  return {
-    version: 1,
-    nodes: raw.nodes as VisuDevGraph["nodes"],
-    edges: raw.edges as VisuDevGraph["edges"],
-    evidence: [],
-    scopes: [],
-    findings: [],
-  };
-}
-
 /**
- * Attach shared engine cutover and promote engine graph to API authority (SDE-15).
+ * Attach shared engine cutover metadata. Mode is always engine (SDE-15).
  */
 export function attachCloudEngineCutover(
   document: BlueprintDocument,
@@ -115,20 +101,6 @@ export function attachCloudEngineCutover(
     semanticEntityCount: cutover.semanticSystemModel.entities.length,
     semanticRelationCount: cutover.semanticSystemModel.relations.length,
   };
-
-  if (
-    cutover.resolved.source === "engine-projection" &&
-    cutover.resolved.graph.nodes.length > 0
-  ) {
-    const projected = adaptSoftwareGraphToVisuDevGraph(cutover.resolved.graph);
-    if (isUsableVisuDevGraph(projected)) {
-      return {
-        ...document,
-        graph: toDocumentGraph(projected),
-        engineCutover,
-      };
-    }
-  }
 
   return { ...document, engineCutover };
 }
