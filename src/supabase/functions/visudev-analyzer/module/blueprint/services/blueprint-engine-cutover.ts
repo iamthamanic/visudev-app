@@ -1,6 +1,7 @@
 /**
- * Deno cloud adapter: VisuDev document → shared engine cutover (SDE-14).
- * No duplicate semantic resolver — calls shared applyEngineHostCutover only.
+ * Deno cloud adapter: VisuDev document → shared engine cutover (SDE-15).
+ * Engine resolve is authoritative for semantics/capabilities; VisuDev `graph` IR
+ * stays for API shape (lossy SoftwareGraph→VisuDev reverse is not applied).
  * Secrets/tokens must never be passed into this module.
  * Location: src/supabase/functions/visudev-analyzer/module/blueprint/services/blueprint-engine-cutover.ts
  */
@@ -12,8 +13,8 @@ import type {
 import {
   adaptVisuDevGraphToSoftwareGraph,
   isUsableVisuDevGraph,
-} from "../../../../../../../shared/visudev-to-software-graph.js";
-import { applyEngineHostCutover } from "../../../../../../../shared/scan-detector/application/apply-engine-host-cutover.js";
+} from "@visudev/shared/visudev-to-software-graph.ts";
+import { applyEngineHostCutover } from "@visudev/shared/scan-detector/application/apply-engine-host-cutover.ts";
 
 function readCloudAnalysisMode(): string | undefined {
   try {
@@ -24,8 +25,7 @@ function readCloudAnalysisMode(): string | undefined {
 }
 
 /**
- * Attach shared engine cutover metadata to a cloud BlueprintDocument.
- * Keeps VisuDev `graph` for API backward compatibility (shadow/cutover).
+ * Attach shared engine cutover metadata. Mode is always engine (SDE-15).
  */
 export function attachCloudEngineCutover(
   document: BlueprintDocument,

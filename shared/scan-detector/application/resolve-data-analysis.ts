@@ -9,7 +9,7 @@ import type { DataAnalysisMode } from "../domain/data-analysis-mode.js";
 import { adaptErdToDataGraph } from "./adapt-erd-to-data-graph.js";
 import { projectDataGraphToErd } from "./project-data-graph-to-erd.js";
 
-export type DataAnalysisSource = "legacy" | "engine-projection" | "legacy-fallback";
+export type DataAnalysisSource = "engine-projection" | "legacy-fallback";
 
 export interface DataParityResult {
   tableCountMatch: boolean;
@@ -19,7 +19,8 @@ export interface DataParityResult {
 }
 
 export interface ResolveDataAnalysisInput {
-  mode: DataAnalysisMode;
+  /** Always treated as engine (SDE-15); retained for call-site BC. */
+  mode?: DataAnalysisMode;
   legacyErd: LegacyErdSnapshot;
 }
 
@@ -61,23 +62,15 @@ function compareParity(legacy: LegacyErdSnapshot, engine: LegacyErdSnapshot): Da
 }
 
 export function resolveDataAnalysis(input: ResolveDataAnalysisInput): ResolveDataAnalysisResult {
-  if (input.mode === "legacy") {
-    return {
-      mode: "legacy",
-      erd: input.legacyErd,
-      dataGraph: null,
-      parity: null,
-      source: "legacy",
-      fallbackUsed: false,
-    };
-  }
+  const mode: DataAnalysisMode = "engine";
+  void input.mode;
 
   let dataGraph: DataGraph;
   try {
     dataGraph = adaptErdToDataGraph({ erd: input.legacyErd });
   } catch (error) {
     return {
-      mode: input.mode,
+      mode,
       erd: input.legacyErd,
       dataGraph: null,
       parity: null,
@@ -90,20 +83,9 @@ export function resolveDataAnalysis(input: ResolveDataAnalysisInput): ResolveDat
   const engineErd = projectDataGraphToErd(dataGraph);
   const parity = compareParity(input.legacyErd, engineErd);
 
-  if (input.mode === "shadow") {
-    return {
-      mode: "shadow",
-      erd: input.legacyErd,
-      dataGraph,
-      parity,
-      source: "legacy",
-      fallbackUsed: false,
-    };
-  }
-
   if (engineErd.tables?.length === 0 && tableIds(input.legacyErd).length > 0) {
     return {
-      mode: "engine",
+      mode,
       erd: input.legacyErd,
       dataGraph,
       parity,
@@ -114,7 +96,7 @@ export function resolveDataAnalysis(input: ResolveDataAnalysisInput): ResolveDat
   }
 
   return {
-    mode: "engine",
+    mode,
     erd: {
       ...engineErd,
       message: input.legacyErd.message,

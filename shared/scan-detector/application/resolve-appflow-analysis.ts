@@ -1,5 +1,5 @@
 /**
- * Resolve AppFlow screens/edges via analysis mode (SDE-11).
+ * Resolve AppFlow screens/edges via engine projection (SDE-15).
  * Engine path uses UIInteractionGraph projection only — no new AST inference.
  * Location: shared/scan-detector/application/resolve-appflow-analysis.ts
  */
@@ -15,7 +15,7 @@ import {
   type AppflowProjectionModel,
 } from "./project-ui-graph-to-appflow.js";
 
-export type AppflowAnalysisSource = "legacy" | "engine-projection" | "legacy-fallback";
+export type AppflowAnalysisSource = "engine-projection" | "legacy-fallback";
 
 export interface AppflowLegacyFlowLike {
   id: string;
@@ -24,12 +24,13 @@ export interface AppflowLegacyFlowLike {
 }
 
 export interface ResolveAppflowAnalysisInput {
-  mode: AppflowAnalysisMode;
+  /** Always treated as engine (SDE-15); retained for call-site BC. */
+  mode?: AppflowAnalysisMode;
   projectId: string;
   legacyScreens: readonly LegacyScreenLike[];
   /** Optional runtime crawl for verify/conflict/runtime-only (SDE-09/10). */
   runtimeCrawl?: RuntimeObserverCrawlResult;
-  /** Legacy call edges only used when mode is legacy/shadow render path. */
+  /** Fallback call edges when engine projection is empty. */
   legacyCallEdges?: ReadonlyArray<{ fromId: string; toId: string }>;
 }
 
@@ -176,25 +177,8 @@ export function resolveAppflowAnalysis(
     ),
   ];
 
-  if (input.mode === "legacy") {
-    const statuses: Record<string, UiKnowledgeStatus> = {};
-    const confidences: Record<string, number> = {};
-    for (const screen of input.legacyScreens) {
-      statuses[screen.id] = "inferred";
-      confidences[screen.id] = 0.6;
-    }
-    return {
-      mode: "legacy",
-      screens: [...input.legacyScreens],
-      edges: legacyEdges,
-      surfaceStatusByScreenId: statuses,
-      surfaceConfidenceByScreenId: confidences,
-      engineModel: null,
-      parity: null,
-      source: "legacy",
-      fallbackUsed: false,
-    };
-  }
+  const mode: AppflowAnalysisMode = "engine";
+  void input.mode;
 
   let engineModel: AppflowProjectionModel;
   try {
@@ -203,7 +187,7 @@ export function resolveAppflowAnalysis(
     const statuses: Record<string, UiKnowledgeStatus> = {};
     for (const screen of input.legacyScreens) statuses[screen.id] = "inferred";
     return {
-      mode: input.mode,
+      mode,
       screens: [...input.legacyScreens],
       edges: legacyEdges,
       surfaceStatusByScreenId: statuses,
@@ -223,24 +207,9 @@ export function resolveAppflowAnalysis(
     engineModel.screens.length,
   );
 
-  if (input.mode === "shadow") {
-    return {
-      mode: "shadow",
-      screens: [...input.legacyScreens],
-      edges: legacyEdges,
-      surfaceStatusByScreenId: engineModel.surfaceStatusByScreenId,
-      surfaceConfidenceByScreenId: engineModel.surfaceConfidenceByScreenId,
-      engineModel,
-      parity,
-      source: "legacy",
-      fallbackUsed: false,
-    };
-  }
-
-  // engine mode — render from projection; keep legacy fallback only if empty projection
   if (engineModel.screens.length === 0 && input.legacyScreens.length > 0) {
     return {
-      mode: "engine",
+      mode,
       screens: [...input.legacyScreens],
       edges: legacyEdges,
       surfaceStatusByScreenId: engineModel.surfaceStatusByScreenId,
@@ -254,7 +223,7 @@ export function resolveAppflowAnalysis(
   }
 
   return {
-    mode: "engine",
+    mode,
     screens: engineModel.screens,
     edges: engineModel.edges,
     surfaceStatusByScreenId: engineModel.surfaceStatusByScreenId,

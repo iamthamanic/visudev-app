@@ -34,7 +34,7 @@ export type {
   ProjectionSlice,
 } from "./scan-projection";
 
-/** SDE-08 Blueprint analysis mode helpers (legacy | shadow | engine). */
+/** SDE-15 Blueprint / AppFlow / Data analysis facades (engine authority). */
 export {
   DEFAULT_BLUEPRINT_ANALYSIS_MODE,
   parseBlueprintAnalysisMode,
@@ -45,6 +45,29 @@ export type {
   BlueprintAnalysisSource,
   ResolveBlueprintAnalysisResult,
 } from "../../../shared/scan-detector/index.js";
+export {
+  DEFAULT_APPFLOW_ANALYSIS_MODE,
+  parseAppflowAnalysisMode,
+  resolveAppflowAnalysis,
+} from "./appflow-analysis";
+export type {
+  AppflowAnalysisMode,
+  AppflowAnalysisSource,
+  AppflowProjectionEdge,
+  ResolveAppflowAnalysisResult,
+  UiKnowledgeStatus,
+} from "./appflow-analysis";
+export {
+  DEFAULT_DATA_ANALYSIS_MODE,
+  parseDataAnalysisMode,
+  resolveDataAnalysis,
+} from "./data-analysis";
+export type {
+  DataAnalysisMode,
+  DataAnalysisSource,
+  LegacyErdSnapshot,
+  ResolveDataAnalysisResult,
+} from "./data-analysis";
 
 let client: VisuDevApiClient | null = null;
 let supabaseClient: SupabaseVisuDevClient | null = null;

@@ -7,7 +7,7 @@ import {
   parseDataAnalysisMode,
   resolveDataAnalysis,
   type LegacyErdSnapshot,
-} from "../../../../shared/scan-detector/index.js";
+} from "../../../lib/visudev-api/data-analysis";
 import { getVisuDevClient, isLocalVisuDevMode } from "../../../lib/visudev-api";
 import { api } from "../../../utils/api";
 import type { ERDData } from "../types";

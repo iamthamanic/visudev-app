@@ -1,23 +1,21 @@
 /**
- * AppFlow analysis mode contract for SDE-11 cutover (legacy | shadow | engine).
+ * AppFlow analysis mode — SDE-15: engine is the only runtime authority.
  * Location: shared/scan-detector/domain/appflow-analysis-mode.ts
  */
 
-export const APPFLOW_ANALYSIS_MODES = ["legacy", "shadow", "engine"] as const;
+export const APPFLOW_ANALYSIS_MODES = ["engine"] as const;
 
 export type AppflowAnalysisMode = (typeof APPFLOW_ANALYSIS_MODES)[number];
 
-/** Default: shadow renders legacy and compares engine projection. */
-export const DEFAULT_APPFLOW_ANALYSIS_MODE: AppflowAnalysisMode = "shadow";
+/** Final cutover default (SDE-15). */
+export const DEFAULT_APPFLOW_ANALYSIS_MODE: AppflowAnalysisMode = "engine";
 
 export function isAppflowAnalysisMode(value: unknown): value is AppflowAnalysisMode {
-  return value === "legacy" || value === "shadow" || value === "engine";
+  return value === "engine";
 }
 
+/** Parse env / config string. Retired legacy/shadow values map to engine. */
 export function parseAppflowAnalysisMode(raw: string | undefined | null): AppflowAnalysisMode {
-  if (raw == null) return DEFAULT_APPFLOW_ANALYSIS_MODE;
-  const trimmed = raw.trim().toLowerCase();
-  if (trimmed.length === 0) return DEFAULT_APPFLOW_ANALYSIS_MODE;
-  if (isAppflowAnalysisMode(trimmed)) return trimmed;
+  void raw;
   return DEFAULT_APPFLOW_ANALYSIS_MODE;
 }

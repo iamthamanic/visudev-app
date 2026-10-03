@@ -8,7 +8,7 @@ import type {
 import type { RuntimeCrawlResult } from "../../../lib/visudev/runtime-crawl";
 import type { GraphEdge } from "../layout";
 import { formatConfidence } from "../../../lib/format-confidence.js";
-import type { UiKnowledgeStatus } from "../../../../shared/scan-detector/index.js";
+import type { UiKnowledgeStatus } from "../../../lib/visudev-api/appflow-analysis";
 
 export interface FlowNodeAnalysisBadge {
   label: string;

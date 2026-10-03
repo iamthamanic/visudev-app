@@ -1,5 +1,5 @@
 /**
- * Resolve Blueprint SoftwareGraph via analysis mode (SDE-08).
+ * Resolve Blueprint SoftwareGraph via engine projection (SDE-15).
  * Engine path materializes through Projection/Query — no parallel source scan.
  * Location: shared/scan-detector/application/resolve-blueprint-analysis.ts
  */
@@ -17,14 +17,14 @@ import {
 } from "../domain/projection/types.js";
 import type { ScanSnapshot } from "../types.js";
 import { projectBlueprintReadModel } from "./project-read-models.js";
-import { shadowCompareSoftwareGraphs } from "./shadow-compare-graphs.js";
 import { softwareGraphToScanFacts } from "./software-graph-fact-bridge.js";
 
-export type BlueprintAnalysisSource = "legacy" | "engine-projection" | "legacy-fallback";
+export type BlueprintAnalysisSource = "engine-projection" | "legacy-fallback";
 
 export interface ResolveBlueprintAnalysisInput {
-  mode: BlueprintAnalysisMode;
-  /** Legacy SoftwareGraph from the existing builder (always available as fallback). */
+  /** Always treated as engine (SDE-15); retained for call-site BC. */
+  mode?: BlueprintAnalysisMode;
+  /** Materialized SoftwareGraph from the static builder (fallback only). */
   legacyGraph: SoftwareGraph;
   enrichment?: "off" | "on" | "unknown";
   routes?: ReadonlyArray<{ id?: string } | null> | null;
@@ -150,54 +150,26 @@ export function buildEngineGraphViaProjection(legacyGraph: SoftwareGraph): {
 }
 
 /**
- * Resolve which SoftwareGraph Blueprint should render, with shadow parity telemetry.
+ * Resolve which SoftwareGraph Blueprint should render (engine authority, SDE-15).
+ * Runtime parity compare retired — golden-set / migration-baseline remain offline.
  */
 export function resolveBlueprintAnalysis(
   input: ResolveBlueprintAnalysisInput,
 ): ResolveBlueprintAnalysisResult {
-  const { mode, legacyGraph } = input;
-
-  if (mode === "legacy") {
-    return {
-      mode,
-      graph: legacyGraph,
-      engineGraph: null,
-      parity: null,
-      source: "legacy",
-      fallbackUsed: false,
-      projectionTruncated: false,
-    };
-  }
+  const mode: BlueprintAnalysisMode = "engine";
+  const { legacyGraph } = input;
+  void input.enrichment;
+  void input.routes;
 
   try {
     const { engineGraph, projectionTruncated } = buildEngineGraphViaProjection(legacyGraph);
-    const parity = shadowCompareSoftwareGraphs({
-      projectId: legacyGraph.projectId,
-      legacy: legacyGraph,
-      engine: engineGraph,
-      enrichment: input.enrichment ?? "off",
-      routes: input.routes,
-    });
 
-    if (mode === "shadow") {
-      return {
-        mode,
-        graph: legacyGraph,
-        engineGraph,
-        parity,
-        source: "legacy",
-        fallbackUsed: false,
-        projectionTruncated,
-      };
-    }
-
-    // engine mode — projection-backed graph is authoritative
     if (projectionTruncated) {
       return {
         mode,
         graph: legacyGraph,
         engineGraph,
-        parity,
+        parity: null,
         source: "legacy-fallback",
         fallbackUsed: true,
         fallbackReason: "engine projection truncated; refusing silent partial cutover",
@@ -209,7 +181,7 @@ export function resolveBlueprintAnalysis(
       mode,
       graph: engineGraph,
       engineGraph,
-      parity,
+      parity: null,
       source: "engine-projection",
       fallbackUsed: false,
       projectionTruncated: false,

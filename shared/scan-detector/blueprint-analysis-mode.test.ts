@@ -1,5 +1,5 @@
 /**
- * SDE-08 Blueprint analysis mode + projection cutover tests.
+ * SDE-15 Blueprint analysis mode + projection cutover tests (engine authority).
  */
 
 import { describe, expect, it } from "vitest";
@@ -52,40 +52,24 @@ function sampleGraph(): SoftwareGraph {
   };
 }
 
-describe("blueprint analysis mode (SDE-08)", () => {
-  it("parses mode strings with shadow default", () => {
-    expect(parseBlueprintAnalysisMode(undefined)).toBe("shadow");
-    expect(parseBlueprintAnalysisMode("")).toBe("shadow");
-    expect(parseBlueprintAnalysisMode("legacy")).toBe("legacy");
+describe("blueprint analysis mode (SDE-15)", () => {
+  it("always parses to engine (legacy/shadow retired)", () => {
+    expect(parseBlueprintAnalysisMode(undefined)).toBe("engine");
+    expect(parseBlueprintAnalysisMode("")).toBe("engine");
+    expect(parseBlueprintAnalysisMode("legacy")).toBe("engine");
+    expect(parseBlueprintAnalysisMode("shadow")).toBe("engine");
     expect(parseBlueprintAnalysisMode("ENGINE")).toBe("engine");
-    expect(parseBlueprintAnalysisMode("nope")).toBe("shadow");
+    expect(parseBlueprintAnalysisMode("nope")).toBe("engine");
   });
 
-  it("legacy mode returns legacy graph without engine work", () => {
+  it("retired modes still resolve via engine projection", () => {
     const legacy = sampleGraph();
-    const result = resolveBlueprintAnalysis({ mode: "legacy", legacyGraph: legacy });
-    expect(result.graph).toBe(legacy);
-    expect(result.engineGraph).toBeNull();
-    expect(result.parity).toBeNull();
-    expect(result.source).toBe("legacy");
-    expect(result.fallbackUsed).toBe(false);
-  });
-
-  it("shadow mode renders legacy and compares engine projection", () => {
-    const legacy = sampleGraph();
-    const result = resolveBlueprintAnalysis({
-      mode: "shadow",
-      legacyGraph: legacy,
-      enrichment: "off",
-    });
-    expect(result.graph).toBe(legacy);
-    expect(result.engineGraph).not.toBeNull();
-    expect(result.parity?.status).toBe("pass");
-    expect(result.source).toBe("legacy");
-    expect(result.engineGraph?.nodes.map((n) => n.id).sort()).toEqual(["mod:a", "mod:b"]);
-    expect(result.engineGraph?.nodes.find((n) => n.id === "mod:a")?.metadata).toEqual({
-      domain: "core",
-    });
+    const asLegacy = resolveBlueprintAnalysis({ mode: "engine", legacyGraph: legacy });
+    const asShadow = resolveBlueprintAnalysis({ mode: "engine", legacyGraph: legacy });
+    expect(asLegacy.source).toBe("engine-projection");
+    expect(asShadow.source).toBe("engine-projection");
+    expect(asLegacy.graph).toBe(asLegacy.engineGraph);
+    expect(asLegacy.parity).toBeNull();
   });
 
   it("engine mode uses projection-materialized graph when complete", () => {
@@ -94,9 +78,11 @@ describe("blueprint analysis mode (SDE-08)", () => {
     expect(result.fallbackUsed).toBe(false);
     expect(result.source).toBe("engine-projection");
     expect(result.graph).toBe(result.engineGraph);
-    expect(result.parity?.status).toBe("pass");
     expect(result.graph.nodes).toHaveLength(2);
     expect(result.graph.edges).toHaveLength(1);
+    expect(result.engineGraph?.nodes.find((n) => n.id === "mod:a")?.metadata).toEqual({
+      domain: "core",
+    });
   });
 
   it("materializes SoftwareGraph only from projection read models", () => {

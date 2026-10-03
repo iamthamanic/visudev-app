@@ -47,7 +47,8 @@ const erd: LegacyErdSnapshot = {
 
 describe("data-analysis-mode", () => {
   it("defaults to shadow", () => {
-    expect(parseDataAnalysisMode(undefined)).toBe("shadow");
+    expect(parseDataAnalysisMode(undefined)).toBe("engine");
+    expect(parseDataAnalysisMode("shadow")).toBe("engine");
     expect(parseDataAnalysisMode("engine")).toBe("engine");
   });
 });

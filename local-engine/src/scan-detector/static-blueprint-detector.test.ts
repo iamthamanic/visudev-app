@@ -4,10 +4,10 @@
 
 import { describe, expect, it } from "vitest";
 import {
-  buildLegacySoftwareGraph,
   createStaticBlueprintDetector,
   STATIC_BLUEPRINT_DETECTOR_ID,
 } from "./static-blueprint-detector.js";
+import { buildSoftwareGraph } from "../services/software-graph-builder.service.js";
 import { scanFactsToSoftwareGraph } from "../../../shared/scan-detector/application/software-graph-fact-bridge.js";
 import { shadowCompareSoftwareGraphs } from "../../../shared/scan-detector/application/shadow-compare-graphs.js";
 import type { RawBlueprintScan } from "../types/api.types.js";
@@ -44,9 +44,9 @@ function minimalScan(): RawBlueprintScan {
 }
 
 describe("createStaticBlueprintDetector", () => {
-  it("adapts legacy buildSoftwareGraph into engine facts with shadow parity", async () => {
+  it("adapts buildSoftwareGraph into engine facts with offline parity", async () => {
     const scan = minimalScan();
-    const legacy = buildLegacySoftwareGraph(scan);
+    const legacy = buildSoftwareGraph(scan);
     const detector = createStaticBlueprintDetector({ getScan: async () => scan });
     const result = await detector.run({
       projectId: "p1",

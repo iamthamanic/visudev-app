@@ -1,41 +1,22 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 328,
-  "featureSlug": "rvp-12-real-repo-golden-audit",
+  "activeIssue": 350,
+  "featureSlug": "sde-15-legacy-retirement",
   "phase": "commit",
-  "branch": "feat/328-rvp-12",
+  "branch": "feat/350-sde-15-legacy-retirement",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
-  "queue": [328, 350],
+  "queue": [350],
   "completedIssues": [
-    321, 322, 323, 324, 325, 326, 327, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349
+    321, 322, 323, 324, 325, 326, 327, 328, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349
   ],
   "mergedIssues": [
-    321, 322, 323, 324, 325, 326, 327, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349
+    321, 322, 323, 324, 325, 326, 327, 328, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349
   ],
   "prUrls": {
-    "321": "https://github.com/iamthamanic/visudev-app/pull/333",
-    "322": "https://github.com/iamthamanic/visudev-app/pull/351",
-    "323": "https://github.com/iamthamanic/visudev-app/pull/352",
-    "336": "https://github.com/iamthamanic/visudev-app/pull/353",
-    "337": "https://github.com/iamthamanic/visudev-app/pull/354",
-    "338": "https://github.com/iamthamanic/visudev-app/pull/355",
-    "339": "https://github.com/iamthamanic/visudev-app/pull/356",
-    "340": "https://github.com/iamthamanic/visudev-app/pull/357",
-    "341": "https://github.com/iamthamanic/visudev-app/pull/358",
-    "342": "https://github.com/iamthamanic/visudev-app/pull/359",
-    "343": "https://github.com/iamthamanic/visudev-app/pull/360",
-    "324": "https://github.com/iamthamanic/visudev-app/pull/361",
-    "325": "https://github.com/iamthamanic/visudev-app/pull/362",
-    "326": "https://github.com/iamthamanic/visudev-app/pull/363",
-    "344": "https://github.com/iamthamanic/visudev-app/pull/364",
-    "345": "https://github.com/iamthamanic/visudev-app/pull/365",
-    "346": "https://github.com/iamthamanic/visudev-app/pull/366",
-    "347": "https://github.com/iamthamanic/visudev-app/pull/367",
-    "348": "https://github.com/iamthamanic/visudev-app/pull/368",
-    "327": "https://github.com/iamthamanic/visudev-app/pull/369",
+    "328": "https://github.com/iamthamanic/visudev-app/pull/371",
     "349": "https://github.com/iamthamanic/visudev-app/pull/370"
   },
   "retries": {
@@ -55,11 +36,11 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 17,
-  "updatedAt": "2026-10-03T18:45:00.000Z",
-  "notes": "order-22 #328 ecc-check READY; committing PR",
-  "currentIssue": 328,
-  "lastCompletedIssue": 349,
-  "activeBranch": "feat/328-rvp-12",
+  "issuesProcessedInSession": 18,
+  "updatedAt": "2026-10-03T19:00:00.000Z",
+  "notes": "order-23 #350 ecc-check READY; committing PR after #328 merge",
+  "currentIssue": 350,
+  "lastCompletedIssue": 328,
+  "activeBranch": "feat/350-sde-15-legacy-retirement",
   "milestoneFilter": null
 }
