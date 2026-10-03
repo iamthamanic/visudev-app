@@ -15,6 +15,6 @@ Collapse runtime analysis to a single engine authority after #328 green. Retire 
 
 ## Composition Gate
 
-- HEAD_SHA: WORKTREE
+- HEAD_SHA: ce6eb48f0bf914658e05c62436895cf1946d2ae0
 - Verdict: CLEAR
 - Event: Analysis resolve for Blueprint/AppFlow/Data now always produces engine-projection (or explicit legacy-fallback) — no shadow fan-out that changes render destination by mode.

@@ -1,6 +1,6 @@
 # Composition Gate — sde-15-legacy-retirement
 
-- HEAD_SHA: WORKTREE
+- HEAD_SHA: ce6eb48f0bf914658e05c62436895cf1946d2ae0
 - Date: 2026-10-03
 - Verdict: CLEAR
 
