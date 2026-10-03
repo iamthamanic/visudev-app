@@ -130,6 +130,22 @@ export interface AstParseReport {
   failedSamples: string[];
 }
 
+/** Additive SDE-14 engine cutover telemetry — does not replace VisuDev `graph`. */
+export interface BlueprintEngineCutoverDto {
+  host: "cloud";
+  mode: string;
+  source: string;
+  fallbackUsed: boolean;
+  fallbackReason?: string;
+  parityStatus?: string;
+  capabilitiesPresent: string[];
+  capabilitiesAbsent: string[];
+  engineVersion: string;
+  semanticEntityCount: number;
+  semanticRelationCount: number;
+  note?: string;
+}
+
 export interface BlueprintDocument {
   version: 1;
   projectId?: string;
@@ -154,6 +170,8 @@ export interface BlueprintDocument {
   graph?: VisuDevGraph;
   filesAnalyzed: number;
   frameworkHints: string[];
+  /** Shared engine cutover metadata (SDE-14). Additive; API stays BC. */
+  engineCutover?: BlueprintEngineCutoverDto;
 }
 
 export interface BlueprintAnalysisRequestDto {

@@ -42,6 +42,7 @@ import {
   joinMountPrefix,
   lookupExpressMountPrefix,
 } from "../internal/route-mount.util.ts";
+import { attachCloudEngineCutover } from "./blueprint-engine-cutover.ts";
 
 const DEFAULT_PROFILE: ProjectProfile = {
   appType: "saas",
@@ -163,8 +164,8 @@ export function analyzeFromFileEntries(
       factSelection.selected < factSelection.extracted,
   };
 
-  return {
-    version: 1,
+  const document = {
+    version: 1 as const,
     projectId: input.projectId,
     repo: input.repo,
     branch: input.branch,
@@ -186,6 +187,9 @@ export function analyzeFromFileEntries(
     truncation,
     frameworkHints: detectFrameworkHints(allFacts),
   };
+
+  // SDE-14: shared engine cutover (shadow default) — VisuDev graph kept for BC.
+  return attachCloudEngineCutover(document);
 }
 
 function buildRouteScopes(
