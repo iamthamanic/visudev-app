@@ -11,7 +11,13 @@ export interface NodePosition {
   depth: number;
 }
 
-export type GraphEdgeType = "navigate" | "call" | "open-modal" | "switch-tab" | "dropdown-action";
+export type GraphEdgeType =
+  | "navigate"
+  | "call"
+  | "open-modal"
+  | "close-surface"
+  | "switch-tab"
+  | "dropdown-action";
 
 export interface GraphEdge {
   fromId: string;

@@ -152,6 +152,7 @@ export function FlowEdgesLayer({
     if (
       edge.type === "navigate" ||
       edge.type === "open-modal" ||
+      edge.type === "close-surface" ||
       edge.type === "switch-tab" ||
       edge.type === "dropdown-action"
     ) {
@@ -260,6 +261,7 @@ export function FlowEdgesLayer({
             const isNavLike =
               edge.type === "navigate" ||
               edge.type === "open-modal" ||
+              edge.type === "close-surface" ||
               edge.type === "switch-tab" ||
               edge.type === "dropdown-action";
             const edgeMeta = edgeMetaByKey?.[edgeKey];
@@ -283,6 +285,7 @@ export function FlowEdgesLayer({
               : "url(#live-arrow-call)";
             const triggerLabel =
               edge.type === "open-modal" ||
+              edge.type === "close-surface" ||
               edge.type === "switch-tab" ||
               edge.type === "dropdown-action"
                 ? (edge.trigger?.label ?? edge.type)
@@ -292,9 +295,11 @@ export function FlowEdgesLayer({
                 ? `${
                     edge.type === "open-modal"
                       ? "Modal: "
-                      : edge.type === "switch-tab"
-                        ? "Tab: "
-                        : "Dropdown: "
+                      : edge.type === "close-surface"
+                        ? "Schließen: "
+                        : edge.type === "switch-tab"
+                          ? "Tab: "
+                          : "Dropdown: "
                   }${triggerLabel}`
                 : edgeMeta?.title;
             const fullTitle =

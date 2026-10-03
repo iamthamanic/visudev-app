@@ -23,7 +23,9 @@ import {
   buildEdgeAnalysisMeta,
   buildFlowAnalysisSummary,
   buildNodeAnalysisBadges,
+  buildNodeBadgesFromSurfaceStatuses,
 } from "../services/analysis-status";
+import { resolveAppflowView } from "../services/resolve-appflow-view";
 import { useScreenLoadState, SCREEN_FAIL_REASONS } from "../hooks/useScreenLoadState";
 import { usePreviewPostMessage } from "../hooks/usePreviewPostMessage";
 import { FlowNodeCard } from "./FlowNodeCard";
@@ -112,8 +114,20 @@ export function LiveFlowCanvas({
   const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevLivePreviewActiveRef = useRef(isLivePreviewActive);
 
+  const appflowResolved = useMemo(
+    () =>
+      resolveAppflowView({
+        projectId: projectId ?? "appflow",
+        screens,
+        flows,
+        analysisRuntime,
+      }),
+    [projectId, screens, flows, analysisRuntime],
+  );
+  const displayScreens = appflowResolved.displayScreens;
+
   const { screenLoadState, screenFailReason, loadLogs, markScreenLoaded, markScreenFailed } =
-    useScreenLoadState(screens, previewUrl, previewError);
+    useScreenLoadState(displayScreens, previewUrl, previewError);
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const terminalScrollRef = useRef<HTMLDivElement>(null);
@@ -124,23 +138,23 @@ export function LiveFlowCanvas({
   const animFrameRef = useRef<number | null>(null);
   const iframeToScreenRef = useRef<Map<Window, string>>(new Map());
 
-  const depths = useMemo(() => getScreenDepths(screens), [screens]);
+  const depths = useMemo(() => getScreenDepths(displayScreens), [displayScreens]);
   const computedPositions = useMemo(
     () =>
       computePositions(
-        screens,
+        displayScreens,
         depths,
         NODE_WIDTH,
         NODE_HEIGHT,
         HORIZONTAL_SPACING,
         VERTICAL_SPACING,
       ),
-    [screens, depths],
+    [displayScreens, depths],
   );
   /** Final positions: overrides (from drag) or computed. Used for layout and edges. */
   const positions = useMemo(() => {
     const map = new Map<string, NodePosition>();
-    screens.forEach((s) => {
+    displayScreens.forEach((s) => {
       const base = computedPositions.get(s.id);
       const override = positionOverrides[s.id];
       if (override != null) {
@@ -150,9 +164,24 @@ export function LiveFlowCanvas({
       }
     });
     return map;
-  }, [screens, computedPositions, positionOverrides]);
-  const edges = useMemo(() => buildEdges(screens, flows), [screens, flows]);
-  const nodeBadges = useMemo(() => buildNodeAnalysisBadges(analysisGraph), [analysisGraph]);
+  }, [displayScreens, computedPositions, positionOverrides]);
+  const edges = useMemo(() => {
+    const projected = appflowResolved.graphEdges;
+    const callEdges = buildEdges(displayScreens, flows).filter((edge) => edge.type === "call");
+    return [...projected, ...callEdges];
+  }, [appflowResolved.graphEdges, displayScreens, flows]);
+  const nodeBadges = useMemo(() => {
+    const fromAnalysis = buildNodeAnalysisBadges(analysisGraph);
+    const fromEngine = buildNodeBadgesFromSurfaceStatuses(
+      appflowResolved.surfaceStatusByScreenId,
+      appflowResolved.surfaceConfidenceByScreenId,
+    );
+    return { ...fromAnalysis, ...fromEngine };
+  }, [
+    analysisGraph,
+    appflowResolved.surfaceStatusByScreenId,
+    appflowResolved.surfaceConfidenceByScreenId,
+  ]);
   const edgeMetaByKey = useMemo(
     () => buildEdgeAnalysisMeta(edges, analysisGraph),
     [analysisGraph, edges],
@@ -170,7 +199,7 @@ export function LiveFlowCanvas({
   /** Report with navItems for tab positions. Prefer screen with path / or /projects (Shell); else first report with navItems. */
   const fallbackDomReport = useMemo(() => {
     const withNav = (r: { navItems?: unknown[] }) => r.navItems && r.navItems.length > 0;
-    for (const screen of screens) {
+    for (const screen of displayScreens) {
       const p = (screen.path ?? "").trim().toLowerCase();
       if (p === "/" || p === "/projects") {
         const report = domReportsByScreenId[screen.id];
@@ -179,7 +208,7 @@ export function LiveFlowCanvas({
     }
     const reports = Object.values(domReportsByScreenId);
     return reports.find((r) => withNav(r)) ?? null;
-  }, [domReportsByScreenId, screens]);
+  }, [domReportsByScreenId, displayScreens]);
 
   /* Clear DOM reports when live preview ends (lines fall back to right edge until preview sends again). */
   useEffect(() => {
@@ -190,7 +219,7 @@ export function LiveFlowCanvas({
   }, [isLivePreviewActive]);
 
   /* Clear DOM reports and selection when screens or flows change (e.g. after "Neu analysieren") so lines redraw from analysis. */
-  const analysisKey = `${screens.map((s) => s.id).join(",")}-${flows.length}`;
+  const analysisKey = `${displayScreens.map((s) => s.id).join(",")}-${flows.length}`;
   useEffect(() => {
     setDomReportsByScreenId({});
     setSelectedEdgeKey(null);
@@ -247,7 +276,7 @@ export function LiveFlowCanvas({
   const contentWidth = maxX - minX;
   const contentHeight = maxY - minY;
 
-  const screensWithUrl = screens.filter((s) =>
+  const screensWithUrl = displayScreens.filter((s) =>
     normalizePreviewUrl(previewUrl, getScreenPreviewPath(s)),
   );
   const totalWithUrl = screensWithUrl.length;
@@ -444,7 +473,7 @@ export function LiveFlowCanvas({
 
   usePreviewPostMessage(
     iframeToScreenRef,
-    screens,
+    displayScreens,
     edges,
     markScreenLoaded,
     markScreenFailed,
@@ -453,7 +482,7 @@ export function LiveFlowCanvas({
     onNavigateToScreen,
   );
 
-  if (screens.length === 0) {
+  if (displayScreens.length === 0) {
     return (
       <div className={styles.empty}>
         <p className={styles.emptyText}>Keine Screens für Live Flow</p>
@@ -511,7 +540,7 @@ export function LiveFlowCanvas({
         <div ref={graphRef} className={styles.graph}>
           {/* Nodes zuerst (unten), Kanten per z-index darüber – so sind Verbindungen sichtbar */}
           <div className={styles.nodesLayer} ref={nodesLayerRef}>
-            {screens.map((screen) => {
+            {displayScreens.map((screen) => {
               const pos = positions.get(screen.id);
               if (!pos) return null;
               const previewPath = getScreenPreviewPath(screen);

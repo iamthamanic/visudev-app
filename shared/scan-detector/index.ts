@@ -227,3 +227,27 @@ export type {
   UiTransitionKind,
   UiTrigger,
 } from "../ui-interaction-graph.types.js";
+
+export {
+  APPFLOW_ANALYSIS_MODES,
+  DEFAULT_APPFLOW_ANALYSIS_MODE,
+  isAppflowAnalysisMode,
+  parseAppflowAnalysisMode,
+  type AppflowAnalysisMode,
+} from "./domain/appflow-analysis-mode.js";
+
+export {
+  projectUiGraphToAppflow,
+  type AppflowProjectionEdge,
+  type AppflowProjectionEdgeType,
+  type AppflowProjectionModel,
+} from "./application/project-ui-graph-to-appflow.js";
+
+export {
+  resolveAppflowAnalysis,
+  type AppflowAnalysisSource,
+  type AppflowLegacyFlowLike,
+  type AppflowParityResult,
+  type ResolveAppflowAnalysisInput,
+  type ResolveAppflowAnalysisResult,
+} from "./application/resolve-appflow-analysis.js";

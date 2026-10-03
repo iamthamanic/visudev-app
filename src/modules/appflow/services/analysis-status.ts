@@ -8,6 +8,7 @@ import type {
 import type { RuntimeCrawlResult } from "../../../lib/visudev/runtime-crawl";
 import type { GraphEdge } from "../layout";
 import { formatConfidence } from "../../../lib/format-confidence.js";
+import type { UiKnowledgeStatus } from "../../../../shared/scan-detector/index.js";
 
 export interface FlowNodeAnalysisBadge {
   label: string;
@@ -75,6 +76,46 @@ export function buildNodeAnalysisBadges(
   });
 
   return Object.fromEntries(badges);
+}
+
+/**
+ * Build node badges from UIInteractionGraph surface statuses (SDE-11).
+ * Conflicted/partial never become "Verifiziert".
+ */
+export function buildNodeBadgesFromSurfaceStatuses(
+  statusByScreenId: Record<string, UiKnowledgeStatus> | undefined,
+  confidenceByScreenId: Record<string, number> | undefined = {},
+): Record<string, FlowNodeAnalysisBadge> {
+  if (!statusByScreenId) return {};
+  const badges: Record<string, FlowNodeAnalysisBadge> = {};
+  for (const [screenId, status] of Object.entries(statusByScreenId)) {
+    const confidence = confidenceByScreenId[screenId] ?? 0.5;
+    const hasConflict = status === "conflicted";
+    const isVerified = status === "verified";
+    const isHeuristic = status === "inferred" || status === "unknown" || status === "detected";
+    const tone = hasConflict
+      ? "conflicted"
+      : isVerified
+        ? "verified"
+        : isHeuristic
+          ? "heuristic"
+          : "deterministic";
+    const label = hasConflict
+      ? "Konflikt"
+      : isVerified
+        ? "Verifiziert"
+        : status === "observed"
+          ? "Beobachtet"
+          : "Heuristik";
+    badges[screenId] = {
+      label,
+      tone: status === "observed" && !hasConflict ? "deterministic" : tone,
+      title: `${label} · ${formatConfidence(confidence) ?? "unbekannt"}`,
+      confidence,
+      issueCount: hasConflict ? 1 : 0,
+    };
+  }
+  return badges;
 }
 
 export function buildEdgeAnalysisMeta(
