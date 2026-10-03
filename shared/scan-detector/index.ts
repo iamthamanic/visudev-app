@@ -251,3 +251,56 @@ export {
   type ResolveAppflowAnalysisInput,
   type ResolveAppflowAnalysisResult,
 } from "./application/resolve-appflow-analysis.js";
+
+export {
+  DATA_ANALYSIS_MODES,
+  DEFAULT_DATA_ANALYSIS_MODE,
+  isDataAnalysisMode,
+  parseDataAnalysisMode,
+  type DataAnalysisMode,
+} from "./domain/data-analysis-mode.js";
+
+export {
+  adaptErdToDataGraph,
+  type AdaptErdToDataGraphInput,
+} from "./application/adapt-erd-to-data-graph.js";
+
+export { projectDataGraphToErd } from "./application/project-data-graph-to-erd.js";
+
+export {
+  dataGraphToScanFacts,
+  type DataGraphFactBundle,
+} from "./application/data-graph-to-scan-facts.js";
+
+export {
+  createSchemaDataDetector,
+  SCHEMA_DATA_CAPABILITY,
+  SCHEMA_DATA_DETECTOR_ID,
+  type SchemaDataDetectorHost,
+} from "./application/create-schema-data-detector.js";
+
+export {
+  resolveDataAnalysis,
+  type DataAnalysisSource,
+  type DataParityResult,
+  type ResolveDataAnalysisInput,
+  type ResolveDataAnalysisResult,
+} from "./application/resolve-data-analysis.js";
+
+export type {
+  DataColumn,
+  DataDatabase,
+  DataEvidenceOrigin,
+  DataEvidenceRef,
+  DataGraph,
+  DataKnowledgeStatus,
+  DataPolicy,
+  DataProvenanceKind,
+  DataRelation,
+  DataSchemaNode,
+  DataTable,
+  LegacyErdColumn,
+  LegacyErdRelation,
+  LegacyErdSnapshot,
+  LegacyErdTable,
+} from "../data-graph.types.js";
