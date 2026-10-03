@@ -42,7 +42,7 @@ export function getEngineConfig() {
   const autoguideRoot = process.env.VISUDEV_AUTOGUIDE_ROOT?.trim() || "";
   const autoguideSourceDir = process.env.VISUDEV_AUTOGUIDE_SOURCE_DIR?.trim() || "src";
   const autoguideStub = process.env.VISUDEV_AUTOGUIDE_STUB === "1";
-  const blueprintAnalysisMode = process.env.VISUDEV_BLUEPRINT_ANALYSIS_MODE?.trim() || "shadow";
+  const blueprintAnalysisMode = process.env.VISUDEV_BLUEPRINT_ANALYSIS_MODE?.trim() || "engine";
 
   return {
     port,

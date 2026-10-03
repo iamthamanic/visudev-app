@@ -109,15 +109,6 @@ export function enrichBlueprint(scan: RawBlueprintScan): BlueprintDocument {
       blueprintFallbackUsed: resolved.fallbackUsed,
       ...(resolved.fallbackReason ? { blueprintFallbackReason: resolved.fallbackReason } : {}),
       blueprintProjectionTruncated: resolved.projectionTruncated,
-      ...(resolved.parity
-        ? {
-            blueprintShadowParityOk: resolved.parity.status === "pass",
-            blueprintShadowFindingCount:
-              resolved.parity.missing.length +
-              resolved.parity.unexpected.length +
-              resolved.parity.conflicts.length,
-          }
-        : {}),
     },
     graph,
     semanticSystemModel,

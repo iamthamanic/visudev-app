@@ -8,7 +8,7 @@ import {
   resolveAppflowAnalysis,
   type AppflowProjectionEdge,
   type ResolveAppflowAnalysisResult,
-} from "../../../../shared/scan-detector/index.js";
+} from "../../../lib/visudev-api/appflow-analysis";
 import type { RuntimeCrawlResult } from "../../../lib/visudev/runtime-crawl";
 import type { Flow, Screen } from "../../../lib/visudev/types";
 import type { GraphEdge, GraphEdgeType } from "../layout";

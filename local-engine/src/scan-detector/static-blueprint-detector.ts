@@ -67,8 +67,3 @@ export function createStaticBlueprintDetector(host: StaticBlueprintDetectorHost)
     },
   };
 }
-
-/** Explicit legacy entry retained until SDE-15 retirement. */
-export function buildLegacySoftwareGraph(scan: RawBlueprintScan): SoftwareGraph {
-  return buildSoftwareGraph(scan);
-}

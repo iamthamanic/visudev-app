@@ -1,6 +1,6 @@
 /**
- * Deno cloud adapter: VisuDev document → shared engine cutover (SDE-14).
- * No duplicate semantic resolver — calls shared applyEngineHostCutover only.
+ * Deno cloud adapter: VisuDev document → shared engine cutover (SDE-15).
+ * Applies engine-projection graph to document.graph when resolve succeeds.
  * Secrets/tokens must never be passed into this module.
  * Location: src/supabase/functions/visudev-analyzer/module/blueprint/services/blueprint-engine-cutover.ts
  */
@@ -9,11 +9,13 @@ import type {
   BlueprintDocument,
   BlueprintEngineCutoverDto,
 } from "../../dto/blueprint/blueprint-document.dto.ts";
+import type { VisuDevGraph } from "../../dto/graph/visudev-graph.dto.ts";
 import {
+  adaptSoftwareGraphToVisuDevGraph,
   adaptVisuDevGraphToSoftwareGraph,
   isUsableVisuDevGraph,
-} from "../../../../../../../shared/visudev-to-software-graph.js";
-import { applyEngineHostCutover } from "../../../../../../../shared/scan-detector/application/apply-engine-host-cutover.js";
+} from "@visudev/shared/visudev-to-software-graph.ts";
+import { applyEngineHostCutover } from "@visudev/shared/scan-detector/application/apply-engine-host-cutover.ts";
 
 function readCloudAnalysisMode(): string | undefined {
   try {
@@ -23,9 +25,21 @@ function readCloudAnalysisMode(): string | undefined {
   }
 }
 
+function toDocumentGraph(
+  raw: ReturnType<typeof adaptSoftwareGraphToVisuDevGraph>,
+): VisuDevGraph {
+  return {
+    version: 1,
+    nodes: raw.nodes as VisuDevGraph["nodes"],
+    edges: raw.edges as VisuDevGraph["edges"],
+    evidence: [],
+    scopes: [],
+    findings: [],
+  };
+}
+
 /**
- * Attach shared engine cutover metadata to a cloud BlueprintDocument.
- * Keeps VisuDev `graph` for API backward compatibility (shadow/cutover).
+ * Attach shared engine cutover and promote engine graph to API authority (SDE-15).
  */
 export function attachCloudEngineCutover(
   document: BlueprintDocument,
@@ -101,6 +115,20 @@ export function attachCloudEngineCutover(
     semanticEntityCount: cutover.semanticSystemModel.entities.length,
     semanticRelationCount: cutover.semanticSystemModel.relations.length,
   };
+
+  if (
+    cutover.resolved.source === "engine-projection" &&
+    cutover.resolved.graph.nodes.length > 0
+  ) {
+    const projected = adaptSoftwareGraphToVisuDevGraph(cutover.resolved.graph);
+    if (isUsableVisuDevGraph(projected)) {
+      return {
+        ...document,
+        graph: toDocumentGraph(projected),
+        engineCutover,
+      };
+    }
+  }
 
   return { ...document, engineCutover };
 }

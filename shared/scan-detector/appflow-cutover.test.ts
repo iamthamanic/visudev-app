@@ -40,11 +40,12 @@ const screens: LegacyScreenLike[] = [
 ];
 
 describe("appflow-analysis-mode", () => {
-  it("defaults to shadow", () => {
+  it("defaults to engine (legacy/shadow retired)", () => {
     expect(parseAppflowAnalysisMode(undefined)).toBe(DEFAULT_APPFLOW_ANALYSIS_MODE);
-    expect(parseAppflowAnalysisMode("")).toBe("shadow");
+    expect(parseAppflowAnalysisMode("")).toBe("engine");
     expect(parseAppflowAnalysisMode("engine")).toBe("engine");
-    expect(parseAppflowAnalysisMode("nope")).toBe("shadow");
+    expect(parseAppflowAnalysisMode("shadow")).toBe("engine");
+    expect(parseAppflowAnalysisMode("nope")).toBe("engine");
   });
 });
 
@@ -93,13 +94,13 @@ describe("resolveAppflowAnalysis", () => {
     expect(result.parity?.passed).toBe(true);
   });
 
-  it("shadow keeps legacy render but attaches engine statuses and parity", () => {
+  it("retired shadow env still resolves via engine projection", () => {
     const result = resolveAppflowAnalysis({
-      mode: "shadow",
+      mode: "engine",
       projectId: "demo",
       legacyScreens: screens,
     });
-    expect(result.source).toBe("legacy");
+    expect(result.source).toBe("engine-projection");
     expect(result.screens).toHaveLength(3);
     expect(result.parity?.screenCountMatch).toBe(true);
     expect(result.surfaceStatusByScreenId.home).toBeDefined();

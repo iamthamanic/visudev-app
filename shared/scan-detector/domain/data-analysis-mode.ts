@@ -1,22 +1,21 @@
 /**
- * Data analysis mode contract for SDE-12 cutover (legacy | shadow | engine).
+ * Data analysis mode — SDE-15: engine is the only runtime authority.
  * Location: shared/scan-detector/domain/data-analysis-mode.ts
  */
 
-export const DATA_ANALYSIS_MODES = ["legacy", "shadow", "engine"] as const;
+export const DATA_ANALYSIS_MODES = ["engine"] as const;
 
 export type DataAnalysisMode = (typeof DATA_ANALYSIS_MODES)[number];
 
-export const DEFAULT_DATA_ANALYSIS_MODE: DataAnalysisMode = "shadow";
+/** Final cutover default (SDE-15). */
+export const DEFAULT_DATA_ANALYSIS_MODE: DataAnalysisMode = "engine";
 
 export function isDataAnalysisMode(value: unknown): value is DataAnalysisMode {
-  return value === "legacy" || value === "shadow" || value === "engine";
+  return value === "engine";
 }
 
+/** Parse env / config string. Retired legacy/shadow values map to engine. */
 export function parseDataAnalysisMode(raw: string | undefined | null): DataAnalysisMode {
-  if (raw == null) return DEFAULT_DATA_ANALYSIS_MODE;
-  const trimmed = raw.trim().toLowerCase();
-  if (trimmed.length === 0) return DEFAULT_DATA_ANALYSIS_MODE;
-  if (isDataAnalysisMode(trimmed)) return trimmed;
+  void raw;
   return DEFAULT_DATA_ANALYSIS_MODE;
 }

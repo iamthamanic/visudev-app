@@ -82,16 +82,16 @@ describe("SDE-14 cloud engine cutover", () => {
     const local = applyEngineHostCutover({
       host: "local",
       legacyGraph: graph,
-      modeRaw: "shadow",
+      modeRaw: "engine",
     });
     const cloud = applyEngineHostCutover({
       host: "cloud",
       legacyGraph: graph,
-      modeRaw: "shadow",
+      modeRaw: "engine",
     });
 
-    expect(local.mode).toBe("shadow");
-    expect(cloud.mode).toBe("shadow");
+    expect(local.mode).toBe("engine");
+    expect(cloud.mode).toBe("engine");
     expect(local.resolved.source).toBe(cloud.resolved.source);
     expect(local.semanticSystemModel.entities.map((e) => e.id).sort()).toEqual(
       cloud.semanticSystemModel.entities.map((e) => e.id).sort(),
@@ -106,7 +106,7 @@ describe("SDE-14 cloud engine cutover", () => {
     const cloud = applyEngineHostCutover({
       host: "cloud",
       legacyGraph: fixtureGraph(),
-      modeRaw: "shadow",
+      modeRaw: "engine",
     });
     expect(cloud.capabilitiesPresent).toEqual([...CLOUD_ENGINE_CAPABILITIES_PRESENT]);
     for (const absent of CLOUD_ENGINE_CAPABILITIES_ABSENT) {
@@ -121,12 +121,13 @@ describe("SDE-14 cloud engine cutover", () => {
     ).toBe(false);
   });
 
-  it("defaults mode to shadow when unset", () => {
+  it("defaults mode to engine when unset", () => {
     const cloud = applyEngineHostCutover({
       host: "cloud",
       legacyGraph: fixtureGraph(),
       modeRaw: undefined,
     });
-    expect(cloud.mode).toBe("shadow");
+    expect(cloud.mode).toBe("engine");
+    expect(cloud.resolved.source).toBe("engine-projection");
   });
 });
