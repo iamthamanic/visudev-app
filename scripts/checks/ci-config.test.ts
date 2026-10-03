@@ -11,6 +11,10 @@ const workflow = readFileSync(
   fileURLToPath(new URL("../../.github/workflows/ci.yml", import.meta.url)),
   "utf8",
 );
+const realAuditWorkflow = readFileSync(
+  fileURLToPath(new URL("../../.github/workflows/real-visual-audit.yml", import.meta.url)),
+  "utf8",
+);
 const workflowLines = workflow.split("\n");
 
 function getJobBlock(jobName: string): string {
@@ -44,5 +48,21 @@ describe("CI workflow", () => {
     const outsideE2e = workflow.replace(e2eBlock, "");
     expect(outsideE2e).not.toMatch(/DEMO_ENRICHMENT/);
     expect(e2eBlock).toMatch(/DEMO_ENRICHMENT/);
+  });
+});
+
+describe("Real Visual Audit workflow (RVP-12)", () => {
+  it("runs on every PR to main (not label-gated)", () => {
+    expect(realAuditWorkflow).toContain("pull_request:");
+    expect(realAuditWorkflow).not.toMatch(/if:\s*contains\(github\.event\.pull_request\.labels/);
+    expect(realAuditWorkflow).not.toContain("visudev-gapclose");
+  });
+
+  it("forces enrichment OFF and is named separately from Demo-E2E", () => {
+    expect(realAuditWorkflow).toContain('VISUDEV_DEMO_ENRICHMENT: "false"');
+    expect(realAuditWorkflow).toContain('VITE_BLUEPRINT_DEMO_ENRICHMENT: "false"');
+    expect(realAuditWorkflow).toContain("Real Project Gate (hrkoordinator, enrichment OFF)");
+    expect(realAuditWorkflow).toContain("real-visual-audit.mjs");
+    expect(realAuditWorkflow).toContain("upload-artifact");
   });
 });

@@ -19,18 +19,19 @@ Open: **http://localhost:3005** (fester Port, siehe unten). Runner: http://local
 
 ## Scripts
 
-| Command                  | Description                                                                              |
-| ------------------------ | ---------------------------------------------------------------------------------------- |
-| `npm run dev`            | **Default:** Lokales Supabase (Docker) + Functions + App + Runner — `docs/HYBRID_DEV.md` |
-| `npm run dev:cloud`      | Cloud Supabase + lokale App/Runner — `.env.cloud.example` → `.env.local`                 |
-| `npm run dev:hybrid`     | Alias für `npm run dev`                                                                  |
-| `npm run dev:app`        | Nur Vite-Dev-Server (3005)                                                               |
-| `npm run dev:runner`     | Nur Preview-Runner (4000)                                                                |
-| `npm run seed:demo-user` | Demo-User in lokalem Supabase anlegen (`demo@visudev.local`)                             |
-| `npm run build`          | Production build                                                                         |
-| `npm run preview`        | Preview production build                                                                 |
-| `npm run checks`         | Format, lint, typecheck, tests                                                           |
-| `npm run format`         | Prettier + Deno fmt                                                                      |
+| Command                               | Description                                                                       |
+| ------------------------------------- | --------------------------------------------------------------------------------- |
+| `npm run dev` / `dev:local`           | **Default Local-First:** App + Engine + Runner — Demo-Enrichment **OFF** (RVP-12) |
+| `npm run dev:demo`                    | Same stack with Demo-Enrichment **ON** (explicit demo seed path)                  |
+| `npm run dev:supabase` / `dev:hybrid` | Lokales Supabase (Docker) + Functions — `docs/HYBRID_DEV.md`                      |
+| `npm run dev:cloud`                   | Cloud Supabase + lokale App/Runner — `.env.cloud.example` → `.env.local`          |
+| `npm run dev:app`                     | Nur Vite-Dev-Server (3005)                                                        |
+| `npm run dev:runner`                  | Nur Preview-Runner (4000)                                                         |
+| `npm run seed:demo-user`              | Demo-User in lokalem Supabase anlegen (`demo@visudev.local`)                      |
+| `npm run build`                       | Production build                                                                  |
+| `npm run preview`                     | Preview production build                                                          |
+| `npm run checks`                      | Format, lint, typecheck, tests                                                    |
+| `npm run format`                      | Prettier + Deno fmt                                                               |
 
 ## Project layout
 
