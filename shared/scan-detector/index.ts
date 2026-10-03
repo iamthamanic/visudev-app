@@ -187,3 +187,43 @@ export {
   createRuntimeObserverDetector,
   type CreateRuntimeObserverDetectorOptions,
 } from "./application/create-runtime-observer-detector.js";
+
+export {
+  adaptLegacyScreensToUiGraph,
+  type AdaptLegacyScreensInput,
+} from "./application/adapt-legacy-screens-to-ui-graph.js";
+
+export { projectUiGraphToLegacyScreens } from "./application/project-ui-graph-to-legacy-screens.js";
+
+export {
+  fuseRuntimeIntoUiGraph,
+  type FuseRuntimeIntoUiGraphInput,
+} from "./application/fuse-runtime-into-ui-graph.js";
+
+export {
+  uiGraphToScanFacts,
+  type UiGraphFactBundle,
+} from "./application/ui-graph-to-scan-facts.js";
+
+export {
+  createWebUiDetector,
+  WEB_UI_CAPABILITY,
+  WEB_UI_DETECTOR_ID,
+  type WebUiDetectorHost,
+} from "./application/create-web-ui-detector.js";
+
+export type {
+  LegacyScreenEdgeTrigger,
+  LegacyScreenLike,
+  LegacyScreenType,
+  LegacyStateTarget,
+  UiEvidenceOrigin,
+  UiEvidenceRef,
+  UiInteractionGraph,
+  UiKnowledgeStatus,
+  UiSurface,
+  UiSurfaceKind,
+  UiTransition,
+  UiTransitionKind,
+  UiTrigger,
+} from "../ui-interaction-graph.types.js";

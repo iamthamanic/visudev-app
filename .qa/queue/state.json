@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 344,
-  "featureSlug": "sde-09-runtime-observer",
+  "activeIssue": 345,
+  "featureSlug": null,
   "phase": "setup",
-  "branch": "feat/344-sde-09-runtime-observer",
+  "branch": "feat/345-sde-10-runtime-detector",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    344,
     345,
     346,
     347,
@@ -33,7 +32,8 @@
     340,
     341,
     342,
-    343
+    343,
+    344
   ],
   "mergedIssues": [
     321,
@@ -49,7 +49,8 @@
     340,
     341,
     342,
-    343
+    343,
+    344
   ],
   "prUrls": {
     "321": "https://github.com/iamthamanic/visudev-app/pull/333",
@@ -65,7 +66,8 @@
     "343": "https://github.com/iamthamanic/visudev-app/pull/360",
     "324": "https://github.com/iamthamanic/visudev-app/pull/361",
     "325": "https://github.com/iamthamanic/visudev-app/pull/362",
-    "326": "https://github.com/iamthamanic/visudev-app/pull/363"
+    "326": "https://github.com/iamthamanic/visudev-app/pull/363",
+    "344": "https://github.com/iamthamanic/visudev-app/pull/364"
   },
   "retries": {
     "implement": 0,
@@ -84,11 +86,11 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 10,
-  "updatedAt": "2026-10-02T15:55:00.000Z",
-  "notes": "order-14 #326 MERGED (PR #363); next #344 SDE-09",
-  "currentIssue": 344,
-  "lastCompletedIssue": 326,
-  "activeBranch": "feat/344-sde-09-runtime-observer",
+  "issuesProcessedInSession": 11,
+  "updatedAt": "2026-10-02T16:05:00.000Z",
+  "notes": "order-15 #344 MERGED (PR #364); next #345 claimed. Resume @ecc-runner-loop continue",
+  "currentIssue": 345,
+  "lastCompletedIssue": 344,
+  "activeBranch": "feat/345-sde-10-runtime-detector",
   "milestoneFilter": null
 }
