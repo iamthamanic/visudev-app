@@ -24,7 +24,9 @@ export function EvolutionCommitTimeline({
         aria-label="Commit-Timeline"
         data-testid="evolution-timeline"
       >
-        <p className={styles.emptyControls}>Keine Commits in der Git-Zusammenfassung.</p>
+        <p className={styles.emptyControls} data-testid="evolution-git-nothing-found">
+          Keine Git-Historie gefunden — semantischer Verlauf nicht verfügbar.
+        </p>
       </div>
     );
   }

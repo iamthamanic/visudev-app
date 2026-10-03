@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 348,
-  "featureSlug": "sde-13-snapshots-incremental",
+  "activeIssue": 327,
+  "featureSlug": "rvp-11-evolution-semantic-history",
   "phase": "commit",
-  "branch": "feat/348-sde-13",
+  "branch": "feat/327-rvp-11",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    348,
     327,
     349,
     328,
@@ -33,7 +32,8 @@
     344,
     345,
     346,
-    347
+    347,
+    348
   ],
   "mergedIssues": [
     321,
@@ -53,7 +53,8 @@
     344,
     345,
     346,
-    347
+    347,
+    348
   ],
   "prUrls": {
     "321": "https://github.com/iamthamanic/visudev-app/pull/333",
@@ -73,7 +74,8 @@
     "344": "https://github.com/iamthamanic/visudev-app/pull/364",
     "345": "https://github.com/iamthamanic/visudev-app/pull/365",
     "346": "https://github.com/iamthamanic/visudev-app/pull/366",
-    "347": "https://github.com/iamthamanic/visudev-app/pull/367"
+    "347": "https://github.com/iamthamanic/visudev-app/pull/367",
+    "348": "https://github.com/iamthamanic/visudev-app/pull/368"
   },
   "retries": {
     "implement": 0,
@@ -92,11 +94,11 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 14,
-  "updatedAt": "2026-10-03T18:25:00.000Z",
-  "notes": "order-19 #348 implement+verify+gates PASS; committing",
-  "currentIssue": 348,
-  "lastCompletedIssue": 347,
-  "activeBranch": "feat/348-sde-13",
+  "issuesProcessedInSession": 15,
+  "updatedAt": "2026-10-03T18:40:00.000Z",
+  "notes": "order-19 #348 MERGED (PR #368); next #327 claimed",
+  "currentIssue": 327,
+  "lastCompletedIssue": 348,
+  "activeBranch": "feat/327-rvp-11",
   "milestoneFilter": null
 }

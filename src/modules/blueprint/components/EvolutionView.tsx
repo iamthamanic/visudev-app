@@ -16,6 +16,7 @@ import { type EvolutionTabId } from "./evolution/evolution-tabs.js";
 import { EvolutionBranchCompare } from "./evolution/EvolutionBranchCompare.js";
 import { findSnapshot } from "./evolution/_diff.js";
 import { useEvolutionViewState } from "./evolution/useEvolutionViewState.js";
+import { hasSemanticHistoryCompare } from "../../../../shared/semantic-history.js";
 import styles from "../styles/EvolutionView.module.css";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
@@ -70,6 +71,8 @@ export function EvolutionView({
     return gitSummary.commits.find((commit) => commit.sha === sha) ?? null;
   }, [gitSummary, selectedCommitSha]);
 
+  const hasSemanticHistory = hasSemanticHistoryCompare(snapshots);
+
   if (!graph) {
     return (
       <BlueprintViewStateGate
@@ -105,7 +108,18 @@ export function EvolutionView({
             onSelectBase={setBaseSnapshotId}
             onSelectTarget={setTargetSnapshotId}
           />
-          <EvolutionMetricsRow diff={diff} gitSummary={gitSummary} snapshots={snapshots} />
+          {!hasSemanticHistory ? (
+            <p className={styles.hint} data-testid="evolution-semantic-history-empty">
+              Für semantische Architektur-Evolution werden mindestens zwei Engine-Snapshots
+              benötigt. Git-Commits allein ersetzen keine Snapshot-Vergleiche.
+            </p>
+          ) : null}
+          <EvolutionMetricsRow
+            diff={diff}
+            gitSummary={gitSummary}
+            snapshots={snapshots}
+            hasSemanticHistory={hasSemanticHistory}
+          />
           <EvolutionChangesGrid diff={diff} gitSummary={gitSummary} />
 
           <BlueprintViewLayout

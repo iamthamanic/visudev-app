@@ -133,6 +133,8 @@ describe("EvolutionView", () => {
         "Nur ein Zeitpunkt vorhanden. Für einen Vergleich braucht VisuDEV mindestens zwei Analysen. Scanne das Projekt später erneut, dann erscheint hier, was sich verändert hat.",
       ),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("evolution-semantic-history-empty")).toBeInTheDocument();
+    expect(screen.getByTestId("evolution-metrics-no-history")).toBeInTheDocument();
     expect(
       screen.getAllByText("Commit abc12345 · Branch main · ungespeicherte Änderungen").length,
     ).toBeGreaterThan(0);
