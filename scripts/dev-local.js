@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 /**
  * Local-first dev orchestrator: Vite UI + Local Engine + Preview Runner.
+ * Demo enrichment is OFF by default (RVP-12). Use --demo or npm run dev:demo.
  * Location: scripts/dev-local.js
  */
 
@@ -11,6 +12,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const noRunner = process.argv.includes("--no-runner");
+const demoMode = process.argv.includes("--demo");
 
 const env = {
   ...process.env,
@@ -18,9 +20,11 @@ const env = {
   VITE_VISUDEV_ENGINE_URL: "http://localhost:4317",
   VISUDEV_ENGINE_PORT: "4317",
   VISUDEV_PREVIEW_RUNNER_URL: "http://localhost:4000",
-  // Local dev only: merge HR demo seed when scans are thin (never default in engine).
-  VISUDEV_DEMO_ENRICHMENT: "true",
-  VITE_BLUEPRINT_DEMO_ENRICHMENT: "true",
+  // RVP-12: honest local default — never silently enable demo enrichment.
+  VISUDEV_DEMO_ENRICHMENT: demoMode ? "true" : process.env.VISUDEV_DEMO_ENRICHMENT || "false",
+  VITE_BLUEPRINT_DEMO_ENRICHMENT: demoMode
+    ? "true"
+    : process.env.VITE_BLUEPRINT_DEMO_ENRICHMENT || "false",
   PORT: "4000",
 };
 
@@ -88,7 +92,14 @@ process.on("SIGTERM", () => shutdown(0));
 
 async function main() {
   await assertPorts();
-  console.log("[dev-local] Starting Local-First stack …");
+  console.log(
+    `[dev-local] Starting Local-First stack (demo enrichment ${demoMode ? "ON" : "OFF"}) …`,
+  );
+  if (!demoMode) {
+    console.log(
+      "[dev-local] For demo seed data: npm run dev:demo  (or: node scripts/dev-local.js --demo)",
+    );
+  }
   children.push(run("npm", ["run", "dev:app"], "ui"));
   children.push(run("npm", ["run", "dev:engine"], "engine"));
   if (!noRunner) {

@@ -89,6 +89,7 @@
   "scripts": {
     "dev": "node scripts/dev-local.js",
     "dev:local": "node scripts/dev-local.js",
+    "dev:demo": "node scripts/dev-local.js --demo",
     "dev:local:no-runner": "node scripts/dev-local.js --no-runner",
     "dev:engine": "tsx watch local-engine/src/index.ts",
     "build:engine": "tsc -p local-engine/tsconfig.json",

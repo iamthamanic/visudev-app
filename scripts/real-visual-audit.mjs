@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "@playwright/test";
+import { assertAnalysisSemantics } from "./real-visual-audit-semantics.mjs";
 
 const engineBase = process.env.VISUDEV_AUDIT_ENGINE_URL || "http://127.0.0.1:4317";
 const appBase = process.env.VISUDEV_AUDIT_APP_URL || "http://127.0.0.1:3005";
@@ -297,10 +298,25 @@ async function main() {
     `${engineBase}/api/projects/${encodeURIComponent(project.id)}/analyze/${encodeURIComponent(started.runId)}/result`,
   );
   await fs.writeFile(path.join(outDir, "analysis-result.json"), JSON.stringify(result, null, 2));
+  const graphSummary = summarizeGraph(result);
   await fs.writeFile(
     path.join(outDir, "analysis-summary.json"),
-    JSON.stringify(summarizeGraph(result), null, 2),
+    JSON.stringify(graphSummary, null, 2),
   );
+
+  const semanticGate = assertAnalysisSemantics(
+    { ...result, summary: graphSummary },
+    { enrichmentOff: true },
+  );
+  await fs.writeFile(
+    path.join(outDir, "semantic-assertions.json"),
+    JSON.stringify(semanticGate, null, 2),
+  );
+  if (!semanticGate.passed) {
+    throw new Error(
+      `Real-repo semantic gate failed (enrichment OFF):\n- ${semanticGate.failures.join("\n- ")}`,
+    );
+  }
 
   const browser = await chromium.launch({
     headless: true,
@@ -333,12 +349,36 @@ async function main() {
     .catch(() => {});
   await page.waitForTimeout(3000);
 
+  // Wait until scan UI reports completion (German status copy).
+  await page
+    .waitForFunction(
+      () => {
+        const text = document.body?.innerText || "";
+        return (
+          text.includes("SCAN ABGESCHLOSSEN") ||
+          text.includes("Scan abgeschlossen") ||
+          (!text.includes("ANALYSIERE") && !text.includes("wird analysiert"))
+        );
+      },
+      undefined,
+      { timeout: 120000 },
+    )
+    .catch(() => {});
+
   await assertAtlasSemanticOverview(page);
 
   for (let index = 0; index < views.length; index += 1) {
     await captureView(page, views[index], index);
   }
 
+  await fs.writeFile(
+    path.join(outDir, "views-captured.json"),
+    JSON.stringify(
+      { views: views.map((view) => view.id), count: views.length, scanComplete: true },
+      null,
+      2,
+    ),
+  );
   await fs.writeFile(path.join(outDir, "browser-console.log"), consoleLines.join("\n"));
   await browser.close();
 }

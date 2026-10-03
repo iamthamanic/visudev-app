@@ -3,12 +3,13 @@ name: Real Visual Audit
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, labeled]
+  push:
+    branches: [main]
 
 jobs:
   audit:
     name: Real Project Gate (hrkoordinator, enrichment OFF)
-    if: contains(github.event.pull_request.labels.*.name, 'visudev-gapclose')
+    # RVP-12: always-on CI gate, separated from Demo-E2E (ci.yml e2e-demo).
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
