@@ -1,6 +1,6 @@
 # Composition Gate — sde-13-snapshots-incremental
 
-- HEAD_SHA: WORKTREE (uncommitted SDE-13; base ba9f2445)
+- HEAD_SHA: c696c9660ecdc69904c7a1613ea19b0748cec166
 - Date: 2026-10-03
 - Verdict: CLEAR
 

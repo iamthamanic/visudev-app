@@ -58,7 +58,7 @@ Scan-Ergebnisse werden nach Repo/Application-Scope, Commit/Ref/Dirty-Fingerprint
 
 ## Composition Gate
 
-CLEAR — `.qa/runs/composition-gate-sde-13-snapshots-incremental.md` (WORKTREE; refresh SHA after commit)
+CLEAR — `.qa/runs/composition-gate-sde-13-snapshots-incremental.md` (c696c9660ecdc69904c7a1613ea19b0748cec166)
 
 ## Security Coverage (verify)
 
