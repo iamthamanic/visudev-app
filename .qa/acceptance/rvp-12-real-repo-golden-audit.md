@@ -33,6 +33,6 @@ Durable CI gate: real project (hrkoordinator) analyzed with both demo-enrichment
 
 ## Composition Gate
 
-- HEAD_SHA: WORKTREE (pre-commit #328)
+- HEAD_SHA: 45a9ecafd8e28137a1be4871e2077e522a8e1218
 - Verdict: SKIPPED
 - Reason: CI/scripts config only; no multi-hop producer→consumer business event path

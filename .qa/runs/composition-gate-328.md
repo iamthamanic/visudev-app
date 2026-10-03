@@ -1,6 +1,6 @@
 # Composition Gate — rvp-12-real-repo-golden-audit
 
-- HEAD_SHA: WORKTREE (pre-commit #328)
+- HEAD_SHA: 45a9ecafd8e28137a1be4871e2077e522a8e1218
 - Date: 2026-10-03
 - Verdict: SKIPPED
 
