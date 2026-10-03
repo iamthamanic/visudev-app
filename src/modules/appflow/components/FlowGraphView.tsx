@@ -7,7 +7,8 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import clsx from "clsx";
 import { ZoomIn, ZoomOut, Home } from "lucide-react";
 import type { Screen, Flow } from "../../../lib/visudev/types";
-import { getScreenDepths, buildEdges, computePositions } from "../layout";
+import { getScreenDepths, computePositions } from "../layout";
+import { resolveAppflowView } from "../services/resolve-appflow-view";
 import styles from "../styles/FlowGraphView.module.css";
 
 const NODE_WIDTH = 160;
@@ -28,20 +29,31 @@ export function FlowGraphView({ screens, flows }: FlowGraphViewProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<HTMLDivElement>(null);
 
-  const depths = useMemo(() => getScreenDepths(screens), [screens]);
+  const appflowResolved = useMemo(
+    () =>
+      resolveAppflowView({
+        projectId: "appflow-graph",
+        screens,
+        flows,
+      }),
+    [screens, flows],
+  );
+  const displayScreens = appflowResolved.displayScreens;
+
+  const depths = useMemo(() => getScreenDepths(displayScreens), [displayScreens]);
   const positions = useMemo(
     () =>
       computePositions(
-        screens,
+        displayScreens,
         depths,
         NODE_WIDTH,
         NODE_HEIGHT,
         HORIZONTAL_SPACING,
         VERTICAL_SPACING,
       ),
-    [screens, depths],
+    [displayScreens, depths],
   );
-  const edges = useMemo(() => buildEdges(screens, flows), [screens, flows]);
+  const edges = useMemo(() => appflowResolved.graphEdges, [appflowResolved.graphEdges]);
 
   useEffect(() => {
     if (!graphRef.current) return;
@@ -66,7 +78,7 @@ export function FlowGraphView({ screens, flows }: FlowGraphViewProps) {
     setPan({ x: 60, y: 60 });
   };
 
-  if (screens.length === 0) {
+  if (displayScreens.length === 0) {
     return (
       <div className={styles.empty}>
         <p className={styles.emptyText}>Keine Screens für Graph</p>
@@ -153,7 +165,7 @@ export function FlowGraphView({ screens, flows }: FlowGraphViewProps) {
                 />
               );
             })}
-            {screens.map((screen) => {
+            {displayScreens.map((screen) => {
               const pos = positions.get(screen.id);
               if (!pos) return null;
               const flowCount = (screen.flows || []).length;
