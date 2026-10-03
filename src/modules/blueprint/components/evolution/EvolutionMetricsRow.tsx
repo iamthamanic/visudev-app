@@ -1,5 +1,6 @@
 /**
- * Six evolution metrics with sparklines derived from diff and git summary.
+ * Evolution metrics with sparklines from real snapshot node counts (RVP-11).
+ * Neu/Geändert/Entfernt come from snapshot diff — never from commit count.
  */
 
 import type { GitSummary, SoftwareGraphDiffMetadata, SoftwareGraphSnapshot } from "../../types";
@@ -11,6 +12,8 @@ interface EvolutionMetricsRowProps {
   diff: SoftwareGraphDiffMetadata | null;
   gitSummary: GitSummary | null;
   snapshots: SoftwareGraphSnapshot[];
+  /** False when fewer than two snapshots — architecture trends unavailable. */
+  hasSemanticHistory: boolean;
 }
 
 function snapshotNodeSparkline(snapshots: SoftwareGraphSnapshot[]): number[] {
@@ -21,10 +24,11 @@ export function EvolutionMetricsRow({
   diff,
   gitSummary,
   snapshots,
+  hasSemanticHistory,
 }: EvolutionMetricsRowProps): JSX.Element {
-  const added = diff?.addedNodeIds.length ?? 0;
-  const changed = diff?.changedNodeIds.length ?? 0;
-  const removed = diff?.removedNodeIds.length ?? 0;
+  const added = hasSemanticHistory ? (diff?.addedNodeIds.length ?? 0) : 0;
+  const changed = hasSemanticHistory ? (diff?.changedNodeIds.length ?? 0) : 0;
+  const removed = hasSemanticHistory ? (diff?.removedNodeIds.length ?? 0) : 0;
   const totalNodes = added + changed + removed;
   const commits = gitSummary?.commits.length ?? 0;
   const working =
@@ -33,19 +37,32 @@ export function EvolutionMetricsRow({
     (gitSummary?.workingTree.deleted.length ?? 0);
 
   const sparkline = snapshotNodeSparkline(snapshots);
+  const architectureSpark = sparkline.length > 0 ? sparkline : [0];
 
   const metrics = [
-    { label: "Neu", value: added, accent: "green" as const },
-    { label: "Geändert", value: changed, accent: "amber" as const },
-    { label: "Entfernt", value: removed, accent: "orange" as const },
-    { label: "Knoten Δ", value: totalNodes, accent: "purple" as const },
-    { label: "Commits", value: commits, accent: "blue" as const },
-    { label: "Working Tree", value: working, accent: "teal" as const },
+    { label: "Neu", value: added, accent: "green" as const, spark: architectureSpark },
+    { label: "Geändert", value: changed, accent: "amber" as const, spark: architectureSpark },
+    { label: "Entfernt", value: removed, accent: "orange" as const, spark: architectureSpark },
+    { label: "Knoten Δ", value: totalNodes, accent: "purple" as const, spark: architectureSpark },
+    {
+      label: "Commits",
+      value: commits,
+      accent: "blue" as const,
+      // Commit count is git metadata only — do not reuse as architecture sparkline.
+      spark: [commits],
+    },
+    { label: "Working Tree", value: working, accent: "teal" as const, spark: [working] },
   ];
 
   return (
     <section className={styles.metricsSection}>
       <ViewSectionTitle>Evolutions-Metriken</ViewSectionTitle>
+      {!hasSemanticHistory ? (
+        <p className={styles.hint} data-testid="evolution-metrics-no-history">
+          Architektur-Trends benötigen mindestens zwei Engine-Snapshots. Commit-Anzahl ist kein
+          Ersatz.
+        </p>
+      ) : null}
       <div className={styles.metricsRow}>
         {metrics.map((metric) => (
           <MetricCard
@@ -53,7 +70,7 @@ export function EvolutionMetricsRow({
             label={metric.label}
             value={String(metric.value)}
             accent={metric.accent}
-            sparklineValues={sparkline.length > 0 ? sparkline : [metric.value]}
+            sparklineValues={metric.spark}
             testId="evolution-metric-card"
           />
         ))}

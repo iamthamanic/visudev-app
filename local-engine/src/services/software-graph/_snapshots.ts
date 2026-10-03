@@ -1,7 +1,12 @@
 /**
  * Captures and merges SoftwareGraph snapshots for evolution compare.
+ * Prefer semantic entity signatures (RVP-11) when a full SoftwareGraph is provided.
  */
 
+import {
+  buildSemanticHistoryFromSoftwareGraph,
+  semanticHistoryToGraphSnapshot,
+} from "../../../../shared/semantic-history.js";
 import type {
   AnalysisOrigin,
   SoftwareGraph,
@@ -13,9 +18,20 @@ const MAX_SNAPSHOTS = 20;
 export interface SnapshotCaptureOptions extends AnalysisOrigin {
   ref: string;
   label?: string;
+  /** Analyzer/engine version for #348-compatible history keys when using semantic capture. */
+  engineVersion?: string;
 }
 
-export function createGraphSnapshot(
+function isFullSoftwareGraph(graph: Pick<SoftwareGraph, "nodes">): graph is SoftwareGraph {
+  return (
+    "version" in graph &&
+    "projectId" in graph &&
+    "analyzedAt" in graph &&
+    Array.isArray((graph as SoftwareGraph).edges)
+  );
+}
+
+function nodeLevelSnapshot(
   graph: Pick<SoftwareGraph, "nodes">,
   options: SnapshotCaptureOptions,
 ): SoftwareGraphSnapshot {
@@ -34,6 +50,34 @@ export function createGraphSnapshot(
       graph.nodes.map((node) => [node.id, `${node.kind}:${node.label}`]),
     ),
   };
+}
+
+export function createGraphSnapshot(
+  graph: Pick<SoftwareGraph, "nodes"> | SoftwareGraph,
+  options: SnapshotCaptureOptions,
+): SoftwareGraphSnapshot {
+  if (isFullSoftwareGraph(graph)) {
+    const history = buildSemanticHistoryFromSoftwareGraph(graph, {
+      key: `snapshot:${options.commitSha ?? "local"}:${options.capturedAt}`,
+      commitSha: options.commitSha ?? "",
+      ref: options.ref,
+      engineVersion: options.engineVersion ?? "local",
+    });
+    // Prefer semantic entities when present; file-only graphs fall back to node signatures.
+    if (Object.keys(history.entitySignatures).length > 0) {
+      const semantic = semanticHistoryToGraphSnapshot(history);
+      return {
+        ...semantic,
+        id: `snapshot:${options.commitSha ?? "local"}:${options.capturedAt}`,
+        label: options.label ?? options.ref,
+        branch: options.branch,
+        sourceKind: options.sourceKind,
+        dirty: options.dirty,
+      };
+    }
+  }
+
+  return nodeLevelSnapshot(graph, options);
 }
 
 export function mergeGraphSnapshots(
