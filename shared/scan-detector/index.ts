@@ -348,3 +348,13 @@ export {
   type RunWithCacheInput,
   type RunWithCacheResult,
 } from "./application/run-with-cache.js";
+
+/** SDE-14 — Local/Cloud shared engine host cutover */
+export {
+  applyEngineHostCutover,
+  CLOUD_ENGINE_CAPABILITIES_ABSENT,
+  CLOUD_ENGINE_CAPABILITIES_PRESENT,
+  type EngineHostCutoverInput,
+  type EngineHostCutoverResult,
+  type EngineHostKind,
+} from "./application/apply-engine-host-cutover.js";
