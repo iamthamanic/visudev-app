@@ -304,3 +304,47 @@ export type {
   LegacyErdSnapshot,
   LegacyErdTable,
 } from "../data-graph.types.js";
+
+/** SDE-13 — versioned snapshots, cache, incremental analysis */
+export type {
+  DetectorDependencyRule,
+  HistoricalSnapshotQuery,
+  HistoricalSnapshotRecord,
+  IncrementalDecision,
+  IncrementalPlan,
+  ScanCacheEntry,
+  ScanCacheIndexEntry,
+  SnapshotKeyParts,
+} from "./domain/snapshot/types.js";
+
+export type { ScanCacheStore } from "./domain/cache/cache-store.js";
+
+export {
+  buildSnapshotKey,
+  dirtyFingerprintForCleanTree,
+  fingerprintFromPathDigests,
+  projectIdFromSnapshotKey,
+} from "./domain/snapshot/snapshot-key.js";
+
+export {
+  isDetectorVersionCompatible,
+  isSnapshotCompatible,
+} from "./domain/snapshot/compatibility.js";
+
+export {
+  DEFAULT_DETECTOR_DEPENDENCY_RULES,
+  detectorInvalidatedByPaths,
+  planIncrementalScan,
+  ruleForDetector,
+  type PlanIncrementalScanInput,
+} from "./domain/snapshot/invalidation.js";
+
+export { MemoryScanCacheStore } from "./application/memory-cache-store.js";
+
+export { readHistoricalSnapshots } from "./application/historical-snapshot-read.js";
+
+export {
+  runWithCache,
+  type RunWithCacheInput,
+  type RunWithCacheResult,
+} from "./application/run-with-cache.js";
