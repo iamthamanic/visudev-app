@@ -27,7 +27,9 @@ function readCloudAnalysisMode(): string | undefined {
  * Attach shared engine cutover metadata to a cloud BlueprintDocument.
  * Keeps VisuDev `graph` for API backward compatibility (shadow/cutover).
  */
-export function attachCloudEngineCutover(document: BlueprintDocument): BlueprintDocument {
+export function attachCloudEngineCutover(
+  document: BlueprintDocument,
+): BlueprintDocument {
   const modeRaw = readCloudAnalysisMode();
 
   if (!isUsableVisuDevGraph(document.graph)) {
