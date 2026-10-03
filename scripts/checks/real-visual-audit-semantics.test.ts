@@ -125,32 +125,26 @@ describe("real-visual-audit-semantics", () => {
     expect(isStructuralDomainLabel("Personal")).toBe(false);
   });
 
-  it("bounds Dependencies complexity by semantic overview, not raw graph size", () => {
-    const manyRoutes = Array.from({ length: 200 }, (_, index) => ({
-      id: `r${index}`,
-      kind: "route",
-      label: `GET /r${index}`,
-      metadata: {},
+  it("accepts large semantic overview because UI density-caps Dependencies", () => {
+    const manyComponents = Array.from({ length: 200 }, (_, index) => ({
+      id: `c${index}`,
+      kind: "component",
+      label: `Comp${index}`,
     }));
     const result = assertAnalysisSemantics(
       {
-        summary: { graph: { nodes: manyRoutes.length + 2 } },
+        summary: { graph: { nodes: 2 } },
         blueprint: {
           graph: {
             nodes: [
               { id: "app", kind: "application", label: "hr", metadata: {} },
               { id: "svc", kind: "service", label: "Auth", metadata: {} },
-              ...manyRoutes,
             ],
             edges: [],
             snapshots: [],
           },
           semanticSystemModel: {
-            entities: [
-              { id: "d1", kind: "business-domain", label: "Personal" },
-              { id: "s1", kind: "service", label: "Auth" },
-              { id: "c1", kind: "component", label: "LoginForm" },
-            ],
+            entities: [{ id: "d1", kind: "business-domain", label: "Personal" }, ...manyComponents],
           },
           routes: [],
           facts: [],
@@ -159,6 +153,29 @@ describe("real-visual-audit-semantics", () => {
       { enrichmentOff: false },
     );
     expect(result.passed).toBe(true);
-    expect(result.summary.dependencyCandidateCount).toBe(3);
+    expect(result.summary.dependencyCandidateCount).toBe(DEPENDENCIES_COMPLEXITY_MAX);
+  });
+
+  it("fails when Dependencies has no semantic overview and primary graph explodes", () => {
+    const manyServices = Array.from({ length: DEPENDENCIES_COMPLEXITY_MAX + 5 }, (_, index) => ({
+      id: `svc-${index}`,
+      kind: "service",
+      label: `Svc${index}`,
+      metadata: {},
+    }));
+    const result = assertAnalysisSemantics(
+      {
+        summary: { graph: { nodes: manyServices.length } },
+        blueprint: {
+          graph: { nodes: manyServices, edges: [], snapshots: [] },
+          semanticSystemModel: { entities: [] },
+          routes: [],
+          facts: [],
+        },
+      },
+      { enrichmentOff: false },
+    );
+    expect(result.passed).toBe(false);
+    expect(result.failures.some((item) => /no semantic overview/i.test(item))).toBe(true);
   });
 });

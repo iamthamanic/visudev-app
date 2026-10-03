@@ -86,19 +86,21 @@ export function assertAnalysisSemantics(result, options = {}) {
     failures.push("Graph has only route/file nodes — no semantic primary entities.");
   }
 
-  // Dependencies complexity: semantic overview entities (not raw SoftwareGraph size)
+  // Dependencies density: UI caps semantic overview at DEPENDENCIES_COMPLEXITY_MAX.
+  // Fail only when there is no overview and the uncapped fallback would explode.
   const overviewEntities = Array.isArray(semantic?.entities)
     ? semantic.entities.filter((entity) => DEPENDENCY_OVERVIEW_KINDS.has(entity?.kind))
     : [];
+  const fallbackPrimary = nodes.filter((node) =>
+    ["application", "service", "domain", "module", "table", "external"].includes(node?.kind),
+  );
   const dependencyCandidates =
     overviewEntities.length > 0
-      ? overviewEntities
-      : nodes.filter((node) =>
-          ["application", "service", "domain", "module", "table", "external"].includes(node?.kind),
-        );
-  if (dependencyCandidates.length > DEPENDENCIES_COMPLEXITY_MAX) {
+      ? overviewEntities.slice(0, DEPENDENCIES_COMPLEXITY_MAX)
+      : fallbackPrimary;
+  if (overviewEntities.length === 0 && fallbackPrimary.length > DEPENDENCIES_COMPLEXITY_MAX) {
     failures.push(
-      `Dependencies semantic overview complexity ${dependencyCandidates.length} exceeds max ${DEPENDENCIES_COMPLEXITY_MAX}.`,
+      `Dependencies has no semantic overview while primary graph (${fallbackPrimary.length}) exceeds density cap ${DEPENDENCIES_COMPLEXITY_MAX}.`,
     );
   }
 
