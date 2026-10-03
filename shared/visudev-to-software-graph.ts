@@ -329,4 +329,3 @@ export function resolveSoftwareGraphFromScan(
   const adapted = adaptVisuDevGraphToSoftwareGraph(scan.visuDevGraph, scan);
   return mergeSoftwareGraphs(factBuilt, adapted);
 }
-
