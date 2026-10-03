@@ -20,8 +20,15 @@ const STRUCTURAL_DOMAIN_LABELS = new Set([
   "unknown",
 ]);
 
-/** Soft upper bound for default Dependencies complexity (primary nodes). */
-export const DEPENDENCIES_COMPLEXITY_MAX = 120;
+/** Soft upper bound for Dependencies semantic overview (matches UI density cap). */
+export const DEPENDENCIES_COMPLEXITY_MAX = 80;
+
+const DEPENDENCY_OVERVIEW_KINDS = new Set([
+  "business-domain",
+  "service",
+  "component",
+  "data-store",
+]);
 
 /**
  * @param {unknown} result Analyze result payload (engine /result)
@@ -79,11 +86,19 @@ export function assertAnalysisSemantics(result, options = {}) {
     failures.push("Graph has only route/file nodes — no semantic primary entities.");
   }
 
-  // Dependencies complexity bound (non-file nodes as proxy for default view)
-  const dependencyCandidates = nodes.filter((node) => node?.kind !== "file");
+  // Dependencies complexity: semantic overview entities (not raw SoftwareGraph size)
+  const overviewEntities = Array.isArray(semantic?.entities)
+    ? semantic.entities.filter((entity) => DEPENDENCY_OVERVIEW_KINDS.has(entity?.kind))
+    : [];
+  const dependencyCandidates =
+    overviewEntities.length > 0
+      ? overviewEntities
+      : nodes.filter((node) =>
+          ["application", "service", "domain", "module", "table", "external"].includes(node?.kind),
+        );
   if (dependencyCandidates.length > DEPENDENCIES_COMPLEXITY_MAX) {
     failures.push(
-      `Dependencies complexity ${dependencyCandidates.length} exceeds max ${DEPENDENCIES_COMPLEXITY_MAX}.`,
+      `Dependencies semantic overview complexity ${dependencyCandidates.length} exceeds max ${DEPENDENCIES_COMPLEXITY_MAX}.`,
     );
   }
 

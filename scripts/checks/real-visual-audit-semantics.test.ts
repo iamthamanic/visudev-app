@@ -124,4 +124,41 @@ describe("real-visual-audit-semantics", () => {
     expect(isStructuralDomainLabel("hooks")).toBe(true);
     expect(isStructuralDomainLabel("Personal")).toBe(false);
   });
+
+  it("bounds Dependencies complexity by semantic overview, not raw graph size", () => {
+    const manyRoutes = Array.from({ length: 200 }, (_, index) => ({
+      id: `r${index}`,
+      kind: "route",
+      label: `GET /r${index}`,
+      metadata: {},
+    }));
+    const result = assertAnalysisSemantics(
+      {
+        summary: { graph: { nodes: manyRoutes.length + 2 } },
+        blueprint: {
+          graph: {
+            nodes: [
+              { id: "app", kind: "application", label: "hr", metadata: {} },
+              { id: "svc", kind: "service", label: "Auth", metadata: {} },
+              ...manyRoutes,
+            ],
+            edges: [],
+            snapshots: [],
+          },
+          semanticSystemModel: {
+            entities: [
+              { id: "d1", kind: "business-domain", label: "Personal" },
+              { id: "s1", kind: "service", label: "Auth" },
+              { id: "c1", kind: "component", label: "LoginForm" },
+            ],
+          },
+          routes: [],
+          facts: [],
+        },
+      },
+      { enrichmentOff: false },
+    );
+    expect(result.passed).toBe(true);
+    expect(result.summary.dependencyCandidateCount).toBe(3);
+  });
 });
