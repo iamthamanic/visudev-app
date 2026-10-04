@@ -41,7 +41,7 @@ export function EvolutionCommitTimeline({
         {commits.map((commit, index) => {
           const isSelected = commit.sha === selectedCommitSha;
           return (
-            <li key={commit.sha} className={styles.commitTimelineItem}>
+            <li key={`${commit.sha}:${index}`} className={styles.commitTimelineItem}>
               {index > 0 ? (
                 <span className={styles.commitTimelineConnector} aria-hidden="true" />
               ) : null}

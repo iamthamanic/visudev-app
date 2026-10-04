@@ -175,6 +175,7 @@ jobs:
   v1-certification:
     name: V1 Certification Aggregate
     needs: audit
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

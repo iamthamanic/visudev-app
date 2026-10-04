@@ -16,6 +16,8 @@ export interface ClusterOverviewMetrics {
 }
 
 export interface ClusterActivityItem {
+  /** Stable list key — never derive from display label/when alone. */
+  id: string;
   label: string;
   when: string;
 }
@@ -77,9 +79,9 @@ export function clusterTopDependencies(
 }
 
 const FALLBACK_ACTIVITY: ClusterActivityItem[] = [
-  { label: "Deployment erfolgreich", when: "vor 12 Min." },
-  { label: "12 neue Services erkannt", when: "vor 47 Min." },
-  { label: "Abhängigkeits-Update: @nestjs/core", when: "vor 2 Std." },
+  { id: "fallback:deploy", label: "Deployment erfolgreich", when: "vor 12 Min." },
+  { id: "fallback:services", label: "12 neue Services erkannt", when: "vor 47 Min." },
+  { id: "fallback:deps", label: "Abhängigkeits-Update: @nestjs/core", when: "vor 2 Std." },
 ];
 
 export function clusterActivityItems(graph: SoftwareGraph | undefined): ClusterActivityItem[] {
@@ -93,15 +95,23 @@ export function clusterActivityItems(graph: SoftwareGraph | undefined): ClusterA
     return FALLBACK_ACTIVITY;
   }
 
-  const fromSnapshots = validSnapshots.map((snapshot) => ({
-    label: snapshot.label || "Snapshot",
-    when: new Date(Date.parse(snapshot.capturedAt)).toLocaleString("de-DE", {
-      day: "2-digit",
-      month: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
-  }));
+  const seenIds = new Set<string>();
+  const fromSnapshots: ClusterActivityItem[] = [];
+  for (const [index, snapshot] of validSnapshots.entries()) {
+    const id = String(snapshot.id || `snapshot:${index}:${snapshot.capturedAt}`);
+    if (seenIds.has(id)) continue;
+    seenIds.add(id);
+    fromSnapshots.push({
+      id,
+      label: snapshot.label || "Snapshot",
+      when: new Date(Date.parse(snapshot.capturedAt)).toLocaleString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    });
+  }
 
   // Keep ≥3 activity rows for NestJS-style denser inspector (Wave 5).
   if (fromSnapshots.length >= 3) return fromSnapshots;

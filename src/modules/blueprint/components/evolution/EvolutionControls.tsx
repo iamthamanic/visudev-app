@@ -89,8 +89,8 @@ export function EvolutionControls({
           <p className={styles.emptyControls}>Keine Git-Commits geladen.</p>
         ) : (
           <ul className={styles.timeline}>
-            {gitSummary.commits.slice(0, 8).map((commit) => (
-              <li key={commit.sha} className={styles.timelineItem}>
+            {gitSummary.commits.slice(0, 8).map((commit, index) => (
+              <li key={`${commit.sha}:${index}`} className={styles.timelineItem}>
                 <span className={styles.timelineLabel}>{displayText(commit.subject)}</span>
                 <span className={styles.timelineMeta}>{formatCommitSha(commit.sha)}</span>
               </li>
