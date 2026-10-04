@@ -1,6 +1,6 @@
 # Composition Gate — architecture-semantic-v2 (issue 381)
 
-- HEAD_SHA: WORKTREE
+- HEAD_SHA: 4fe8b64dc75b1ea652c7e2637593d4f69b10eb52
 - Date: 2026-10-04
 - Verdict: CLEAR
 
