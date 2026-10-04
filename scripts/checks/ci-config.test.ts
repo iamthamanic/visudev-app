@@ -51,18 +51,20 @@ describe("CI workflow", () => {
   });
 });
 
-describe("Real Visual Audit workflow (RVP-12)", () => {
+describe("Real Visual Audit workflow (RVP-12 / Product Readiness harness)", () => {
   it("runs on every PR to main (not label-gated)", () => {
     expect(realAuditWorkflow).toContain("pull_request:");
     expect(realAuditWorkflow).not.toMatch(/if:\s*contains\(github\.event\.pull_request\.labels/);
     expect(realAuditWorkflow).not.toContain("visudev-gapclose");
   });
 
-  it("forces enrichment OFF and is named separately from Demo-E2E", () => {
+  it("forces enrichment OFF and routes audits through the readiness harness", () => {
     expect(realAuditWorkflow).toContain('VISUDEV_DEMO_ENRICHMENT: "false"');
     expect(realAuditWorkflow).toContain('VITE_BLUEPRINT_DEMO_ENRICHMENT: "false"');
-    expect(realAuditWorkflow).toContain("Real Project Gate (hrkoordinator, enrichment OFF)");
-    expect(realAuditWorkflow).toContain("real-visual-audit.mjs");
+    expect(realAuditWorkflow).toContain("Readiness Gate");
+    expect(realAuditWorkflow).toContain("scripts/readiness/resolve-matrix.mjs");
+    expect(realAuditWorkflow).toContain("scripts/readiness/run-project-gate.mjs");
     expect(realAuditWorkflow).toContain("upload-artifact");
+    expect(realAuditWorkflow).toContain("golden-projects.manifest.json");
   });
 });

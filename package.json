@@ -126,6 +126,8 @@
     "e2e:ui": "playwright test --ui",
     "e2e:install": "playwright install chromium",
     "golden-set": "tsx scripts/golden-set/run.mjs",
+    "readiness:matrix": "node scripts/readiness/resolve-matrix.mjs",
+    "readiness:gate": "node scripts/readiness/run-project-gate.mjs",
     "crawl:appflow": "node scripts/crawl-appflow/crawl.mjs",
     "migrate": "node scripts/migration/visudev-migrate.mjs",
     "e2e:maestro": "maestro test -e BASE_URL=http://127.0.0.1:3000 maestro/visudev-smoke.yaml",

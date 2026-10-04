@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "epic": 374,
+  "harnessIssue": 375,
+  "capabilityKeys": [
+    "repositoryScan",
+    "coverageContract",
+    "atlas",
+    "architecture",
+    "dependencies",
+    "execution",
+    "infrastructure",
+    "diagnostics",
+    "appflowStatic",
+    "appflowRuntime",
+    "data",
+    "evidenceLinks",
+    "knowledgeStatus"
+  ],
+  "defaultCapabilities": {
+    "repositoryScan": "required",
+    "coverageContract": "required",
+    "atlas": "required",
+    "architecture": "required",
+    "dependencies": "required",
+    "execution": "required",
+    "infrastructure": "required",
+    "diagnostics": "required",
+    "appflowStatic": "optional",
+    "appflowRuntime": "optional",
+    "data": "optional",
+    "evidenceLinks": "required",
+    "knowledgeStatus": "required"
+  },
+  "projects": [
+    {
+      "id": "hrkoordinator",
+      "displayName": "hrkoordinator",
+      "source": {
+        "kind": "github",
+        "owner": "iamthamanic",
+        "repo": "hrkoordinator",
+        "commitSha": "d34842f922d1fab330e4df7bb6ab99a4b2e1f905",
+        "repositoryUrl": "https://github.com/iamthamanic/hrkoordinator"
+      },
+      "runtimeExploration": "optional",
+      "gate": {
+        "mode": "full",
+        "sourceRequiredInCi": true,
+        "captureViews": true
+      },
+      "assertions": {
+        "profile": "rvp12-shared"
+      },
+      "capabilities": {}
+    },
+    {
+      "id": "sagadrive",
+      "displayName": "sagadrive",
+      "source": {
+        "kind": "github",
+        "owner": "iamthamanic",
+        "repo": "sagadrive",
+        "commitSha": "881796d6dbebcdabbdbdb64ae26073e80cc8347a",
+        "repositoryUrl": "https://github.com/iamthamanic/sagadrive"
+      },
+      "runtimeExploration": "optional",
+      "gate": {
+        "mode": "resolve",
+        "sourceRequiredInCi": true,
+        "captureViews": false
+      },
+      "assertions": {
+        "profile": "pending-certification"
+      },
+      "capabilities": {}
+    },
+    {
+      "id": "scriptony-multihost",
+      "displayName": "scriptony-multihost",
+      "source": {
+        "kind": "github",
+        "owner": "iamthamanic",
+        "repo": "scriptony-multihost",
+        "commitSha": "7a5b2120ab8e2e83cf5b6eccde07ce7a745047ad",
+        "repositoryUrl": "https://github.com/iamthamanic/scriptony-multihost"
+      },
+      "runtimeExploration": "optional",
+      "gate": {
+        "mode": "resolve",
+        "sourceRequiredInCi": true,
+        "captureViews": false
+      },
+      "assertions": {
+        "profile": "pending-certification"
+      },
+      "capabilities": {}
+    },
+    {
+      "id": "hv123-mobile-haba",
+      "displayName": "HV123-Mobile-HABA",
+      "source": {
+        "kind": "local",
+        "localProjectKey": "HV123-Mobile-HABA",
+        "pathEnv": "VISUDEV_READINESS_HABA_PATH",
+        "acceptedPathBasenames": ["HV123-Mobile-HABA", "hv123-mobile-haba"],
+        "identityDoc": ".qa/readiness/local-identities/hv123-mobile-haba.md",
+        "markerFiles": ["package.json", "capacitor.config.ts", "capacitor.config.json"]
+      },
+      "runtimeExploration": "optional",
+      "gate": {
+        "mode": "resolve",
+        "sourceRequiredInCi": false,
+        "captureViews": false
+      },
+      "assertions": {
+        "profile": "pending-certification"
+      },
+      "capabilities": {
+        "appflowRuntime": "optional"
+      }
+    },
+    {
+      "id": "screenator",
+      "displayName": "Screenator",
+      "source": {
+        "kind": "github",
+        "owner": "iamthamanic",
+        "repo": "Screenator",
+        "commitSha": "3199593c534f36a5a3d69dddf9a6915480db5ca0",
+        "repositoryUrl": "https://github.com/iamthamanic/Screenator",
+        "ciNote": "Private GitHub repo; CI clone needs secrets.VISUDEV_READINESS_GH_TOKEN or reports UNAVAILABLE"
+      },
+      "runtimeExploration": "optional",
+      "gate": {
+        "mode": "resolve",
+        "sourceRequiredInCi": false,
+        "captureViews": false
+      },
+      "assertions": {
+        "profile": "pending-certification"
+      },
+      "capabilities": {}
+    }
+  ],
+  "_comment": "Product Readiness five golden projects (Epic #374 / PR-01 #375). GitHub SHAs pinned; HV123-Mobile-HABA is local-only."
+}

@@ -7,11 +7,53 @@ on:
     branches: [main]
 
 jobs:
+  readiness-matrix:
+    name: Product Readiness matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - name: Checkout VisuDev
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install VisuDev dependencies
+        run: npm ci
+
+      - name: Generate readiness matrix from golden-projects.manifest.json
+        id: gen
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f .qa/readiness/golden-projects.manifest.json
+          mkdir -p /tmp/visudev-readiness-matrix
+          MATRIX=$(node scripts/readiness/resolve-matrix.mjs --out /tmp/visudev-readiness-matrix)
+          echo "matrix<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$MATRIX" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Upload readiness matrix report
+        uses: actions/upload-artifact@v4
+        with:
+          name: readiness-matrix-report
+          path: /tmp/visudev-readiness-matrix/
+          if-no-files-found: error
+          retention-days: 7
+
   audit:
-    name: Real Project Gate (hrkoordinator, enrichment OFF)
-    # RVP-12: always-on CI gate, separated from Demo-E2E (ci.yml e2e-demo).
+    name: Readiness Gate (${{ matrix.displayName }}, enrichment OFF)
+    needs: readiness-matrix
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.readiness-matrix.outputs.matrix) }}
     env:
       VITE_VISUDEV_MODE: local
       VITE_VISUDEV_ENGINE_URL: http://127.0.0.1:4317
@@ -23,19 +65,23 @@ jobs:
       USE_DOCKER: "0"
       PORT: "4000"
       VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjIwOTAxMjUyODV9.e2e-ci-placeholder-signature
-      VISUDEV_AUDIT_OUT: /tmp/visudev-real-visual-audit
+      VISUDEV_AUDIT_OUT: /tmp/visudev-real-visual-audit/${{ matrix.id }}
 
     steps:
       - name: Checkout VisuDev
         uses: actions/checkout@v4
 
-      - name: Checkout pinned target repository
+      - name: Checkout pinned GitHub target
+        id: checkout_target
+        if: matrix.sourceKind == 'github'
+        continue-on-error: true
         uses: actions/checkout@v4
         with:
-          repository: iamthamanic/hrkoordinator
-          ref: d34842f922d1fab330e4df7bb6ab99a4b2e1f905
+          repository: ${{ matrix.checkoutRepository }}
+          ref: ${{ matrix.checkoutRef }}
           path: target-repo
           fetch-depth: 20
+          token: ${{ secrets.VISUDEV_READINESS_GH_TOKEN || github.token }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -44,6 +90,7 @@ jobs:
           cache: npm
 
       - name: Setup Deno
+        if: matrix.gateMode == 'full'
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
@@ -52,9 +99,11 @@ jobs:
         run: npm ci
 
       - name: Install Chromium
+        if: matrix.gateMode == 'full'
         run: npx playwright install chromium --with-deps
 
       - name: Start VisuDev stack with demo enrichment OFF
+        if: matrix.gateMode == 'full'
         shell: bash
         run: |
           set -euo pipefail
@@ -83,13 +132,15 @@ jobs:
             fi
           done
 
-      - name: Analyze hrkoordinator, assert Atlas semantics, capture all seven screens
+      - name: Run Product Readiness harness for project
         env:
           VISUDEV_STORAGE_DIR: ${{ github.workspace }}/.audit-visudev-storage
           VISUDEV_AUDIT_TARGET: ${{ github.workspace }}/target-repo
-          VISUDEV_AUDIT_PROJECT_NAME: hrkoordinator
-          VISUDEV_AUDIT_REPOSITORY_URL: https://github.com/iamthamanic/hrkoordinator
-        run: node scripts/real-visual-audit.mjs
+          VISUDEV_READINESS_CHECKOUT_OK: ${{ steps.checkout_target.outcome == 'success' || matrix.sourceKind != 'github' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$VISUDEV_AUDIT_OUT"
+          node scripts/readiness/run-project-gate.mjs --project ${{ matrix.id }}
 
       - name: Record environment proof
         if: always()
@@ -99,17 +150,24 @@ jobs:
           {
             echo "VISUDEV_DEMO_ENRICHMENT=$VISUDEV_DEMO_ENRICHMENT"
             echo "VITE_BLUEPRINT_DEMO_ENRICHMENT=$VITE_BLUEPRINT_DEMO_ENRICHMENT"
-            echo "target=iamthamanic/hrkoordinator"
-            echo "expected_target_commit=d34842f922d1fab330e4df7bb6ab99a4b2e1f905"
+            echo "project_id=${{ matrix.id }}"
+            echo "gate_mode=${{ matrix.gateMode }}"
+            echo "source_kind=${{ matrix.sourceKind }}"
+            echo "checkout_repository=${{ matrix.checkoutRepository }}"
+            echo "expected_target_commit=${{ matrix.checkoutRef }}"
             echo "visudev_commit=$GITHUB_SHA"
-            git -C target-repo rev-parse HEAD | sed 's/^/target_commit=/'
+            if [ -d target-repo ] && git -C target-repo rev-parse --verify HEAD >/dev/null 2>&1; then
+              git -C target-repo rev-parse HEAD | sed 's/^/target_commit=/'
+            else
+              echo "target_commit="
+            fi
           } > "$VISUDEV_AUDIT_OUT/environment.txt"
 
-      - name: Upload real visual audit
+      - name: Upload readiness audit artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: real-visual-audit-hrkoordinator
-          path: /tmp/visudev-real-visual-audit/
+          name: real-visual-audit-${{ matrix.id }}
+          path: /tmp/visudev-real-visual-audit/${{ matrix.id }}/
           if-no-files-found: error
           retention-days: 7
