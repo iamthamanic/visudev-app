@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 378,
-  "featureSlug": "analysis-coverage-contract",
-  "phase": "setup",
-  "branch": null,
+  "activeIssue": 379,
+  "featureSlug": "semantic-taxonomy-v2",
+  "phase": "commit",
+  "branch": "feat/379-semantic-taxonomy-v2",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    378,
     379,
     380,
     381,
@@ -55,7 +54,8 @@
     350,
     375,
     376,
-    377
+    377,
+    378
   ],
   "mergedIssues": [
     321,
@@ -83,12 +83,14 @@
     350,
     375,
     376,
-    377
+    377,
+    378
   ],
   "prUrls": {
     "375": "https://github.com/iamthamanic/visudev-app/pull/397",
     "376": "https://github.com/iamthamanic/visudev-app/pull/398",
-    "377": "https://github.com/iamthamanic/visudev-app/pull/399"
+    "377": "https://github.com/iamthamanic/visudev-app/pull/399",
+    "378": "https://github.com/iamthamanic/visudev-app/pull/400"
   },
   "retries": {
     "implement": 0,
@@ -108,10 +110,10 @@
   "lastError": null,
   "lastErrorCount": 0,
   "issuesProcessedInSession": 0,
-  "updatedAt": "2026-10-04T11:47:18.000Z",
-  "notes": "order-23 #350 ecc-check READY; committing PR after #328 merge",
-  "currentIssue": 350,
-  "lastCompletedIssue": 328,
-  "activeBranch": "feat/350-sde-15-legacy-retirement",
+  "updatedAt": "2026-10-04T17:24:30.000Z",
+  "notes": "#379 ecc-check READY; committing PR",
+  "currentIssue": 379,
+  "lastCompletedIssue": 378,
+  "activeBranch": "feat/379-semantic-taxonomy-v2",
   "milestoneFilter": null
 }

@@ -71,6 +71,7 @@ describe("inferBusinessDomainEntities", () => {
       kind: "business-domain",
       label: "Employee",
       confidence: 0.98,
+      knowledgeStatus: "VERIFIED",
       metadata: { sourceKinds: ["route", "service", "table"] },
     });
     expect(domains[0]?.evidence.map((item) => item.refId)).toEqual([
@@ -121,12 +122,16 @@ describe("inferBusinessDomainEntities", () => {
         id: "semantic:business-domain:payroll",
         label: "Payroll",
         confidence: 0.95,
-        metadata: { candidateKey: "payroll", sourceKinds: ["graph-domain", "route"] },
+        knowledgeStatus: "VERIFIED",
+        metadata: expect.objectContaining({
+          candidateKey: "payroll",
+          sourceKinds: ["graph-domain", "route"],
+        }),
       }),
     ]);
   });
 
-  it("extracts the first non-technical route resource", () => {
+  it("does not promote a single route path segment to business-domain (#379)", () => {
     const graph = makeGraph([
       {
         id: "route-v2",
@@ -136,6 +141,32 @@ describe("inferBusinessDomainEntities", () => {
       },
     ]);
 
-    expect(inferBusinessDomainEntities(graph).map((domain) => domain.label)).toEqual(["Document"]);
+    const entities = inferBusinessDomainEntities(graph);
+    expect(entities.every((entity) => entity.kind !== "business-domain")).toBe(true);
+    expect(entities).toEqual([
+      expect.objectContaining({
+        kind: "resource",
+        label: "Document",
+        knowledgeStatus: "INTERPRETED",
+      }),
+    ]);
+  });
+
+  it("rejects Logo/Seed/Pending/Template/Role as business domains (#379 golden)", () => {
+    const graph = makeGraph([
+      { id: "t-logo", kind: "table", label: "logos", metadata: {} },
+      { id: "t-seed", kind: "table", label: "seeds", metadata: {} },
+      { id: "t-pending", kind: "table", label: "pending", metadata: {} },
+      { id: "t-template", kind: "table", label: "templates", metadata: {} },
+      { id: "t-role", kind: "table", label: "roles", metadata: {} },
+      {
+        id: "r-logo",
+        kind: "route",
+        label: "GET /api/logos",
+        metadata: { path: "/api/logos" },
+      },
+    ]);
+    const domains = inferBusinessDomainEntities(graph).filter((e) => e.kind === "business-domain");
+    expect(domains.map((d) => d.label)).toEqual([]);
   });
 });

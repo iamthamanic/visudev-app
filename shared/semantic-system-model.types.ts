@@ -1,21 +1,34 @@
 /**
  * Semantic Blueprint model derived from the neutral SoftwareGraph.
  *
- * This layer never replaces the SoftwareGraph. It gives Blueprint views a
- * stable semantic contract while retaining backlinks to the graph evidence
- * that justified every projected entity, membership and relation.
+ * v2 (#379): expanded taxonomy + KnowledgeStatus per entity/relation.
+ * This layer never replaces the SoftwareGraph.
  */
 
+import type { KnowledgeStatus } from "./scan-detector/epistemic.js";
+
+/**
+ * SemanticSystemModel v2 taxonomy (PR-05).
+ * Legacy v1 kinds `component` and `use-case` remain readable for compatibility.
+ */
 export type SemanticEntityKind =
   | "application"
   | "business-domain"
+  | "capability"
+  | "resource"
   | "service"
-  | "component"
+  | "technical-module"
+  | "endpoint"
   | "data-store"
   | "external-system"
-  | "use-case"
+  | "security-control"
   | "deployment-unit"
-  | "execution-flow";
+  | "runtime"
+  | "execution-flow"
+  /** @deprecated v1 alias — prefer technical-module */
+  | "component"
+  /** @deprecated v1 alias — prefer capability */
+  | "use-case";
 
 export type SemanticRelationKind =
   | "contains"
@@ -38,6 +51,8 @@ export interface SemanticEntity {
   kind: SemanticEntityKind;
   label: string;
   confidence: number;
+  /** Canonical KnowledgeStatus (VERIFIED/SUPPORTED/INTERPRETED/UNKNOWN/CONFLICTED). */
+  knowledgeStatus: KnowledgeStatus;
   evidence: SemanticEvidenceRef[];
   metadata: Record<string, unknown>;
 }
@@ -60,15 +75,34 @@ export interface SemanticRelation {
   sourceId: string;
   targetId: string;
   confidence: number;
+  knowledgeStatus: KnowledgeStatus;
   evidence: SemanticEvidenceRef[];
   metadata: Record<string, unknown>;
 }
 
 export interface SemanticSystemModel {
-  version: 1;
+  /** v2 is current; builders may still emit version 1 for transitional snapshots. */
+  version: 1 | 2;
   projectId: string;
   analyzedAt: string;
   entities: SemanticEntity[];
   memberships: SemanticMembership[];
   relations: SemanticRelation[];
 }
+
+/** Required v2 kinds for Product Readiness (#379). */
+export const SEMANTIC_V2_REQUIRED_KINDS: readonly SemanticEntityKind[] = [
+  "application",
+  "business-domain",
+  "capability",
+  "resource",
+  "service",
+  "technical-module",
+  "endpoint",
+  "data-store",
+  "external-system",
+  "security-control",
+  "deployment-unit",
+  "runtime",
+  "execution-flow",
+] as const;

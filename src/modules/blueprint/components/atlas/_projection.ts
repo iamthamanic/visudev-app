@@ -48,7 +48,9 @@ export interface AtlasProjection {
 const PRIMARY_SEARCH_KINDS = new Set<SemanticEntityKind>([
   "application",
   "business-domain",
+  "capability",
   "service",
+  "technical-module",
   "component",
   "data-store",
   "external-system",
@@ -57,13 +59,19 @@ const PRIMARY_SEARCH_KINDS = new Set<SemanticEntityKind>([
 const GRAPH_KIND_BY_SEMANTIC_KIND: Record<SemanticEntityKind, SoftwareGraphNodeKind> = {
   application: "application",
   "business-domain": "domain",
+  capability: "module",
+  resource: "symbol",
   service: "service",
-  component: "module",
+  "technical-module": "module",
+  endpoint: "route",
   "data-store": "table",
   "external-system": "external",
-  "use-case": "module",
+  "security-control": "service",
   "deployment-unit": "runtime",
+  runtime: "runtime",
   "execution-flow": "module",
+  component: "module",
+  "use-case": "module",
 };
 
 const GRAPH_EDGE_KIND_BY_SEMANTIC_KIND: Record<SemanticRelationKind, SoftwareGraphEdgeKind> = {
@@ -112,7 +120,9 @@ function defaultEntities(model: SemanticSystemModel): SemanticEntity[] {
     ...model.entities.filter(
       (entity) =>
         isReadableOverviewEntity(entity) &&
-        ["service", "component", "data-store", "external-system"].includes(entity.kind),
+        ["service", "technical-module", "component", "data-store", "external-system"].includes(
+          entity.kind,
+        ),
     ),
   ];
 }
@@ -191,6 +201,36 @@ function buildGroups(
       label: domain.label,
       nodeIds: [...rawIds].sort(),
     });
+  }
+
+  // v2: when no business-domain districts qualify, keep Atlas honest with
+  // technical overview clusters (services / modules / stores) — never invent domains.
+  if (groups.length === 0) {
+    const technicalKinds = new Set([
+      "service",
+      "technical-module",
+      "component",
+      "data-store",
+      "external-system",
+      "application",
+    ]);
+    for (const entity of selectedEntities) {
+      if (!technicalKinds.has(entity.kind)) continue;
+      const representativeId = representativeByEntityId.get(entity.id);
+      const id = `atlas-tech:${entity.id}`;
+      groups.push({
+        id,
+        kind: "domain",
+        label: entity.label,
+        nodeIds: [entity.id],
+      });
+      inspectorGroups.push({
+        id,
+        kind: "domain",
+        label: entity.label,
+        nodeIds: representativeId ? [representativeId] : [entity.id],
+      });
+    }
   }
 
   const byLabel = (left: SoftwareGraphGroup, right: SoftwareGraphGroup) =>

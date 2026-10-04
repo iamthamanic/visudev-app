@@ -166,7 +166,10 @@ export function ArchitectureView({
       graph.nodes.some((node) => node.kind === "module") ||
       Boolean(
         semantic?.entities.some(
-          (entity) => entity.kind === "service" || entity.kind === "component",
+          (entity) =>
+            entity.kind === "service" ||
+            entity.kind === "technical-module" ||
+            entity.kind === "component",
         ),
       ),
     file: graph.nodes.some((node) => node.kind === "file"),

@@ -62,11 +62,13 @@ describe("buildSemanticSystemModel", () => {
     expect(model.entities.map((entity) => entity.kind)).toEqual([
       "application",
       "business-domain",
-      "component",
       "data-store",
       "external-system",
       "service",
+      "technical-module",
     ]);
+    expect(model.version).toBe(2);
+    expect(model.entities.every((entity) => Boolean(entity.knowledgeStatus))).toBe(true);
     expect(model.entities.every((entity) => entity.evidence.length > 0)).toBe(true);
     expect(model.entities.some((entity) => entity.label === "components")).toBe(false);
     expect(model.entities.some((entity) => entity.label === "Habit")).toBe(true);
@@ -116,7 +118,7 @@ describe("buildSemanticSystemModel", () => {
     graph.edges = [];
 
     expect(buildSemanticSystemModel(graph)).toMatchObject({
-      version: 1,
+      version: 2,
       projectId: "project-1",
       entities: [],
       relations: [],

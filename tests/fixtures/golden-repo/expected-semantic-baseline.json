@@ -31,11 +31,13 @@
   },
   "semantic": {
     "entityKindCounts": {
-      "business-domain": 4,
-      "data-store": 2
+      "business-domain": 2,
+      "data-store": 2,
+      "endpoint": 9,
+      "resource": 1
     },
     "relationKindCounts": {},
-    "businessDomainLabels": ["Health", "Order", "Session", "User"]
+    "businessDomainLabels": ["Order", "User"]
   },
   "appflow": {
     "screenIds": [],

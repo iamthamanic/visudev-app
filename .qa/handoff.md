@@ -1,14 +1,18 @@
 # ECC Runner Loop Handoff
 
-- Merged: #375→PR#397, #376→PR#398, #377→PR#399
-- Next: #378 PR-04 · Surface capability-level completeness and honest empty states (`analysis-coverage-contract`)
-- paused: false
-- runMode: loop
-- Queue: #378–#396
-- Resume: `@ecc-runner-loop continue`
+- **Merged this session:** #375→#397, #376→#398, #377→#399, #378→#400
+- **Next:** #379 PR-05 · SemanticSystemModel v2 taxonomy + deterministic classification
+- **paused:** false
+- **runMode:** loop
+- **Queue remaining:** #379–#396 (V1 through #392, then V1.1)
 
-## Contracts already on main
+## On main already
 
-- Readiness harness: `.qa/readiness/golden-projects.manifest.json`
-- Epistemic: `shared/scan-detector/epistemic.ts` (KnowledgeStatus/CoverageStatus/DetectionState)
-- Authoritative truth: blueprint `authoritativeTruth` before transport caps
+- Readiness harness (5 golden projects, HABA local identity)
+- Epistemic contracts (`KnowledgeStatus`/`CoverageStatus`/`DetectionState`)
+- Authoritative truth before transport caps
+- Capability coverage report + honest empty states
+
+## Resume
+
+`@ecc-runner-loop continue`

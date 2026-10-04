@@ -91,6 +91,37 @@ describe("projectAtlasGraph", () => {
     );
   });
 
+  it("falls back to technical clusters when no business-domain qualifies", () => {
+    const graph = makeGraph();
+    // Route-only + denylist-style names → no business-domain; keep module/service clusters.
+    graph.nodes = [
+      { id: "app", kind: "application", label: "Tooling", metadata: {} },
+      {
+        id: "mod-logo",
+        kind: "module",
+        label: "LogoModule",
+        filePath: "src/logo/logo.module.ts",
+        metadata: {},
+      },
+      {
+        id: "svc-seed",
+        kind: "service",
+        label: "SeedService",
+        filePath: "src/seed/seed.service.ts",
+        metadata: {},
+      },
+    ];
+    graph.edges = [];
+    const projection = projectAtlasGraph(graph);
+    expect(projection.groups.length).toBeGreaterThan(0);
+    expect(projection.groups.every((group) => !/^GET\s+/i.test(group.label))).toBe(true);
+    expect(
+      projection.nodes.some(
+        (node) => node.kind === "module" || node.kind === "service" || node.kind === "application",
+      ),
+    ).toBe(true);
+  });
+
   it("caps large semantic overviews at forty objects", () => {
     const graph = makeGraph();
     graph.nodes.push(
