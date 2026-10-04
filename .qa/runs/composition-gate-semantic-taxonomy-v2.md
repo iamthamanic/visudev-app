@@ -1,6 +1,6 @@
 # Composition Gate — semantic-taxonomy-v2 (#379)
 
-- HEAD_SHA: WORKTREE
+- HEAD_SHA: 8d835db6075cf4074566a22ee776d4f096a1df18
 - Date: 2026-10-04
 - Verdict: CLEAR
 

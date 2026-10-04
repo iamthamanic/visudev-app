@@ -46,4 +46,4 @@ Eine kanonische Semantik-Taxonomie einführen, damit technische Ressourcen nicht
 
 - Verdict: CLEAR
 - Proof: `.qa/runs/composition-gate-semantic-taxonomy-v2.md`
-- HEAD_SHA: WORKTREE (pre-commit); re-verify after commit SHA
+- HEAD_SHA: 8d835db6075cf4074566a22ee776d4f096a1df18
