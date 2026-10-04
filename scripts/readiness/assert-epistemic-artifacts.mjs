@@ -29,7 +29,7 @@ export async function assertEpistemicArtifacts(outDir) {
     failures.push("console-clean: missing browser-console-assertions.json");
   }
 
-  const semanticsPath = path.join(outDir, "analysis-semantics.json");
+  const semanticsPath = path.join(outDir, "semantic-assertions.json");
   try {
     const semantics = JSON.parse(await fs.readFile(semanticsPath, "utf8"));
     hardGates.semanticsPresent = Boolean(semantics?.passed);
@@ -39,22 +39,24 @@ export async function assertEpistemicArtifacts(outDir) {
       );
     }
     const summary = semantics?.summary || {};
-    const authoritative = summary.factsAuthoritative ?? summary.factsExtracted;
-    const extracted = summary.factsExtracted;
+    const authoritative = summary.authoritativeFacts ?? summary.factsAuthoritative;
+    const extracted = summary.extractedFacts ?? summary.factsExtracted;
     if (
       typeof authoritative === "number" &&
       typeof extracted === "number" &&
       authoritative === extracted
     ) {
       hardGates.noSilentTruthTruncation = true;
-    } else if (semantics?.passed) {
-      // Shared gate already asserts truncation when enrichment OFF.
+    } else if (semantics?.passed && (authoritative == null || extracted == null)) {
+      // Shared RVP-12 semantics already enforce enrichment-OFF honesty when fact counts absent.
+      hardGates.noSilentTruthTruncation = true;
+    } else if (semantics?.passed && authoritative === extracted) {
       hardGates.noSilentTruthTruncation = true;
     } else {
-      failures.push("no-silent-truth-truncation: factsAuthoritative ≠ factsExtracted or missing");
+      failures.push("no-silent-truth-truncation: authoritativeFacts ≠ extractedFacts");
     }
   } catch {
-    failures.push("semantics: missing analysis-semantics.json");
+    failures.push("semantics: missing semantic-assertions.json");
   }
 
   return {

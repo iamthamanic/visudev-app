@@ -139,10 +139,10 @@ describe("epistemic artifact gates", () => {
       JSON.stringify({ passed: true }),
     );
     writeFileSync(
-      path.join(root, "analysis-semantics.json"),
+      path.join(root, "semantic-assertions.json"),
       JSON.stringify({
         passed: true,
-        summary: { factsExtracted: 10, factsAuthoritative: 10 },
+        summary: { extractedFacts: 10, authoritativeFacts: 10 },
       }),
     );
     const ok = await assertEpistemicArtifacts(root);
