@@ -20,11 +20,11 @@ interface InfrastructureTopologyFiltersProps {
   onSelectEnv: (env: string | null) => void;
   onSelectRegion: (region: string | null) => void;
   onSelectView: (view: TopologyViewFilter | null) => void;
-  onRefresh: () => void;
-  /** True when compose/k8s service nodes exist in the graph. */
+  /** Optional remount-only refresh — gated when absent (no live infra poll). */
+  onRefresh?: () => void;
+  /** True when compose/k8s/dockerfile service nodes exist in the graph. */
   hasPhysicalTopology: boolean;
 }
-
 export function InfrastructureTopologyFilters({
   availableEnvs,
   availableRegions,
@@ -97,7 +97,7 @@ export function InfrastructureTopologyFilters({
             return (
               <ControlHint
                 key={view}
-                reason="Physische Topologie folgt — gesucht nach Compose-/K8s-Deskriptoren."
+                reason="Physische Topologie folgt — gesucht nach Compose-/K8s-/Dockerfile-Deskriptoren."
               >
                 {chip}
               </ControlHint>
@@ -105,10 +105,14 @@ export function InfrastructureTopologyFilters({
           })}
         </div>
       </div>
-      <button type="button" className={styles.refreshButton} onClick={onRefresh}>
-        <RefreshCw size={14} aria-hidden="true" />
-        Aktualisieren
-      </button>
+      {onRefresh ? (
+        <ControlHint reason="Kein Live-Refresh — erneut analysieren im Blueprint-Header.">
+          <button type="button" className={styles.refreshButton} onClick={onRefresh}>
+            <RefreshCw size={14} aria-hidden="true" />
+            Ansicht neu laden
+          </button>
+        </ControlHint>
+      ) : null}
     </div>
   );
 }

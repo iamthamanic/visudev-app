@@ -107,19 +107,13 @@ export function InfrastructureTopologyDiagram({
     <div className={styles.topology} aria-label="Infrastruktur-Topologie">
       <div className={styles.topologyFlow}>
         <TierColumn title="Internet">
-          {internetNodes.length > 0 ? (
-            renderTierNodes(internetNodes, selectedNodeId, onSelectNode, "Kein Internet-Knoten.")
-          ) : (
-            <div
-              className={styles.topologyStaticNode}
-              data-testid="infra-topology-node"
-              data-tier="internet"
-            >
-              Internet
-            </div>
+          {renderTierNodes(
+            internetNodes,
+            selectedNodeId,
+            onSelectNode,
+            "Kein Internet-Knoten im Scan (ABSENT).",
           )}
         </TierColumn>
-
         <span className={styles.topologyArrow} aria-hidden="true">
           ──►
         </span>

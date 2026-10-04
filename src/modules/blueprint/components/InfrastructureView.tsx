@@ -1,5 +1,6 @@
 /**
- * InfrastructureView — topology diagram Internet→LB→Services→DB with filters and legend.
+ * InfrastructureView — evidence-first topology with honest empty/coverage states (PR-15).
+ * Location: src/modules/blueprint/components/InfrastructureView.tsx
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -22,9 +23,12 @@ import {
   type TopologyViewFilter,
 } from "./infrastructure/build-topology.js";
 import { projectInfrastructureGraph } from "./infrastructure/_projection.js";
+import { infrastructureEmptyCopy } from "./infrastructure/infrastructure-coverage.js";
 import styles from "../styles/InfrastructureView.module.css";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
+import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
+import { ViewState } from "../../../components/ui/ViewState.js";
 
 interface InfrastructureViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
@@ -46,8 +50,8 @@ export function InfrastructureView({
 
   const { nodes, edges } = useMemo(() => {
     if (!graph) return { nodes: [], edges: [] };
-    return projectInfrastructureGraph(graph);
-  }, [graph]);
+    return projectInfrastructureGraph(graph, blueprint.semanticSystemModel);
+  }, [graph, blueprint.semanticSystemModel]);
 
   const graphNodesById = useMemo(() => {
     const map = new Map<string, SoftwareGraphNode>();
@@ -75,6 +79,18 @@ export function InfrastructureView({
     return projectPhysicalTopology(graph, new Set(filteredNodes.map((node) => node.id)));
   }, [graph, activeView, filteredNodes]);
 
+  const edgeKinds = useMemo(
+    () => edges.map((edge) => edge.kind).filter((kind): kind is string => typeof kind === "string"),
+    [edges],
+  );
+
+  const filesAnalyzed = blueprint.filesAnalyzed ?? 0;
+  const totalFiles = blueprint.totalFiles ?? null;
+  const isPartialScan =
+    graph?.condensed === true ||
+    (totalFiles != null && filesAnalyzed > 0 && filesAnalyzed < totalFiles) ||
+    (blueprint.truncation as { truncated?: boolean } | undefined)?.truncated === true;
+
   useInfrastructureDefaultNodeSelection(
     topologyNodes,
     selectedNodeId,
@@ -101,6 +117,20 @@ export function InfrastructureView({
   }, [filteredNodes, selectedNodeId]);
 
   if (!graph || nodes.length === 0) {
+    const scanDone = scanStatus === "completed" || (scanStatus == null && Boolean(graph));
+    if (scanDone) {
+      const empty = infrastructureEmptyCopy(blueprint, nodes.length);
+      return (
+        <div data-testid="infra-coverage-empty" data-detection={empty.detection}>
+          <ViewState
+            name="nothing-found"
+            title={empty.titleDe}
+            detail={`${empty.bodyDe} [${empty.detection}]`}
+            onRetry={onRetry}
+          />
+        </div>
+      );
+    }
     return (
       <BlueprintViewStateGate
         viewId="infrastructure"
@@ -126,6 +156,7 @@ export function InfrastructureView({
       }
       canvas={
         <div className={styles.canvasWrap} key={refreshTick}>
+          {isPartialScan ? <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} /> : null}
           <InfrastructureTopologyFilters
             availableEnvs={deploymentFilters.envs}
             availableRegions={deploymentFilters.regions}
@@ -147,7 +178,7 @@ export function InfrastructureView({
               />
             ) : (
               <p className={styles.topologyMeta} data-testid="infra-physical-empty">
-                Keine Compose-/K8s-Services in diesem Filter.
+                Keine Compose-/K8s-/Dockerfile-Services in diesem Filter (ABSENT für die Auswahl).
               </p>
             )
           ) : (
@@ -157,7 +188,7 @@ export function InfrastructureView({
                 selectedNodeId={selectedNodeId}
                 onSelectNode={setSelectedNodeId}
               />
-              <InfrastructureConnectionLegend />
+              <InfrastructureConnectionLegend edgeKinds={edgeKinds} />
             </>
           )}
           {edges.length > 0 ? (
@@ -169,6 +200,7 @@ export function InfrastructureView({
         <InfrastructureInspector
           node={selectedNode}
           graphNode={selectedGraphNode}
+          graph={graph}
           edges={edges}
           nodes={filteredNodes}
         />

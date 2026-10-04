@@ -148,6 +148,26 @@ describe("infrastructure entities (RVP-9)", () => {
     expect(resolveInfrastructureRuntimeStatus(null).label).toBe("UNKNOWN");
   });
 
+  it("marks external/table without file or source as UNKNOWN", () => {
+    expect(
+      resolveInfrastructureRuntimeStatus({
+        id: "ext:stripe",
+        kind: "external",
+        label: "Stripe",
+        metadata: {},
+      }).label,
+    ).toBe("UNKNOWN");
+    expect(
+      resolveInfrastructureRuntimeStatus({
+        id: "table:users",
+        kind: "table",
+        label: "users",
+        filePath: "prisma/schema.prisma",
+        metadata: {},
+      }).label,
+    ).toBe("DETECTED");
+  });
+
   it("selectInfrastructureNodes returns empty for code-only graphs", () => {
     const graph = baseGraph([
       {

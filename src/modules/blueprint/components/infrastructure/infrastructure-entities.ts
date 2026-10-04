@@ -91,11 +91,14 @@ export function resolveInfrastructureRuntimeStatus(
     return { variant: "confirmed", label: "DECLARED" };
   }
   if (node.kind === "external" || node.kind === "table" || node.kind === "repository") {
-    return { variant: "confirmed", label: "DETECTED" };
+    // DETECTED only with file path, Tier-1 source, or runtime observation — never by kind alone.
+    if (hasFileEvidence(node) || Boolean(node.metadata?.source) || hasRuntimeEvidence(node)) {
+      return { variant: "confirmed", label: "DETECTED" };
+    }
+    return { variant: "unknown", label: "UNKNOWN" };
   }
   return { variant: "unknown", label: "UNKNOWN" };
 }
-
 /**
  * Graph node ids that SemanticSystemModel marks as deployment/data/external.
  */

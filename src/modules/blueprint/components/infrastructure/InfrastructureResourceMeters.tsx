@@ -1,5 +1,6 @@
 /**
- * Resource meter bars for infrastructure inspector (placeholder values when graph has no metrics).
+ * Resource meter bars for infrastructure inspector — only renders finite telemetry.
+ * Location: src/modules/blueprint/components/infrastructure/InfrastructureResourceMeters.tsx
  */
 
 import styles from "../../styles/InfrastructureView.module.css";
@@ -10,6 +11,8 @@ export interface ResourceMeterValues {
   networkIn: number;
   networkOut: number;
 }
+
+export type PartialResourceMeterValues = Partial<ResourceMeterValues>;
 
 interface ResourceMeterProps {
   label: string;
@@ -38,22 +41,30 @@ function ResourceMeter({ label, value, testId }: ResourceMeterProps): JSX.Elemen
 export function InfrastructureResourceMeters({
   values,
 }: {
-  values: ResourceMeterValues;
+  values: PartialResourceMeterValues;
 }): JSX.Element {
   return (
-    <div className={styles.meterGroup}>
-      <ResourceMeter label="CPU" value={values.cpu} testId="infra-resource-cpu" />
-      <ResourceMeter label="RAM" value={values.ram} testId="infra-resource-ram" />
-      <ResourceMeter
-        label="Netzwerk In"
-        value={values.networkIn}
-        testId="infra-resource-network-in"
-      />
-      <ResourceMeter
-        label="Netzwerk Out"
-        value={values.networkOut}
-        testId="infra-resource-network-out"
-      />
+    <div className={styles.meterGroup} data-testid="infra-resource-meters">
+      {typeof values.cpu === "number" ? (
+        <ResourceMeter label="CPU" value={values.cpu} testId="infra-resource-cpu" />
+      ) : null}
+      {typeof values.ram === "number" ? (
+        <ResourceMeter label="RAM" value={values.ram} testId="infra-resource-ram" />
+      ) : null}
+      {typeof values.networkIn === "number" ? (
+        <ResourceMeter
+          label="Netzwerk In"
+          value={values.networkIn}
+          testId="infra-resource-network-in"
+        />
+      ) : null}
+      {typeof values.networkOut === "number" ? (
+        <ResourceMeter
+          label="Netzwerk Out"
+          value={values.networkOut}
+          testId="infra-resource-network-out"
+        />
+      ) : null}
     </div>
   );
 }
