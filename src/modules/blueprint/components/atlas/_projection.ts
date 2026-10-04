@@ -124,6 +124,18 @@ function representativeGraphNodeId(
   return null;
 }
 
+const OVERVIEW_KIND_PRIORITY: readonly SemanticEntityKind[] = [
+  "application",
+  "business-domain",
+  "capability",
+  "technical-module",
+  "service",
+  "data-store",
+  "external-system",
+  "security-control",
+  "component",
+];
+
 function defaultEntities(model: SemanticSystemModel): SemanticEntity[] {
   const applications = model.entities.filter(
     (entity) => entity.kind === "application" && isReadableOverviewEntity(entity),
@@ -134,12 +146,34 @@ function defaultEntities(model: SemanticSystemModel): SemanticEntity[] {
   if (domains.length > 0 || capabilities.length > 0) {
     return [...applications, ...domains, ...capabilities];
   }
-  return [
-    ...applications,
-    ...model.entities.filter(
-      (entity) => isReadableOverviewEntity(entity) && DEFAULT_OVERVIEW_KINDS.has(entity.kind),
-    ),
-  ];
+  // No systemic domains — diversify technical overview; do not let one kind (e.g. security-control) flood the 40-cap.
+  const byKind = new Map<SemanticEntityKind, SemanticEntity[]>();
+  for (const entity of model.entities) {
+    if (!DEFAULT_OVERVIEW_KINDS.has(entity.kind) || !isReadableOverviewEntity(entity)) continue;
+    const bucket = byKind.get(entity.kind) ?? [];
+    bucket.push(entity);
+    byKind.set(entity.kind, bucket);
+  }
+  for (const bucket of byKind.values()) {
+    bucket.sort((left, right) => left.id.localeCompare(right.id));
+  }
+  const picked: SemanticEntity[] = [...applications];
+  const seen = new Set(picked.map((entity) => entity.id));
+  let progress = true;
+  while (picked.length < ATLAS_SEMANTIC_LIMIT && progress) {
+    progress = false;
+    for (const kind of OVERVIEW_KIND_PRIORITY) {
+      if (picked.length >= ATLAS_SEMANTIC_LIMIT) break;
+      const bucket = byKind.get(kind);
+      if (!bucket || bucket.length === 0) continue;
+      const next = bucket.shift();
+      if (!next || seen.has(next.id)) continue;
+      picked.push(next);
+      seen.add(next.id);
+      progress = true;
+    }
+  }
+  return picked;
 }
 
 function selectEntities(
@@ -219,15 +253,18 @@ function buildGroups(
   }
 
   // v2: when no business-domain districts qualify, keep Atlas honest with
-  // technical overview clusters (services / modules / stores) — never invent domains.
+  // technical overview clusters (services / modules / stores / security) — never invent domains.
   if (groups.length === 0) {
     const technicalKinds = new Set([
+      "application",
+      "business-domain",
+      "capability",
       "service",
       "technical-module",
       "component",
       "data-store",
       "external-system",
-      "application",
+      "security-control",
     ]);
     for (const entity of selectedEntities) {
       if (!technicalKinds.has(entity.kind)) continue;
