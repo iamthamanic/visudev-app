@@ -26,6 +26,7 @@ export const DEPENDENCIES_COMPLEXITY_MAX = 80;
 const DEPENDENCY_OVERVIEW_KINDS = new Set([
   "business-domain",
   "service",
+  "technical-module",
   "component",
   "data-store",
 ]);

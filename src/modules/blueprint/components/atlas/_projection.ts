@@ -120,7 +120,9 @@ function defaultEntities(model: SemanticSystemModel): SemanticEntity[] {
     ...model.entities.filter(
       (entity) =>
         isReadableOverviewEntity(entity) &&
-        ["service", "component", "data-store", "external-system"].includes(entity.kind),
+        ["service", "technical-module", "component", "data-store", "external-system"].includes(
+          entity.kind,
+        ),
     ),
   ];
 }

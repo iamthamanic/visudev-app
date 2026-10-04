@@ -28,7 +28,13 @@ import {
 /** Hard display cap for the default semantic overview (not fabricated analysis). */
 export const DEPENDENCIES_SEMANTIC_MAX_NODES = 80;
 
-const OVERVIEW_KINDS = new Set(["business-domain", "service", "component", "data-store"]);
+const OVERVIEW_KINDS = new Set([
+  "business-domain",
+  "service",
+  "technical-module",
+  "component",
+  "data-store",
+]);
 
 export type DependenciesViewLevel = "semantic" | "files";
 
@@ -62,7 +68,7 @@ function preferredSemanticEntityId(
         ? 3
         : entity.kind === "service"
           ? 2
-          : entity.kind === "component"
+          : entity.kind === "technical-module" || entity.kind === "component"
             ? 1
             : 0;
     if (!best || rank > best.rank || (rank === best.rank && entity.id.localeCompare(best.id) < 0)) {
