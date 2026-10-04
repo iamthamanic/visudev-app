@@ -3,7 +3,8 @@
  * Location: …/facts/infra-tier1-descriptors.test.ts
  */
 
-import { assertEquals } from "std/assert";import { extractFactsFromFile } from "./fact-extractors.ts";
+import { assertEquals } from "std/assert";
+import { extractFactsFromFile } from "./fact-extractors.ts";
 import {
   extractDockerfileFacts,
   extractEnvExampleInfraFacts,
