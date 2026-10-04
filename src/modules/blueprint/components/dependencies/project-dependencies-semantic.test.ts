@@ -5,10 +5,12 @@
 import { describe, expect, it } from "vitest";
 import type { SoftwareGraph } from "../../types";
 import { resolveCytoscapeColor } from "../../../../components/graph-canvas/_styles.js";
+import { DEFAULT_VISIBLE_DEPENDENCY_KINDS } from "./_projection.constants.js";
 import {
   DEPENDENCIES_SEMANTIC_MAX_NODES,
   projectDependenciesSemanticGraph,
 } from "./project-dependencies-semantic.js";
+import { mergeVisibleKindsWithOverlays } from "./dependencies-overlay.js";
 
 function makeGraph(overrides: Partial<SoftwareGraph> = {}): SoftwareGraph {
   return {
@@ -125,6 +127,74 @@ describe("projectDependenciesSemanticGraph", () => {
     );
     expect(drilled.nodes.map((node) => node.id)).not.toContain("file:other");
     expect(drilled.edges.some((edge) => edge.id === "e-dep")).toBe(true);
+  });
+
+  it("hides auth/validation edges by default and reveals them via security overlay", () => {
+    const graph = makeGraph({
+      nodes: [
+        { id: "svc:a", kind: "service", label: "Gateway", metadata: {} },
+        { id: "svc:b", kind: "service", label: "Billing", metadata: {} },
+      ],
+      edges: [
+        {
+          id: "e-import",
+          kind: "imports",
+          sourceId: "svc:a",
+          targetId: "svc:b",
+          metadata: {},
+        },
+        {
+          id: "e-auth",
+          kind: "authenticates",
+          sourceId: "svc:a",
+          targetId: "svc:b",
+          metadata: {},
+        },
+        {
+          id: "e-val",
+          kind: "validates",
+          sourceId: "svc:a",
+          targetId: "svc:b",
+          metadata: {},
+        },
+      ],
+    });
+
+    const defaults = projectDependenciesSemanticGraph(graph, {
+      visibleEdgeKinds: new Set(DEFAULT_VISIBLE_DEPENDENCY_KINDS),
+    });
+    const defaultEdge = defaults.edges.find((edge) => edge.source.includes("svc:a"));
+    expect(defaultEdge?.label).toMatch(/Imports/i);
+    expect(defaultEdge?.label).not.toMatch(/Auth/i);
+
+    const withSecurity = projectDependenciesSemanticGraph(graph, {
+      visibleEdgeKinds: mergeVisibleKindsWithOverlays(
+        new Set(DEFAULT_VISIBLE_DEPENDENCY_KINDS),
+        new Set(["security"]),
+      ),
+    });
+    const secured = withSecurity.edges.find((edge) => edge.source.includes("svc:a"));
+    expect(secured?.label).toMatch(/Auth/i);
+    expect(withSecurity.underlyingEdgeIdsByEdgeId?.get(secured!.id)).toEqual(
+      expect.arrayContaining(["e-import", "e-auth", "e-val"]),
+    );
+  });
+
+  it("preserves all underlying evidence ids beyond former 8-cap", () => {
+    const nodes = [
+      { id: "svc:a", kind: "service" as const, label: "A", metadata: {} },
+      { id: "svc:b", kind: "service" as const, label: "B", metadata: {} },
+    ];
+    const edges = Array.from({ length: 12 }, (_, index) => ({
+      id: `e:${index}`,
+      kind: "imports" as const,
+      sourceId: "svc:a",
+      targetId: "svc:b",
+      metadata: {},
+    }));
+    const projected = projectDependenciesSemanticGraph(makeGraph({ nodes, edges }));
+    const edge = projected.edges.find((item) => item.source.includes("svc:a"));
+    expect(projected.underlyingEdgeIdsByEdgeId?.get(edge!.id)).toHaveLength(12);
   });
 
   it("tracks orphan semantic entities separately", () => {

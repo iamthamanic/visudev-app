@@ -1,17 +1,15 @@
 # ECC Runner Loop Handoff
 
-- **Merged this session:** #375→#397 … #379→#401, #380→#402
-- **Next:** #381 PR-07 · Architecture semantic layers
+- **Merged this session:** #375→#397 … #381→#403
+- **Next:** #382 PR-08 · Dependencies primary topology (in progress)
 - **paused:** false
 - **runMode:** loop
-- **Queue remaining:** #381–#396
+- **Queue remaining:** #382–#396
 
 ## Abarbeitungsreihenfolge (verbindlich)
 
 Epic #374 — immer **numerisch PR-01→PR-22**, sequential merge auf `main`.  
-Abhängigkeiten dürfen nicht übersprungen werden.
-
-**GitHub labels:** jedes Child-Issue trägt `order-01` … `order-22` (= PR-Nummer / Queue-Position).
+**GitHub labels:** jedes Child-Issue trägt `order-01` … `order-22`.
 
 ### V1 — blocking (Gate: #392)
 
@@ -23,8 +21,8 @@ Abhängigkeiten dürfen nicht übersprungen werden.
 | ✓          | #378  | PR-04 capability coverage                 | #376             |
 | ✓          | #379  | PR-05 SemanticSystemModel v2              | #378             |
 | ✓          | #380  | PR-06 Atlas → v2                          | #379             |
-| → **NEXT** | #381  | PR-07 Architecture layers                 | #379             |
-|            | #382  | PR-08 Dependencies topology               | #379             |
+| ✓          | #381  | PR-07 Architecture layers                 | #379             |
+| → **NEXT** | #382  | PR-08 Dependencies topology               | #379             |
 |            | #383  | PR-09 Execution trust layers              | #379             |
 |            | #384  | PR-10 AppFlow frontier explore            | #378             |
 |            | #385  | PR-11 AppFlow test sessions               | #384             |
@@ -36,8 +34,6 @@ Abhängigkeiten dürfen nicht übersprungen werden.
 |            | #391  | PR-17 console-clean / incomplete surfaces | #380, #381, #382 |
 |            | #392  | PR-18 final V1 certification gate         | #391             |
 
-**Parallel-Hinweis (nur inhaltlich):** Nach #381 können #382/#383/#384/#388 starten, sobald ihre Depends erledigt sind — der Runner bleibt trotzdem **strikt sequential** (#381→#382→…→#392), damit Stacked-PRs und Main-Drift vermieden werden.
-
 ### V1.1 — erst nach V1 (#392)
 
 | Status | Issue | PR                            | Depends on |
@@ -47,19 +43,10 @@ Abhängigkeiten dürfen nicht übersprungen werden.
 |        | #395  | PR-21 DataLineage model       | #392       |
 |        | #396  | PR-22 DataLineage UI          | #395       |
 
-### Golden projects (V1 gate)
-
-1. `iamthamanic/hrkoordinator`
-2. `iamthamanic/sagadrive`
-3. `iamthamanic/scriptony-multihost`
-4. local `HV123-Mobile-HABA`
-5. `iamthamanic/Screenator`
-
 ## On main already
 
-- Readiness harness + epistemic contracts + authoritative truth + capability coverage
-- SemanticSystemModel v2 taxonomy
-- Atlas cut over to v2 (KnowledgeStatus / evidence inspector, diversified districts)
+- Readiness harness + epistemic + authoritative truth + coverage
+- SemanticSystemModel v2 + Atlas + Architecture cutover
 
 ## Resume
 
