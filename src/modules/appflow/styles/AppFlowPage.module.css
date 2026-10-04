@@ -454,6 +454,31 @@
   width: 100%;
 }
 
+.testSessionPanel {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-right: 0.5rem;
+}
+
+.testSessionLabel {
+  color: var(--color-muted-foreground);
+  font-size: 0.7rem;
+}
+
+.testSessionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.testSessionError {
+  color: var(--color-danger);
+  font-size: 0.7rem;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

@@ -8,6 +8,7 @@ import {
   getLocalPreviewRunnerHealth,
   type LocalPreviewRunnerHealth,
 } from "../../../utils/api";
+import { AppFlowTestSessionPanel } from "../components/AppFlowTestSessionPanel";
 import { LiveFlowCanvas } from "../components/LiveFlowCanvas";
 import styles from "../styles/AppFlowPage.module.css";
 
@@ -614,6 +615,13 @@ export function AppFlowPage({ projectId, githubRepo, githubBranch }: AppFlowPage
                 </span>
               </div>
               <div className={styles.liveAppBarRight}>
+                {!liveFlowFromDeployed && preview.projectId === projectId ? (
+                  <AppFlowTestSessionPanel
+                    projectId={projectId}
+                    runId={preview.runId}
+                    previewReady={preview.status === "ready"}
+                  />
+                ) : null}
                 {!liveFlowFromDeployed && (
                   <div className={styles.liveAppBarActions}>
                     {preview.projectId === projectId &&

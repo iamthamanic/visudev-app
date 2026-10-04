@@ -20,6 +20,11 @@ export async function runRuntimeCrawl(options) {
     maxClicksPerScreen = 5,
     timeoutMs = 120_000,
     viewport = { width: 1440, height: 960 },
+    /** Playwright storageState object — never logged. */
+    storageState = null,
+    /** When true, invalid/missing required session ends as auth-barrier. */
+    requireSession = false,
+    sessionStatus = null,
     logger = console,
   } = options;
   const normalizedBaseUrl = String(baseUrl || "")
@@ -32,10 +37,43 @@ export async function runRuntimeCrawl(options) {
   const routeScreens = screens.filter(isRouteScreen);
   const screenById = new Map(screens.map((screen) => [screen.id, screen]));
   const { queue, seen } = createFrontier(routeScreens);
+  const sessionApplied = Boolean(storageState && typeof storageState === "object");
+  if (requireSession && !sessionApplied) {
+    return {
+      baseUrl: normalizedBaseUrl,
+      crawledAt: new Date().toISOString(),
+      terminationReason: "auth-barrier",
+      summary: {
+        visitedScreens: 0,
+        attemptedClicks: 0,
+        verifiedEdges: 0,
+        stateCaptures: 0,
+        mismatchCount: 0,
+        issueCount: 1,
+        terminationReason: "auth-barrier",
+        visitBudget,
+        frontierSeedCount: queue.length,
+        sessionApplied: false,
+        sessionStatus: sessionStatus || "missing",
+      },
+      snapshots: [],
+      verifiedEdges: [],
+      stateScreens: [],
+      issues: [
+        {
+          code: "auth_barrier",
+          severity: "warning",
+          message: "Test-Session fehlt oder ist ungültig — Crawl als Auth-Barrier beendet.",
+        },
+      ],
+    };
+  }
+
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     ignoreHTTPSErrors: true,
     viewport,
+    ...(sessionApplied ? { storageState } : {}),
   });
   const page = await context.newPage();
   const startedAtMs = Date.now();
@@ -55,6 +93,8 @@ export async function runRuntimeCrawl(options) {
       terminationReason: "frontier-exhausted",
       visitBudget,
       frontierSeedCount: queue.length,
+      sessionApplied,
+      sessionStatus: sessionStatus || (sessionApplied ? "ready" : "missing"),
     },
     snapshots: [],
     verifiedEdges: [],
