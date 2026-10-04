@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 388,
-  "featureSlug": null,
+  "activeIssue": 389,
+  "featureSlug": "infrastructure-honesty",
   "phase": "implement",
-  "branch": null,
+  "branch": "feat/389-infrastructure-honesty",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    388,
     389,
     390,
     391,
@@ -55,7 +54,8 @@
     384,
     385,
     386,
-    387
+    387,
+    388
   ],
   "mergedIssues": [
     321,
@@ -93,12 +93,14 @@
     384,
     385,
     386,
-    387
+    387,
+    388
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
     "386": "https://github.com/iamthamanic/visudev-app/pull/408",
-    "387": "https://github.com/iamthamanic/visudev-app/pull/409"
+    "387": "https://github.com/iamthamanic/visudev-app/pull/409",
+    "388": "https://github.com/iamthamanic/visudev-app/pull/410"
   },
   "retries": {
     "implement": 0,
@@ -117,8 +119,8 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": 388,
-  "lastCompletedIssue": 387,
-  "notes": "Context handoff after #387; continue at #388",
-  "updatedAt": "2026-10-04T20:02:00.000Z"
+  "currentIssue": 389,
+  "lastCompletedIssue": 388,
+  "notes": "Merged #388 via PR #410 (7f5565a1); next #389 infrastructure-honesty",
+  "updatedAt": "2026-10-04T21:04:58.000Z"
 }
