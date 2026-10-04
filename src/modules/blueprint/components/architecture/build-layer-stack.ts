@@ -1,10 +1,12 @@
 /**
  * Builds stack cards from contains-edges and groups them by SemanticSystemModel
- * business domains (RVP-6), falling back to evidence-backed graph domains only.
+ * business domains (PR-07). No UI-side domain classification — semantic authority only.
  */
 
-import { normalizeBusinessDomainCandidate } from "../../../../../shared/semantic-domain-inference.js";
-import type { SemanticSystemModel } from "../../../../../shared/semantic-system-model.types.js";
+import type {
+  SemanticEntityKind,
+  SemanticSystemModel,
+} from "../../../../../shared/semantic-system-model.types.js";
 import type { SoftwareGraph, SoftwareGraphNode, SoftwareGraphNodeKind } from "../../types";
 import { resolveLayerType, type ArchitectureLayerType } from "./architecture-layer-accents.js";
 
@@ -99,31 +101,56 @@ export interface ArchitectureDomainGroup {
   id: string;
   label: string;
   isUnassigned: boolean;
+  /** Semantic kind for the district (business-domain / capability / unassigned). */
+  semanticKind: "business-domain" | "capability" | "unassigned";
   cards: ArchitectureStackCard[];
 }
 
-function readBusinessDomainName(value: unknown): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  if (!trimmed || trimmed === UNASSIGNED_DOMAIN_KEY) return null;
-  // Reject structural folder names (components/hooks/services/…) as domains.
-  return normalizeBusinessDomainCandidate(trimmed) ? trimmed : null;
+export interface ArchitectureSemanticKindSummary {
+  kind: SemanticEntityKind;
+  label: string;
+  count: number;
 }
 
-function resolveCardDomainName(
-  card: ArchitectureStackCard,
-  nodeById: Map<string, SoftwareGraphNode>,
-  parentByChildId: Map<string, string>,
-): string | null {
-  const node = nodeById.get(card.id);
-  const fromMetadata = readBusinessDomainName(node?.metadata?.domain);
-  if (fromMetadata) return fromMetadata;
+const KIND_SUMMARY_LABELS: Partial<Record<SemanticEntityKind, string>> = {
+  application: "Anwendung",
+  "business-domain": "Fachdomäne",
+  capability: "Capability",
+  service: "Service",
+  "technical-module": "Technisches Modul",
+  resource: "Ressource",
+  "data-store": "Datenspeicher",
+  endpoint: "Endpoint",
+  "external-system": "Externes System",
+  "security-control": "Security Control",
+};
 
-  const parentId = parentByChildId.get(card.id);
-  const parent = parentId ? nodeById.get(parentId) : undefined;
-  if (parent?.kind === "domain") return readBusinessDomainName(parent.label);
+const KIND_SUMMARY_ORDER: readonly SemanticEntityKind[] = [
+  "application",
+  "business-domain",
+  "capability",
+  "service",
+  "technical-module",
+  "resource",
+  "data-store",
+  "endpoint",
+  "external-system",
+  "security-control",
+];
 
-  return null;
+export function summarizeArchitectureSemanticKinds(
+  semantic: SemanticSystemModel | null | undefined,
+): ArchitectureSemanticKindSummary[] {
+  if (!semantic) return [];
+  const counts = new Map<SemanticEntityKind, number>();
+  for (const entity of semantic.entities) {
+    counts.set(entity.kind, (counts.get(entity.kind) ?? 0) + 1);
+  }
+  return KIND_SUMMARY_ORDER.filter((kind) => (counts.get(kind) ?? 0) > 0).map((kind) => ({
+    kind,
+    label: KIND_SUMMARY_LABELS[kind] ?? kind,
+    count: counts.get(kind) ?? 0,
+  }));
 }
 
 function collectDescendantGraphNodeIds(
@@ -192,13 +219,27 @@ function pushCardIntoDomainGroup(
     id,
     label: isUnassigned ? UNASSIGNED_DOMAIN_LABEL : domainLabel,
     isUnassigned,
+    semanticKind: isUnassigned ? "unassigned" : "business-domain",
     cards: [card],
   });
 }
 
+function allCardsUnassigned(cards: ArchitectureStackCard[]): ArchitectureDomainGroup[] {
+  if (cards.length === 0) return [];
+  return [
+    {
+      id: UNASSIGNED_DOMAIN_KEY,
+      label: UNASSIGNED_DOMAIN_LABEL,
+      isUnassigned: true,
+      semanticKind: "unassigned",
+      cards: [...cards],
+    },
+  ];
+}
+
 /**
- * RVP-6 primary projection: BusinessDomains from SemanticSystemModel, layers secondary.
- * Graph domain folders that are only structural (components/hooks/…) stay unassigned.
+ * Primary projection: BusinessDomains / Capabilities from SemanticSystemModel only.
+ * Does not invent domains from folder names or metadata heuristics.
  */
 export function groupArchitectureCardsBySemanticDomains(
   graph: SoftwareGraph,
@@ -206,21 +247,25 @@ export function groupArchitectureCardsBySemanticDomains(
   semantic: SemanticSystemModel | null | undefined,
 ): ArchitectureDomainGroup[] {
   if (!semantic || semantic.entities.length === 0) {
-    return groupArchitectureCardsByDomain(graph, cards);
+    return allCardsUnassigned(cards);
   }
 
   const businessDomains = semantic.entities.filter((entity) => entity.kind === "business-domain");
-  if (businessDomains.length === 0) {
-    return groupArchitectureCardsByDomain(graph, cards);
+  const capabilities = semantic.entities.filter((entity) => entity.kind === "capability");
+  const districtEntities =
+    businessDomains.length > 0 ? businessDomains : capabilities.length > 0 ? capabilities : [];
+
+  if (districtEntities.length === 0) {
+    return allCardsUnassigned(cards);
   }
 
-  const domainById = new Map(businessDomains.map((entity) => [entity.id, entity]));
-  const domainIdByGraphNodeId = new Map<string, string>();
+  const districtById = new Map(districtEntities.map((entity) => [entity.id, entity]));
+  const districtIdByGraphNodeId = new Map<string, string>();
   for (const membership of semantic.memberships) {
-    if (!domainById.has(membership.semanticEntityId)) continue;
-    const current = domainIdByGraphNodeId.get(membership.graphNodeId);
+    if (!districtById.has(membership.semanticEntityId)) continue;
+    const current = districtIdByGraphNodeId.get(membership.graphNodeId);
     if (!current || membership.semanticEntityId.localeCompare(current) < 0) {
-      domainIdByGraphNodeId.set(membership.graphNodeId, membership.semanticEntityId);
+      districtIdByGraphNodeId.set(membership.graphNodeId, membership.semanticEntityId);
     }
   }
 
@@ -229,39 +274,50 @@ export function groupArchitectureCardsBySemanticDomains(
 
   for (const card of cards) {
     const candidateNodeIds = collectDescendantGraphNodeIds(card.id, childrenByParentId);
-    let matchedDomainId: string | null = null;
+    let matchedId: string | null = null;
     for (const graphNodeId of candidateNodeIds) {
-      const domainId = domainIdByGraphNodeId.get(graphNodeId);
-      if (domainId) {
-        matchedDomainId = domainId;
+      const districtId = districtIdByGraphNodeId.get(graphNodeId);
+      if (districtId) {
+        matchedId = districtId;
         break;
       }
     }
-    // Also check the layer/card node itself and direct memberships.
-    if (!matchedDomainId) {
-      matchedDomainId = domainIdByGraphNodeId.get(card.id) ?? null;
+    if (!matchedId) {
+      matchedId = districtIdByGraphNodeId.get(card.id) ?? null;
     }
 
-    const domain = matchedDomainId ? domainById.get(matchedDomainId) : undefined;
-    pushCardIntoDomainGroup(groups, card, domain?.id ?? null, domain?.label ?? null);
+    const district = matchedId ? districtById.get(matchedId) : undefined;
+    if (!district) {
+      pushCardIntoDomainGroup(groups, card, null, null);
+      continue;
+    }
+    const isCapability = district.kind === "capability";
+    const existing = groups.get(district.id);
+    if (existing) {
+      existing.cards.push(card);
+      continue;
+    }
+    groups.set(district.id, {
+      id: district.id,
+      label: district.label,
+      isUnassigned: false,
+      semanticKind: isCapability ? "capability" : "business-domain",
+      cards: [card],
+    });
   }
 
   return finalizeDomainGroups(groups);
 }
 
+/**
+ * @deprecated PR-07 — folder/metadata domain inference removed from Architecture product path.
+ * Kept for unit tests of the unassigned-only fallback shape.
+ */
 export function groupArchitectureCardsByDomain(
-  graph: SoftwareGraph,
+  _graph: SoftwareGraph,
   cards: ArchitectureStackCard[],
 ): ArchitectureDomainGroup[] {
-  const { nodeById, parentByChildId } = buildContainsIndex(graph);
-  const groups = new Map<string, ArchitectureDomainGroup>();
-
-  for (const card of cards) {
-    const domainName = resolveCardDomainName(card, nodeById, parentByChildId);
-    pushCardIntoDomainGroup(groups, card, domainName, domainName);
-  }
-
-  return finalizeDomainGroups(groups);
+  return allCardsUnassigned(cards);
 }
 
 export function hasRecognizedArchitectureDomains(groups: ArchitectureDomainGroup[]): boolean {

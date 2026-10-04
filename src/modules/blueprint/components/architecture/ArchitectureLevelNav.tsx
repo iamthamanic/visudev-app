@@ -7,12 +7,13 @@
 
 import styles from "../../styles/ArchitectureView.module.css";
 
-export type ArchitectureLevel = "system" | "domain" | "module" | "file";
+export type ArchitectureLevel = "system" | "domain" | "capability" | "module" | "file";
 
 const LEVELS: Array<{ id: ArchitectureLevel; label: string }> = [
   { id: "system", label: "System" },
-  { id: "domain", label: "Domain" },
-  { id: "module", label: "Modul" },
+  { id: "domain", label: "Fachdomäne" },
+  { id: "capability", label: "Capability" },
+  { id: "module", label: "Technik" },
   { id: "file", label: "Datei" },
 ];
 

@@ -146,6 +146,97 @@
   font-weight: 500;
 }
 
+.domainGroupKind {
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.625rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-foreground);
+  background: var(--color-muted);
+}
+
+.semanticKindBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: var(--space-sm) var(--space-md) 0;
+  padding: 0;
+}
+
+.semanticKindBar li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-card) 70%, transparent);
+  font-size: 0.6875rem;
+  color: var(--color-muted-foreground);
+}
+
+.semanticKindBar strong {
+  color: var(--color-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.semanticDetailList {
+  margin: 0 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+}
+
+.semanticDetailList div {
+  display: grid;
+  grid-template-columns: minmax(6rem, 35%) 1fr;
+  gap: 0.5rem;
+}
+
+.semanticDetailList dt {
+  margin: 0;
+  color: var(--color-muted-foreground);
+}
+
+.semanticDetailList dd {
+  margin: 0;
+}
+
+.knowledgeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.knowledgeBadge[data-tone="strong"] {
+  color: var(--color-foreground);
+  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-card));
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+}
+
+.knowledgeBadge[data-tone="weak"] {
+  color: var(--color-muted-foreground);
+  background: var(--color-muted);
+  border-style: dashed;
+  font-weight: 500;
+}
+
+.knowledgeBadge[data-tone="conflict"] {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 12%, var(--color-card));
+  border-color: color-mix(in srgb, var(--color-danger) 40%, var(--color-border));
+}
+
 .stackCanvasWrap {
   display: flex;
   align-items: stretch;

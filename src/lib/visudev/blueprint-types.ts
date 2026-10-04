@@ -129,11 +129,8 @@ export interface BlueprintData extends Record<string, unknown> {
   /** Optional https GitHub/GitLab repo URL for „Auf GitHub öffnen“. */
   repoUrl?: string;
   graph?: SoftwareGraph;
-  /** Optional semantic rollup (RVP) for level navigation. */
-  semanticSystemModel?: {
-    entities: Array<{ id: string; kind: string; label: string }>;
-    memberships?: Array<{ graphNodeId: string; semanticEntityId: string }>;
-  };
+  /** Optional SemanticSystemModel v2 from analysis (Architecture/Atlas authority). */
+  semanticSystemModel?: import("../../../shared/semantic-system-model.types.js").SemanticSystemModel;
 }
 
 export type BlueprintUpdateInput = Record<string, unknown>;

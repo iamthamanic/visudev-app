@@ -1,8 +1,11 @@
 /**
- * Inspektor for selected architecture node — responsibilities, services table, dependencies.
+ * Inspektor for selected architecture node — semantic evidence + graph dependencies (PR-07).
  */
 
+import type { SemanticEntity } from "../../../../../shared/semantic-system-model.types.js";
 import type { SoftwareGraph, SoftwareGraphNode } from "../../types";
+import { formatConfidence } from "../../../../lib/format-confidence.js";
+import { atlasKnowledgeStatusLabel, atlasKnowledgeTone } from "../atlas/atlas-knowledge-status.js";
 import { InspectorPanel } from "../ui/InspectorPanel.js";
 import styles from "../../styles/ArchitectureView.module.css";
 
@@ -14,6 +17,11 @@ const KIND_LABELS: Record<string, string> = {
   service: "Service",
   repository: "Repository",
   table: "Table",
+  "business-domain": "Fachdomäne",
+  capability: "Capability",
+  "technical-module": "Technisches Modul",
+  resource: "Ressource",
+  "data-store": "Datenspeicher",
 };
 
 const RESPONSIBILITIES: Record<string, string[]> = {
@@ -35,6 +43,7 @@ const LAYER_DESCRIPTIONS: Record<string, string> = {
 interface ArchitectureInspectorProps {
   graph: SoftwareGraph;
   node: SoftwareGraphNode | null;
+  semanticEntity?: SemanticEntity | null;
 }
 
 interface ServiceRow {
@@ -117,8 +126,12 @@ function listContainedServices(graph: SoftwareGraph, nodeId: string): ServiceRow
   }));
 }
 
-export function ArchitectureInspector({ graph, node }: ArchitectureInspectorProps): JSX.Element {
-  if (!node) {
+export function ArchitectureInspector({
+  graph,
+  node,
+  semanticEntity = null,
+}: ArchitectureInspectorProps): JSX.Element {
+  if (!node && !semanticEntity) {
     return (
       <div data-testid="architecture-inspector">
         <InspectorPanel
@@ -129,23 +142,74 @@ export function ArchitectureInspector({ graph, node }: ArchitectureInspectorProp
     );
   }
 
-  const services = listContainedServices(graph, node.id);
-  const outgoing = listOutgoingDependencies(graph, node.id);
-  const incoming = listIncomingDependencies(graph, node.id);
-  const responsibilities = RESPONSIBILITIES[node.kind] ?? ["Architektur-Knoten"];
-  const description = readDescription(node);
+  const title = semanticEntity?.label ?? node?.label ?? "—";
+  const subtitle = semanticEntity
+    ? (KIND_LABELS[semanticEntity.kind] ?? semanticEntity.kind)
+    : (KIND_LABELS[node?.kind ?? ""] ?? node?.kind ?? "—");
+  const services = node ? listContainedServices(graph, node.id) : [];
+  const outgoing = node ? listOutgoingDependencies(graph, node.id) : [];
+  const incoming = node ? listIncomingDependencies(graph, node.id) : [];
+  const responsibilities = RESPONSIBILITIES[node?.kind ?? ""] ?? ["Architektur-Knoten"];
+  const description = node
+    ? readDescription(node)
+    : "Semantische Entity aus SemanticSystemModel v2.";
+  const tone = semanticEntity ? atlasKnowledgeTone(semanticEntity.knowledgeStatus) : null;
 
   return (
     <div data-testid="architecture-inspector">
       <InspectorPanel
-        title={node.label}
-        subtitle={KIND_LABELS[node.kind] ?? node.kind}
+        title={title}
+        subtitle={subtitle}
         sections={[
           {
             id: "description",
             title: "Beschreibung",
             content: <p className={styles.inspectorDescription}>{description}</p>,
           },
+          ...(semanticEntity
+            ? [
+                {
+                  id: "semantic",
+                  title: "Semantik",
+                  content: (
+                    <div data-testid="architecture-semantic-evidence">
+                      <dl className={styles.semanticDetailList}>
+                        <div>
+                          <dt>KnowledgeStatus</dt>
+                          <dd>
+                            <span
+                              className={styles.knowledgeBadge}
+                              data-tone={tone ?? "weak"}
+                              data-status={semanticEntity.knowledgeStatus}
+                              data-testid="architecture-knowledge-status"
+                            >
+                              {atlasKnowledgeStatusLabel(semanticEntity.knowledgeStatus)}
+                            </span>
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Confidence</dt>
+                          <dd data-testid="architecture-confidence">
+                            {formatConfidence(semanticEntity.confidence) ?? "unbekannt"}
+                          </dd>
+                        </div>
+                      </dl>
+                      {semanticEntity.evidence.length > 0 ? (
+                        <ul className={styles.checklist} data-testid="architecture-evidence-list">
+                          {semanticEntity.evidence.slice(0, 12).map((item) => (
+                            <li key={`${item.source}:${item.refId}`}>
+                              {item.source}: {item.refId}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className={styles.emptyControls}>Keine Evidence-Refs.</p>
+                      )}
+                    </div>
+                  ),
+                },
+              ]
+            : []),
           {
             id: "responsibilities",
             title: "Verantwortlichkeiten",

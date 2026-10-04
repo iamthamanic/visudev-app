@@ -144,12 +144,49 @@ describe("ArchitectureView", () => {
     expect(domainButton).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("groups layers by domain and lists unassigned layers separately", () => {
+  it("does not invent fach domains from graph folder labels without semantic memberships", () => {
     render(<ArchitectureView blueprint={mixedDomainBlueprint} />);
-    expect(screen.getByTestId("arch-domain-group")).toHaveTextContent("hr");
-    expect(screen.getByTestId("arch-no-domain")).toHaveTextContent("Ohne Domäne");
+    expect(screen.getByTestId("arch-nothing-found")).toHaveTextContent(
+      "Keine fachlichen Domänen erkannt — technische Ordner/Layer bleiben unter Ohne Domäne.",
+    );
+    expect(screen.queryByTestId("arch-domain-group")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /ui/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /shared/i })).toBeInTheDocument();
+  });
+
+  it("groups layers by SemanticSystemModel business domains when provided", () => {
+    const withSemantic: BlueprintData = {
+      ...mixedDomainBlueprint,
+      semanticSystemModel: {
+        version: 2,
+        projectId: "p1",
+        analyzedAt: "2026-01-01T00:00:00.000Z",
+        entities: [
+          {
+            id: "semantic:business-domain:hr",
+            kind: "business-domain",
+            label: "Hr",
+            confidence: 0.9,
+            knowledgeStatus: "VERIFIED",
+            evidence: [{ source: "graph-node", refId: "layer:hr:ui" }],
+            metadata: {},
+          },
+        ],
+        memberships: [
+          {
+            graphNodeId: "layer:hr:ui",
+            semanticEntityId: "semantic:business-domain:hr",
+            confidence: 0.9,
+            evidence: [{ source: "graph-node", refId: "layer:hr:ui" }],
+          },
+        ],
+        relations: [],
+      },
+    };
+    render(<ArchitectureView blueprint={withSemantic} />);
+    expect(screen.getByTestId("arch-domain-group")).toHaveTextContent("Hr");
+    expect(screen.getByTestId("arch-no-domain")).toHaveTextContent("Ohne Domäne");
+    expect(screen.getByTestId("architecture-semantic-kinds")).toBeInTheDocument();
   });
 
   it("shows nothing-found when no domains are recognized", () => {

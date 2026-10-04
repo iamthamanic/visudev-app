@@ -53,6 +53,11 @@ export function ArchitectureDomainGroups({
           <h3 className={styles.domainGroupTitle}>
             {group.label}
             <span className={styles.domainGroupCount}>({group.cards.length})</span>
+            {group.semanticKind === "capability" ? (
+              <span className={styles.domainGroupKind} data-testid="arch-capability-group">
+                Capability
+              </span>
+            ) : null}
           </h3>
           <ArchitectureLayerStack
             cards={group.cards}
