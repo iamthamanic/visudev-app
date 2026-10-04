@@ -2,9 +2,9 @@
   "version": 2,
   "repo": "iamthamanic/visudev-app",
   "activeIssue": 393,
-  "featureSlug": null,
-  "phase": "claim",
-  "branch": null,
+  "featureSlug": "semantic-llm-interpreter",
+  "phase": "implement",
+  "branch": "feat/393-semantic-llm-interpreter",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
@@ -130,5 +130,5 @@
   "currentIssue": 393,
   "lastCompletedIssue": 392,
   "notes": "Merged #392 via PR #414; next #393",
-  "updatedAt": "2026-10-04T22:35:19.000Z"
+  "updatedAt": "2026-10-04T22:37:13.000Z"
 }
