@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 384,
-  "featureSlug": "appflow-frontier-explorer",
+  "activeIssue": 385,
+  "featureSlug": "appflow-test-sessions",
   "phase": "commit",
-  "branch": "feat/384-appflow-frontier-explorer",
+  "branch": "feat/385-appflow-test-session-auth",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    384,
     385,
     386,
     387,
@@ -55,7 +54,8 @@
     380,
     381,
     382,
-    383
+    383,
+    384
   ],
   "mergedIssues": [
     321,
@@ -89,7 +89,8 @@
     380,
     381,
     382,
-    383
+    383,
+    384
   ],
   "prUrls": {
     "375": "https://github.com/iamthamanic/visudev-app/pull/397",
@@ -100,7 +101,8 @@
     "380": "https://github.com/iamthamanic/visudev-app/pull/402",
     "381": "https://github.com/iamthamanic/visudev-app/pull/403",
     "382": "https://github.com/iamthamanic/visudev-app/pull/404",
-    "383": "https://github.com/iamthamanic/visudev-app/pull/405"
+    "383": "https://github.com/iamthamanic/visudev-app/pull/405",
+    "384": "https://github.com/iamthamanic/visudev-app/pull/406"
   },
   "retries": {
     "implement": 0,
@@ -120,10 +122,10 @@
   "lastError": null,
   "lastErrorCount": 0,
   "issuesProcessedInSession": 1,
-  "updatedAt": "2026-10-04T19:10:00.000Z",
-  "notes": "#383 merged via #405; #384 frontier explorer shipping",
-  "currentIssue": 384,
-  "lastCompletedIssue": 383,
-  "activeBranch": "feat/384-appflow-frontier-explorer",
+  "updatedAt": "2026-10-04T19:45:00.000Z",
+  "notes": "#385 shipping local test-session auth",
+  "currentIssue": 385,
+  "lastCompletedIssue": 384,
+  "activeBranch": "feat/385-appflow-test-session-auth",
   "milestoneFilter": null
 }

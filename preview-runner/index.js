@@ -2,7 +2,8 @@
 /**
  * VisuDEV Preview Runner
  *
- * API: POST /start, GET /status/:runId, POST /stop/:runId, POST /stop-project/:projectId, POST /refresh, POST /crawl/:runId, POST /webhook/github
+ * API: POST /start, GET /status/:runId, POST /stop/:runId, POST /stop-project/:projectId, POST /refresh, POST /crawl/:runId,
+ *      GET/POST/DELETE /session/:runId (+ /open-login, /persist), POST /webhook/github
  * Default: real build (clone, build, start app). Stub only with USE_STUB=1 or USE_REAL_BUILD=0.
  * Refresh: git pull + rebuild + restart so preview shows latest from repo (live).
  * GitHub Webhook: on push, auto-refresh matching preview (pull + rebuild + restart).
@@ -37,11 +38,17 @@ import {
   getContainerStatus,
   streamContainerLogs,
 } from "./docker.js";
+import { chromium } from "@playwright/test";
 import { runRuntimeCrawl } from "./runtime-crawl.js";
 import { resolveValidatedLocalPath } from "./lib/local-path-security.js";
 import { analyzeLocalBlueprint, validateBlueprintAnalyzeInput } from "./lib/blueprint-local.js";
 import { analyzeLocalAppflow, validateAppflowAnalyzeInput } from "./lib/appflow-local.js";
 import { pickNativeFolder } from "./lib/native-folder-picker.js";
+import { createTestSessionStore, normalizeOrigin } from "./lib/test-session-store.js";
+
+const testSessionStore = createTestSessionStore();
+/** @type {Map<string, { browser: import('@playwright/test').Browser, context: import('@playwright/test').BrowserContext, projectId: string, origin: string }>} */
+const pendingLoginSessions = new Map();
 
 const PORT = Number(process.env.PORT) || 4000;
 /** Actual port the runner binds to (set after finding a free one). */
@@ -2324,25 +2331,136 @@ async function handleRefresh(req, res) {
   send(res, 200, { success: true, status: "starting" });
 }
 
-async function handleCrawl(req, res, url) {
-  const match = url.pathname.match(/^\/crawl\/([^/]+)$/);
+async function resolveRunAccess(req, res, url, pattern) {
+  const match = url.pathname.match(pattern);
   const runId = match ? normalizeRunIdValue(decodeURIComponent(match[1])) : null;
   if (!runId) {
     send(res, 400, { success: false, error: "Invalid runId" });
-    return;
+    return null;
   }
-
   const run = runs.get(runId);
   if (!run) {
     send(res, 404, { success: false, error: "Run not found" });
-    return;
+    return null;
   }
-
   const access = ensureRunAccess(run, readProjectTokenFromRequest(req));
   if (!access.ok) {
     send(res, access.statusCode, { success: false, error: access.error });
+    return null;
+  }
+  return { runId, run };
+}
+
+async function handleSessionStatus(req, res, url) {
+  const resolved = await resolveRunAccess(req, res, url, /^\/session\/([^/]+)$/);
+  if (!resolved) return;
+  const { run } = resolved;
+  const origin = normalizeOrigin(run.previewUrl);
+  const status = await testSessionStore.getStatus(run.projectId, origin || run.previewUrl);
+  send(res, 200, { success: true, data: status });
+}
+
+async function handleSessionOpenLogin(req, res, url) {
+  const resolved = await resolveRunAccess(req, res, url, /^\/session\/([^/]+)\/open-login$/);
+  if (!resolved) return;
+  const { runId, run } = resolved;
+  if (run.status !== "ready" || !run.previewUrl) {
+    send(res, 409, { success: false, error: "Preview run is not ready." });
     return;
   }
+  const origin = normalizeOrigin(run.previewUrl);
+  if (!origin) {
+    send(res, 400, { success: false, error: "Preview URL has no origin." });
+    return;
+  }
+
+  const existing = pendingLoginSessions.get(runId);
+  if (existing) {
+    try {
+      await existing.browser.close();
+    } catch {
+      // ignore
+    }
+    pendingLoginSessions.delete(runId);
+  }
+
+  try {
+    const browser = await chromium.launch({ headless: false });
+    const context = await browser.newContext({ ignoreHTTPSErrors: true });
+    const page = await context.newPage();
+    await page.goto(run.previewUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+    pendingLoginSessions.set(runId, {
+      browser,
+      context,
+      projectId: run.projectId,
+      origin,
+    });
+    send(res, 200, {
+      success: true,
+      data: {
+        status: "pending",
+        projectId: run.projectId,
+        origin,
+        message: "Login-Fenster geöffnet — nach manueller Anmeldung Session speichern.",
+      },
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    send(res, 500, { success: false, error: message });
+  }
+}
+
+async function handleSessionPersist(req, res, url) {
+  const resolved = await resolveRunAccess(req, res, url, /^\/session\/([^/]+)\/persist$/);
+  if (!resolved) return;
+  const { runId, run } = resolved;
+  const pending = pendingLoginSessions.get(runId);
+  if (!pending) {
+    send(res, 409, {
+      success: false,
+      error: "Kein offenes Login-Fenster. Zuerst Login öffnen.",
+    });
+    return;
+  }
+  try {
+    const storageState = await pending.context.storageState();
+    const status = await testSessionStore.save(pending.projectId, pending.origin, storageState);
+    try {
+      await pending.browser.close();
+    } catch {
+      // ignore
+    }
+    pendingLoginSessions.delete(runId);
+    // Never echo storageState — opaque status only.
+    send(res, 200, { success: true, data: status });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    send(res, 500, { success: false, error: message });
+  }
+}
+
+async function handleSessionClear(req, res, url) {
+  const resolved = await resolveRunAccess(req, res, url, /^\/session\/([^/]+)$/);
+  if (!resolved) return;
+  const { runId, run } = resolved;
+  const pending = pendingLoginSessions.get(runId);
+  if (pending) {
+    try {
+      await pending.browser.close();
+    } catch {
+      // ignore
+    }
+    pendingLoginSessions.delete(runId);
+  }
+  const origin = normalizeOrigin(run.previewUrl) || run.previewUrl;
+  const status = await testSessionStore.clear(run.projectId, origin);
+  send(res, 200, { success: true, data: status });
+}
+
+async function handleCrawl(req, res, url) {
+  const resolved = await resolveRunAccess(req, res, url, /^\/crawl\/([^/]+)$/);
+  if (!resolved) return;
+  const { run } = resolved;
   if (run.status !== "ready" || !run.previewUrl) {
     send(res, 409, { success: false, error: "Preview run is not ready for crawling." });
     return;
@@ -2353,11 +2471,37 @@ async function handleCrawl(req, res, url) {
   run.crawlError = null;
   run.crawlStartedAt = new Date().toISOString();
   try {
+    const baseUrl = body.baseUrl ?? run.previewUrl;
+    const origin = normalizeOrigin(baseUrl);
+    const loaded = await testSessionStore.loadStorageState(run.projectId, origin || baseUrl);
+    const requireSession = body.requireSession === true;
+    if (!loaded.ok && (loaded.reason === "corrupt" || loaded.reason === "wrong-origin")) {
+      // Invalid session must not silently complete as authenticated crawl.
+      const data = await runRuntimeCrawl({
+        baseUrl,
+        screens: Array.isArray(body.screens) ? body.screens : [],
+        maxScreens: Number(body.maxScreens) || 40,
+        maxClicksPerScreen: Number(body.maxClicksPerScreen) || 5,
+        requireSession: true,
+        sessionStatus: "invalid",
+        storageState: null,
+        logger: console,
+      });
+      run.crawlStatus = "completed";
+      run.crawlFinishedAt = new Date().toISOString();
+      run.crawlResult = data;
+      send(res, 200, { success: true, data });
+      return;
+    }
+
     const data = await runRuntimeCrawl({
-      baseUrl: body.baseUrl ?? run.previewUrl,
+      baseUrl,
       screens: Array.isArray(body.screens) ? body.screens : [],
       maxScreens: Number(body.maxScreens) || 40,
       maxClicksPerScreen: Number(body.maxClicksPerScreen) || 5,
+      storageState: loaded.ok ? loaded.storageState : null,
+      sessionStatus: loaded.ok ? "ready" : "missing",
+      requireSession,
       logger: console,
     });
     run.crawlStatus = "completed";
@@ -2608,7 +2752,12 @@ const server = http.createServer(async (req, res) => {
                 ? "/appflow/analyze"
                 : req.method === "POST" && pathname.startsWith("/stop/")
                   ? "/stop"
-                  : null;
+                  : req.method === "POST" &&
+                      /\/session\/[^/]+\/(open-login|persist)$/.test(pathname)
+                    ? "/session-write"
+                    : req.method === "DELETE" && /^\/session\/[^/]+$/.test(pathname)
+                      ? "/session-write"
+                      : null;
   if (writeRouteKey) {
     const rateLimit = enforceWriteRateLimit(req, writeRouteKey);
     if (!rateLimit.ok) {
@@ -2668,6 +2817,22 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === "POST" && pathname.startsWith("/crawl/")) {
       await handleCrawl(req, res, url);
+      return;
+    }
+    if (req.method === "GET" && /^\/session\/[^/]+$/.test(pathname)) {
+      await handleSessionStatus(req, res, url);
+      return;
+    }
+    if (req.method === "POST" && /^\/session\/[^/]+\/open-login$/.test(pathname)) {
+      await handleSessionOpenLogin(req, res, url);
+      return;
+    }
+    if (req.method === "POST" && /^\/session\/[^/]+\/persist$/.test(pathname)) {
+      await handleSessionPersist(req, res, url);
+      return;
+    }
+    if (req.method === "DELETE" && /^\/session\/[^/]+$/.test(pathname)) {
+      await handleSessionClear(req, res, url);
       return;
     }
     send(res, 404, { error: "Not found" });
