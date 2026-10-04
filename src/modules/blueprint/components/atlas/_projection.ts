@@ -266,16 +266,43 @@ function buildRepresentativeMap(
   return result;
 }
 
+function technicalOverviewEntities(
+  model: SemanticSystemModel,
+  representativeByEntityId: ReadonlyMap<string, string>,
+): SemanticEntity[] {
+  return model.entities
+    .filter(
+      (entity) =>
+        DEFAULT_OVERVIEW_KINDS.has(entity.kind) &&
+        isReadableOverviewEntity(entity) &&
+        representativeByEntityId.has(entity.id),
+    )
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .slice(0, ATLAS_SEMANTIC_LIMIT);
+}
+
 export function projectAtlasSemanticModel(
   graph: SoftwareGraph,
   model: SemanticSystemModel,
   options: AtlasProjectionOptions = {},
 ): AtlasProjection {
   const representativeByEntityId = buildRepresentativeMap(graph, model);
-  const selection = selectEntities(model, options.searchQuery ?? "");
-  const selectedEntities = selection.entities.filter((entity) =>
+  const searchQuery = options.searchQuery ?? "";
+  const selection = selectEntities(model, searchQuery);
+  let selectedEntities = selection.entities.filter((entity) =>
     representativeByEntityId.has(entity.id),
   );
+  let { groups, inspectorGroups } = buildGroups(model, selectedEntities, representativeByEntityId);
+
+  // Domains may exist without projectable representatives — widen to technical overview
+  // so Atlas still shows honest districts (never invent business domains).
+  let usedTechnicalFallback = false;
+  if (groups.length === 0 && !searchQuery.trim()) {
+    selectedEntities = technicalOverviewEntities(model, representativeByEntityId);
+    ({ groups, inspectorGroups } = buildGroups(model, selectedEntities, representativeByEntityId));
+    usedTechnicalFallback = true;
+  }
+
   const visibleSemanticIds = new Set(selectedEntities.map((entity) => entity.id));
 
   const nodes: GraphCanvasNode[] = selectedEntities.map((entity) => {
@@ -310,11 +337,6 @@ export function projectAtlasSemanticModel(
     })
     .filter((edge): edge is GraphCanvasEdge => edge !== null);
   const edges = candidateEdges.slice(0, ATLAS_MAX_EDGES);
-  const { groups, inspectorGroups } = buildGroups(
-    model,
-    selectedEntities,
-    representativeByEntityId,
-  );
 
   return {
     nodes,
@@ -323,8 +345,12 @@ export function projectAtlasSemanticModel(
     inspectorGroups,
     semanticEntities: selectedEntities,
     sourceGraphNodeIdBySemanticId: Object.fromEntries(representativeByEntityId.entries()),
-    condensed: graph.condensed || selection.condensed || candidateEdges.length > ATLAS_MAX_EDGES,
-    totalNodes: selection.total,
+    condensed:
+      graph.condensed ||
+      selection.condensed ||
+      usedTechnicalFallback ||
+      candidateEdges.length > ATLAS_MAX_EDGES,
+    totalNodes: usedTechnicalFallback ? selectedEntities.length : selection.total,
     visibleNodes: nodes.length,
   };
 }
