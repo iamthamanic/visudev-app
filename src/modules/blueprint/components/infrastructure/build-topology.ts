@@ -168,8 +168,7 @@ export function deploymentFiltersFromGraph(softwareGraph: SoftwareGraph): {
 
 export type TopologyViewFilter = (typeof TOPOLOGY_VIEW_FILTERS)[number];
 
-const PHYSICAL_SOURCES = new Set(["docker-compose", "kubernetes"]);
-
+const PHYSICAL_SOURCES = new Set(["docker-compose", "kubernetes", "dockerfile"]);
 export function isPhysicalDescriptorNode(node: SoftwareGraphNode): boolean {
   if (node.kind !== "service") return false;
   const source = node.metadata?.source;
@@ -196,11 +195,16 @@ export function physicalSourceLabel(nodes: SoftwareGraphNode[]): string {
   );
   const hasCompose = sources.has("docker-compose");
   const hasK8s = sources.has("kubernetes");
-  if (hasCompose && hasK8s) return "Quelle: Docker Compose und Kubernetes";
-  if (hasK8s) return "Quelle: Kubernetes";
-  return "Quelle: Docker Compose";
+  const hasDockerfile = sources.has("dockerfile");
+  const labels: string[] = [];
+  if (hasCompose) labels.push("Docker Compose");
+  if (hasK8s) labels.push("Kubernetes");
+  if (hasDockerfile) labels.push("Dockerfile");
+  if (labels.length === 0) return "Quelle: Deployment-Deskriptoren";
+  if (labels.length === 1) return `Quelle: ${labels[0]}`;
+  if (labels.length === 2) return `Quelle: ${labels[0]} und ${labels[1]}`;
+  return `Quelle: ${labels.slice(0, -1).join(", ")} und ${labels[labels.length - 1]}`;
 }
-
 export interface PhysicalNetworkGroup {
   name: string;
   nodeIds: string[];

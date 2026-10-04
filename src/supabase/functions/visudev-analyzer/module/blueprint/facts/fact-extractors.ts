@@ -11,7 +11,11 @@ import {
   isK8sDescriptorPath,
   parseDeployDescriptors,
 } from "./compose-k8s-descriptors.ts";
-
+import {
+  extractTier1InfraFacts,
+  isTier1InfraDescriptorPath,
+  tier1ImageToService,
+} from "./infra-tier1-descriptors.ts";
 function makeFactId(filePath: string, line: number, kind: string): string {
   const safePath = filePath.replace(/[^a-zA-Z0-9]+/g, "-").replace(
     /^-|-$/g,
@@ -64,10 +68,12 @@ export function extractFactsFromFile(
   if (isK8sFile(filePath)) {
     return extractDeployDescriptorFacts(filePath, content);
   }
+  if (isTier1InfraDescriptorPath(filePath)) {
+    return extractTier1InfraFacts(filePath, content);
+  }
   if (isPythonFile(filePath)) {
     return extractDjangoFacts(filePath, content);
   }
-
   const regexFacts = extractRegexFactsFromFile(filePath, content);
   const astFacts = isJsTsFile(filePath)
     ? extractAstFactsFromFile(
@@ -142,30 +148,10 @@ function prismaProviderToService(provider: string): string | null {
   return null;
 }
 
-/** Compose image line → Redis / PostgreSQL (and valkey→Redis). */
+/** Compose image line → Redis / PostgreSQL / MySQL / MongoDB (valkey→Redis). */
 function composeImageToService(image: string): string | null {
-  const normalized = image.trim().toLowerCase();
-  if (
-    /^postgres(?:ql)?(?:[:@/]|$)/.test(normalized) ||
-    /\/postgres(?:ql)?(?:[:@/]|$)/.test(normalized)
-  ) {
-    return "PostgreSQL";
-  }
-  if (
-    /^redis(?:[:@/]|$)/.test(normalized) ||
-    /\/redis(?:[:@/]|$)/.test(normalized)
-  ) {
-    return "Redis";
-  }
-  if (
-    /^valkey(?:[:@/]|$)/.test(normalized) ||
-    /\/valkey(?:[:@/]|$)/.test(normalized)
-  ) {
-    return "Redis";
-  }
-  return null;
+  return tier1ImageToService(image);
 }
-
 /** Prisma schema.prisma → table facts + datasource provider infra (visudev-gapclose P3-2). */
 function extractPrismaFacts(filePath: string, content: string): CodeFact[] {
   const facts: CodeFact[] = [];

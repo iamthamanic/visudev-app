@@ -64,7 +64,7 @@ export function linkDeployServiceDependencies(state: GraphBuilderState): void {
     const source = node.metadata.source;
     return (
       node.kind === "service" &&
-      (source === "docker-compose" || source === "kubernetes") &&
+      (source === "docker-compose" || source === "kubernetes" || source === "dockerfile") &&
       typeof node.filePath === "string"
     );
   });

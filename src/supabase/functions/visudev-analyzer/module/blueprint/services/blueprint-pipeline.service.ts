@@ -7,6 +7,7 @@ import type {
 } from "../../dto/blueprint/blueprint-document.dto.ts";
 import { extractFactsFromFile } from "../facts/fact-extractors.ts";
 import { isYamlDescriptorPath } from "../facts/compose-k8s-descriptors.ts";
+import { isTier1InfraDescriptorPath } from "../facts/infra-tier1-descriptors.ts";
 import { createEmptyAstParseReport } from "../graph/ast-call-graph.ts";
 import {
   applyFileLimitWithSeeds,
@@ -77,6 +78,7 @@ export interface AnalyzeBlueprintFromFilesInput {
 }
 
 export function isSupportedBlueprintFile(path: string): boolean {
+  if (isTier1InfraDescriptorPath(path)) return true;
   const ext = path.split(".").pop()?.toLowerCase();
   if (!ext) return false;
   if (["ts", "tsx", "js", "jsx", "vue", "py", "prisma"].includes(ext)) {
@@ -85,7 +87,6 @@ export function isSupportedBlueprintFile(path: string): boolean {
   if (ext === "yml" || ext === "yaml") return isYamlDescriptorPath(path);
   return false;
 }
-
 export function analyzeFromFileEntries(
   input: AnalyzeBlueprintFromFilesInput,
 ): BlueprintDocument {
