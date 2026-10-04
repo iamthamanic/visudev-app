@@ -7,6 +7,8 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { evaluateV1Certification } from "../readiness/aggregate-certification.mjs";
+import { assertEpistemicArtifacts } from "../readiness/assert-epistemic-artifacts.mjs";
 import {
   aggregateProjectVerdict,
   buildCapabilityReport,
@@ -48,6 +50,105 @@ describe("readiness harness manifest", () => {
     const hrk = manifest.projects.find((project) => project.id === "hrkoordinator");
     expect(hrk?.gate.mode).toBe("full");
     expect(hrk?.source.commitSha).toBe("d34842f922d1fab330e4df7bb6ab99a4b2e1f905");
+
+    const fullIds = manifest.projects
+      .filter((project) => project.gate.mode === "full")
+      .map((project) => project.id);
+    expect(fullIds).toEqual(["hrkoordinator", "sagadrive", "scriptony-multihost"]);
+    expect(manifest.certification?.minFullPass).toBe(3);
+  });
+});
+
+describe("V1 certification aggregate", () => {
+  it("PASSes when three full reports PASS and identity matrix is complete", () => {
+    const manifest = loadReadinessManifest();
+    const reports = [
+      {
+        projectId: "hrkoordinator",
+        mode: "full",
+        verdict: "PASS",
+        hardGates: { passed: true },
+      },
+      {
+        projectId: "sagadrive",
+        mode: "full",
+        verdict: "PASS",
+        hardGates: { passed: true },
+      },
+      {
+        projectId: "scriptony-multihost",
+        mode: "full",
+        verdict: "PASS",
+        hardGates: { passed: true },
+      },
+      {
+        projectId: "hv123-mobile-haba",
+        mode: "resolve",
+        verdict: "UNAVAILABLE",
+      },
+      {
+        projectId: "screenator",
+        mode: "resolve",
+        verdict: "UNAVAILABLE",
+      },
+    ];
+    const result = evaluateV1Certification(manifest, reports);
+    expect(result.verdict).toBe("PASS");
+    expect(result.fullPassCount).toBe(3);
+    expect(result.identityComplete).toBe(true);
+  });
+
+  it("FAILs when a required full project is missing or FAIL", () => {
+    const manifest = loadReadinessManifest();
+    const reports = [
+      {
+        projectId: "hrkoordinator",
+        mode: "full",
+        verdict: "PASS",
+        hardGates: { passed: true },
+      },
+      {
+        projectId: "sagadrive",
+        mode: "full",
+        verdict: "FAIL",
+        hardGates: { passed: false },
+      },
+      {
+        projectId: "scriptony-multihost",
+        mode: "full",
+        verdict: "PASS",
+        hardGates: { passed: true },
+      },
+      { projectId: "hv123-mobile-haba", mode: "resolve", verdict: "UNAVAILABLE" },
+      { projectId: "screenator", mode: "resolve", verdict: "UNAVAILABLE" },
+    ];
+    const result = evaluateV1Certification(manifest, reports);
+    expect(result.verdict).toBe("FAIL");
+  });
+});
+
+describe("epistemic artifact gates", () => {
+  it("requires console + semantics artifacts for PASS", async () => {
+    const root = mkdtempSync(path.join(tmpdir(), "epistemic-"));
+    tempDirs.push(root);
+    const missing = await assertEpistemicArtifacts(root);
+    expect(missing.passed).toBe(false);
+
+    writeFileSync(
+      path.join(root, "browser-console-assertions.json"),
+      JSON.stringify({ passed: true }),
+    );
+    writeFileSync(
+      path.join(root, "semantic-assertions.json"),
+      JSON.stringify({
+        passed: true,
+        summary: { extractedFacts: 10, authoritativeFacts: 10 },
+      }),
+    );
+    const ok = await assertEpistemicArtifacts(root);
+    expect(ok.passed).toBe(true);
+    expect(ok.hardGates.consoleClean).toBe(true);
+    expect(ok.hardGates.noSilentTruthTruncation).toBe(true);
   });
 });
 

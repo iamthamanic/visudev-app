@@ -1,0 +1,23 @@
+{
+  "id": "rvp12-shared",
+  "description": "Shared Product Readiness semantic + epistemic gates (enrichment OFF).",
+  "hardGates": [
+    "console-clean",
+    "no-fabricated-facts",
+    "no-silent-truth-truncation",
+    "evidence-knowledge-status",
+    "analysis-semantics"
+  ],
+  "surfaces": [
+    "repositoryScan",
+    "coverageContract",
+    "atlas",
+    "architecture",
+    "dependencies",
+    "execution",
+    "infrastructure",
+    "diagnostics",
+    "evidenceLinks",
+    "knowledgeStatus"
+  ]
+}

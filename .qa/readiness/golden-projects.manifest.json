@@ -2,6 +2,12 @@
   "version": 1,
   "epic": 374,
   "harnessIssue": 375,
+  "certificationIssue": 392,
+  "certification": {
+    "minFullPass": 3,
+    "phase": "v1",
+    "identityProjectsRequired": 5
+  },
   "capabilityKeys": [
     "repositoryScan",
     "coverageContract",
@@ -69,12 +75,12 @@
       },
       "runtimeExploration": "optional",
       "gate": {
-        "mode": "resolve",
+        "mode": "full",
         "sourceRequiredInCi": true,
-        "captureViews": false
+        "captureViews": true
       },
       "assertions": {
-        "profile": "pending-certification"
+        "profile": "rvp12-shared"
       },
       "parity": {
         "enabled": true
@@ -93,12 +99,15 @@
       },
       "runtimeExploration": "optional",
       "gate": {
-        "mode": "resolve",
+        "mode": "full",
         "sourceRequiredInCi": true,
-        "captureViews": false
+        "captureViews": true
       },
       "assertions": {
-        "profile": "pending-certification"
+        "profile": "rvp12-shared"
+      },
+      "parity": {
+        "enabled": true
       },
       "capabilities": {}
     },
@@ -120,7 +129,7 @@
         "captureViews": false
       },
       "assertions": {
-        "profile": "pending-certification"
+        "profile": "identity-resolve"
       },
       "capabilities": {
         "appflowRuntime": "optional"
@@ -133,7 +142,7 @@
         "kind": "github",
         "owner": "iamthamanic",
         "repo": "Screenator",
-        "commitSha": "3199593c534f36a5a3d69dddf9a6915480db5ca0",
+        "commitSha": "3199593c534f36a5a4d69dddf9a6915480db5ca0",
         "repositoryUrl": "https://github.com/iamthamanic/Screenator",
         "ciNote": "Private GitHub repo; CI clone needs secrets.VISUDEV_READINESS_GH_TOKEN or reports UNAVAILABLE"
       },
@@ -144,10 +153,10 @@
         "captureViews": false
       },
       "assertions": {
-        "profile": "pending-certification"
+        "profile": "identity-resolve"
       },
       "capabilities": {}
     }
   ],
-  "_comment": "Product Readiness five golden projects (Epic #374 / PR-01 #375). GitHub SHAs pinned; HV123-Mobile-HABA is local-only."
+  "_comment": "Product Readiness five golden projects (Epic #374). V1 full certification: hrkoordinator + sagadrive + scriptony-multihost. HABA/Screenator remain identity-resolve until optional sources are available in CI."
 }

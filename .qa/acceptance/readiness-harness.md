@@ -26,7 +26,7 @@ Den bestehenden Real Visual Audit zu einem wiederverwendbaren Fünf-Projekt-Gate
 
 ## Assumptions
 
-- Other golden projects use `gate.mode: resolve` until #392 flips certification profiles.
+- V1 full certification covers hrkoordinator + sagadrive + scriptony-multihost; HABA/Screenator stay identity-resolve when optional sources are missing.
 
 ## Implementation Notes
 

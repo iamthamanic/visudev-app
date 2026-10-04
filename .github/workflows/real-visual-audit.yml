@@ -171,3 +171,45 @@ jobs:
           path: /tmp/visudev-real-visual-audit/${{ matrix.id }}/
           if-no-files-found: error
           retention-days: 7
+
+  v1-certification:
+    name: V1 Certification Aggregate
+    needs: audit
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout VisuDev
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install VisuDev dependencies
+        run: npm ci
+
+      - name: Download all readiness audit artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: real-visual-audit-*
+          path: /tmp/visudev-certification
+          merge-multiple: false
+
+      - name: Aggregate V1 certification gate
+        run: |
+          set -euo pipefail
+          node scripts/readiness/aggregate-certification.mjs \
+            --dir /tmp/visudev-certification \
+            --out /tmp/visudev-certification/readiness-certification-report.json
+
+      - name: Upload V1 certification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: readiness-v1-certification-report
+          path: /tmp/visudev-certification/readiness-certification-report.json
+          if-no-files-found: error
+          retention-days: 14
