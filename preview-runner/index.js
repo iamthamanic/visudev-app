@@ -2502,6 +2502,8 @@ async function handleCrawl(req, res, url) {
       storageState: loaded.ok ? loaded.storageState : null,
       sessionStatus: loaded.ok ? "ready" : "missing",
       requireSession,
+      exploreMode: body.exploreMode === "sandbox" ? "sandbox" : "safe",
+      disposable: body.disposable === true,
       logger: console,
     });
     run.crawlStatus = "completed";

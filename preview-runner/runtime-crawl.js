@@ -1,6 +1,14 @@
 import { chromium } from "@playwright/test";
 import { isSafeRuntimeInteractionCandidate } from "../shared/scan-detector/domain/runtime/safe-action-policy.mjs";
 import {
+  classifyInteractionRisk,
+  classifyRequestRisk,
+  isInteractionAllowed,
+  isRequestAllowed,
+  redactExploreEvidence,
+  syntheticFormValue,
+} from "../shared/scan-detector/domain/runtime/explore-policy.mjs";
+import {
   createFrontier,
   decideTermination,
   enqueueFrontier,
@@ -25,8 +33,16 @@ export async function runRuntimeCrawl(options) {
     /** When true, invalid/missing required session ends as auth-barrier. */
     requireSession = false,
     sessionStatus = null,
+    /** Safe Explore (default) or Sandbox Explore. */
+    exploreMode = "safe",
+    /** Sandbox mutating same-origin CRUD requires disposable=true. */
+    disposable = false,
     logger = console,
   } = options;
+  const exploreOptions = {
+    mode: exploreMode === "sandbox" ? "sandbox" : "safe",
+    disposable: disposable === true,
+  };
   const normalizedBaseUrl = String(baseUrl || "")
     .trim()
     .replace(/\/$/, "");
@@ -75,6 +91,35 @@ export async function runRuntimeCrawl(options) {
     viewport,
     ...(sessionApplied ? { storageState } : {}),
   });
+  const pageOrigin = (() => {
+    try {
+      return new URL(normalizedBaseUrl).origin;
+    } catch {
+      return null;
+    }
+  })();
+  const blockedRequests = [];
+  await context.route("**/*", async (route) => {
+    const request = route.request();
+    const risk = classifyRequestRisk(
+      {
+        method: request.method(),
+        url: request.url(),
+        postData: request.postData(),
+      },
+      pageOrigin,
+    );
+    if (!isRequestAllowed(risk, exploreOptions)) {
+      blockedRequests.push({
+        risk,
+        method: request.method(),
+        url: redactExploreEvidence(request.url(), 160),
+      });
+      await route.abort("blockedbyclient");
+      return;
+    }
+    await route.continue();
+  });
   const page = await context.newPage();
   const startedAtMs = Date.now();
   let terminationReason = "frontier-exhausted";
@@ -95,11 +140,15 @@ export async function runRuntimeCrawl(options) {
       frontierSeedCount: queue.length,
       sessionApplied,
       sessionStatus: sessionStatus || (sessionApplied ? "ready" : "missing"),
+      exploreMode: exploreOptions.mode,
+      disposable: exploreOptions.disposable,
+      blockedMutations: 0,
     },
     snapshots: [],
     verifiedEdges: [],
     stateScreens: [],
     issues: [],
+    exploreEvidence: [],
   };
   const stateCaptureByScreenId = new Map();
 
@@ -175,7 +224,7 @@ export async function runRuntimeCrawl(options) {
       });
 
       const safeCandidates = before.interactiveElements.filter((candidate) =>
-        isSafeCandidate(candidate),
+        isSafeCandidate(candidate, exploreOptions),
       );
       if (before.interactiveElements.length > 0 && safeCandidates.length === 0) {
         safetyBarrier = true;
@@ -213,6 +262,18 @@ export async function runRuntimeCrawl(options) {
               screenId: screen.id,
               triggerLabel: candidate.label,
               message: `Kein Locator für ${candidate.label ?? candidate.selector ?? candidate.href ?? candidate.tagName} gefunden.`,
+            });
+            continue;
+          }
+          const risk = classifyInteractionRisk(candidate);
+          if (risk === "form-input" || risk === "mutating") {
+            await fillSyntheticForms(page);
+          }
+          if (!isInteractionAllowed(risk, exploreOptions)) {
+            result.exploreEvidence.push({
+              kind: "interaction-blocked",
+              risk,
+              label: redactExploreEvidence(candidate.label || candidate.selector || "", 80),
             });
             continue;
           }
@@ -345,10 +406,44 @@ export async function runRuntimeCrawl(options) {
       issue.code === "graph_without_runtime_match" || issue.code === "dom_without_graph_match",
   ).length;
   result.summary.issueCount = result.issues.length;
+  result.summary.blockedMutations = blockedRequests.length;
   result.summary.terminationReason = terminationReason;
   result.terminationReason = terminationReason;
-  logger.info?.("[runtime-crawl] completed", result.summary);
+  result.exploreEvidence = [
+    ...(result.exploreEvidence || []),
+    ...blockedRequests.slice(0, 40).map((item) => ({
+      kind: "request-blocked",
+      risk: item.risk,
+      method: item.method,
+      url: item.url,
+    })),
+  ];
+  logger.info?.("[runtime-crawl] completed", {
+    ...result.summary,
+    // never log storageState / cookies
+  });
   return result;
+}
+
+async function fillSyntheticForms(page) {
+  const fields = await page
+    .locator("input:not([type=hidden]):not([type=submit]):not([type=button]), textarea, select")
+    .elementHandles();
+  for (const handle of fields.slice(0, 12)) {
+    const meta = await handle.evaluate((el) => ({
+      tagName: el.tagName,
+      type: el.getAttribute("type"),
+      name: el.getAttribute("name"),
+      autocomplete: el.getAttribute("autocomplete"),
+    }));
+    const value = syntheticFormValue(meta);
+    if (!value) continue;
+    try {
+      await handle.fill(value);
+    } catch {
+      // ignore non-fillable controls
+    }
+  }
 }
 
 async function visitScreen(page, url) {
@@ -467,8 +562,15 @@ async function collectDomSnapshot(page) {
   }, CLICKABLE_SELECTOR);
 }
 
-function isSafeCandidate(candidate) {
-  return isSafeRuntimeInteractionCandidate(candidate);
+function isSafeCandidate(candidate, exploreOptions = { mode: "safe", disposable: false }) {
+  if (!isSafeRuntimeInteractionCandidate(candidate)) return false;
+  const risk = classifyInteractionRisk(candidate);
+  // Safe explore still may click local-state/passive; mutating clicks are filtered later.
+  if (risk === "destructive" || risk === "external") return false;
+  if (risk === "mutating" || risk === "unknown") {
+    return isInteractionAllowed(risk, exploreOptions);
+  }
+  return true;
 }
 
 async function resolveLocator(page, candidate) {
