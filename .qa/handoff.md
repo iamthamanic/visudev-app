@@ -1,8 +1,8 @@
 # Handoff — ecc-runner-loop
 
-- **Last merged:** #389 PR-15 Infrastructure honesty via PR #411 (`d82df7f9`); prior #388 via PR #410
-- **Next:** #390 PR-16 · Enforce Local and GitHub semantic analysis parity
-- **Branch:** `feat/390-local-github-parity`
-- **Feature slug:** `local-github-parity`
-- **Queue remaining:** #390–#396
+- **Last merged:** #390 PR-16 Local/GitHub parity via PR #412 (on main tip)
+- **Also this session:** #388 PR #410, #389 PR #411
+- **Next:** #391 (order-17) — claim from main, full ship loop
+- **Queue remaining:** #391–#396
 - **paused:** false
+- **Resume:** `@ecc-runner-loop continue`

@@ -13,28 +13,19 @@ interface EvolutionSubTabsProps {
 export function EvolutionSubTabs({ activeTab, onSelectTab }: EvolutionSubTabsProps): JSX.Element {
   return (
     <div className={styles.subTabs} role="tablist" aria-label="Evolution-Modi">
-      {EVOLUTION_TABS.map((tab) => {
-        const disabled = tab.id === "working-tree";
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            aria-disabled={disabled}
-            disabled={disabled}
-            tabIndex={disabled ? -1 : undefined}
-            data-testid={`evolution-tab-${tab.id}`}
-            className={`${styles.subTab} ${activeTab === tab.id ? styles.subTabActive : ""}`}
-            onClick={() => {
-              if (disabled) return;
-              onSelectTab(tab.id);
-            }}
-          >
-            {tab.label}
-          </button>
-        );
-      })}
+      {EVOLUTION_TABS.map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          role="tab"
+          aria-selected={activeTab === tab.id}
+          data-testid={`evolution-tab-${tab.id}`}
+          className={`${styles.subTab} ${activeTab === tab.id ? styles.subTabActive : ""}`}
+          onClick={() => onSelectTab(tab.id)}
+        >
+          {tab.label}
+        </button>
+      ))}
     </div>
   );
 }

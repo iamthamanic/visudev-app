@@ -105,8 +105,8 @@ describe("InfrastructureView", () => {
     expect(screen.getByTestId("infra-monitoring-tier")).toBeInTheDocument();
     expect(screen.getByLabelText("Verbindungs-Legende")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Logische Topologie/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Physische Topologie/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /Ansicht neu laden/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Physische Topologie/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Ansicht neu zeichnen/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Verbindungs-Legende")).toHaveTextContent("aus Scan");
   });
   it("hides env/region filters when no node carries deployment metadata (P0-2)", () => {
@@ -141,7 +141,7 @@ describe("InfrastructureView", () => {
     expect(screen.queryByTestId("infra-resource-cpu")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-runtime-empty")).toBeInTheDocument();
     expect(screen.getByText("Verbindungen")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Logs anzeigen/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Logs anzeigen/i })).not.toBeInTheDocument();
   });
 
   it("renders real resource meters when node metadata has telemetry", () => {

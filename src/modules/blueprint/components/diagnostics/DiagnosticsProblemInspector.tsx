@@ -208,14 +208,6 @@ export function DiagnosticsProblemInspector({
                     ? "Kopieren fehlgeschlagen"
                     : "Evidence kopieren"}
               </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-ghost"
-                disabled
-                title="Folgt in einer späteren Phase"
-              >
-                Ausnahmen verwalten
-              </button>
             </div>
           ),
         },

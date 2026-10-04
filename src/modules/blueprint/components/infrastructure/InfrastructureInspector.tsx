@@ -18,7 +18,6 @@ import {
   evidenceForInfrastructureNode,
   structuralEvidenceLabels,
 } from "./infrastructure-evidence.js";
-import { ControlHint } from "../../../../components/ui/ControlHint.js";
 import styles from "../../styles/InfrastructureView.module.css";
 
 const KIND_LABELS: Record<string, string> = {
@@ -206,12 +205,6 @@ export function InfrastructureInspector({
           ),
         },
       ]}
-    >
-      <ControlHint reason="Öffnen-Integration (VS Code / VisuCODE) folgt.">
-        <button type="button" className={styles.logsButton} disabled aria-disabled="true">
-          Logs anzeigen
-        </button>
-      </ControlHint>
-    </InspectorPanel>
+    />
   );
 }

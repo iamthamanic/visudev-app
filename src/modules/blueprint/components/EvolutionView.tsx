@@ -173,11 +173,6 @@ export function EvolutionView({
           gitSummary={gitSummary}
           graphNodes={graph.nodes}
         />
-      ) : activeTab === "commit-diff" ? (
-        <div className={styles.placeholderPanel} data-testid="evolution-commit-diff">
-          <h2 className={styles.placeholderTitle}>Commit Diff</h2>
-          <p className={styles.emptyControls}>Commit-Diff folgt.</p>
-        </div>
       ) : null}
     </div>
   );

@@ -77,13 +77,9 @@ describe("EvolutionView", () => {
     );
   });
 
-  it("working-tree tab is disabled with reason", () => {
+  it("hides unfinished Working Tree tab in V1", () => {
     render(<EvolutionView blueprint={graphWithSnapshots} />);
-    const tab = screen.getByTestId("evolution-tab-working-tree");
-    expect(tab).toHaveAttribute("aria-disabled", "true");
-    expect(tab).toBeDisabled();
-    fireEvent.click(tab);
-    expect(screen.getByRole("tab", { name: "Timeline", selected: true })).toBeInTheDocument();
+    expect(screen.queryByTestId("evolution-tab-working-tree")).not.toBeInTheDocument();
   });
 
   it("renders timeline tab with snapshot cards and metrics", () => {
@@ -96,11 +92,12 @@ describe("EvolutionView", () => {
     expect(screen.getByLabelText("Änderungsübersicht")).toBeInTheDocument();
   });
 
-  it("switches evolution sub-tab while keeping snapshot cards visible", () => {
+  it("switches to Branch Compare without unfinished Commit Diff tab", () => {
     render(<EvolutionView blueprint={graphWithSnapshots} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Commit Diff" }));
-    expect(screen.getByTestId("evolution-commit-diff")).toBeInTheDocument();
-    expect(screen.getByText("Commit-Diff folgt.")).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Commit Diff" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Working Tree" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Branch Compare" }));
+    expect(screen.getByRole("tab", { name: "Branch Compare", selected: true })).toBeInTheDocument();
   });
 
   it("explains the first capture and shows dirty Git provenance", () => {
