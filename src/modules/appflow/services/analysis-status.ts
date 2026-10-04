@@ -9,6 +9,7 @@ import type { RuntimeCrawlResult } from "../../../lib/visudev/runtime-crawl";
 import type { GraphEdge } from "../layout";
 import { formatConfidence } from "../../../lib/format-confidence.js";
 import type { UiKnowledgeStatus } from "../../../lib/visudev-api/appflow-analysis";
+import { buildAppFlowCoverageReport, type AppFlowCoverageReport } from "./appflow-coverage.js";
 
 export interface FlowNodeAnalysisBadge {
   label: string;
@@ -31,6 +32,7 @@ export interface FlowAnalysisSummary {
   conflictedCount: number;
   mismatchCount: number;
   highIssueCount: number;
+  coverage?: AppFlowCoverageReport;
 }
 
 export function buildNodeAnalysisBadges(
@@ -197,6 +199,7 @@ export function buildFlowAnalysisSummary(
       graph?.issues.filter((issue) => isRuntimeMismatchIssue(issue)).length ??
       0,
     highIssueCount: quality?.highIssueCount ?? 0,
+    coverage: buildAppFlowCoverageReport(graph, runtime),
   };
 }
 

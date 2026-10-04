@@ -1,10 +1,9 @@
 # ECC Runner Loop Handoff
 
-- **Merged this session:** … #385→#407
-- **Next:** #386 PR-12 Safe/Sandbox Explore (in flight)
+- **Merged:** … #386→#408
+- **Next:** #387 AppFlow coverage (shipping)
 - **paused:** false
-- **runMode:** loop
-- **Queue remaining:** #386–#396
+- **Queue remaining:** #387–#396
 
 ## Resume
 
