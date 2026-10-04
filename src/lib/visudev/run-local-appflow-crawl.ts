@@ -37,7 +37,7 @@ export async function runLocalAppflowCrawlIfNeeded(
 
   if (screens.length > 0 && project.preview_mode !== "deployed" && project.local_path) {
     appendScanLog(
-      `Runtime-Crawl angefragt (${Math.min(screens.length, 8)} Route-Screen(s)) über Local Engine.`,
+      `Runtime-Crawl angefragt (Frontier, bis zu ${Math.min(screens.length, 40)} Seed-Route(s)) über Local Engine.`,
       "info",
     );
     try {
@@ -72,8 +72,9 @@ export async function runLocalAppflowCrawlIfNeeded(
             parentPath: screen.parentPath,
             stateKey: screen.stateKey,
           })),
-          maxScreens: 8,
-          maxClicksPerScreen: 4,
+          // maxScreens = visit budget ceiling (legacy name); frontier explores beyond seed slice.
+          maxScreens: 40,
+          maxClicksPerScreen: 5,
         });
         runtime = crawlResult.runtime as unknown as Project["analysisRuntime"];
         screens = crawlResult.screens as Screen[];

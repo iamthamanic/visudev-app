@@ -1,5 +1,11 @@
 import { chromium } from "@playwright/test";
 import { isSafeRuntimeInteractionCandidate } from "../shared/scan-detector/domain/runtime/safe-action-policy.mjs";
+import {
+  createFrontier,
+  decideTermination,
+  enqueueFrontier,
+  looksLikeAuthBarrier,
+} from "./lib/frontier-explorer.js";
 
 const CLICKABLE_SELECTOR =
   'button,[role="button"],a[href],[role="tab"],[role="menuitem"],[data-visudev-trigger]';
@@ -8,8 +14,11 @@ export async function runRuntimeCrawl(options) {
   const {
     baseUrl,
     screens = [],
-    maxScreens = 8,
+    // Legacy alias: maxScreens is a visit budget ceiling, not "done after N seeds".
+    maxScreens,
+    visitBudget = typeof maxScreens === "number" && maxScreens > 0 ? maxScreens : 40,
     maxClicksPerScreen = 5,
+    timeoutMs = 120_000,
     viewport = { width: 1440, height: 960 },
     logger = console,
   } = options;
@@ -20,13 +29,19 @@ export async function runRuntimeCrawl(options) {
     throw new Error("Runtime crawl requires a baseUrl.");
   }
 
-  const routeScreens = screens.filter(isRouteScreen).slice(0, Math.max(1, maxScreens));
+  const routeScreens = screens.filter(isRouteScreen);
+  const screenById = new Map(screens.map((screen) => [screen.id, screen]));
+  const { queue, seen } = createFrontier(routeScreens);
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     ignoreHTTPSErrors: true,
     viewport,
   });
   const page = await context.newPage();
+  const startedAtMs = Date.now();
+  let terminationReason = "frontier-exhausted";
+  let authBarrier = false;
+  let safetyBarrier = false;
   const result = {
     baseUrl: normalizedBaseUrl,
     crawledAt: new Date().toISOString(),
@@ -37,6 +52,9 @@ export async function runRuntimeCrawl(options) {
       stateCaptures: 0,
       mismatchCount: 0,
       issueCount: 0,
+      terminationReason: "frontier-exhausted",
+      visitBudget,
+      frontierSeedCount: queue.length,
     },
     snapshots: [],
     verifiedEdges: [],
@@ -46,7 +64,28 @@ export async function runRuntimeCrawl(options) {
   const stateCaptureByScreenId = new Map();
 
   try {
-    for (const screen of routeScreens) {
+    while (queue.length > 0) {
+      const earlyStop = decideTermination({
+        queueLength: queue.length,
+        visitCount: result.summary.visitedScreens,
+        visitBudget,
+        startedAtMs,
+        timeoutMs,
+        authBarrier,
+        safetyBarrier,
+      });
+      if (earlyStop && earlyStop !== "frontier-exhausted") {
+        terminationReason = earlyStop;
+        break;
+      }
+
+      const entry = queue.shift();
+      const screen = screenById.get(entry.screenId) || {
+        id: entry.screenId,
+        name: entry.label || entry.path,
+        path: entry.path,
+        type: entry.type || "route",
+      };
       const screenUrl = toScreenUrl(normalizedBaseUrl, screen.path);
       try {
         await visitScreen(page, screenUrl);
@@ -62,12 +101,24 @@ export async function runRuntimeCrawl(options) {
 
       result.summary.visitedScreens += 1;
       const before = await collectDomSnapshot(page);
+      if (looksLikeAuthBarrier(before.route, before.title)) {
+        authBarrier = true;
+        terminationReason = "auth-barrier";
+        pushIssue(result, {
+          code: "auth_barrier",
+          severity: "warning",
+          screenId: screen.id,
+          message: `Auth-Barrier erkannt auf ${before.route}.`,
+        });
+        break;
+      }
+
       const routeScreenshotUrl = await captureStateScreenshot(page, before);
       if (!stateCaptureByScreenId.has(screen.id)) {
         stateCaptureByScreenId.set(screen.id, {
           screenId: screen.id,
           parentScreenId: screen.id,
-          type: "modal",
+          type: screen.type || "route",
           label: screen.name,
           screenshotUrl: routeScreenshotUrl,
           matchedBy: "route-visit",
@@ -83,9 +134,22 @@ export async function runRuntimeCrawl(options) {
           .length,
       });
 
-      const candidates = before.interactiveElements
-        .filter((candidate) => isSafeCandidate(candidate))
-        .slice(0, Math.max(1, maxClicksPerScreen));
+      const safeCandidates = before.interactiveElements.filter((candidate) =>
+        isSafeCandidate(candidate),
+      );
+      if (before.interactiveElements.length > 0 && safeCandidates.length === 0) {
+        safetyBarrier = true;
+        terminationReason = "safety-barrier";
+        pushIssue(result, {
+          code: "safety_barrier",
+          severity: "info",
+          screenId: screen.id,
+          message: `Alle Interaktionen auf ${screen.name} durch SafeActionPolicy blockiert.`,
+        });
+        break;
+      }
+
+      const candidates = safeCandidates.slice(0, Math.max(1, maxClicksPerScreen));
       if (candidates.length === 0) {
         pushIssue(result, {
           code: "no_interactive_candidates",
@@ -126,6 +190,15 @@ export async function runRuntimeCrawl(options) {
                 screenId: screen.id,
                 triggerLabel: candidate.label,
                 message: `Navigation nach ${after.route} konnte keinem Screen zugeordnet werden.`,
+              });
+            } else {
+              enqueueFrontier(queue, seen, {
+                screenId: targetScreen.id,
+                path: targetScreen.path,
+                label: targetScreen.name,
+                type: targetScreen.type || "route",
+                stateKey: targetScreen.stateKey,
+                source: "navigate",
               });
             }
             result.verifiedEdges.push({
@@ -170,6 +243,17 @@ export async function runRuntimeCrawl(options) {
               matchedBy: matchedState.matchedBy,
               trigger,
             });
+            const stateScreen = screenById.get(matchedState.id);
+            if (stateScreen?.path) {
+              enqueueFrontier(queue, seen, {
+                screenId: stateScreen.id,
+                path: stateScreen.path,
+                label: stateScreen.name || matchedState.label,
+                type: stateScreen.type || matchedState.type || "modal",
+                stateKey: stateScreen.stateKey || matchedState.id,
+                source: "state",
+              });
+            }
           } else if (!matchedState) {
             pushIssue(result, {
               code: "dom_without_graph_match",
@@ -189,6 +273,25 @@ export async function runRuntimeCrawl(options) {
           });
         }
       }
+
+      const stop = decideTermination({
+        queueLength: queue.length,
+        visitCount: result.summary.visitedScreens,
+        visitBudget,
+        startedAtMs,
+        timeoutMs,
+        authBarrier,
+        safetyBarrier,
+      });
+      if (stop) {
+        terminationReason = stop;
+        if (stop !== "frontier-exhausted") break;
+      }
+    }
+
+    if (queue.length === 0 && !authBarrier && !safetyBarrier && terminationReason !== "timeout") {
+      terminationReason =
+        result.summary.visitedScreens >= visitBudget ? "budget" : "frontier-exhausted";
     }
   } finally {
     await browser.close();
@@ -202,6 +305,8 @@ export async function runRuntimeCrawl(options) {
       issue.code === "graph_without_runtime_match" || issue.code === "dom_without_graph_match",
   ).length;
   result.summary.issueCount = result.issues.length;
+  result.summary.terminationReason = terminationReason;
+  result.terminationReason = terminationReason;
   logger.info?.("[runtime-crawl] completed", result.summary);
   return result;
 }
