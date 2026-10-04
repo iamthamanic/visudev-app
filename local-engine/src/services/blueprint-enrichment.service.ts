@@ -26,6 +26,7 @@ import {
   parseBlueprintAnalysisMode,
   resolveBlueprintAnalysis,
 } from "../../../shared/scan-detector/index.js";
+import { runSemanticInterpreterSync } from "../../../shared/semantic-interpreter/index.js";
 
 const DEFAULT_PROFILE = {
   appType: "saas",
@@ -52,7 +53,9 @@ export function enrichBlueprint(scan: RawBlueprintScan): BlueprintDocument {
   // materialized scan graph so auth/validation evidence is not lost in projection (SDE-15).
   const graph = resolved.graph;
   const diagnosticGraph = legacyGraph;
-  const semanticSystemModel = buildSemanticSystemModel(graph);
+  const deterministicSemanticModel = buildSemanticSystemModel(graph);
+  const { model: semanticSystemModel, interpretation: semanticInterpretation } =
+    runSemanticInterpreterSync({ model: deterministicSemanticModel });
   const { routes, securityMatrix, findings, facts } = deriveDiagnosticsFromGraph(diagnosticGraph);
 
   const appFindings = analyzeApplicationChain({ graph: diagnosticGraph });
@@ -112,6 +115,14 @@ export function enrichBlueprint(scan: RawBlueprintScan): BlueprintDocument {
       blueprintFallbackUsed: resolved.fallbackUsed,
       ...(resolved.fallbackReason ? { blueprintFallbackReason: resolved.fallbackReason } : {}),
       blueprintProjectionTruncated: resolved.projectionTruncated,
+      semanticInterpreterStatus: semanticInterpretation.status,
+      semanticInterpreterCoverage: semanticInterpretation.coverage,
+      ...(semanticInterpretation.reason
+        ? { semanticInterpreterReason: semanticInterpretation.reason }
+        : {}),
+      ...(semanticInterpretation.promptVersion
+        ? { semanticInterpreterPromptVersion: semanticInterpretation.promptVersion }
+        : {}),
     },
     graph,
     semanticSystemModel,
