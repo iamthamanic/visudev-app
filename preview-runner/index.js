@@ -2356,7 +2356,7 @@ async function handleCrawl(req, res, url) {
     const data = await runRuntimeCrawl({
       baseUrl: body.baseUrl ?? run.previewUrl,
       screens: Array.isArray(body.screens) ? body.screens : [],
-      maxScreens: Number(body.maxScreens) || 8,
+      maxScreens: Number(body.maxScreens) || 40,
       maxClicksPerScreen: Number(body.maxClicksPerScreen) || 5,
       logger: console,
     });
