@@ -428,9 +428,13 @@ export function AppFlowPage({ projectId, githubRepo, githubBranch }: AppFlowPage
   const previewMode = activeProject.preview_mode ?? "auto";
   const previewModeHint =
     previewMode === "local"
-      ? "Preview-Modus: Lokal (Docker erforderlich)."
+      ? runnerHealth?.useDocker === true
+        ? "Preview-Modus: Lokal (Docker laut Runner-Konfiguration)."
+        : "Preview-Modus: Lokal (Preview-Runner unter npm run dev)."
       : previewMode === "central"
-        ? "Preview-Modus: Server (zentral). PREVIEW_RUNNER_URL in Supabase setzen."
+        ? isLocalVisuDevMode()
+          ? "Preview-Modus: Server (zentral) — im Local Mode den Preview-Runner starten."
+          : "Preview-Modus: Server (zentral). PREVIEW_RUNNER_URL in Supabase setzen."
         : previewMode === "deployed"
           ? "Preview-Modus: Deployed URL. Bitte im Projekt eine URL hinterlegen."
           : "Preview-Modus: Auto (lokal wenn verfügbar, sonst Server).";

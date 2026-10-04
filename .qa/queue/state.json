@@ -2,9 +2,9 @@
   "version": 2,
   "repo": "iamthamanic/visudev-app",
   "activeIssue": 391,
-  "featureSlug": null,
-  "phase": "setup",
-  "branch": null,
+  "featureSlug": "product-readiness-hardening",
+  "phase": "pr",
+  "branch": "feat/391-product-readiness-hardening",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
@@ -125,6 +125,6 @@
   "lastErrorCount": 0,
   "currentIssue": 391,
   "lastCompletedIssue": 390,
-  "notes": "Merged #390 via PR #412; context handoff \u2014 resume at #391",
-  "updatedAt": "2026-10-04T21:18:26.000Z"
+  "notes": "#391 implement done; opening PR",
+  "updatedAt": "2026-10-04T21:57:16.000Z"
 }

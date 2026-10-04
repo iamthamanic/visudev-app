@@ -51,7 +51,8 @@ export function buildDistrictGlowPlates(
     const color = palette[category] || palette.default || fallbackColor;
     if (!color) continue;
     plates.push({
-      key: label,
+      // Stable unique key — district labels alone collide across categories.
+      key: `district:${category}:${label}:${plates.length}`,
       category,
       x: (xBounds.min + xBounds.max) / 2,
       z: (zBounds.min + zBounds.max) / 2,

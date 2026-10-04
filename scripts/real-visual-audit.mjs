@@ -380,6 +380,19 @@ async function main() {
     ),
   );
   await fs.writeFile(path.join(outDir, "browser-console.log"), consoleLines.join("\n"));
+
+  const { assertBrowserConsole } = await import("./readiness/assert-browser-console.mjs");
+  const consoleAssert = assertBrowserConsole(consoleLines);
+  await fs.writeFile(
+    path.join(outDir, "browser-console-assertions.json"),
+    JSON.stringify(consoleAssert, null, 2),
+  );
+  if (!consoleAssert.passed) {
+    throw new Error(
+      `Browser console gate failed (${consoleAssert.failures.length}): ${consoleAssert.failures.slice(0, 5).join(" | ")}`,
+    );
+  }
+
   await browser.close();
 }
 
