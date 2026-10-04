@@ -1,17 +1,31 @@
 /**
- * Runtime-neutral ScanDetectorEngine contracts (SDE-02).
+ * Runtime-neutral ScanDetectorEngine contracts (SDE-02 / PR-02 #376).
  * Pure TypeScript domain types — no Node/Deno/DOM/React/Supabase imports.
  * Location: shared/scan-detector/types.ts
  */
 
-/** Epistemic status for facts and evidence (Epic #335). */
-export type ScanKnowledgeStatus =
-  | "detected"
-  | "inferred"
-  | "observed"
-  | "verified"
-  | "conflicted"
-  | "unknown";
+import {
+  applyOriginKnowledgePolicy,
+  coerceKnowledgeStatus,
+  isAuthoritativeKnowledgeStatus,
+  isKnowledgeStatus,
+  isLegacyScanKnowledgeStatus,
+  type KnowledgeStatus,
+  type LegacyScanKnowledgeStatus,
+} from "./epistemic.js";
+
+export type {
+  CoverageStatus,
+  DetectionState,
+  KnowledgeStatus,
+  LegacyScanKnowledgeStatus,
+} from "./epistemic.js";
+
+/**
+ * Wire/status field on facts & evidence.
+ * Accepts canonical KnowledgeStatus and legacy SDE statuses for snapshot compatibility.
+ */
+export type ScanKnowledgeStatus = KnowledgeStatus | LegacyScanKnowledgeStatus;
 
 /** Where a claim originated. LLM is never authoritative. */
 export type ScanEvidenceOriginKind =
@@ -124,23 +138,30 @@ export interface ScanSnapshot {
 
 /** Type guards kept free of runtime I/O. */
 export function isScanKnowledgeStatus(value: unknown): value is ScanKnowledgeStatus {
-  return (
-    value === "detected" ||
-    value === "inferred" ||
-    value === "observed" ||
-    value === "verified" ||
-    value === "conflicted" ||
-    value === "unknown"
-  );
+  return isKnowledgeStatus(value) || isLegacyScanKnowledgeStatus(value);
 }
 
 export function isAuthoritativeEvidence(evidence: ScanEvidence): boolean {
   if (evidence.provenance.originKind === "llm" || evidence.provenance.llmSuggested === true) {
     return false;
   }
-  return (
-    evidence.status === "detected" ||
-    evidence.status === "observed" ||
-    evidence.status === "verified"
+  return isAuthoritativeKnowledgeStatus(coerceKnowledgeStatus(evidence.status));
+}
+
+/**
+ * Normalize a fact/evidence status for product read-models.
+ * LLM origin is forced to INTERPRETED (CONFLICTED preserved).
+ */
+export function readKnowledgeStatus(
+  status: unknown,
+  provenance?: { originKind?: string; llmSuggested?: boolean },
+): KnowledgeStatus {
+  if (!provenance) return coerceKnowledgeStatus(status);
+  return applyOriginKnowledgePolicy(
+    String(status ?? "UNKNOWN"),
+    provenance.originKind ?? "static",
+    {
+      llmSuggested: provenance.llmSuggested,
+    },
   );
 }

@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 375,
-  "featureSlug": "readiness-harness",
-  "phase": "verify",
-  "branch": "feat/375-readiness-harness",
+  "activeIssue": 376,
+  "featureSlug": "analysis-epistemic-contract",
+  "phase": "commit",
+  "branch": "feat/376-analysis-epistemic-contract",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    375,
     376,
     377,
     378,
@@ -55,7 +54,8 @@
     347,
     348,
     349,
-    350
+    350,
+    375
   ],
   "mergedIssues": [
     321,
@@ -79,11 +79,14 @@
     346,
     347,
     348,
-    349
+    349,
+    350,
+    375
   ],
   "prUrls": {
     "328": "https://github.com/iamthamanic/visudev-app/pull/371",
-    "349": "https://github.com/iamthamanic/visudev-app/pull/370"
+    "349": "https://github.com/iamthamanic/visudev-app/pull/370",
+    "375": "https://github.com/iamthamanic/visudev-app/pull/397"
   },
   "retries": {
     "implement": 0,
@@ -103,7 +106,7 @@
   "lastError": null,
   "lastErrorCount": 0,
   "issuesProcessedInSession": 0,
-  "updatedAt": "2026-10-04T11:24:07.000Z",
+  "updatedAt": "2026-10-04T11:36:35.000Z",
   "notes": "order-23 #350 ecc-check READY; committing PR after #328 merge",
   "currentIssue": 350,
   "lastCompletedIssue": 328,

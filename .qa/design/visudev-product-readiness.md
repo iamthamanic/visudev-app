@@ -44,3 +44,7 @@ Harness consumes Engine analyze results and existing semantic gate helpers. No n
 ## CI
 
 Workflow `.github/workflows/real-visual-audit.yml` builds a matrix from the manifest. `hrkoordinator` keeps always-on full audit via the harness. Other projects participate per `gate.mode`; V1 certification (#392) tightens modes and golden assertions.
+
+## Epistemic contract (#376)
+
+Canonical `KnowledgeStatus` / `CoverageStatus` / `DetectionState` live in `shared/scan-detector/epistemic.ts`. Legacy SDE statuses map via `coerceKnowledgeStatus`. LLM origin → INTERPRETED only.

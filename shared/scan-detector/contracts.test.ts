@@ -16,7 +16,7 @@ import {
 const SCAN_DETECTOR_DIR = dirname(fileURLToPath(import.meta.url));
 
 describe("scan-detector contracts", () => {
-  it("recognizes the required knowledge statuses", () => {
+  it("recognizes legacy and canonical knowledge statuses", () => {
     for (const status of [
       "detected",
       "inferred",
@@ -24,10 +24,16 @@ describe("scan-detector contracts", () => {
       "verified",
       "conflicted",
       "unknown",
+      "VERIFIED",
+      "SUPPORTED",
+      "INTERPRETED",
+      "UNKNOWN",
+      "CONFLICTED",
     ] as const) {
       expect(isScanKnowledgeStatus(status)).toBe(true);
     }
     expect(isScanKnowledgeStatus("suggested")).toBe(false);
+    expect(isScanKnowledgeStatus("INFERRED")).toBe(false);
   });
 
   it("treats LLM evidence as non-authoritative", () => {

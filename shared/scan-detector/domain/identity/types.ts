@@ -3,6 +3,11 @@
  * Location: shared/scan-detector/domain/identity/types.ts
  */
 
+import {
+  dominantCanonicalKnowledgeStatus,
+  isKnowledgeStatus,
+  toLegacyScanKnowledgeStatus,
+} from "../../epistemic.js";
 import type { ScanEvidence, ScanFact, ScanKnowledgeStatus } from "../../types.js";
 
 /** Conservative resolution outcome — no aggressive auto-merge. */
@@ -67,10 +72,16 @@ export function isLlmOnlyEvidence(evidence: readonly ScanEvidence[]): boolean {
 export function dominantKnowledgeStatus(
   statuses: readonly ScanKnowledgeStatus[],
 ): ScanKnowledgeStatus {
-  if (statuses.includes("conflicted")) return "conflicted";
-  if (statuses.includes("verified")) return "verified";
+  // Legacy wire priority (existing fusion consumers).
+  if (statuses.includes("conflicted") || statuses.includes("CONFLICTED")) return "conflicted";
+  if (statuses.includes("verified") || statuses.includes("VERIFIED")) return "verified";
   if (statuses.includes("detected")) return "detected";
   if (statuses.includes("observed")) return "observed";
-  if (statuses.includes("inferred")) return "inferred";
+  if (statuses.includes("SUPPORTED")) return "detected";
+  if (statuses.includes("inferred") || statuses.includes("INTERPRETED")) return "inferred";
+  if (statuses.includes("unknown") || statuses.includes("UNKNOWN")) return "unknown";
+  if (statuses.some((status) => isKnowledgeStatus(status))) {
+    return toLegacyScanKnowledgeStatus(dominantCanonicalKnowledgeStatus(statuses));
+  }
   return "unknown";
 }
