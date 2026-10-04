@@ -2752,7 +2752,8 @@ const server = http.createServer(async (req, res) => {
                 ? "/appflow/analyze"
                 : req.method === "POST" && pathname.startsWith("/stop/")
                   ? "/stop"
-                  : req.method === "POST" && /\/session\/[^/]+\/(open-login|persist)$/.test(pathname)
+                  : req.method === "POST" &&
+                      /\/session\/[^/]+\/(open-login|persist)$/.test(pathname)
                     ? "/session-write"
                     : req.method === "DELETE" && /^\/session\/[^/]+$/.test(pathname)
                       ? "/session-write"
