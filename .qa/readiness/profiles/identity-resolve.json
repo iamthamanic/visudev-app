@@ -1,0 +1,6 @@
+{
+  "id": "identity-resolve",
+  "description": "Identity pin + capability matrix only. Full surface certification deferred until source is available in CI (local HABA path or private Screenator token).",
+  "hardGates": [],
+  "surfaces": []
+}

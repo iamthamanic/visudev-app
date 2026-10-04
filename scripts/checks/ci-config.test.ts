@@ -67,6 +67,12 @@ describe("Real Visual Audit workflow (RVP-12 / Product Readiness harness)", () =
     expect(realAuditWorkflow).toContain("upload-artifact");
     expect(realAuditWorkflow).toContain("golden-projects.manifest.json");
   });
+
+  it("enforces V1 certification aggregate after the readiness matrix", () => {
+    expect(realAuditWorkflow).toContain("v1-certification");
+    expect(realAuditWorkflow).toContain("scripts/readiness/aggregate-certification.mjs");
+    expect(realAuditWorkflow).toContain("readiness-v1-certification-report");
+  });
 });
 
 describe("Local/GitHub parity gate (PR-16)", () => {

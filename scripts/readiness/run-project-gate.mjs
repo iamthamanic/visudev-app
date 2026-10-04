@@ -9,6 +9,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { assertEpistemicArtifacts } from "./assert-epistemic-artifacts.mjs";
 import { aggregateProjectVerdict, buildCapabilityReport } from "./capability-status.mjs";
 import { getProject, loadReadinessManifest } from "./load-manifest.mjs";
 import { resolveProjectSource } from "./resolve-project.mjs";
@@ -126,21 +127,24 @@ async function main() {
     VISUDEV_AUDIT_OUT: outDir,
   });
 
+  const epistemic = await assertEpistemicArtifacts(outDir);
+  const auditSucceeded = epistemic.passed;
+
   const passedRows = buildCapabilityReport(project, {
     sourceAvailable: true,
     runtimeSecretsPresent: Boolean(process.env.VISUDEV_AUDIT_RUNTIME_SECRETS),
     runtimeExecuted: false,
     capabilityResults: {
-      repositoryScan: true,
-      coverageContract: true,
-      atlas: true,
-      architecture: true,
-      dependencies: true,
-      execution: true,
-      infrastructure: true,
-      diagnostics: true,
-      evidenceLinks: true,
-      knowledgeStatus: true,
+      repositoryScan: auditSucceeded,
+      coverageContract: auditSucceeded,
+      atlas: auditSucceeded,
+      architecture: auditSucceeded,
+      dependencies: auditSucceeded,
+      execution: auditSucceeded,
+      infrastructure: auditSucceeded,
+      diagnostics: auditSucceeded,
+      evidenceLinks: auditSucceeded,
+      knowledgeStatus: auditSucceeded,
       appflowStatic: null,
       appflowRuntime: null,
       data: null,
@@ -150,16 +154,31 @@ async function main() {
     sourceAvailable: true,
     sourceRequired: true,
   });
+  const verdict = !epistemic.passed || aggregate.verdict === "FAIL" ? "FAIL" : aggregate.verdict;
+  const verdictReason = !epistemic.passed
+    ? `hard epistemic gates failed: ${epistemic.failures.join("; ")}`
+    : aggregate.reason;
+
   await writeReport(outDir, {
     projectId,
     mode: "full",
     source: resolved,
     capabilities: passedRows,
-    verdict: aggregate.verdict,
-    verdictReason: aggregate.reason,
+    hardGates: {
+      passed: epistemic.passed,
+      ...epistemic.hardGates,
+      failures: epistemic.failures,
+    },
+    assertionsProfile: project.assertions?.profile || null,
+    verdict,
+    verdictReason,
     delegatedTo: "scripts/real-visual-audit.mjs",
   });
-  if (aggregate.verdict === "FAIL") process.exit(1);
+  if (verdict === "FAIL") {
+    console.error(`Readiness gate FAIL for ${projectId}: ${verdictReason}`);
+    process.exit(1);
+  }
+  console.log(`Readiness gate PASS for ${projectId}`);
 }
 
 main().catch(async (error) => {

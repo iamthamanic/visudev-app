@@ -164,6 +164,11 @@ function normalizeManifest(raw) {
     version: 1,
     epic: raw.epic ?? null,
     harnessIssue: raw.harnessIssue ?? null,
+    certificationIssue: raw.certificationIssue ?? null,
+    certification:
+      raw.certification && typeof raw.certification === "object"
+        ? raw.certification
+        : { minFullPass: 3, phase: "v1", identityProjectsRequired: 5 },
     capabilityKeys,
     defaultCapabilities: defaults,
     projects,
