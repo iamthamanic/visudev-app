@@ -10,6 +10,10 @@ import type {
   SoftwareGraphEvidence,
   SoftwareGraphNode,
 } from "../../types";
+import {
+  resolveExecutionObservationClass,
+  type ExecutionObservationClass,
+} from "./execution-observation.js";
 
 /** Canonical station order for route-to-use-case pipelines. */
 export const EXECUTION_STATION_ORDER = [
@@ -32,6 +36,7 @@ export interface ExecutionPipelineStep {
   evidenceIds: string[];
   /** Always null without runtime telemetry (Honest-Core). */
   durationMs: null;
+  observationClass: ExecutionObservationClass;
 }
 
 export interface ExecutionUseCasePipeline {
@@ -69,6 +74,24 @@ function nodeHasEvidence(graph: SoftwareGraph, node: SoftwareGraphNode): boolean
   if (typeof node.filePath === "string" && node.filePath.length > 0) return true;
   if (node.metadata?.runtimeObserved === true) return true;
   return false;
+}
+
+function toPipelineStep(
+  graph: SoftwareGraph,
+  station: ExecutionStationKind,
+  node: SoftwareGraphNode,
+  label: string,
+  evidenceIds: string[],
+): ExecutionPipelineStep {
+  return {
+    id: `station:${station}:${node.id}`,
+    station,
+    label,
+    nodeId: node.id,
+    evidenceIds,
+    durationMs: null,
+    observationClass: resolveExecutionObservationClass(node, graph),
+  };
 }
 
 function classifyStation(node: SoftwareGraphNode): ExecutionStationKind | null {
@@ -156,17 +179,18 @@ export function buildExecutionUseCasePipeline(
   const bestByStation = new Map<ExecutionStationKind, ExecutionPipelineStep>();
 
   const triggerEvidence = evidenceForNode(graph, routeNode);
-  bestByStation.set("trigger", {
-    id: `station:trigger:${routeNode.id}`,
-    station: "trigger",
-    label: routeNode.label,
-    nodeId: routeNode.id,
-    evidenceIds:
+  bestByStation.set(
+    "trigger",
+    toPipelineStep(
+      graph,
+      "trigger",
+      routeNode,
+      routeNode.label,
       triggerEvidence.length > 0
         ? triggerEvidence.map((item) => item.id)
         : [`file:${routeNode.filePath ?? routeNode.id}`],
-    durationMs: null,
-  });
+    ),
+  );
 
   // Prefer semantic use-case entities that already backlink to graph nodes.
   if (semantic) {
@@ -181,17 +205,18 @@ export function buildExecutionUseCasePipeline(
       if (!node || !nodeHasEvidence(graph, node)) continue;
       if (bestByStation.has("use-case")) continue;
       const evidence = evidenceForNode(graph, node);
-      bestByStation.set("use-case", {
-        id: `station:use-case:${node.id}`,
-        station: "use-case",
-        label: entity.label || node.label,
-        nodeId: node.id,
-        evidenceIds:
+      bestByStation.set(
+        "use-case",
+        toPipelineStep(
+          graph,
+          "use-case",
+          node,
+          entity.label || node.label,
           evidence.length > 0
             ? evidence.map((item) => item.id)
             : [`file:${node.filePath ?? node.id}`],
-        durationMs: null,
-      });
+        ),
+      );
     }
   }
 
@@ -214,14 +239,7 @@ export function buildExecutionUseCasePipeline(
           ? evidence.map((item) => item.id)
           : [`file:${node.filePath ?? node.id}`];
 
-      const candidate: ExecutionPipelineStep = {
-        id: `station:${station}:${node.id}`,
-        station,
-        label: node.label,
-        nodeId: node.id,
-        evidenceIds,
-        durationMs: null,
-      };
+      const candidate = toPipelineStep(graph, station, node, node.label, evidenceIds);
 
       const existing = bestByStation.get(station);
       // Deduplicate: keep first evidenced node per station (semantic condensation).
@@ -246,17 +264,18 @@ export function buildExecutionUseCasePipeline(
       if (!station) continue;
       if (bestByStation.has(station)) continue;
       const evidence = evidenceForNode(graph, node);
-      bestByStation.set(station, {
-        id: `station:${station}:${node.id}`,
+      bestByStation.set(
         station,
-        label: node.label,
-        nodeId: node.id,
-        evidenceIds:
+        toPipelineStep(
+          graph,
+          station,
+          node,
+          node.label,
           evidence.length > 0
             ? evidence.map((item) => item.id)
             : [`file:${node.filePath ?? node.id}`],
-        durationMs: null,
-      });
+        ),
+      );
     }
   }
 

@@ -17,6 +17,8 @@ interface StepCardProps {
   selected?: boolean;
   onSelect?: () => void;
   testId?: string;
+  /** ObservationClass token for tests / a11y (PR-09). */
+  dataObservation?: string;
 }
 
 export function StepCard({
@@ -28,6 +30,7 @@ export function StepCard({
   selected = false,
   onSelect,
   testId,
+  dataObservation,
 }: StepCardProps): JSX.Element {
   const statusLabel =
     status === "confirmed"
@@ -44,6 +47,7 @@ export function StepCard({
       className={styles.root}
       data-selected={selected ? "true" : "false"}
       data-testid={testId}
+      data-observation={dataObservation}
       onClick={onSelect}
       aria-pressed={selected}
     >

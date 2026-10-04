@@ -1,5 +1,5 @@
 /**
- * Metrics bar — totals come from projected step timings, not live telemetry.
+ * Metrics bar — totals only from measured step timings (PR-09).
  */
 
 import type { ExecutionMetrics } from "./_projection.js";
@@ -10,13 +10,18 @@ export interface ExecutionMetricsBarProps {
 }
 
 export function ExecutionMetricsBar({ metrics }: ExecutionMetricsBarProps): JSX.Element {
+  const durationLabel =
+    typeof metrics.totalDurationMs === "number" && Number.isFinite(metrics.totalDurationMs)
+      ? `${metrics.totalDurationMs}ms`
+      : "nicht gemessen";
+
   return (
     <div
       className={styles.metricsBar}
       aria-label="Ausführungs-Metriken"
       data-testid="execution-metrics-bar"
     >
-      <span>Gesamtdauer: {metrics.totalDurationMs}ms</span>
+      <span>Gesamtdauer: {durationLabel}</span>
       <span className={styles.metricsDivider} aria-hidden="true">
         ·
       </span>

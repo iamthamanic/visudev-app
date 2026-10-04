@@ -143,8 +143,20 @@ describe("projectExecutionGraph", () => {
     const projected = projectExecutionGraph(graph, { routeId: "route:users:get" });
     const timings = computeStepTimings(graph, projected!.stepNodeIds);
     expect(timings).toEqual([
-      { nodeId: "route:users:get", durationMs: 20, startMs: 0, endMs: 20 },
-      { nodeId: "file:handler", durationMs: 30, startMs: 20, endMs: 50 },
+      {
+        nodeId: "route:users:get",
+        durationMs: 20,
+        startMs: 0,
+        endMs: 20,
+        hasMeasuredTiming: true,
+      },
+      {
+        nodeId: "file:handler",
+        durationMs: 30,
+        startMs: 20,
+        endMs: 50,
+        hasMeasuredTiming: true,
+      },
     ]);
 
     const metrics = computeExecutionMetrics(projected, graph);
@@ -165,6 +177,33 @@ describe("projectExecutionGraph", () => {
       nodes: [{ id: "file:a", kind: "file", label: "a.ts", metadata: {} }],
     });
     expect(resolveStepDurationMs(graph.nodes[0])).toBeNull();
+  });
+
+  it("does not invent 0ms cursors when steps lack measured durationMs", () => {
+    const graph = makeGraph({
+      nodes: [
+        {
+          id: "route:users:get",
+          kind: "route",
+          label: "GET /users",
+          metadata: { routeId: "route:users:get" },
+        },
+        { id: "file:handler", kind: "file", label: "users.ts", metadata: {} },
+      ],
+      groups: [
+        {
+          id: "execution:route:users:get:0",
+          kind: "route",
+          label: "GET /users · path 1",
+          nodeIds: ["route:users:get", "file:handler"],
+        },
+      ],
+    });
+    const projected = projectExecutionGraph(graph, { routeId: "route:users:get" });
+    const timings = computeStepTimings(graph, projected!.stepNodeIds);
+    expect(timings.every((timing) => timing.hasMeasuredTiming === false)).toBe(true);
+    expect(timings.every((timing) => timing.startMs === null && timing.endMs === null)).toBe(true);
+    expect(computeExecutionMetrics(projected, graph).totalDurationMs).toBeNull();
   });
 
   it("detects live execution from route metadata", () => {
