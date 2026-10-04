@@ -6,12 +6,12 @@
 
 ## Phase summary
 
-| Phase | Result |
-| ----- | ------ |
-| test-gate (scoped vitest + tsc) | PASS |
-| composition-gate | CLEAR (see composition-gate-dependencies-primary-topology.md) |
-| typed-strict | PASS (no escape hatches in touched files) |
-| Secure-by-Default | PASS (presentation filter; no evidence deletion) |
+| Phase                           | Result                                                        |
+| ------------------------------- | ------------------------------------------------------------- |
+| test-gate (scoped vitest + tsc) | PASS                                                          |
+| composition-gate                | CLEAR (see composition-gate-dependencies-primary-topology.md) |
+| typed-strict                    | PASS (no escape hatches in touched files)                     |
+| Secure-by-Default               | PASS (presentation filter; no evidence deletion)              |
 
 ## Notes
 

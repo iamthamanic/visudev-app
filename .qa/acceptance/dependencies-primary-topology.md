@@ -77,7 +77,7 @@ User toggles Security overlay / opens Dependencies default → projection filter
 ## Typed-strict
 
 - Touched files: zero type escape hatches
- presentation filter only, no evidence deletion
+  presentation filter only, no evidence deletion
 - P-04: N/A — no new endpoints
 
 ## Typed-strict

@@ -5,7 +5,7 @@
   "featureSlug": "dependencies-primary-topology",
   "phase": "commit",
   "branch": "feat/382-dependencies-primary-topology",
-  "prUrl": null,
+  "prUrl": "https://github.com/iamthamanic/visudev-app/pull/404",
   "paused": false,
   "runMode": "loop",
   "queue": [382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396],
