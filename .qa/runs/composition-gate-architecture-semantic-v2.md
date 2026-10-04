@@ -1,9 +1,9 @@
 # Composition Gate — architecture-semantic-v2 (issue 381)
 
-- HEAD_SHA: 5d134068d8676ebb66c8096206d989ed3a4ce9c5
+- HEAD_SHA: d4e2ec0dd074a7cc41c9f31feb07f7f51b3f052c
 - Date: 2026-10-04
 - Verdict: CLEAR
-- Note: Revalidated after E2E label expectation Modul→Technik only; semantic hops unchanged.
+- Note: Revalidated after E2E label expectation Modul→Technik; semantic hops unchanged. Docs-only proof refresh.
 
 ## Event
 
@@ -30,3 +30,4 @@ SemanticSystemModel (engine or shared builder) → Architecture domain/capabilit
 ## Findings
 
 None open.
+
