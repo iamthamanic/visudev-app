@@ -86,6 +86,20 @@ export function CanvasToolbar({
               High {analysisSummary.highIssueCount}
             </span>
           )}
+          {analysisSummary.coverage && (
+            <span
+              className={
+                analysisSummary.coverage.status === "COMPLETE"
+                  ? styles.analysisPill
+                  : styles.analysisPillWarning
+              }
+              data-testid="appflow-exploration-status"
+              title={`Exploration: ${analysisSummary.coverage.barrierLabelDe}; Frontier-Seeds ${analysisSummary.coverage.frontierSeedCount}; Runtime-verified ${analysisSummary.coverage.screenVerification.runtimeVerified}; Static ${analysisSummary.coverage.screenVerification.staticOnly}; Konflikte ${analysisSummary.coverage.screenVerification.conflicted}`}
+            >
+              {analysisSummary.coverage.status === "COMPLETE" ? "COMPLETE" : "PARTIAL"} ·{" "}
+              {analysisSummary.coverage.barrierLabelDe}
+            </span>
+          )}
         </div>
       )}
       <button type="button" onClick={onZoomOut} className={styles.zoomBtn} title="Verkleinern">

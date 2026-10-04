@@ -69,16 +69,26 @@ export interface RuntimeCrawlSummary {
   stateCaptures: number;
   mismatchCount: number;
   issueCount: number;
+  /** Present after PR-10 frontier crawler. */
+  terminationReason?: string;
+  frontierSeedCount?: number;
+  blockedMutations?: number;
+  exploreMode?: string;
+  sessionApplied?: boolean;
+  sessionStatus?: string;
 }
 
 export interface RuntimeCrawlResult {
   baseUrl: string;
   crawledAt: string;
   summary: RuntimeCrawlSummary;
+  /** Mirror of summary.terminationReason for convenience. */
+  terminationReason?: string;
   snapshots: RuntimeRouteSnapshot[];
   verifiedEdges: RuntimeVerifiedEdge[];
   stateScreens: RuntimeStateCapture[];
   issues: RuntimeCrawlIssue[];
+  exploreEvidence?: Array<Record<string, unknown>>;
 }
 
 const DETERMINISTIC_ORIGINS = new Set<AnalysisOrigin>([
