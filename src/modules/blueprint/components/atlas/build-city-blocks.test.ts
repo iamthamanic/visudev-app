@@ -25,6 +25,16 @@ describe("buildCityBlocks", () => {
     expect(blocks.every((block) => block.districtLabel === "core")).toBe(true);
   });
 
+  it("emits unique block ids when clusters overlap on the same node", () => {
+    const blocks = buildCityBlocks(nodes, [
+      { id: "g1", kind: "module", label: "core", nodeIds: ["a", "b"] },
+      { id: "g2", kind: "module", label: "overlap", nodeIds: ["a"] },
+    ]);
+    const ids = blocks.map((block) => block.id);
+    expect(ids).toEqual(["a", "b"]);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it("places many semantic districts across both city axes", () => {
     const districtNodes = Array.from(
       { length: 9 },
