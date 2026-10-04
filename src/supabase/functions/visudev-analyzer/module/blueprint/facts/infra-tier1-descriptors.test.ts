@@ -3,8 +3,7 @@
  * Location: …/facts/infra-tier1-descriptors.test.ts
  */
 
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
-import { extractFactsFromFile } from "./fact-extractors.ts";
+import { assertEquals } from "std/assert";import { extractFactsFromFile } from "./fact-extractors.ts";
 import {
   extractDockerfileFacts,
   extractEnvExampleInfraFacts,
