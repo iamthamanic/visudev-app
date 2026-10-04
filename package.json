@@ -126,6 +126,7 @@
     "e2e:ui": "playwright test --ui",
     "e2e:install": "playwright install chromium",
     "golden-set": "tsx scripts/golden-set/run.mjs",
+    "parity:local-github": "node scripts/local-github-parity/run.mjs",
     "readiness:matrix": "node scripts/readiness/resolve-matrix.mjs",
     "readiness:gate": "node scripts/readiness/run-project-gate.mjs",
     "crawl:appflow": "node scripts/crawl-appflow/crawl.mjs",

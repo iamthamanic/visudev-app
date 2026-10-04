@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 389,
-  "featureSlug": "infrastructure-honesty",
+  "activeIssue": 390,
+  "featureSlug": "local-github-parity",
   "phase": "pr",
-  "branch": "feat/389-infrastructure-honesty",
+  "branch": "feat/390-local-github-parity",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    389,
     390,
     391,
     392,
@@ -55,7 +54,8 @@
     385,
     386,
     387,
-    388
+    388,
+    389
   ],
   "mergedIssues": [
     321,
@@ -94,13 +94,15 @@
     385,
     386,
     387,
-    388
+    388,
+    389
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
     "386": "https://github.com/iamthamanic/visudev-app/pull/408",
     "387": "https://github.com/iamthamanic/visudev-app/pull/409",
-    "388": "https://github.com/iamthamanic/visudev-app/pull/410"
+    "388": "https://github.com/iamthamanic/visudev-app/pull/410",
+    "389": "https://github.com/iamthamanic/visudev-app/pull/411"
   },
   "retries": {
     "implement": 0,
@@ -119,8 +121,8 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": 389,
-  "lastCompletedIssue": 388,
-  "notes": "#389 implement done; opening PR",
-  "updatedAt": "2026-10-04T21:07:45.000Z"
+  "currentIssue": 390,
+  "lastCompletedIssue": 389,
+  "notes": "#390 parity implement done",
+  "updatedAt": "2026-10-04T21:15:07.000Z"
 }

@@ -1,8 +1,8 @@
 # Handoff — ecc-runner-loop
 
-- **Last merged:** #388 PR-14 infra Tier-1 detectors via PR #410 (`7f5565a1`)
-- **Next:** #389 PR-15 · Make Infrastructure view evidence-first and epistemically honest
-- **Branch:** `feat/389-infrastructure-honesty` (from main)
-- **Feature slug:** `infrastructure-honesty`
-- **Queue remaining:** #389–#396
+- **Last merged:** #389 PR-15 Infrastructure honesty via PR #411 (`d82df7f9`); prior #388 via PR #410
+- **Next:** #390 PR-16 · Enforce Local and GitHub semantic analysis parity
+- **Branch:** `feat/390-local-github-parity`
+- **Feature slug:** `local-github-parity`
+- **Queue remaining:** #390–#396
 - **paused:** false
