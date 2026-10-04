@@ -146,7 +146,7 @@ test.describe("Pipeline honest throughput visuals", () => {
     const select = page.getByTestId("arch-level-select");
     await expect(select).toBeVisible({ timeout: 20_000 });
     await select.selectOption("module");
-    await expect(page.getByTestId("arch-level-current")).toHaveText("Modul");
+    await expect(page.getByTestId("arch-level-current")).toHaveText("Technik");
 
     await page.screenshot({
       path: `${EVIDENCE_DIR}/03-architecture-level-nav.png`,
