@@ -16,6 +16,6 @@ Collapse runtime analysis to a single engine authority after #328 green. Retire 
 
 ## Composition Gate
 
-- HEAD_SHA: WORKTREE (findings fix)
+- HEAD_SHA: 14fa2c48ff3da4c6e0c7ed2c0b5f8e0815c33576
 - Verdict: CLEAR
 - Event: Analysis resolve for Blueprint/AppFlow/Data always produces engine-projection (or explicit legacy-fallback). Cloud API keeps VisuDev graph IR; engine authority is cutover + Local document.graph projection.
