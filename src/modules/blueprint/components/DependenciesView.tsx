@@ -1,5 +1,6 @@
 /**
- * DependenciesView — cross-module imports, calls, API, events, and data edges.
+ * DependenciesView — primary topology (imports/calls/API/data/events/external)
+ * with optional Security/API/Events overlays (#382).
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -12,7 +13,7 @@ import {
   DependenciesOverlayToggles,
   type DependencyOverlayId,
 } from "./dependencies/DependenciesOverlayToggles.js";
-import { kindsForOverlays } from "./dependencies/dependencies-overlay.js";
+import { mergeVisibleKindsWithOverlays } from "./dependencies/dependencies-overlay.js";
 import {
   DEFAULT_VISIBLE_DEPENDENCY_KINDS,
   applyOrphanFilter,
@@ -59,11 +60,10 @@ export function DependenciesView({
   const [drillLevel, setDrillLevel] = useState<DependenciesViewLevel>("semantic");
   const [focusSemanticEntityId, setFocusSemanticEntityId] = useState<string | null>(null);
 
-  const effectiveEdgeKinds = useMemo(() => {
-    const overlayKinds = kindsForOverlays(activeOverlays);
-    if (!overlayKinds) return visibleEdgeKinds;
-    return overlayKinds;
-  }, [activeOverlays, visibleEdgeKinds]);
+  const effectiveEdgeKinds = useMemo(
+    () => mergeVisibleKindsWithOverlays(visibleEdgeKinds, activeOverlays),
+    [activeOverlays, visibleEdgeKinds],
+  );
 
   const semanticModel = useMemo(() => {
     if (!graph) return null;

@@ -9,7 +9,25 @@ export const DEPENDENCY_EDGE_KINDS = [
 
 export type DependencyEdgeKind = (typeof DEPENDENCY_EDGE_KINDS)[number];
 
-export const DEFAULT_VISIBLE_DEPENDENCY_KINDS: DependencyEdgeKind[] = [...DEPENDENCY_EDGE_KINDS];
+/** Primary application topology — default Dependencies view (PR-08 / #382). */
+export const PRIMARY_TOPOLOGY_EDGE_KINDS = [
+  "imports",
+  "calls",
+  "api",
+  "data",
+  "event",
+  "external",
+] as const satisfies readonly DependencyEdgeKind[];
+
+/** Cross-cutting security edges — off by default; enabled via Security overlay. */
+export const CROSS_CUTTING_EDGE_KINDS = [
+  "auth",
+  "validation",
+] as const satisfies readonly DependencyEdgeKind[];
+
+export const DEFAULT_VISIBLE_DEPENDENCY_KINDS: DependencyEdgeKind[] = [
+  ...PRIMARY_TOPOLOGY_EDGE_KINDS,
+];
 
 /** Maps SoftwareGraph edge kinds onto dependency relationship chips. */
 export const GRAPH_EDGE_TO_DEPENDENCY: Partial<Record<SoftwareGraphEdgeKind, DependencyEdgeKind>> =

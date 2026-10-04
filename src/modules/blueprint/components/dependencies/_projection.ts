@@ -21,9 +21,11 @@ import {
 } from "./_projection.constants.js";
 
 export {
+  CROSS_CUTTING_EDGE_KINDS,
   DEFAULT_VISIBLE_DEPENDENCY_KINDS,
   DEPENDENCY_EDGE_KINDS,
   DEPENDENCY_EDGE_LABELS,
+  PRIMARY_TOPOLOGY_EDGE_KINDS,
   RELATIONSHIP_LABELS,
   type DependencyEdgeKind,
 } from "./_projection.constants.js";

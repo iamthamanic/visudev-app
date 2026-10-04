@@ -14,11 +14,16 @@ import type {
   SoftwareGraphNode,
 } from "../../types";
 import {
+  CROSS_CUTTING_EDGE_KINDS,
   DEFAULT_VISIBLE_DEPENDENCY_KINDS,
+  PRIMARY_TOPOLOGY_EDGE_KINDS,
   RELATIONSHIP_LABELS,
   resolveDependencyKindFromGraphEdge,
   type DependencyEdgeKind,
 } from "./_projection.constants.js";
+
+const PRIMARY_KIND_SET = new Set<DependencyEdgeKind>(PRIMARY_TOPOLOGY_EDGE_KINDS);
+const CROSS_CUTTING_KIND_SET = new Set<DependencyEdgeKind>(CROSS_CUTTING_EDGE_KINDS);
 import {
   projectDependenciesGraph,
   type DependenciesProjection,
@@ -121,7 +126,8 @@ function buildSemanticOverview(
     if (current) {
       current.kinds.add(kind);
       current.weight += 1;
-      if (current.evidenceEdgeIds.length < 8) current.evidenceEdgeIds.push(edge.id);
+      // Keep full evidence backlinks for drill-down (density caps nodes, not evidence).
+      current.evidenceEdgeIds.push(edge.id);
       continue;
     }
     aggregates.set(key, {
@@ -156,11 +162,38 @@ function buildSemanticOverview(
     });
   }
 
-  // Density cap: keep connected nodes first, then orphans, then truncate.
-  const ranked = [
-    ...nodes.filter((node) => !orphanNodeIds.includes(node.id)),
-    ...nodes.filter((node) => orphanNodeIds.includes(node.id)),
-  ].slice(0, DEPENDENCIES_SEMANTIC_MAX_NODES);
+  // Density cap: prefer primary-topology degree, then any connection, then orphans.
+  const primaryDegree = new Map<string, number>();
+  const anyDegree = new Map<string, number>();
+  for (const aggregate of aggregates.values()) {
+    const hasPrimary = [...aggregate.kinds].some((kind) => PRIMARY_KIND_SET.has(kind));
+    const hasCrossCuttingOnly =
+      !hasPrimary && [...aggregate.kinds].every((kind) => CROSS_CUTTING_KIND_SET.has(kind));
+    const bump = (map: Map<string, number>, id: string, amount: number) => {
+      map.set(id, (map.get(id) ?? 0) + amount);
+    };
+    bump(anyDegree, aggregate.source, aggregate.weight);
+    bump(anyDegree, aggregate.target, aggregate.weight);
+    if (hasPrimary) {
+      bump(primaryDegree, aggregate.source, aggregate.weight);
+      bump(primaryDegree, aggregate.target, aggregate.weight);
+    } else if (!hasCrossCuttingOnly) {
+      bump(primaryDegree, aggregate.source, aggregate.weight);
+      bump(primaryDegree, aggregate.target, aggregate.weight);
+    }
+  }
+
+  const ranked = [...nodes]
+    .sort((left, right) => {
+      const leftPrimary = primaryDegree.get(left.id) ?? 0;
+      const rightPrimary = primaryDegree.get(right.id) ?? 0;
+      if (rightPrimary !== leftPrimary) return rightPrimary - leftPrimary;
+      const leftAny = anyDegree.get(left.id) ?? 0;
+      const rightAny = anyDegree.get(right.id) ?? 0;
+      if (rightAny !== leftAny) return rightAny - leftAny;
+      return left.id.localeCompare(right.id);
+    })
+    .slice(0, DEPENDENCIES_SEMANTIC_MAX_NODES);
   const visibleIds = new Set(ranked.map((node) => node.id));
   const cappedOrphans = orphanNodeIds.filter((id) => visibleIds.has(id));
 

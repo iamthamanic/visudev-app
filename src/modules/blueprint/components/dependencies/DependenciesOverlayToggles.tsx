@@ -32,7 +32,8 @@ export function DependenciesOverlayToggles({
           {summary}
         </summary>
         <p className={styles.emptyControls}>
-          Schnellfilter auf vorhandene Kantentypen — keine neuen Knoten.
+          Zuschaltbare Overlays auf die Primärtopologie — keine neuen Knoten, Evidence bleibt
+          inspectable.
         </p>
         <div className={styles.chipGrid}>
           {(Object.keys(OVERLAY_LABELS) as DependencyOverlayId[]).map((overlay) => (
