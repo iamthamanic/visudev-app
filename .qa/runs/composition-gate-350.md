@@ -1,19 +1,34 @@
 # Composition Gate — sde-15-legacy-retirement
 
-- HEAD_SHA: ce6eb48f0bf914658e05c62436895cf1946d2ae0
-- Date: 2026-10-03
+- HEAD_SHA: 14fa2c48ff3da4c6e0c7ed2c0b5f8e0815c33576
+- Date: 2026-10-04
 - Verdict: CLEAR
 
 ## Event
 
 Blueprint / AppFlow / Data analysis resolve: consumer always receives engine-projection (or explicit legacy-fallback). Mode no longer changes render destination (shadow dual-path removed).
 
+## Hop chain
+
+Scan materialization → `resolve*` (engine) → Local `BlueprintDocument.graph` / AppFlow screens / Data ERD → UI  
+Cloud: VisuDev assemble → `applyEngineHostCutover` → `engineCutover` metadata (graph IR unchanged)
+
 ## Simulations
 
-- N actors: Local enrich + Cloud cutover + AppFlow/Data adapters → same engine authority
-- Invalid fallback: truncated/empty projection → legacy-fallback with reason (destination explicit)
-- Concurrent consumers: no queue/outbox; sync resolve only
+| Case                | Intended                                       | Composed                               | Result |
+| ------------------- | ---------------------------------------------- | -------------------------------------- | ------ |
+| N actors            | Same engine authority Local/Cloud/AppFlow/Data | Shared resolve + host cutover          | pass   |
+| Invalid / truncated | Explicit fallback                              | `legacy-fallback` + reason             | pass   |
+| Cloud graph         | Keep VisuDev IR; engine via cutover            | No lossy reverse onto `document.graph` | pass   |
+
+## Flags
+
+None.
+
+## Skip reason
+
+n/a
 
 ## Notes
 
-Cloud applies engine graph to `document.graph` when source is engine-projection.
+Security diagnostics (`deriveDiagnosticsFromGraph`, access-control) use scan materialization (`diagnosticGraph` / `legacyGraph`), not the projected render graph, so auth/validation evidence is not dropped by SDE-15 engine cutover.

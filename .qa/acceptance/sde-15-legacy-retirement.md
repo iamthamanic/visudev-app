@@ -9,12 +9,13 @@ Collapse runtime analysis to a single engine authority after #328 green. Retire 
 - [x] #328 merged with enrichment-OFF Real Project Gate before retirement
 - [x] Analysis modes default to `engine`; legacy/shadow env values map to engine
 - [x] Resolve paths (Blueprint/AppFlow/Data) no longer dual-render legacy/shadow
-- [x] Cloud cutover promotes engine-projection graph onto `document.graph`
+- [x] Cloud attaches shared `engineCutover` (mode/source/capabilities/semantics); VisuDev `document.graph` IR stays for API shape (no lossy SoftwareGraph→VisuDev reverse)
+- [x] Local enrich: render/semantic from engine projection; security diagnostics from scan materialization (`diagnosticGraph`)
 - [x] Product slices do not import `shared/scan-detector` or `local-engine/**`
 - [x] `npm run checks` green; zero type escape hatches in touched files
 
 ## Composition Gate
 
-- HEAD_SHA: ce6eb48f0bf914658e05c62436895cf1946d2ae0
+- HEAD_SHA: 14fa2c48ff3da4c6e0c7ed2c0b5f8e0815c33576
 - Verdict: CLEAR
-- Event: Analysis resolve for Blueprint/AppFlow/Data now always produces engine-projection (or explicit legacy-fallback) — no shadow fan-out that changes render destination by mode.
+- Event: Analysis resolve for Blueprint/AppFlow/Data always produces engine-projection (or explicit legacy-fallback). Cloud API keeps VisuDev graph IR; engine authority is cutover + Local document.graph projection.
