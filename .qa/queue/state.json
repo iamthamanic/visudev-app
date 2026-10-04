@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 390,
-  "featureSlug": "local-github-parity",
-  "phase": "pr",
-  "branch": "feat/390-local-github-parity",
+  "activeIssue": 391,
+  "featureSlug": null,
+  "phase": "setup",
+  "branch": null,
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    390,
     391,
     392,
     393,
@@ -55,7 +54,8 @@
     386,
     387,
     388,
-    389
+    389,
+    390
   ],
   "mergedIssues": [
     321,
@@ -95,14 +95,16 @@
     386,
     387,
     388,
-    389
+    389,
+    390
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
     "386": "https://github.com/iamthamanic/visudev-app/pull/408",
     "387": "https://github.com/iamthamanic/visudev-app/pull/409",
     "388": "https://github.com/iamthamanic/visudev-app/pull/410",
-    "389": "https://github.com/iamthamanic/visudev-app/pull/411"
+    "389": "https://github.com/iamthamanic/visudev-app/pull/411",
+    "390": "https://github.com/iamthamanic/visudev-app/pull/412"
   },
   "retries": {
     "implement": 0,
@@ -121,8 +123,8 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": 390,
-  "lastCompletedIssue": 389,
-  "notes": "#390 parity implement done",
-  "updatedAt": "2026-10-04T21:15:07.000Z"
+  "currentIssue": 391,
+  "lastCompletedIssue": 390,
+  "notes": "Merged #390 via PR #412; context handoff \u2014 resume at #391",
+  "updatedAt": "2026-10-04T21:18:26.000Z"
 }
