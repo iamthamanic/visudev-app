@@ -1,8 +1,8 @@
 # Handoff — ecc-runner-loop
 
-- **Last merged:** #390 PR-16 Local/GitHub parity via PR #412 (on main tip)
-- **Also this session:** #388 PR #410, #389 PR #411
-- **Next:** #391 (order-17) — claim from main, full ship loop
-- **Queue remaining:** #391–#396
+- **Last merged:** #391 PR-17 product-readiness-hardening via PR #413 (`6b328c55`)
+- **Next:** #392 PR-18 · Enforce the final five-project V1 certification gate
+- **Branch:** `feat/392-v1-readiness-certification`
+- **Feature slug:** `v1-readiness-certification`
+- **Queue remaining:** #392–#396
 - **paused:** false
-- **Resume:** `@ecc-runner-loop continue`
