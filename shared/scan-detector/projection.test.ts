@@ -138,6 +138,7 @@ describe("projection query layer (SDE-07)", () => {
           status: "conflicted",
           confidence: 0.5,
           evidenceIds: ["ev-table"],
+          // Fixture-only fake token — asserts redaction, not a real credential.
           attributes: { label: "users", token: "sk-abcdefghijklmnopqrstuvwxyz" },
         }),
         fact({

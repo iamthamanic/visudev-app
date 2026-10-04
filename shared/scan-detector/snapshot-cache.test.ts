@@ -269,6 +269,7 @@ describe("runWithCache", () => {
             provenance: { originKind: "static", detectorId: id },
             subjectId: subject,
             evidenceIds: [],
+            // Fixture-only fake token — asserts redaction, not a real credential.
             attributes: { token: "sk-abcdefghijklmnopqrstuvwxyz" },
           },
         ],

@@ -168,3 +168,4 @@ After material changes, run `@memory-live-doc` (or rely on `@implement` / `@ecc-
 ## Notes
 
 - Backend stack is Deno/Hono + Supabase (NOT Prisma/Next). Translate generic DDD rules accordingly.
+- **SDE-15 analysis authority:** Blueprint/AppFlow/Data resolve is engine-only (`legacy`/`shadow` retired). Local enrich uses engine projection for `BlueprintDocument.graph` / semantic model, but runs security diagnostics on the scan materialization (`diagnosticGraph`) so auth/validation evidence is not dropped. Cloud attaches `engineCutover` metadata; VisuDev `document.graph` IR stays for API shape (no lossy SoftwareGraph→VisuDev reverse).
