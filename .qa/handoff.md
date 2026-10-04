@@ -1,17 +1,15 @@
 # ECC Runner Loop Handoff
 
-- **Merged this session:** #375→#397, #376→#398, #377→#399, #378→#400
-- **Next:** #379 PR-05 · SemanticSystemModel v2 taxonomy + deterministic classification
+- **Merged this session:** #375→#397, #376→#398, #377→#399, #378→#400, #379→#401
+- **Next:** #380 PR-06 · Cut Atlas over to SemanticSystemModel v2
 - **paused:** false
 - **runMode:** loop
-- **Queue remaining:** #379–#396 (V1 through #392, then V1.1)
+- **Queue remaining:** #380–#396
 
 ## On main already
 
-- Readiness harness (5 golden projects, HABA local identity)
-- Epistemic contracts (`KnowledgeStatus`/`CoverageStatus`/`DetectionState`)
-- Authoritative truth before transport caps
-- Capability coverage report + honest empty states
+- Readiness harness + epistemic contracts + authoritative truth + capability coverage
+- SemanticSystemModel v2 taxonomy (`knowledgeStatus`, multi-signal domains, resource denylist)
 
 ## Resume
 

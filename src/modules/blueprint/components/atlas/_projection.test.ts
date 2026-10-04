@@ -91,6 +91,30 @@ describe("projectAtlasGraph", () => {
     );
   });
 
+  it("does not promote resources as business-domain districts", () => {
+    const graph = makeGraph();
+    graph.nodes = [
+      { id: "app", kind: "application", label: "App", metadata: {} },
+      {
+        id: "route-logo",
+        kind: "route",
+        label: "GET /logo",
+        metadata: { path: "/logo" },
+      },
+      {
+        id: "tbl-user",
+        kind: "table",
+        label: "user",
+        metadata: {},
+      },
+    ];
+    graph.edges = [];
+    const projection = projectAtlasGraph(graph);
+    expect(projection.nodes.some((node) => node.semanticKind === "resource")).toBe(false);
+    expect(projection.groups.every((group) => group.label.toLowerCase() !== "logo")).toBe(true);
+    expect(projection.nodes.some((node) => node.semanticKind === "business-domain")).toBe(true);
+  });
+
   it("falls back to technical clusters when no business-domain qualifies", () => {
     const graph = makeGraph();
     // Route-only + denylist-style names → no business-domain; keep module/service clusters.

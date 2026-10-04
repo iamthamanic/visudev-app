@@ -120,7 +120,12 @@ export function AtlasView({ blueprint, scanStatus, scanError, onRetry }: AtlasVi
         </div>
       }
       inspector={
-        <AtlasInspector graph={graph} node={state.selectedNode} cluster={state.selectedCluster} />
+        <AtlasInspector
+          graph={graph}
+          semanticEntity={state.selectedSemanticEntity}
+          node={state.selectedNode}
+          cluster={state.selectedCluster}
+        />
       }
     />
   );

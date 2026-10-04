@@ -59,7 +59,12 @@ export function AtlasInspector({
 
   return (
     <InspectorPanel title={title} subtitle={subtitle} testId="atlas-inspector">
-      <AtlasInspectorTabs graph={graph} node={node} cluster={cluster} />
+      <AtlasInspectorTabs
+        graph={graph}
+        node={node}
+        cluster={cluster}
+        semanticEntity={semanticEntity}
+      />
     </InspectorPanel>
   );
 }

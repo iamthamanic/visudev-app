@@ -2,9 +2,11 @@
  * Übersicht tab content for Atlas Inspektor — rich cluster profile (Wave 4).
  */
 
+import type { SemanticEntity } from "../../../../../shared/semantic-system-model.types.js";
 import type { SoftwareGraph, SoftwareGraphGroup, SoftwareGraphNode } from "../../types";
 import { AtlasClusterActivityList } from "./AtlasClusterActivityList.js";
 import { AtlasClusterMetricGrid } from "./AtlasClusterMetricGrid.js";
+import { AtlasSemanticEvidenceSection } from "./AtlasSemanticEvidenceSection.js";
 import { atlasKindLabel } from "./atlas-display.js";
 import {
   clusterActivityItems,
@@ -20,6 +22,7 @@ export interface AtlasInspectorOverviewTabProps {
   node: SoftwareGraphNode | null;
   cluster: SoftwareGraphGroup | null;
   nodeGroups: SoftwareGraphGroup[];
+  semanticEntity?: SemanticEntity | null;
 }
 
 export function AtlasInspectorOverviewTab({
@@ -27,9 +30,13 @@ export function AtlasInspectorOverviewTab({
   node,
   cluster,
   nodeGroups,
+  semanticEntity = null,
 }: AtlasInspectorOverviewTabProps): JSX.Element {
-  const label = cluster?.label ?? node?.label ?? "—";
+  const label = semanticEntity?.label ?? cluster?.label ?? node?.label ?? "—";
   const topDependencies = clusterTopDependencies(graph, node, cluster);
+  const typeLabel = semanticEntity
+    ? atlasKindLabel(semanticEntity.kind)
+    : atlasKindLabel(cluster?.kind ?? node?.kind ?? "—");
 
   return (
     <div className={styles.clusterOverview} data-testid="atlas-inspector-overview">
@@ -46,7 +53,7 @@ export function AtlasInspectorOverviewTab({
         </div>
         <div className={styles.detailRow}>
           <dt>Typ</dt>
-          <dd>{atlasKindLabel(cluster?.kind ?? node?.kind ?? "—")}</dd>
+          <dd>{typeLabel}</dd>
         </div>
         {cluster ? (
           <div className={styles.detailRow}>
@@ -61,6 +68,8 @@ export function AtlasInspectorOverviewTab({
           </div>
         ) : null}
       </dl>
+
+      {semanticEntity ? <AtlasSemanticEvidenceSection entity={semanticEntity} /> : null}
 
       <AtlasClusterMetricGrid metrics={clusterOverviewMetrics(graph, cluster)} />
 

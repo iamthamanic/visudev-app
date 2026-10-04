@@ -45,6 +45,7 @@ export interface AtlasProjection {
   visibleNodes: number;
 }
 
+/** Primary Atlas search/overview kinds — systemic first; resources via search only. */
 const PRIMARY_SEARCH_KINDS = new Set<SemanticEntityKind>([
   "application",
   "business-domain",
@@ -54,6 +55,20 @@ const PRIMARY_SEARCH_KINDS = new Set<SemanticEntityKind>([
   "component",
   "data-store",
   "external-system",
+  "security-control",
+  "resource",
+]);
+
+const DEFAULT_OVERVIEW_KINDS = new Set<SemanticEntityKind>([
+  "application",
+  "business-domain",
+  "capability",
+  "service",
+  "technical-module",
+  "component",
+  "data-store",
+  "external-system",
+  "security-control",
 ]);
 
 const GRAPH_KIND_BY_SEMANTIC_KIND: Record<SemanticEntityKind, SoftwareGraphNodeKind> = {
@@ -114,15 +129,15 @@ function defaultEntities(model: SemanticSystemModel): SemanticEntity[] {
     (entity) => entity.kind === "application" && isReadableOverviewEntity(entity),
   );
   const domains = model.entities.filter((entity) => entity.kind === "business-domain");
-  if (domains.length > 0) return [...applications, ...domains];
+  const capabilities = model.entities.filter((entity) => entity.kind === "capability");
+  // Primary districts: applications + business domains + capabilities (never resources as domains).
+  if (domains.length > 0 || capabilities.length > 0) {
+    return [...applications, ...domains, ...capabilities];
+  }
   return [
     ...applications,
     ...model.entities.filter(
-      (entity) =>
-        isReadableOverviewEntity(entity) &&
-        ["service", "technical-module", "component", "data-store", "external-system"].includes(
-          entity.kind,
-        ),
+      (entity) => isReadableOverviewEntity(entity) && DEFAULT_OVERVIEW_KINDS.has(entity.kind),
     ),
   ];
 }
@@ -270,6 +285,8 @@ export function projectAtlasSemanticModel(
       label: truncateLabel(entity.label),
       kind,
       color: getNodeKindColor(kind),
+      semanticKind: entity.kind,
+      knowledgeStatus: entity.knowledgeStatus,
     };
   });
 

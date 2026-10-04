@@ -37,10 +37,27 @@ function useResolvedSelection(
   selectedNodeId: string | null,
   selectedGroupId: string | null,
 ): Pick<AtlasSelectionState, "selectedSemanticEntity" | "selectedNode" | "selectedCluster"> {
-  const selectedSemanticEntity = useMemo(
-    () => projection.semanticEntities.find((item) => item.id === selectedNodeId) ?? null,
-    [projection.semanticEntities, selectedNodeId],
-  );
+  const selectedSemanticEntity = useMemo(() => {
+    if (selectedNodeId) {
+      return projection.semanticEntities.find((item) => item.id === selectedNodeId) ?? null;
+    }
+    if (!selectedGroupId) return null;
+    const group =
+      projection.groups.find((item) => item.id === selectedGroupId) ??
+      projection.inspectorGroups.find((item) => item.id === selectedGroupId);
+    if (!group) return null;
+    for (const nodeId of group.nodeIds) {
+      const entity = projection.semanticEntities.find((item) => item.id === nodeId);
+      if (entity) return entity;
+    }
+    return null;
+  }, [
+    projection.groups,
+    projection.inspectorGroups,
+    projection.semanticEntities,
+    selectedGroupId,
+    selectedNodeId,
+  ]);
   const selectedNode = useMemo(() => {
     const rawId = selectedNodeId && projection.sourceGraphNodeIdBySemanticId[selectedNodeId];
     return graph && rawId ? findGraphNode(graph, rawId) : null;
@@ -78,12 +95,15 @@ export function useAtlasSelection(
   );
   const handleSelectNode = (nodeId: string): void => {
     const semantic = projection.semanticEntities.find((item) => item.id === nodeId);
-    const domainGroup =
-      semantic?.kind === "business-domain"
-        ? projection.groups.find((group) => group.nodeIds.includes(nodeId))
-        : undefined;
-    setSelectedGroupId(domainGroup?.id ?? null);
-    setSelectedNodeId(domainGroup ? null : nodeId);
+    const districtGroup = projection.groups.find((group) => group.nodeIds.includes(nodeId));
+    const preferCluster = semantic?.kind === "business-domain" || semantic?.kind === "capability";
+    if (preferCluster && districtGroup) {
+      setSelectedGroupId(districtGroup.id);
+      setSelectedNodeId(null);
+      return;
+    }
+    setSelectedGroupId(districtGroup?.id ?? null);
+    setSelectedNodeId(nodeId);
   };
   const handleSelectGroup = (groupId: string): void => {
     setSelectedGroupId(groupId);
