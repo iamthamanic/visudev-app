@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 387,
-  "featureSlug": "appflow-coverage",
-  "phase": "commit",
-  "branch": "feat/387-appflow-coverage",
+  "activeIssue": 388,
+  "featureSlug": null,
+  "phase": "implement",
+  "branch": null,
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    387,
     388,
     389,
     390,
@@ -55,7 +54,8 @@
     383,
     384,
     385,
-    386
+    386,
+    387
   ],
   "mergedIssues": [
     321,
@@ -92,21 +92,13 @@
     383,
     384,
     385,
-    386
+    386,
+    387
   ],
   "prUrls": {
-    "375": "https://github.com/iamthamanic/visudev-app/pull/397",
-    "376": "https://github.com/iamthamanic/visudev-app/pull/398",
-    "377": "https://github.com/iamthamanic/visudev-app/pull/399",
-    "378": "https://github.com/iamthamanic/visudev-app/pull/400",
-    "379": "https://github.com/iamthamanic/visudev-app/pull/401",
-    "380": "https://github.com/iamthamanic/visudev-app/pull/402",
-    "381": "https://github.com/iamthamanic/visudev-app/pull/403",
-    "382": "https://github.com/iamthamanic/visudev-app/pull/404",
-    "383": "https://github.com/iamthamanic/visudev-app/pull/405",
-    "384": "https://github.com/iamthamanic/visudev-app/pull/406",
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
-    "386": "https://github.com/iamthamanic/visudev-app/pull/408"
+    "386": "https://github.com/iamthamanic/visudev-app/pull/408",
+    "387": "https://github.com/iamthamanic/visudev-app/pull/409"
   },
   "retries": {
     "implement": 0,
@@ -125,11 +117,8 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "issuesProcessedInSession": 1,
-  "updatedAt": "2026-10-04T19:56:00.000Z",
-  "notes": "#386 merged #408; #387 shipping",
-  "currentIssue": 387,
-  "lastCompletedIssue": 386,
-  "activeBranch": "feat/386-appflow-safe-sandbox",
-  "milestoneFilter": null
+  "currentIssue": 388,
+  "lastCompletedIssue": 387,
+  "notes": "Context handoff after #387; continue at #388",
+  "updatedAt": "2026-10-04T20:02:00.000Z"
 }
