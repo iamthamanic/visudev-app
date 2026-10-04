@@ -1,5 +1,5 @@
 /**
- * Timeline ruler — labels show cumulative endMs so step boundaries align with pipeline cards.
+ * Timeline ruler — measured endMs only; hide synthetic 0ms when no telemetry (PR-09).
  */
 
 import type { StepTiming } from "./_projection.js";
@@ -14,7 +14,16 @@ export function ExecutionTimelineRuler({
 }: ExecutionTimelineRulerProps): JSX.Element | null {
   if (stepTimings.length === 0) return null;
 
-  const totalMs = stepTimings.at(-1)?.endMs ?? 0;
+  const measured = stepTimings.filter((timing) => timing.hasMeasuredTiming);
+  if (measured.length === 0) {
+    return (
+      <div className={styles.timelineWrap} aria-label="Zeitachse" data-testid="execution-timeline">
+        <p className={styles.timelineTotal}>Gesamt: nicht gemessen</p>
+      </div>
+    );
+  }
+
+  const totalMs = Math.max(...measured.map((timing) => timing.endMs ?? 0));
 
   return (
     <div className={styles.timelineWrap} aria-label="Zeitachse" data-testid="execution-timeline">
@@ -22,7 +31,9 @@ export function ExecutionTimelineRuler({
         {stepTimings.map((timing, index) => (
           <div key={timing.nodeId} className={styles.timelineSegment}>
             {index > 0 ? <span className={styles.timelineTick} aria-hidden="true" /> : null}
-            <span className={styles.timelineLabel}>{timing.endMs}ms</span>
+            <span className={styles.timelineLabel}>
+              {timing.hasMeasuredTiming && timing.endMs != null ? `${timing.endMs}ms` : "—"}
+            </span>
           </div>
         ))}
       </div>

@@ -206,14 +206,17 @@ export function findStepEvidence(graph: SoftwareGraph, nodeId: string | null) {
 
 export interface StepTiming {
   nodeId: string;
-  /** Null when the graph has no measured durationMs (Honest-Core P0-4). */
+  /** Null when the graph has no measured durationMs (Honest-Core P0-4 / PR-09). */
   durationMs: number | null;
-  startMs: number;
-  endMs: number;
+  /** Null when this step has no measured duration — never invent 0ms cursors. */
+  startMs: number | null;
+  endMs: number | null;
+  hasMeasuredTiming: boolean;
 }
 
 export interface ExecutionMetrics {
-  totalDurationMs: number;
+  /** Null when no step has measured durationMs (avoid fake 0ms totals). */
+  totalDurationMs: number | null;
   stepCount: number;
   errorCount: number;
   warningCount: number;
@@ -234,13 +237,29 @@ export function resolveStepDurationMs(node: SoftwareGraphNode | undefined): numb
 export function computeStepTimings(graph: SoftwareGraph, stepNodeIds: string[]): StepTiming[] {
   const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
   let cursorMs = 0;
+  let measuredCursor = false;
   return stepNodeIds.map((nodeId) => {
     const durationMs = resolveStepDurationMs(nodeById.get(nodeId));
-    const startMs = cursorMs;
-    const measured = durationMs ?? 0;
-    const endMs = cursorMs + measured;
+    if (durationMs == null) {
+      return {
+        nodeId,
+        durationMs: null,
+        startMs: null,
+        endMs: null,
+        hasMeasuredTiming: false,
+      };
+    }
+    const startMs = measuredCursor ? cursorMs : 0;
+    const endMs = startMs + durationMs;
     cursorMs = endMs;
-    return { nodeId, durationMs, startMs, endMs };
+    measuredCursor = true;
+    return {
+      nodeId,
+      durationMs,
+      startMs,
+      endMs,
+      hasMeasuredTiming: true,
+    };
   });
 }
 
@@ -249,7 +268,7 @@ export function computeExecutionMetrics(
   graph: SoftwareGraph,
 ): ExecutionMetrics {
   const empty: ExecutionMetrics = {
-    totalDurationMs: 0,
+    totalDurationMs: null,
     stepCount: 0,
     errorCount: 0,
     warningCount: 0,
@@ -264,7 +283,10 @@ export function computeExecutionMetrics(
   }
 
   const timings = computeStepTimings(graph, projection.stepNodeIds);
-  const totalDurationMs = timings.at(-1)?.endMs ?? 0;
+  const measuredEnds = timings
+    .filter((timing) => timing.hasMeasuredTiming && timing.endMs != null)
+    .map((timing) => timing.endMs as number);
+  const totalDurationMs = measuredEnds.length > 0 ? Math.max(...measuredEnds) : null;
   let errorCount = projection.cycleNodeId != null ? 1 : 0;
   let warningCount = 0;
   let serviceCount = 0;

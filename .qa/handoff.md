@@ -1,7 +1,7 @@
 # ECC Runner Loop Handoff
 
-- **Merged this session:** #375→#397 … #381→#403
-- **Next:** #382 PR-08 · Dependencies primary topology (in progress)
+- **Merged this session:** #375→#397 … #381→#403, #382→#404
+- **Next:** #383 PR-09 · Execution observation trust
 - **paused:** false
 - **runMode:** loop
 - **Queue remaining:** #382–#396
@@ -22,8 +22,8 @@ Epic #374 — immer **numerisch PR-01→PR-22**, sequential merge auf `main`.
 | ✓          | #379  | PR-05 SemanticSystemModel v2              | #378             |
 | ✓          | #380  | PR-06 Atlas → v2                          | #379             |
 | ✓          | #381  | PR-07 Architecture layers                 | #379             |
-| → **NEXT** | #382  | PR-08 Dependencies topology               | #379             |
-|            | #383  | PR-09 Execution trust layers              | #379             |
+| ✓          | #382  | PR-08 Dependencies topology               | #379             |
+| → **NEXT** | #383  | PR-09 Execution trust layers              | #379             |
 |            | #384  | PR-10 AppFlow frontier explore            | #378             |
 |            | #385  | PR-11 AppFlow test sessions               | #384             |
 |            | #386  | PR-12 Safe/Sandbox Explore                | #385             |

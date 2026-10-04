@@ -22,6 +22,10 @@ import {
   listExecutionRoutes,
   projectExecutionGraph,
 } from "./execution/_projection.js";
+import {
+  resolveExecutionObservationClass,
+  type ExecutionObservationClass,
+} from "./execution/execution-observation.js";
 import styles from "../styles/ExecutionView.module.css";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
@@ -90,6 +94,16 @@ export function ExecutionView({ blueprint, scanStatus, scanError, onRetry }: Exe
     return map;
   }, [graph, projection]);
 
+  const stepObservations = useMemo(() => {
+    const map = new Map<string, ExecutionObservationClass>();
+    if (!graph || !projection) return map;
+    const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
+    for (const nodeId of projection.stepNodeIds) {
+      map.set(nodeId, resolveExecutionObservationClass(nodeById.get(nodeId), graph));
+    }
+    return map;
+  }, [graph, projection]);
+
   const selectedEvidence = useMemo(
     () => (graph ? findStepEvidence(graph, selectedStepId) : []),
     [graph, selectedStepId],
@@ -107,7 +121,7 @@ export function ExecutionView({ blueprint, scanStatus, scanError, onRetry }: Exe
       graph
         ? computeExecutionMetrics(projection, graph)
         : {
-            totalDurationMs: 0,
+            totalDurationMs: null,
             stepCount: 0,
             errorCount: 0,
             warningCount: 0,
@@ -181,6 +195,7 @@ export function ExecutionView({ blueprint, scanStatus, scanError, onRetry }: Exe
         stepLabels={stepLabels}
         stepKinds={stepKinds}
         stepTimings={stepTimings}
+        stepObservations={stepObservations}
         selectedStepId={selectedStepId}
         stepHasEvidence={stepHasEvidence}
         cycleNodeId={projection?.cycleNodeId ?? null}
