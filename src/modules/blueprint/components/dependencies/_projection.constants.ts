@@ -9,7 +9,7 @@ export const DEPENDENCY_EDGE_KINDS = [
 
 export type DependencyEdgeKind = (typeof DEPENDENCY_EDGE_KINDS)[number];
 
-/** Primary application topology — default Dependencies view (PR-08 / #382). */
+/** Primary application topology — default Dependencies view (PR-08). */
 export const PRIMARY_TOPOLOGY_EDGE_KINDS = [
   "imports",
   "calls",

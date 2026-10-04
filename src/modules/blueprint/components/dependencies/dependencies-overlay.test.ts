@@ -13,7 +13,7 @@ import {
   type DependencyOverlayId,
 } from "./dependencies-overlay.js";
 
-describe("dependencies overlays (#382)", () => {
+describe("dependencies overlays (PR-08)", () => {
   it("defaults exclude auth/validation cross-cutting kinds", () => {
     expect(DEFAULT_VISIBLE_DEPENDENCY_KINDS).toEqual([...PRIMARY_TOPOLOGY_EDGE_KINDS]);
     expect(DEFAULT_VISIBLE_DEPENDENCY_KINDS).not.toContain("auth");

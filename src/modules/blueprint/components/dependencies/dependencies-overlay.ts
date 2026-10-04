@@ -3,7 +3,7 @@
  * Location: src/modules/blueprint/components/dependencies/dependencies-overlay.ts
  *
  * Overlays are additive: they union into the chip-selected kinds and never
- * replace the primary topology filter set (#382).
+ * replace the primary topology filter set (PR-08).
  */
 
 import type { DependencyEdgeKind } from "./_projection.constants.js";

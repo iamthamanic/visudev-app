@@ -162,7 +162,7 @@ function buildSemanticOverview(
     });
   }
 
-  // Density cap: prefer primary-topology degree, then any connection, then orphans.
+  // Density cap: prefer primary-topology degree, then total degree, then orphans.
   const primaryDegree = new Map<string, number>();
   const anyDegree = new Map<string, number>();
   for (const aggregate of aggregates.values()) {

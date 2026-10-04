@@ -1,6 +1,6 @@
 /**
  * DependenciesView — primary topology (imports/calls/API/data/events/external)
- * with optional Security/API/Events overlays (#382).
+ * with optional Security/API/Events overlays (PR-08).
  */
 
 import { useEffect, useMemo, useState } from "react";
