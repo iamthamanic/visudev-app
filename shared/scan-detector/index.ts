@@ -4,7 +4,11 @@
  */
 
 export type {
+  CoverageStatus,
+  DetectionState,
   DetectorCapability,
+  KnowledgeStatus,
+  LegacyScanKnowledgeStatus,
   ScanConfidence,
   ScanEvidence,
   ScanEvidenceOriginKind,
@@ -17,7 +21,24 @@ export type {
   ScanVersionManifest,
 } from "./types.js";
 
-export { isAuthoritativeEvidence, isScanKnowledgeStatus } from "./types.js";
+export { isAuthoritativeEvidence, isScanKnowledgeStatus, readKnowledgeStatus } from "./types.js";
+
+export {
+  applyOriginKnowledgePolicy,
+  coerceKnowledgeStatus,
+  dominantCanonicalKnowledgeStatus,
+  isAuthoritativeKnowledgeStatus,
+  isCoverageStatus,
+  isDetectionState,
+  isKnowledgeStatus,
+  isLegacyScanKnowledgeStatus,
+  resolveCoverageStatus,
+  toLegacyScanKnowledgeStatus,
+  COVERAGE_STATUSES,
+  DETECTION_STATES,
+  KNOWLEDGE_STATUSES,
+  LEGACY_TO_KNOWLEDGE,
+} from "./epistemic.js";
 
 export type {
   DetectorBudget,
