@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 376,
-  "featureSlug": "analysis-epistemic-contract",
-  "phase": "commit",
-  "branch": "feat/376-analysis-epistemic-contract",
+  "activeIssue": 377,
+  "featureSlug": "authoritative-scan-snapshots",
+  "phase": "setup",
+  "branch": null,
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    376,
     377,
     378,
     379,
@@ -55,7 +54,8 @@
     348,
     349,
     350,
-    375
+    375,
+    376
   ],
   "mergedIssues": [
     321,
@@ -81,12 +81,14 @@
     348,
     349,
     350,
-    375
+    375,
+    376
   ],
   "prUrls": {
     "328": "https://github.com/iamthamanic/visudev-app/pull/371",
     "349": "https://github.com/iamthamanic/visudev-app/pull/370",
-    "375": "https://github.com/iamthamanic/visudev-app/pull/397"
+    "375": "https://github.com/iamthamanic/visudev-app/pull/397",
+    "376": "https://github.com/iamthamanic/visudev-app/pull/398"
   },
   "retries": {
     "implement": 0,
@@ -106,7 +108,7 @@
   "lastError": null,
   "lastErrorCount": 0,
   "issuesProcessedInSession": 0,
-  "updatedAt": "2026-10-04T11:36:35.000Z",
+  "updatedAt": "2026-10-04T11:40:01.000Z",
   "notes": "order-23 #350 ecc-check READY; committing PR after #328 merge",
   "currentIssue": 350,
   "lastCompletedIssue": 328,

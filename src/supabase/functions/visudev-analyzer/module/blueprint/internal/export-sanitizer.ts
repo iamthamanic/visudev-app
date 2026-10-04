@@ -4,6 +4,7 @@ export {
   capGraphForExport,
   FACT_EXPORT_PRIORITY,
   MAX_BLUEPRINT_FACTS,
+  sanitizeAuthoritativeGraph,
   selectFactsPreservingPrismaModels,
 } from "./graph-export-cap.ts";
 export { sanitizeFactMetadataForExport } from "./fact-metadata-sanitizer.ts";

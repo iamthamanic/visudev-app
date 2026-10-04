@@ -166,6 +166,15 @@ export type FactSelectionReport = {
   byKind: Record<string, { extracted: number; selected: number }>;
 };
 
+/** Authoritative truth vs transport caps (#377). */
+export type AuthoritativeTruthReport = {
+  factsExtracted: number;
+  factsAuthoritative: number;
+  factsTransport: number;
+  graphEvidenceAuthoritative: number;
+  transportCapped: boolean;
+};
+
 /** AST parse attempt summary (P0-9) — failures are counted, not swallowed. */
 export type AstParseReport = {
   filesAttempted: number;
@@ -240,6 +249,7 @@ export type RawBlueprintScan = {
   routes: RawBlueprintRoute[];
   facts: RawBlueprintFact[];
   factSelection?: FactSelectionReport;
+  authoritativeTruth?: AuthoritativeTruthReport;
   astParseReport?: AstParseReport;
   /**
    * Walk catalog for domain segment-spread (P0-10). Optional for older scans;

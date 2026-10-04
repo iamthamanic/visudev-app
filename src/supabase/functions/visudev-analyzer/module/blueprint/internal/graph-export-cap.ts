@@ -279,6 +279,17 @@ export function selectFactsPreservingPrismaModels(
   };
 }
 
+/**
+ * Authoritative truth graph (#377): redact/sanitize/validate without
+ * MAX_BLUEPRINT_FACTS evidence trim. Transport caps must not apply here.
+ */
+export function sanitizeAuthoritativeGraph(input: unknown): VisuDevGraph {
+  const coerced = coerceVisuDevGraphInput(input);
+  const sanitized = sanitizeGraphForExport(coerced);
+  const repaired = repairGraphReferences(sanitized);
+  return validateVisuDevGraphForExport(repaired);
+}
+
 export function capGraphForExport(input: unknown): VisuDevGraph {
   const coerced = coerceVisuDevGraphInput(input);
   const sanitized = sanitizeGraphForExport(coerced);

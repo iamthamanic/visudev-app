@@ -33,6 +33,43 @@ Deno.test("isSupportedBlueprintFile accepts compose yaml (P3-2c)", () => {
   assertEquals(isSupportedBlueprintFile("README.md"), false);
 });
 
+Deno.test("authoritative truth equals extracted facts before transport cap (#377)", () => {
+  const files = Array.from({ length: 40 }, (_, index) => ({
+    path: `routes/r${index}.ts`,
+    content: `
+app.get('/api/item-${index}', async (c) => {
+  await supabase.from('t${index}').select('*');
+  return c.json({});
+});
+`,
+  }));
+  files.push({
+    path: "docker-compose.yml",
+    content: `
+services:
+  db:
+    image: postgres:16-alpine
+`,
+  });
+
+  const doc = analyzeFromFileEntries({
+    repo: "local:/tmp/truth",
+    branch: "local",
+    commitSha: "local",
+    fileEntries: files,
+  });
+
+  const truth = doc.authoritativeTruth;
+  assertEquals(Boolean(truth), true);
+  assertEquals(truth?.factsAuthoritative, truth?.factsExtracted);
+  assertEquals(truth?.factsExtracted === doc.factSelection?.extracted, true);
+  // Transport may be capped; authoritative must not shrink below extracted.
+  assertEquals(
+    (truth?.factsTransport ?? 0) <= (truth?.factsAuthoritative ?? 0),
+    true,
+  );
+});
+
 Deno.test("analyzeFromFileEntries extracts Redis/Postgres from docker-compose.yml (P3-2c)", () => {
   const content = `
 services:

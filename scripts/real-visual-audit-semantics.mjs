@@ -202,6 +202,22 @@ export function assertAnalysisSemantics(result, options = {}) {
     }
   }
 
+  // #377: authoritative truth must equal extracted facts (no silent truth truncation)
+  const truth = blueprint.authoritativeTruth;
+  if (truth && typeof truth === "object") {
+    const extracted = Number(truth.factsExtracted);
+    const authoritative = Number(truth.factsAuthoritative);
+    if (
+      Number.isFinite(extracted) &&
+      Number.isFinite(authoritative) &&
+      extracted !== authoritative
+    ) {
+      failures.push(
+        `Authoritative truth truncated: factsAuthoritative=${authoritative} !== factsExtracted=${extracted}`,
+      );
+    }
+  }
+
   return {
     passed: failures.length === 0,
     failures,
@@ -215,6 +231,8 @@ export function assertAnalysisSemantics(result, options = {}) {
       snapshotCount: snapshots.length,
       routeCount: routes.length,
       hasEngineCutover: Boolean(cutover),
+      authoritativeFacts: truth?.factsAuthoritative ?? null,
+      extractedFacts: truth?.factsExtracted ?? null,
     },
   };
 }

@@ -20,6 +20,7 @@ import {
   validateRouteScopes,
 } from "../graph/route-scope.validate.ts";
 import {
+  capGraphForExport,
   MAX_BLUEPRINT_FACTS,
   sanitizeFactsForExport,
   selectFactsPreservingPrismaModels,
@@ -128,15 +129,36 @@ export function analyzeFromFileEntries(
   const routeScopes = validateRouteScopes(
     buildRouteScopes(allFacts, fileIndex),
   );
-  const { facts: cappedFacts, report: factSelection } =
-    selectFactsPreservingPrismaModels(allFacts, MAX_BLUEPRINT_FACTS);
-  const exportFacts = sanitizeFactsForExport(cappedFacts);
+  // #377: redacted full fidelity first — transport caps must not feed graph/engine.
+  const authoritativeFacts = sanitizeFactsForExport(allFacts);
+  const { facts: transportFacts, report: factSelection } =
+    selectFactsPreservingPrismaModels(authoritativeFacts, MAX_BLUEPRINT_FACTS);
   const concepts = buildConceptsForRoutes(routeScopes, allFacts);
   const findings = evaluatePolicies(routeScopes, concepts, allFacts);
-  let graph = assembleBlueprintGraph(exportFacts, routeScopes);
-  const routes = buildRouteBlueprints(routeScopes, concepts, graph);
-  const securityMatrix = buildSecurityMatrix(routes, findings, graph);
-  graph = attachGraphFindings(graph, routes, routeScopes, allFacts, findings);
+  let authoritativeGraph = assembleBlueprintGraph(
+    authoritativeFacts,
+    routeScopes,
+    {
+      applyExportCap: false,
+    },
+  );
+  const routes = buildRouteBlueprints(
+    routeScopes,
+    concepts,
+    authoritativeGraph,
+  );
+  const securityMatrix = buildSecurityMatrix(
+    routes,
+    findings,
+    authoritativeGraph,
+  );
+  authoritativeGraph = attachGraphFindings(
+    authoritativeGraph,
+    routes,
+    routeScopes,
+    allFacts,
+    findings,
+  );
 
   const rootHint = input.localPath?.trim() || undefined;
   astParseReport.failedSamples = astParseReport.failedSamples.map((sample) =>
@@ -155,13 +177,25 @@ export function analyzeFromFileEntries(
       Number.isFinite(input.filesDiscovered)
     ? Math.max(input.filesDiscovered, analyzed)
     : Math.max(input.fileEntries.length, analyzed);
+  const transportCapped = factSelection.selected < factSelection.extracted;
   const truncation = {
     filesAnalyzed: analyzed,
     filesDiscovered,
+    // Transport-layer accounting only — authoritative truth is not dropped.
     factsKept: factSelection.selected,
     factsDropped: Math.max(0, factSelection.extracted - factSelection.selected),
-    truncated: analyzed < filesDiscovered ||
-      factSelection.selected < factSelection.extracted,
+    truncated: analyzed < filesDiscovered || transportCapped,
+    transportOnly: true,
+  };
+
+  const authoritativeTruth = {
+    factsExtracted: allFacts.length,
+    factsAuthoritative: authoritativeFacts.length,
+    factsTransport: transportFacts.length,
+    graphEvidenceAuthoritative: Array.isArray(authoritativeGraph.evidence)
+      ? authoritativeGraph.evidence.length
+      : 0,
+    transportCapped,
   };
 
   const document = {
@@ -175,12 +209,14 @@ export function analyzeFromFileEntries(
     routes,
     securityMatrix,
     findings,
-    facts: exportFacts,
+    facts: transportFacts,
     factSelection,
+    authoritativeTruth,
     astParseReport,
     pathCatalog,
     concepts,
-    graph,
+    // Engine cutover consumes full-fidelity graph; capped after attach.
+    graph: authoritativeGraph,
     filesAnalyzed: analyzed,
     filesDiscovered,
     totalFiles: filesDiscovered,
@@ -188,8 +224,13 @@ export function analyzeFromFileEntries(
     frameworkHints: detectFrameworkHints(allFacts),
   };
 
-  // SDE-14: shared engine cutover (shadow default) — VisuDev graph kept for BC.
-  return attachCloudEngineCutover(document);
+  // SDE-14: shared engine cutover — semantics from authoritative graph.
+  const withCutover = attachCloudEngineCutover(document);
+  return {
+    ...withCutover,
+    // UI/transport graph remains bounded; engineCutover already computed.
+    graph: capGraphForExport(authoritativeGraph),
+  };
 }
 
 function buildRouteScopes(
