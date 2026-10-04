@@ -390,3 +390,12 @@ export {
   type EngineHostCutoverResult,
   type EngineHostKind,
 } from "./application/apply-engine-host-cutover.js";
+
+/** PR-16 — Local vs GitHub semantic parity under shared capabilities */
+export {
+  compareLocalGithubParity,
+  listParityEnabledProjectIds,
+  type CapabilityDelta,
+  type LocalGithubParityInput,
+  type LocalGithubParityResult,
+} from "./application/local-github-parity.js";

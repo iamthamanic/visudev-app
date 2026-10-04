@@ -68,3 +68,26 @@ describe("Real Visual Audit workflow (RVP-12 / Product Readiness harness)", () =
     expect(realAuditWorkflow).toContain("golden-projects.manifest.json");
   });
 });
+
+describe("Local/GitHub parity gate (PR-16)", () => {
+  it("package.json exposes parity:local-github and manifest enables ≥2 GitHub projects", () => {
+    const pkg = JSON.parse(
+      readFileSync(fileURLToPath(new URL("../../package.json", import.meta.url)), "utf8"),
+    ) as { scripts?: Record<string, string> };
+    expect(pkg.scripts?.["parity:local-github"]).toContain("local-github-parity/run.mjs");
+    const manifest = JSON.parse(
+      readFileSync(
+        fileURLToPath(
+          new URL("../../.qa/readiness/golden-projects.manifest.json", import.meta.url),
+        ),
+        "utf8",
+      ),
+    ) as {
+      projects: Array<{ parity?: { enabled?: boolean }; source?: { kind?: string } }>;
+    };
+    const enabled = manifest.projects.filter(
+      (project) => project.parity?.enabled === true && project.source?.kind === "github",
+    );
+    expect(enabled.length).toBeGreaterThanOrEqual(2);
+  });
+});

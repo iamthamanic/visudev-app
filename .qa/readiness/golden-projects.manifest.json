@@ -52,6 +52,9 @@
       "assertions": {
         "profile": "rvp12-shared"
       },
+      "parity": {
+        "enabled": true
+      },
       "capabilities": {}
     },
     {
@@ -72,6 +75,9 @@
       },
       "assertions": {
         "profile": "pending-certification"
+      },
+      "parity": {
+        "enabled": true
       },
       "capabilities": {}
     },
