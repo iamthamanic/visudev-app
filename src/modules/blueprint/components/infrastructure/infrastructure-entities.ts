@@ -7,8 +7,7 @@ import type { SemanticSystemModel } from "../../../../../shared/semantic-system-
 import type { SoftwareGraph, SoftwareGraphNode } from "../../types";
 import type { StatusBadgeVariant } from "../ui/StatusBadge.js";
 
-const PHYSICAL_SOURCES = new Set(["docker-compose", "kubernetes"]);
-
+const PHYSICAL_SOURCES = new Set(["docker-compose", "kubernetes", "dockerfile"]);
 /** Softort / code-derived runtime labels that must not become infra services. */
 const CODE_RUNTIME_LABELS = new Set(["browser", "server", "edge", "shared", "node", "deno", "bun"]);
 

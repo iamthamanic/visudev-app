@@ -1,9 +1,14 @@
 # ECC Runner Loop Handoff
 
-- **Merged:** … #386→#408
-- **Next:** #387 AppFlow coverage (shipping)
+- **Merged this resume:** #385→#407, #386→#408, #387→#409
+- **Next:** #388 PR-14 · Expand evidence-backed infrastructure detection
 - **paused:** false
-- **Queue remaining:** #387–#396
+- **runMode:** loop
+- **Queue remaining:** #388–#396
+
+## On main
+
+- Test-session auth, Safe/Sandbox explore, AppFlow coverage COMPLETE/PARTIAL
 
 ## Resume
 

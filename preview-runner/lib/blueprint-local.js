@@ -32,8 +32,23 @@ const SKIP_DIRS = new Set([
   "venv",
 ]);
 
-/** JS/TS plus Python (Django), Prisma, and compose YAML for Softort infra truth. */
-const SUPPORTED_EXT = new Set(["ts", "tsx", "js", "jsx", "vue", "py", "prisma", "yml", "yaml"]);
+/** JS/TS plus Python (Django), Prisma, compose YAML, and Tier-1 infra descriptors. */
+const SUPPORTED_EXT = new Set([
+  "ts",
+  "tsx",
+  "js",
+  "jsx",
+  "vue",
+  "py",
+  "prisma",
+  "yml",
+  "yaml",
+  "json",
+  "example",
+  "sample",
+  "template",
+  "dist",
+]);
 const FILE_LIMIT = Math.max(250, Number(process.env.BLUEPRINT_FILE_LIMIT) || 800);
 const MAX_WALK_CANDIDATES = Math.max(2000, Number(process.env.BLUEPRINT_MAX_WALK) || 4000);
 /** Walk paths shipped for Softort/domain spread (may exceed FILE_LIMIT content set). */
@@ -92,7 +107,11 @@ function prioritizeBlueprintFiles(files) {
       )
     ) {
       s = 96;
-    } else if (/(?:^|\/)schema\.prisma$/.test(path)) s = 78;
+    } else if (/(?:^|\/)dockerfile(?:\.[^/]+)?$/i.test(path) || /\.dockerfile$/i.test(path)) {
+      s = 95;
+    } else if (/(?:^|\/)package\.json$/.test(path)) s = 93;
+    else if (/(?:^|\/)\.env\.(example|sample|template|dist)$/.test(path)) s = 92;
+    else if (/(?:^|\/)schema\.prisma$/.test(path)) s = 78;
     else if (path.endsWith(".prisma")) s = 70;
     else if (/(?:^|\/)manage\.py$/.test(path)) s = 99;
     else if (/(?:^|\/)urls\.py$/.test(path)) s = 98;
@@ -211,15 +230,8 @@ function walkCodeFiles(rootDir, maxFiles = MAX_WALK_CANDIDATES, jailRoot = rootD
         logBlueprintSkip("skip file outside workspace", full);
         continue;
       }
-      const ext = entry.name.split(".").pop()?.toLowerCase();
-      if (!ext || !SUPPORTED_EXT.has(ext)) continue;
-      // Only compose + k8s YAML — generic .yml (CI) must not flood FILE_LIMIT.
-      if (
-        (ext === "yml" || ext === "yaml") &&
-        !isAllowedYamlDescriptor(relative(rootReal, full), entry.name)
-      ) {
-        continue;
-      }
+      const rel = relative(rootReal, full);
+      if (!isSupportedBlueprintWalkFile(rel, entry.name)) continue;
       results.push(full);
     }
   }
@@ -239,6 +251,35 @@ function isAllowedYamlDescriptor(relPath, name) {
   );
 }
 
+/** Tier-1 + language surface — keep aligned with analyzer isSupportedBlueprintFile. */
+function isSupportedBlueprintWalkFile(relPath, name) {
+  const base = String(name || "").trim();
+  const baseLower = base.toLowerCase();
+  if (
+    /^Dockerfile$/i.test(base) ||
+    /^Dockerfile\.[A-Za-z0-9._-]+$/i.test(base) ||
+    /\.Dockerfile$/i.test(base)
+  ) {
+    return true;
+  }
+  if (baseLower === "package.json") return true;
+  if (
+    /^\.env\.(example|sample|template|dist)$/.test(baseLower) ||
+    /^(env|dotenv)\.(example|sample|template)$/.test(baseLower)
+  ) {
+    return true;
+  }
+  const ext = baseLower.includes(".") ? baseLower.split(".").pop() : "";
+  if (!ext || !SUPPORTED_EXT.has(ext)) return false;
+  if (ext === "json") return false; // only package.json above
+  if (ext === "example" || ext === "sample" || ext === "template" || ext === "dist") {
+    return false; // only allowlisted env example names above
+  }
+  if ((ext === "yml" || ext === "yaml") && !isAllowedYamlDescriptor(relPath, base)) {
+    return false;
+  }
+  return true;
+}
 /**
  * visudev-gapclose P1-1: paths that must survive FILE_LIMIT (Formbricks Prisma, RC Meteor).
  */

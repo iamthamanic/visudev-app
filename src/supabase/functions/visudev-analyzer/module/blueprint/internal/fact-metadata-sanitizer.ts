@@ -28,8 +28,9 @@ const ALLOWED_METADATA_KEYS = new Set([
   "ports",
   "networks",
   "dependson",
+  // PR-14: package-sdk / env-name evidence labels (never secret values)
+  "package",
 ]);
-
 function normalizeMetadataKey(key: string): string {
   return key.toLowerCase().replace(/[^a-z0-9]+/g, "_");
 }

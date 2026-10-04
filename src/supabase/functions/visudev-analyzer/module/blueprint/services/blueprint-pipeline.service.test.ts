@@ -29,6 +29,10 @@ Deno.test("isSupportedBlueprintFile accepts compose yaml (P3-2c)", () => {
   assertEquals(isSupportedBlueprintFile("docker-compose.yml"), true);
   assertEquals(isSupportedBlueprintFile("compose.yaml"), true);
   assertEquals(isSupportedBlueprintFile("k8s/deployment.yaml"), true);
+  assertEquals(isSupportedBlueprintFile("Dockerfile"), true);
+  assertEquals(isSupportedBlueprintFile("package.json"), true);
+  assertEquals(isSupportedBlueprintFile(".env.example"), true);
+  assertEquals(isSupportedBlueprintFile(".env"), false);
   assertEquals(isSupportedBlueprintFile(".github/workflows/ci.yml"), false);
   assertEquals(isSupportedBlueprintFile("README.md"), false);
 });

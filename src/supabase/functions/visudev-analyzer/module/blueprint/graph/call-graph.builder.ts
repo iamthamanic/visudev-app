@@ -87,6 +87,14 @@ export function prioritizeBlueprintFiles<T extends { path: string }>(
         .test(path)
     ) {
       s = 96.5;
+    } else if (
+      /(?:^|\/)dockerfile(?:\.[^/]+)?$/i.test(path) ||
+      /\.dockerfile$/i.test(path)
+    ) {
+      s = 95;
+    } else if (/(?:^|\/)package\.json$/.test(path)) s = 93;
+    else if (/(?:^|\/)\.env\.(example|sample|template|dist)$/.test(path)) {
+      s = 92;
     } else if (/(?:^|\/)schema\.prisma$/.test(path)) s = 78;
     else if (path.endsWith(".prisma")) s = 70;
     else if (/(?:^|\/)manage\.py$/.test(path)) s = 99;

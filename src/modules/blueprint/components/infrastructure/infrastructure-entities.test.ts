@@ -50,13 +50,21 @@ describe("infrastructure entities (RVP-9)", () => {
     ).toBe(false);
   });
 
-  it("accepts compose/k8s deployment services and evidenced datastores", () => {
+  it("accepts compose/k8s/dockerfile deployment services and evidenced datastores", () => {
     expect(
       isInfrastructureEntity({
         id: "svc:api",
         kind: "service",
         label: "api",
         metadata: { source: "docker-compose", ports: "3000" },
+      }),
+    ).toBe(true);
+    expect(
+      isInfrastructureEntity({
+        id: "svc:docker-app",
+        kind: "service",
+        label: "app",
+        metadata: { source: "dockerfile", ports: "3000" },
       }),
     ).toBe(true);
     expect(
