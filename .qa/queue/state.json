@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 392,
-  "featureSlug": "v1-readiness-certification",
-  "phase": "implement",
-  "branch": "feat/392-v1-readiness-certification",
+  "activeIssue": 393,
+  "featureSlug": null,
+  "phase": "claim",
+  "branch": null,
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    392,
     393,
     394,
     395,
@@ -55,7 +54,8 @@
     388,
     389,
     390,
-    391
+    391,
+    392
   ],
   "mergedIssues": [
     321,
@@ -97,7 +97,8 @@
     388,
     389,
     390,
-    391
+    391,
+    392
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
@@ -106,7 +107,8 @@
     "388": "https://github.com/iamthamanic/visudev-app/pull/410",
     "389": "https://github.com/iamthamanic/visudev-app/pull/411",
     "390": "https://github.com/iamthamanic/visudev-app/pull/412",
-    "391": "https://github.com/iamthamanic/visudev-app/pull/413"
+    "391": "https://github.com/iamthamanic/visudev-app/pull/413",
+    "392": "https://github.com/iamthamanic/visudev-app/pull/414"
   },
   "retries": {
     "implement": 0,
@@ -125,8 +127,8 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": 392,
-  "lastCompletedIssue": 391,
-  "notes": "Merged #391 via PR #413; next #392 V1 certification",
-  "updatedAt": "2026-10-04T22:00:24.000Z"
+  "currentIssue": 393,
+  "lastCompletedIssue": 392,
+  "notes": "Merged #392 via PR #414; next #393",
+  "updatedAt": "2026-10-04T22:35:19.000Z"
 }
