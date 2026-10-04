@@ -1,6 +1,6 @@
 # Composition Gate — atlas-semantic-v2 (issue 380)
 
-- HEAD_SHA: WORKTREE
+- HEAD_SHA: 7147dab92ee3b1a8312b845e0a8aacdc9eeead8c
 - Date: 2026-10-04
 - Verdict: CLEAR
 
