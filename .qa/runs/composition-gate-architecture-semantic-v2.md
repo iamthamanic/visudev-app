@@ -30,4 +30,3 @@ SemanticSystemModel (engine or shared builder) → Architecture domain/capabilit
 ## Findings
 
 None open.
-
