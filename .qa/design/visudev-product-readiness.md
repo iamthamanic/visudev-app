@@ -52,3 +52,7 @@ Canonical `KnowledgeStatus` / `CoverageStatus` / `DetectionState` live in `share
 ## Full-fidelity truth (#377)
 
 Blueprint pipeline: sanitize all facts → assemble authoritative graph (no MAX_BLUEPRINT_FACTS trim) → engine cutover → cap transport `facts`/`graph`.
+
+## Coverage contract (#378)
+
+`buildCapabilityCoverageReport` / `emptyStateFromCoverage` in `shared/scan-detector/application/capability-coverage.ts`.

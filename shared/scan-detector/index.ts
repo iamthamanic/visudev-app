@@ -40,6 +40,17 @@ export {
   LEGACY_TO_KNOWLEDGE,
 } from "./epistemic.js";
 
+export {
+  buildCapabilityCoverageReport,
+  coverageSignalsFromSnapshot,
+  emptyStateFromCoverage,
+  type CapabilityCoverageEntry,
+  type CapabilityCoverageReport,
+  type CoverageCapabilityId,
+  type CoverageLimitReason,
+  type CoverageSignals,
+} from "./application/capability-coverage.js";
+
 export type {
   DetectorBudget,
   DetectorRegistry,

@@ -1,9 +1,14 @@
 # ECC Runner Loop Handoff
 
-- Last merged: #376 via PR #398 (after #375 / PR #397)
-- Next: #377 PR-03 · Preserve full-fidelity authoritative ScanSnapshots before projection caps
+- Merged: #375→PR#397, #376→PR#398, #377→PR#399
+- Next: #378 PR-04 · Surface capability-level completeness and honest empty states (`analysis-coverage-contract`)
 - paused: false
 - runMode: loop
-- Queue: #377–#396 (V1 through #392, then V1.1)
-- Canonical epistemic: `shared/scan-detector/epistemic.ts`
-- Golden harness: `.qa/readiness/golden-projects.manifest.json`
+- Queue: #378–#396
+- Resume: `@ecc-runner-loop continue`
+
+## Contracts already on main
+
+- Readiness harness: `.qa/readiness/golden-projects.manifest.json`
+- Epistemic: `shared/scan-detector/epistemic.ts` (KnowledgeStatus/CoverageStatus/DetectionState)
+- Authoritative truth: blueprint `authoritativeTruth` before transport caps
