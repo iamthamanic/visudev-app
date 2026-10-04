@@ -88,7 +88,7 @@ function groupNodesByDistrict(
     // First group wins — overlapping cluster membership must not emit duplicate block ids (R3F keys).
     const districtNodes = group.nodeIds
       .map((nodeId) => nodeById.get(nodeId))
-      .filter((node): node is GraphCanvasNode => Boolean(node) && !assigned.has(node.id));
+      .filter((node): node is GraphCanvasNode => node != null && !assigned.has(node.id));
     if (districtNodes.length === 0) continue;
     districtNodes.forEach((node) => assigned.add(node.id));
     districts.push({ label: group.label, kind: group.kind, nodes: districtNodes });
