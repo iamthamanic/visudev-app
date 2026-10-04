@@ -256,11 +256,13 @@ function aggregateRelations(
         sourceId: relation.sourceId,
         targetId: relation.targetId,
         confidence: Math.round(relation.confidence * 100) / 100,
+        knowledgeStatus: "SUPPORTED",
         evidence: edgeIds.map((refId) => ({ source: "graph-edge", refId })),
         metadata: {
           projectionLevel: "business-domain",
           weight: edgeIds.length,
           sourceGraphEdgeIds: edgeIds,
+          taxonomyVersion: 2,
         },
       };
     })

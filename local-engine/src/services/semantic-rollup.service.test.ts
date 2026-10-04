@@ -48,6 +48,8 @@ function graphFixture(): SoftwareGraph {
         label: "GET /api/orders",
         metadata: { path: "/api/orders" },
       },
+      // Table corroboration → business-domain (route-alone is resource-only in v2).
+      { id: "table-orders", kind: "table", label: "orders", metadata: {} },
       {
         id: "file-orders",
         kind: "file",

@@ -1,7 +1,13 @@
 /** Evidence-driven business-domain inference shared by Local Engine and UI projections. */
 
+import type { KnowledgeStatus } from "./scan-detector/epistemic.js";
 import type { SoftwareGraph, SoftwareGraphNode } from "./software-graph.types.js";
 import type { SemanticEntity, SemanticEvidenceRef } from "./semantic-system-model.types.js";
+import {
+  isResourceNotBusinessDomain,
+  knowledgeStatusFromSignals,
+  qualifiesAsBusinessDomain,
+} from "./semantic-taxonomy-v2.js";
 
 const STRUCTURAL_DOMAIN_NAMES = new Set([
   "api",
@@ -90,8 +96,10 @@ export function normalizeBusinessDomainCandidate(raw: string): string | null {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
   if (!value || STRUCTURAL_DOMAIN_NAMES.has(value)) return null;
+  if (isResourceNotBusinessDomain(value)) return null;
   value = singularize(value);
   if (!value || STRUCTURAL_DOMAIN_NAMES.has(value)) return null;
+  if (isResourceNotBusinessDomain(value)) return null;
   return value;
 }
 
@@ -162,6 +170,17 @@ function candidateEvidence(candidate: DomainCandidate): SemanticEvidenceRef[] {
     .map((refId): SemanticEvidenceRef => ({ source: "graph-node", refId }));
 }
 
+function candidateKnowledgeStatus(candidate: DomainCandidate): KnowledgeStatus {
+  return knowledgeStatusFromSignals({
+    sourceKindCount: candidate.sourceKinds.size,
+    maxConfidence: candidateConfidence(candidate),
+    origin: "static",
+  });
+}
+
+/**
+ * Infer business-domain entities (multi-signal) and weak route-only resources (INTERPRETED).
+ */
 export function inferBusinessDomainEntities(graph: SoftwareGraph): SemanticEntity[] {
   const candidates = new Map<string, DomainCandidate>();
   for (const node of graph.nodes) {
@@ -176,19 +195,47 @@ export function inferBusinessDomainEntities(graph: SoftwareGraph): SemanticEntit
   for (const node of graph.nodes) {
     if (node.kind === "domain") addCorroboratingGraphDomain(candidates, node);
   }
-  return [...candidates.values()]
-    .map(
-      (candidate): SemanticEntity => ({
+
+  const entities: SemanticEntity[] = [];
+  for (const candidate of [...candidates.values()].sort((a, b) => a.key.localeCompare(b.key))) {
+    const sourceKinds = [...candidate.sourceKinds].sort();
+    const confidence = candidateConfidence(candidate);
+    const evidence = candidateEvidence(candidate);
+
+    if (qualifiesAsBusinessDomain(sourceKinds)) {
+      entities.push({
         id: `semantic:business-domain:${candidate.key}`,
         kind: "business-domain",
         label: displayLabel(candidate.key),
-        confidence: candidateConfidence(candidate),
-        evidence: candidateEvidence(candidate),
+        confidence,
+        knowledgeStatus: candidateKnowledgeStatus(candidate),
+        evidence,
         metadata: {
           candidateKey: candidate.key,
-          sourceKinds: [...candidate.sourceKinds].sort(),
+          sourceKinds,
+          taxonomyVersion: 2,
         },
-      }),
-    )
-    .sort((left, right) => left.id.localeCompare(right.id));
+      });
+      continue;
+    }
+
+    // Single path-segment / weak heuristic → resource INTERPRETED (not business-domain).
+    if (sourceKinds.length === 1 && sourceKinds[0] === "route") {
+      entities.push({
+        id: `semantic:resource:${candidate.key}`,
+        kind: "resource",
+        label: displayLabel(candidate.key),
+        confidence: Math.min(confidence, 0.7),
+        knowledgeStatus: "INTERPRETED",
+        evidence,
+        metadata: {
+          candidateKey: candidate.key,
+          sourceKinds,
+          taxonomyVersion: 2,
+          reason: "single-path-segment",
+        },
+      });
+    }
+  }
+  return entities.sort((left, right) => left.id.localeCompare(right.id));
 }

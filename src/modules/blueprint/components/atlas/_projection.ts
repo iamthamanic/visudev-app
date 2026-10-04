@@ -48,7 +48,9 @@ export interface AtlasProjection {
 const PRIMARY_SEARCH_KINDS = new Set<SemanticEntityKind>([
   "application",
   "business-domain",
+  "capability",
   "service",
+  "technical-module",
   "component",
   "data-store",
   "external-system",
@@ -57,13 +59,19 @@ const PRIMARY_SEARCH_KINDS = new Set<SemanticEntityKind>([
 const GRAPH_KIND_BY_SEMANTIC_KIND: Record<SemanticEntityKind, SoftwareGraphNodeKind> = {
   application: "application",
   "business-domain": "domain",
+  capability: "module",
+  resource: "symbol",
   service: "service",
-  component: "module",
+  "technical-module": "module",
+  endpoint: "route",
   "data-store": "table",
   "external-system": "external",
-  "use-case": "module",
+  "security-control": "service",
   "deployment-unit": "runtime",
+  runtime: "runtime",
   "execution-flow": "module",
+  component: "module",
+  "use-case": "module",
 };
 
 const GRAPH_EDGE_KIND_BY_SEMANTIC_KIND: Record<SemanticRelationKind, SoftwareGraphEdgeKind> = {

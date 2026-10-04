@@ -19,13 +19,19 @@ export interface AtlasInspectorProps {
 const SEMANTIC_KIND_LABELS: Record<SemanticEntity["kind"], string> = {
   application: "Anwendung",
   "business-domain": "Fachdomäne",
+  capability: "Capability",
+  resource: "Ressource",
   service: "Service",
-  component: "Komponente",
+  "technical-module": "Technisches Modul",
+  endpoint: "Endpoint",
   "data-store": "Datenspeicher",
   "external-system": "Externes System",
-  "use-case": "Use Case",
+  "security-control": "Security Control",
   "deployment-unit": "Deployment",
+  runtime: "Runtime",
   "execution-flow": "Execution Flow",
+  component: "Komponente",
+  "use-case": "Use Case",
 };
 
 export function AtlasInspector({

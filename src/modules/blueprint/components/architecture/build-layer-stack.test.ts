@@ -172,7 +172,7 @@ describe("buildArchitectureStackCards", () => {
       ],
     };
     const semantic = {
-      version: 1 as const,
+      version: 2 as const,
       projectId: "p1",
       analyzedAt: "2026-01-01T00:00:00.000Z",
       entities: [
@@ -181,6 +181,7 @@ describe("buildArchitectureStackCards", () => {
           kind: "business-domain" as const,
           label: "Leave",
           confidence: 0.9,
+          knowledgeStatus: "VERIFIED" as const,
           evidence: [{ source: "graph-node" as const, refId: "svc:leave" }],
           metadata: { candidateKey: "leave" },
         },
@@ -189,6 +190,7 @@ describe("buildArchitectureStackCards", () => {
           kind: "business-domain" as const,
           label: "Payroll",
           confidence: 0.9,
+          knowledgeStatus: "VERIFIED" as const,
           evidence: [{ source: "graph-node" as const, refId: "svc:pay" }],
           metadata: { candidateKey: "payroll" },
         },
