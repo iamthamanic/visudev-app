@@ -15,7 +15,8 @@ export const SEMANTIC_INTERPRETER_PROMPT_VERSION = "semantic-interpreter-v1";
 
 export interface SemanticInterpretationProvenance {
   originKind: "llm";
-  knowledgeStatus: "INTERPRETED";
+  /** LLM claims are INTERPRETED; CONFLICTED only when already conflicted. */
+  knowledgeStatus: "INTERPRETED" | "CONFLICTED";
   modelId: string;
   promptVersion: string;
   evidence: SemanticEvidenceRef[];
