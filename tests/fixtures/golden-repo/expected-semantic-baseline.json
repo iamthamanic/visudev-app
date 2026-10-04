@@ -2,7 +2,10 @@
   "version": 1,
   "projectId": "golden-set",
   "enrichment": "off",
-  "allowedUnknownKeys": ["inferred-route", "partial-scan"],
+  "allowedUnknownKeys": [
+    "inferred-route",
+    "partial-scan"
+  ],
   "blueprint": {
     "nodeKindCounts": {
       "auth": 5,
@@ -27,22 +30,36 @@
       "POST /@src/routes/users.route.ts:27",
       "POST /sessions"
     ],
-    "tableNodeIds": ["node-table-order", "node-table-user"]
+    "tableNodeIds": [
+      "node-table-order",
+      "node-table-user"
+    ]
   },
   "semantic": {
     "entityKindCounts": {
-      "business-domain": 4,
-      "data-store": 2
+      "business-domain": 2,
+      "data-store": 2,
+      "endpoint": 9,
+      "resource": 1
     },
     "relationKindCounts": {},
-    "businessDomainLabels": ["Health", "Order", "Session", "User"]
+    "businessDomainLabels": [
+      "Order",
+      "User"
+    ]
   },
   "appflow": {
     "screenIds": [],
     "flowIds": []
   },
   "data": {
-    "tableIds": ["node-table-order", "node-table-user"],
-    "tableLabels": ["order", "user"]
+    "tableIds": [
+      "node-table-order",
+      "node-table-user"
+    ],
+    "tableLabels": [
+      "order",
+      "user"
+    ]
   }
 }
