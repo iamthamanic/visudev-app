@@ -1,15 +1,8 @@
-# ECC Runner Loop Handoff
+# Handoff — ecc-runner-loop
 
-- **Merged this resume:** #385→#407, #386→#408, #387→#409
-- **Next:** #388 PR-14 · Expand evidence-backed infrastructure detection
+- **Last merged:** #388 PR-14 infra Tier-1 detectors via PR #410 (`7f5565a1`)
+- **Next:** #389 PR-15 · Make Infrastructure view evidence-first and epistemically honest
+- **Branch:** `feat/389-infrastructure-honesty` (from main)
+- **Feature slug:** `infrastructure-honesty`
+- **Queue remaining:** #389–#396
 - **paused:** false
-- **runMode:** loop
-- **Queue remaining:** #388–#396
-
-## On main
-
-- Test-session auth, Safe/Sandbox explore, AppFlow coverage COMPLETE/PARTIAL
-
-## Resume
-
-`@ecc-runner-loop continue`

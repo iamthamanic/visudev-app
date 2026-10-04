@@ -1,13 +1,23 @@
 /**
- * Inspektor for InfrastructureView with overview, resource meters, and connections.
+ * Inspektor for InfrastructureView — status, evidence, meters, connections.
+ * Location: src/modules/blueprint/components/infrastructure/InfrastructureInspector.tsx
  */
 
-import type { GraphCanvasEdge, GraphCanvasNode, SoftwareGraphNode } from "../../types";
+import type {
+  GraphCanvasEdge,
+  GraphCanvasNode,
+  SoftwareGraph,
+  SoftwareGraphNode,
+} from "../../types";
 import { InspectorPanel } from "../ui/InspectorPanel.js";
 import { StatusBadge } from "../ui/StatusBadge.js";
 import { InfrastructureResourceMeters } from "./InfrastructureResourceMeters.js";
 import { resourceMetersFromMetadata } from "./infrastructure-resource-meters.js";
 import { resolveInfrastructureRuntimeStatus } from "./infrastructure-entities.js";
+import {
+  evidenceForInfrastructureNode,
+  structuralEvidenceLabels,
+} from "./infrastructure-evidence.js";
 import { ControlHint } from "../../../../components/ui/ControlHint.js";
 import styles from "../../styles/InfrastructureView.module.css";
 
@@ -67,6 +77,7 @@ function connectionEndpoints(
 export interface InfrastructureInspectorProps {
   node: GraphCanvasNode | null;
   graphNode?: SoftwareGraphNode | null;
+  graph?: SoftwareGraph | null;
   edges?: GraphCanvasEdge[];
   nodes?: GraphCanvasNode[];
 }
@@ -74,6 +85,7 @@ export interface InfrastructureInspectorProps {
 export function InfrastructureInspector({
   node,
   graphNode = null,
+  graph = null,
   edges = [],
   nodes = [],
 }: InfrastructureInspectorProps): JSX.Element {
@@ -81,7 +93,7 @@ export function InfrastructureInspector({
     return (
       <InspectorPanel
         title="Keine Auswahl"
-        emptyMessage="Wähle einen Service, um Status und Ressourcen zu sehen."
+        emptyMessage="Wähle einen Service, um Status und Evidence zu sehen."
       />
     );
   }
@@ -91,6 +103,8 @@ export function InfrastructureInspector({
   const meterValues = resourceMetersFromMetadata(graphNode?.metadata);
   const connections = connectionEndpoints(node.id, edges, nodes);
   const status = resolveInfrastructureRuntimeStatus(graphNode);
+  const evidenceItems = evidenceForInfrastructureNode(graph, graphNode);
+  const structural = structuralEvidenceLabels(graphNode);
 
   const overviewRows: Array<{ term: string; value: string | null }> = [
     { term: "Port", value: overview.port },
@@ -125,13 +139,36 @@ export function InfrastructureInspector({
             ),
         },
         {
+          id: "evidence",
+          title: "Evidence",
+          content:
+            evidenceItems.length > 0 || structural.length > 0 ? (
+              <ul className={styles.connectionList} data-testid="infra-evidence-list">
+                {evidenceItems.map((item) => (
+                  <li key={item.id}>
+                    {item.filePath}
+                    {item.line != null ? `:${item.line}` : ""}
+                    {item.kind ? ` (${item.kind})` : ""}
+                  </li>
+                ))}
+                {structural.map((label) => (
+                  <li key={`struct-${label}`}>{label}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.emptyControls} data-testid="infra-evidence-empty">
+                Keine Evidence — Knoten ohne Dateipfad, Quelle oder Runtime-Beobachtung (UNKNOWN).
+              </p>
+            ),
+        },
+        {
           id: "resources",
           title: "Ressourcen",
           content: meterValues ? (
             <InfrastructureResourceMeters values={meterValues} />
           ) : (
             <p className={styles.emptyControls} data-testid="infra-runtime-empty">
-              Laufzeitdaten unbekannt — gesucht nach Runtime-Telemetrie (CPU, RAM, Netzwerk). Nichts
+              Laufzeitdaten unbekannt — CPU/RAM/Netz nur mit realer Telemetrie-Evidence. Nichts
               davon liegt im aktuellen Scan.
             </p>
           ),

@@ -106,9 +106,9 @@ describe("InfrastructureView", () => {
     expect(screen.getByLabelText("Verbindungs-Legende")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Logische Topologie/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Physische Topologie/i })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /Aktualisieren/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Ansicht neu laden/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("Verbindungs-Legende")).toHaveTextContent("aus Scan");
   });
-
   it("hides env/region filters when no node carries deployment metadata (P0-2)", () => {
     render(<InfrastructureView blueprint={graphBlueprint} />);
     expect(screen.queryByRole("button", { name: /Produktion/i })).not.toBeInTheDocument();
