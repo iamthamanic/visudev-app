@@ -9,13 +9,13 @@
 
 ## Simulations
 
-| Case | Expected | Result |
-|------|----------|--------|
-| Dockerfile + EXPOSE | one deploy-service + ports; engine FROM → one infra-service | matches tests |
-| package.json SDK deps | one infra-service per engine label (deduped) | matches tests |
-| .env.example secrets | names only; `NAME=***`; DATABASE_URL does not invent PG | matches tests |
-| no Tier-1 signals | zero infra/deploy facts | matches negative test |
-| Cardinality | N evidence lines → ≤N facts; graph nodes keyed by service/deploy id (no fan-out mail/webhook) | CLEAR |
+| Case                  | Expected                                                                                      | Result                |
+| --------------------- | --------------------------------------------------------------------------------------------- | --------------------- |
+| Dockerfile + EXPOSE   | one deploy-service + ports; engine FROM → one infra-service                                   | matches tests         |
+| package.json SDK deps | one infra-service per engine label (deduped)                                                  | matches tests         |
+| .env.example secrets  | names only; `NAME=***`; DATABASE_URL does not invent PG                                       | matches tests         |
+| no Tier-1 signals     | zero infra/deploy facts                                                                       | matches negative test |
+| Cardinality           | N evidence lines → ≤N facts; graph nodes keyed by service/deploy id (no fan-out mail/webhook) | CLEAR                 |
 
 ## Skip?
 
