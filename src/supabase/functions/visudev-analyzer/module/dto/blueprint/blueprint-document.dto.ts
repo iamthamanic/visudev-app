@@ -113,12 +113,24 @@ export interface ProjectProfile {
 export interface FactSelectionReport {
   /** Facts produced by the extractors before any cap. */
   extracted: number;
-  /** Facts included in the export. */
+  /** Facts included in the transport/export payload (may be capped). */
   selected: number;
   /** Files with at least one selected fact. */
   filesCovered: number;
   /** Per kind: extracted vs selected. */
   byKind: Record<string, { extracted: number; selected: number }>;
+}
+
+/**
+ * Authoritative truth accounting (#377). Transport caps must not reduce these counts.
+ * Invariant for full capability scans: factsAuthoritative === factsExtracted.
+ */
+export interface AuthoritativeTruthReport {
+  factsExtracted: number;
+  factsAuthoritative: number;
+  factsTransport: number;
+  graphEvidenceAuthoritative: number;
+  transportCapped: boolean;
 }
 
 /** AST parse attempt summary (P0-9) — failures are counted, not swallowed. */
@@ -159,6 +171,8 @@ export interface BlueprintDocument {
   findings: BlueprintFinding[];
   facts: CodeFact[];
   factSelection?: FactSelectionReport;
+  /** Full-fidelity counts before transport/export caps (#377). */
+  authoritativeTruth?: AuthoritativeTruthReport;
   /** Present when JS/TS AST extraction ran during this analysis. */
   astParseReport?: AstParseReport;
   /**

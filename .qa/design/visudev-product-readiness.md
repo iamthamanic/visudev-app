@@ -48,3 +48,7 @@ Workflow `.github/workflows/real-visual-audit.yml` builds a matrix from the mani
 ## Epistemic contract (#376)
 
 Canonical `KnowledgeStatus` / `CoverageStatus` / `DetectionState` live in `shared/scan-detector/epistemic.ts`. Legacy SDE statuses map via `coerceKnowledgeStatus`. LLM origin → INTERPRETED only.
+
+## Full-fidelity truth (#377)
+
+Blueprint pipeline: sanitize all facts → assemble authoritative graph (no MAX_BLUEPRINT_FACTS trim) → engine cutover → cap transport `facts`/`graph`.
