@@ -57,7 +57,7 @@ describe("buildArchitectureStackCards", () => {
     ]);
   });
 
-  it("groups layer cards by metadata.domain and parent domain nodes", () => {
+  it("does not invent domains from folder metadata without SemanticSystemModel", () => {
     const mixed: SoftwareGraph = {
       ...graph,
       nodes: [
@@ -86,23 +86,17 @@ describe("buildArchitectureStackCards", () => {
       mixed,
       buildArchitectureStackCards(mixed, "layer"),
     );
-    expect(groups.map((group) => group.label)).toEqual(["billing", "hr", "Ohne Domäne"]);
-    expect(groups.find((group) => group.id === "hr")?.cards.map((card) => card.label)).toEqual([
-      "ui",
-    ]);
-    expect(hasRecognizedArchitectureDomains(groups)).toBe(true);
+    expect(groups).toHaveLength(1);
+    expect(groups[0].label).toBe("Ohne Domäne");
+    expect(hasRecognizedArchitectureDomains(groups)).toBe(false);
   });
 
-  it("rejects structural folder domains such as components/hooks/services", () => {
+  it("keeps structural folder graphs under Ohne Domäne without semantic authority", () => {
     const structural: SoftwareGraph = {
       ...graph,
       nodes: [
         { id: "domain:components", kind: "domain", label: "components", metadata: {} },
-        { id: "domain:hooks", kind: "domain", label: "hooks", metadata: {} },
-        { id: "domain:services", kind: "domain", label: "services", metadata: {} },
         { id: "layer:c", kind: "layer", label: "ui", metadata: {} },
-        { id: "layer:h", kind: "layer", label: "hooks", metadata: {} },
-        { id: "layer:s", kind: "layer", label: "application", metadata: {} },
       ],
       edges: [
         {
@@ -112,25 +106,12 @@ describe("buildArchitectureStackCards", () => {
           targetId: "layer:c",
           metadata: {},
         },
-        {
-          id: "e-h",
-          kind: "contains",
-          sourceId: "domain:hooks",
-          targetId: "layer:h",
-          metadata: {},
-        },
-        {
-          id: "e-s",
-          kind: "contains",
-          sourceId: "domain:services",
-          targetId: "layer:s",
-          metadata: {},
-        },
       ],
     };
-    const groups = groupArchitectureCardsByDomain(
+    const groups = groupArchitectureCardsBySemanticDomains(
       structural,
       buildArchitectureStackCards(structural, "layer"),
+      null,
     );
     expect(groups).toHaveLength(1);
     expect(groups[0].label).toBe("Ohne Domäne");

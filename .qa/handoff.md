@@ -1,15 +1,65 @@
 # ECC Runner Loop Handoff
 
-- **Merged this session:** #375→#397, #376→#398, #377→#399, #378→#400, #379→#401
-- **Next:** #380 PR-06 · Cut Atlas over to SemanticSystemModel v2
+- **Merged this session:** #375→#397 … #379→#401, #380→#402
+- **Next:** #381 PR-07 · Architecture semantic layers
 - **paused:** false
 - **runMode:** loop
-- **Queue remaining:** #380–#396
+- **Queue remaining:** #381–#396
+
+## Abarbeitungsreihenfolge (verbindlich)
+
+Epic #374 — immer **numerisch PR-01→PR-22**, sequential merge auf `main`.  
+Abhängigkeiten dürfen nicht übersprungen werden.
+
+**GitHub labels:** jedes Child-Issue trägt `order-01` … `order-22` (= PR-Nummer / Queue-Position).
+
+### V1 — blocking (Gate: #392)
+
+| Status     | Issue | PR                                        | Depends on       |
+| ---------- | ----- | ----------------------------------------- | ---------------- |
+| ✓          | #375  | PR-01 harness                             | —                |
+| ✓          | #376  | PR-02 epistemic contracts                 | #375             |
+| ✓          | #377  | PR-03 authoritative truth                 | #376             |
+| ✓          | #378  | PR-04 capability coverage                 | #376             |
+| ✓          | #379  | PR-05 SemanticSystemModel v2              | #378             |
+| ✓          | #380  | PR-06 Atlas → v2                          | #379             |
+| → **NEXT** | #381  | PR-07 Architecture layers                 | #379             |
+|            | #382  | PR-08 Dependencies topology               | #379             |
+|            | #383  | PR-09 Execution trust layers              | #379             |
+|            | #384  | PR-10 AppFlow frontier explore            | #378             |
+|            | #385  | PR-11 AppFlow test sessions               | #384             |
+|            | #386  | PR-12 Safe/Sandbox Explore                | #385             |
+|            | #387  | PR-13 AppFlow coverage/termination        | #384, #385       |
+|            | #388  | PR-14 Infra detection                     | #379             |
+|            | #389  | PR-15 Infra honesty UI                    | #388, #378       |
+|            | #390  | PR-16 Local/GitHub parity                 | #379, #387, #389 |
+|            | #391  | PR-17 console-clean / incomplete surfaces | #380, #381, #382 |
+|            | #392  | PR-18 final V1 certification gate         | #391             |
+
+**Parallel-Hinweis (nur inhaltlich):** Nach #381 können #382/#383/#384/#388 starten, sobald ihre Depends erledigt sind — der Runner bleibt trotzdem **strikt sequential** (#381→#382→…→#392), damit Stacked-PRs und Main-Drift vermieden werden.
+
+### V1.1 — erst nach V1 (#392)
+
+| Status | Issue | PR                            | Depends on |
+| ------ | ----- | ----------------------------- | ---------- |
+|        | #393  | PR-19 LLM SemanticInterpreter | #392       |
+|        | #394  | PR-20 Evolution complete      | #392       |
+|        | #395  | PR-21 DataLineage model       | #392       |
+|        | #396  | PR-22 DataLineage UI          | #395       |
+
+### Golden projects (V1 gate)
+
+1. `iamthamanic/hrkoordinator`
+2. `iamthamanic/sagadrive`
+3. `iamthamanic/scriptony-multihost`
+4. local `HV123-Mobile-HABA`
+5. `iamthamanic/Screenator`
 
 ## On main already
 
 - Readiness harness + epistemic contracts + authoritative truth + capability coverage
-- SemanticSystemModel v2 taxonomy (`knowledgeStatus`, multi-signal domains, resource denylist)
+- SemanticSystemModel v2 taxonomy
+- Atlas cut over to v2 (KnowledgeStatus / evidence inspector, diversified districts)
 
 ## Resume
 

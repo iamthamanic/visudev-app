@@ -1,5 +1,4 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { buildSemanticSystemModel } from "../../../../shared/semantic-system-model.js";
 import type { BlueprintData, SoftwareGraphNodeKind } from "../types";
 import { BlueprintViewLayout } from "./ui/BlueprintViewLayout.js";
 import { applyArchitectureNodeColors } from "./architecture/_apply-colors.js";
@@ -8,6 +7,7 @@ import { ArchitectureDomainGroups } from "./architecture/ArchitectureDomainGroup
 import { ArchitectureGroupingToggle } from "./architecture/ArchitectureGroupingToggle.js";
 import { ArchitectureInspector } from "./architecture/ArchitectureInspector.js";
 import { ArchitectureLayerStack } from "./architecture/ArchitectureLayerStack.js";
+import { ArchitectureSemanticKindBar } from "./architecture/ArchitectureSemanticKindBar.js";
 import {
   GROUPING_STACK_KIND,
   GROUPING_VISIBLE_KINDS,
@@ -16,12 +16,10 @@ import {
 import {
   buildArchitectureStackCards,
   groupArchitectureCardsBySemanticDomains,
+  summarizeArchitectureSemanticKinds,
 } from "./architecture/build-layer-stack.js";
 import { projectArchitectureGraph } from "./architecture/_projection.js";
-import {
-  collectFileDomainSources,
-  domainSourceHintText,
-} from "./architecture/domain-source-hint.js";
+import { resolveArchitectureSemanticModel } from "./architecture/resolve-architecture-semantic-model.js";
 import {
   ArchitectureLevelNav,
   type ArchitectureLevel,
@@ -39,7 +37,8 @@ const GraphCanvas = lazy(() =>
 const LEVEL_VISIBLE_KINDS: Record<ArchitectureLevel, SoftwareGraphNodeKind[]> = {
   system: ["organization", "application"],
   domain: ["domain", "application"],
-  module: ["module", "domain", "layer"],
+  capability: ["module", "service", "domain"],
+  module: ["module", "domain", "layer", "service", "table"],
   file: ["file", "module", "route", "service"],
 };
 
@@ -93,25 +92,36 @@ export function ArchitectureView({
     return buildArchitectureStackCards(graph, GROUPING_STACK_KIND[groupingMode]);
   }, [graph, groupingMode]);
 
-  const semanticModel = useMemo(() => {
-    if (!graph) return null;
-    return buildSemanticSystemModel(graph);
-  }, [graph]);
+  const semanticModel = useMemo(
+    () => resolveArchitectureSemanticModel(blueprint, graph),
+    [blueprint, graph],
+  );
 
   const domainGroups = useMemo(() => {
     if (!graph || groupingMode !== "layers") return [];
     return groupArchitectureCardsBySemanticDomains(graph, stackCards, semanticModel);
   }, [graph, groupingMode, stackCards, semanticModel]);
 
-  const domainHint = useMemo(() => {
-    if (!graph) return null;
-    return domainSourceHintText(collectFileDomainSources(graph.nodes));
-  }, [graph]);
+  const kindSummaries = useMemo(
+    () => summarizeArchitectureSemanticKinds(semanticModel),
+    [semanticModel],
+  );
 
   const selectedNode = useMemo(() => {
     if (!graph || !selectedNodeId) return null;
     return graph.nodes.find((node) => node.id === selectedNodeId) ?? null;
   }, [graph, selectedNodeId]);
+
+  const selectedSemanticEntity = useMemo(() => {
+    if (!semanticModel || !selectedNodeId) return null;
+    const membership = semanticModel.memberships.find(
+      (entry) => entry.graphNodeId === selectedNodeId,
+    );
+    if (!membership) return null;
+    return (
+      semanticModel.entities.find((entity) => entity.id === membership.semanticEntityId) ?? null
+    );
+  }, [semanticModel, selectedNodeId]);
 
   const toggleCollapse = (id: string) => {
     setCollapsedIds((current) => {
@@ -159,16 +169,18 @@ export function ArchitectureView({
       semantic.entities.some((entity) => entity.kind === "application") ||
       graph.nodes.some((node) => node.kind === "application" || node.kind === "organization"),
     domain:
-      !semantic ||
-      semantic.entities.some((entity) => entity.kind === "business-domain") ||
+      Boolean(semantic?.entities.some((entity) => entity.kind === "business-domain")) ||
       graph.nodes.some((node) => node.kind === "domain"),
+    capability: Boolean(semantic?.entities.some((entity) => entity.kind === "capability")),
     module:
-      graph.nodes.some((node) => node.kind === "module") ||
+      graph.nodes.some((node) => node.kind === "module" || node.kind === "service") ||
       Boolean(
         semantic?.entities.some(
           (entity) =>
             entity.kind === "service" ||
             entity.kind === "technical-module" ||
+            entity.kind === "data-store" ||
+            entity.kind === "resource" ||
             entity.kind === "component",
         ),
       ),
@@ -236,16 +248,18 @@ export function ArchitectureView({
     <div className={styles.root}>
       <ArchitectureGroupingToggle mode={groupingMode} onSelectMode={setGroupingMode} />
       <ArchitectureLevelNav level={level} onChange={setLevel} available={levelAvailable} />
-      {domainHint ? (
-        <p className={styles.domainSourceHint} role="status">
-          {domainHint}
-        </p>
-      ) : null}
+      <ArchitectureSemanticKindBar summaries={kindSummaries} />
 
       <BlueprintViewLayout
         controls={controls}
         canvas={canvas}
-        inspector={<ArchitectureInspector graph={graph} node={selectedNode} />}
+        inspector={
+          <ArchitectureInspector
+            graph={graph}
+            node={selectedNode}
+            semanticEntity={selectedSemanticEntity}
+          />
+        }
       />
     </div>
   );
