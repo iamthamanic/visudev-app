@@ -793,3 +793,57 @@
 .treemapSlot {
   padding: 0.75rem 1rem;
 }
+
+/* KnowledgeStatus chrome — strong vs weak vs conflict (PR-06) */
+.knowledgeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.knowledgeBadge[data-tone="strong"] {
+  color: var(--color-foreground);
+  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-card));
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+}
+
+.knowledgeBadge[data-tone="weak"] {
+  color: var(--color-muted-foreground);
+  background: var(--color-muted);
+  border-style: dashed;
+  font-weight: 500;
+}
+
+.knowledgeBadge[data-tone="conflict"] {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 12%, var(--color-card));
+  border-color: color-mix(in srgb, var(--color-danger) 40%, var(--color-border));
+}
+
+.knowledgeInline[data-tone="strong"] {
+  color: var(--color-foreground);
+  font-weight: 600;
+}
+
+.knowledgeInline[data-tone="weak"] {
+  color: var(--color-muted-foreground);
+  font-style: italic;
+}
+
+.knowledgeInline[data-tone="conflict"] {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.nodeCard[data-knowledge-tone="weak"] {
+  opacity: 0.88;
+}
+
+.nodeCard[data-knowledge-tone="strong"] {
+  opacity: 1;
+}

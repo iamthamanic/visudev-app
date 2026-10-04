@@ -45,6 +45,7 @@ export interface AtlasProjection {
   visibleNodes: number;
 }
 
+/** Primary Atlas search/overview kinds — systemic first; resources via search only. */
 const PRIMARY_SEARCH_KINDS = new Set<SemanticEntityKind>([
   "application",
   "business-domain",
@@ -54,6 +55,20 @@ const PRIMARY_SEARCH_KINDS = new Set<SemanticEntityKind>([
   "component",
   "data-store",
   "external-system",
+  "security-control",
+  "resource",
+]);
+
+const DEFAULT_OVERVIEW_KINDS = new Set<SemanticEntityKind>([
+  "application",
+  "business-domain",
+  "capability",
+  "service",
+  "technical-module",
+  "component",
+  "data-store",
+  "external-system",
+  "security-control",
 ]);
 
 const GRAPH_KIND_BY_SEMANTIC_KIND: Record<SemanticEntityKind, SoftwareGraphNodeKind> = {
@@ -109,22 +124,56 @@ function representativeGraphNodeId(
   return null;
 }
 
+const OVERVIEW_KIND_PRIORITY: readonly SemanticEntityKind[] = [
+  "application",
+  "business-domain",
+  "capability",
+  "technical-module",
+  "service",
+  "data-store",
+  "external-system",
+  "security-control",
+  "component",
+];
+
 function defaultEntities(model: SemanticSystemModel): SemanticEntity[] {
   const applications = model.entities.filter(
     (entity) => entity.kind === "application" && isReadableOverviewEntity(entity),
   );
   const domains = model.entities.filter((entity) => entity.kind === "business-domain");
-  if (domains.length > 0) return [...applications, ...domains];
-  return [
-    ...applications,
-    ...model.entities.filter(
-      (entity) =>
-        isReadableOverviewEntity(entity) &&
-        ["service", "technical-module", "component", "data-store", "external-system"].includes(
-          entity.kind,
-        ),
-    ),
-  ];
+  const capabilities = model.entities.filter((entity) => entity.kind === "capability");
+  // Primary districts: applications + business domains + capabilities (never resources as domains).
+  if (domains.length > 0 || capabilities.length > 0) {
+    return [...applications, ...domains, ...capabilities];
+  }
+  // No systemic domains — diversify technical overview; do not let one kind (e.g. security-control) flood the 40-cap.
+  const byKind = new Map<SemanticEntityKind, SemanticEntity[]>();
+  for (const entity of model.entities) {
+    if (!DEFAULT_OVERVIEW_KINDS.has(entity.kind) || !isReadableOverviewEntity(entity)) continue;
+    const bucket = byKind.get(entity.kind) ?? [];
+    bucket.push(entity);
+    byKind.set(entity.kind, bucket);
+  }
+  for (const bucket of byKind.values()) {
+    bucket.sort((left, right) => left.id.localeCompare(right.id));
+  }
+  const picked: SemanticEntity[] = [...applications];
+  const seen = new Set(picked.map((entity) => entity.id));
+  let progress = true;
+  while (picked.length < ATLAS_SEMANTIC_LIMIT && progress) {
+    progress = false;
+    for (const kind of OVERVIEW_KIND_PRIORITY) {
+      if (picked.length >= ATLAS_SEMANTIC_LIMIT) break;
+      const bucket = byKind.get(kind);
+      if (!bucket || bucket.length === 0) continue;
+      const next = bucket.shift();
+      if (!next || seen.has(next.id)) continue;
+      picked.push(next);
+      seen.add(next.id);
+      progress = true;
+    }
+  }
+  return picked;
 }
 
 function selectEntities(
@@ -204,15 +253,18 @@ function buildGroups(
   }
 
   // v2: when no business-domain districts qualify, keep Atlas honest with
-  // technical overview clusters (services / modules / stores) — never invent domains.
+  // technical overview clusters (services / modules / stores / security) — never invent domains.
   if (groups.length === 0) {
     const technicalKinds = new Set([
+      "application",
+      "business-domain",
+      "capability",
       "service",
       "technical-module",
       "component",
       "data-store",
       "external-system",
-      "application",
+      "security-control",
     ]);
     for (const entity of selectedEntities) {
       if (!technicalKinds.has(entity.kind)) continue;
@@ -251,16 +303,43 @@ function buildRepresentativeMap(
   return result;
 }
 
+function technicalOverviewEntities(
+  model: SemanticSystemModel,
+  representativeByEntityId: ReadonlyMap<string, string>,
+): SemanticEntity[] {
+  return model.entities
+    .filter(
+      (entity) =>
+        DEFAULT_OVERVIEW_KINDS.has(entity.kind) &&
+        isReadableOverviewEntity(entity) &&
+        representativeByEntityId.has(entity.id),
+    )
+    .sort((left, right) => left.id.localeCompare(right.id))
+    .slice(0, ATLAS_SEMANTIC_LIMIT);
+}
+
 export function projectAtlasSemanticModel(
   graph: SoftwareGraph,
   model: SemanticSystemModel,
   options: AtlasProjectionOptions = {},
 ): AtlasProjection {
   const representativeByEntityId = buildRepresentativeMap(graph, model);
-  const selection = selectEntities(model, options.searchQuery ?? "");
-  const selectedEntities = selection.entities.filter((entity) =>
+  const searchQuery = options.searchQuery ?? "";
+  const selection = selectEntities(model, searchQuery);
+  let selectedEntities = selection.entities.filter((entity) =>
     representativeByEntityId.has(entity.id),
   );
+  let { groups, inspectorGroups } = buildGroups(model, selectedEntities, representativeByEntityId);
+
+  // Domains may exist without projectable representatives — widen to technical overview
+  // so Atlas still shows honest districts (never invent business domains).
+  let usedTechnicalFallback = false;
+  if (groups.length === 0 && !searchQuery.trim()) {
+    selectedEntities = technicalOverviewEntities(model, representativeByEntityId);
+    ({ groups, inspectorGroups } = buildGroups(model, selectedEntities, representativeByEntityId));
+    usedTechnicalFallback = true;
+  }
+
   const visibleSemanticIds = new Set(selectedEntities.map((entity) => entity.id));
 
   const nodes: GraphCanvasNode[] = selectedEntities.map((entity) => {
@@ -270,6 +349,8 @@ export function projectAtlasSemanticModel(
       label: truncateLabel(entity.label),
       kind,
       color: getNodeKindColor(kind),
+      semanticKind: entity.kind,
+      knowledgeStatus: entity.knowledgeStatus,
     };
   });
 
@@ -293,11 +374,6 @@ export function projectAtlasSemanticModel(
     })
     .filter((edge): edge is GraphCanvasEdge => edge !== null);
   const edges = candidateEdges.slice(0, ATLAS_MAX_EDGES);
-  const { groups, inspectorGroups } = buildGroups(
-    model,
-    selectedEntities,
-    representativeByEntityId,
-  );
 
   return {
     nodes,
@@ -306,8 +382,12 @@ export function projectAtlasSemanticModel(
     inspectorGroups,
     semanticEntities: selectedEntities,
     sourceGraphNodeIdBySemanticId: Object.fromEntries(representativeByEntityId.entries()),
-    condensed: graph.condensed || selection.condensed || candidateEdges.length > ATLAS_MAX_EDGES,
-    totalNodes: selection.total,
+    condensed:
+      graph.condensed ||
+      selection.condensed ||
+      usedTechnicalFallback ||
+      candidateEdges.length > ATLAS_MAX_EDGES,
+    totalNodes: usedTechnicalFallback ? selectedEntities.length : selection.total,
     visibleNodes: nodes.length,
   };
 }

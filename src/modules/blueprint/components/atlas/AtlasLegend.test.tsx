@@ -33,4 +33,12 @@ describe("AtlasLegend", () => {
     fireEvent.click(screen.getByRole("button", { name: "Legende einblenden" }));
     expect(screen.getByTestId("atlas-legend")).toBeInTheDocument();
   });
+
+  it("lists v2 semantic kinds and knowledge status tones", () => {
+    render(<AtlasLegend />);
+    expect(screen.getByTestId("atlas-legend")).toHaveTextContent("Fachdomäne");
+    expect(screen.getByTestId("atlas-legend")).toHaveTextContent("Techn. Modul");
+    expect(screen.getByTestId("atlas-legend-knowledge")).toHaveTextContent("Interpretiert");
+    expect(screen.getAllByTestId("atlas-legend-knowledge-item")).toHaveLength(3);
+  });
 });

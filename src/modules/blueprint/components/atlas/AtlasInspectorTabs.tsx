@@ -3,6 +3,7 @@
  */
 
 import { useState } from "react";
+import type { SemanticEntity } from "../../../../../shared/semantic-system-model.types.js";
 import type { SoftwareGraph, SoftwareGraphGroup, SoftwareGraphNode } from "../../types";
 import { findGroupsForNode } from "./atlas-display.js";
 import { ATLAS_INSPECTOR_TABS, type AtlasInspectorTabId } from "./atlas-inspector-tabs.js";
@@ -16,12 +17,18 @@ export interface AtlasInspectorTabsProps {
   graph: SoftwareGraph;
   node: SoftwareGraphNode | null;
   cluster: SoftwareGraphGroup | null;
+  semanticEntity?: SemanticEntity | null;
 }
 
-export function AtlasInspectorTabs({ graph, node, cluster }: AtlasInspectorTabsProps): JSX.Element {
+export function AtlasInspectorTabs({
+  graph,
+  node,
+  cluster,
+  semanticEntity = null,
+}: AtlasInspectorTabsProps): JSX.Element {
   const [activeTab, setActiveTab] = useState<AtlasInspectorTabId>("overview");
 
-  if (!node && !cluster) {
+  if (!node && !cluster && !semanticEntity) {
     return (
       <div className={styles.inspectorEmpty}>
         <p>Wähle einen Knoten oder Cluster auf der Karte.</p>
@@ -55,10 +62,16 @@ export function AtlasInspectorTabs({ graph, node, cluster }: AtlasInspectorTabsP
             node={node}
             cluster={cluster}
             nodeGroups={nodeGroups}
+            semanticEntity={semanticEntity}
           />
         ) : null}
         {activeTab === "details" ? (
-          <AtlasInspectorDetailsTab graph={graph} node={node} cluster={cluster} />
+          <AtlasInspectorDetailsTab
+            graph={graph}
+            node={node}
+            cluster={cluster}
+            semanticEntity={semanticEntity}
+          />
         ) : null}
         {activeTab === "dependencies" ? (
           <AtlasInspectorDependenciesTab graph={graph} node={node} cluster={cluster} />

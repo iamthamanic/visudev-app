@@ -91,6 +91,61 @@ describe("projectAtlasGraph", () => {
     );
   });
 
+  it("widens to technical overview when domain districts are not projectable", () => {
+    const graph = makeGraph();
+    graph.nodes = [
+      {
+        id: "app",
+        kind: "application",
+        label: "e9afc94b-b2e3-47a3-b24f-ac07284cb34f",
+        metadata: {},
+      },
+      {
+        id: "mod-a",
+        kind: "module",
+        label: "PayrollModule",
+        filePath: "src/payroll/payroll.module.ts",
+        metadata: {},
+      },
+      {
+        id: "svc-a",
+        kind: "service",
+        label: "PayrollService",
+        filePath: "src/payroll/payroll.service.ts",
+        metadata: {},
+      },
+    ];
+    graph.edges = [];
+    const projection = projectAtlasGraph(graph);
+    expect(projection.groups.length).toBeGreaterThan(0);
+    expect(projection.nodes.length).toBeGreaterThan(0);
+    expect(projection.nodes.every((node) => node.kind !== "route")).toBe(true);
+  });
+
+  it("does not promote resources as business-domain districts", () => {
+    const graph = makeGraph();
+    graph.nodes = [
+      { id: "app", kind: "application", label: "App", metadata: {} },
+      {
+        id: "route-logo",
+        kind: "route",
+        label: "GET /logo",
+        metadata: { path: "/logo" },
+      },
+      {
+        id: "tbl-user",
+        kind: "table",
+        label: "user",
+        metadata: {},
+      },
+    ];
+    graph.edges = [];
+    const projection = projectAtlasGraph(graph);
+    expect(projection.nodes.some((node) => node.semanticKind === "resource")).toBe(false);
+    expect(projection.groups.every((group) => group.label.toLowerCase() !== "logo")).toBe(true);
+    expect(projection.nodes.some((node) => node.semanticKind === "business-domain")).toBe(true);
+  });
+
   it("falls back to technical clusters when no business-domain qualifies", () => {
     const graph = makeGraph();
     // Route-only + denylist-style names → no business-domain; keep module/service clusters.

@@ -1,5 +1,5 @@
 /**
- * AtlasLegend — visual-channel semantics plus cluster kind colors (Honest-Core P1-6).
+ * AtlasLegend — v2 semantic kinds plus visual-channel honesty (PR-06).
  * Location: src/modules/blueprint/components/atlas/AtlasLegend.tsx
  */
 
@@ -8,13 +8,19 @@ import { ATLAS_VISUAL_CHANNELS, formatAtlasLegendEntry } from "./atlas-visual-ch
 import styles from "../../styles/AtlasView.module.css";
 
 const LEGEND_ITEMS = [
-  { id: "frontend", label: "Frontend", kind: "module" },
-  { id: "backend", label: "Backend", kind: "service" },
-  { id: "worker", label: "Worker", kind: "worker" },
-  { id: "data", label: "Daten", kind: "table" },
-  { id: "storage", label: "Speicher", kind: "storage" },
-  { id: "external", label: "Externe", kind: "external" },
-  { id: "security", label: "Sicherheit", kind: "security" },
+  { id: "application", label: "Anwendung", kind: "application" },
+  { id: "business-domain", label: "Fachdomäne", kind: "domain" },
+  { id: "capability", label: "Capability", kind: "module" },
+  { id: "service", label: "Service", kind: "service" },
+  { id: "technical-module", label: "Techn. Modul", kind: "module" },
+  { id: "data-store", label: "Datenspeicher", kind: "table" },
+  { id: "external", label: "Extern", kind: "external" },
+];
+
+const KNOWLEDGE_LEGEND = [
+  { id: "strong", label: "Verifiziert / Gestützt", tone: "strong" },
+  { id: "weak", label: "Interpretiert / Unbekannt", tone: "weak" },
+  { id: "conflict", label: "Konflikt", tone: "conflict" },
 ];
 
 export function AtlasLegend(): JSX.Element {
@@ -59,6 +65,18 @@ export function AtlasLegend(): JSX.Element {
                 data-testid="atlas-legend-item"
               >
                 <span className={styles.legendDot} aria-hidden="true" />
+                {item.label}
+              </span>
+            ))}
+          </div>
+          <div className={styles.legendKinds} data-testid="atlas-legend-knowledge">
+            {KNOWLEDGE_LEGEND.map((item) => (
+              <span
+                key={item.id}
+                className={styles.knowledgeBadge}
+                data-tone={item.tone}
+                data-testid="atlas-legend-knowledge-item"
+              >
                 {item.label}
               </span>
             ))}
