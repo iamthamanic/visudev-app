@@ -51,11 +51,11 @@ describe("Blueprint view nothing-found states", () => {
     );
   });
 
-  it("infrastructure names runtime nodes", () => {
+  it("infrastructure surfaces epistemic ABSENT coverage", () => {
     render(<InfrastructureView blueprint={emptyBlueprint} scanStatus="completed" />);
-    expect(screen.getByTestId("view-state-nothing-found")).toHaveTextContent(
-      "docker-compose.yml und Kubernetes-Manifesten",
-    );
+    const empty = screen.getByTestId("infra-coverage-empty");
+    expect(empty).toHaveAttribute("data-detection", "ABSENT");
+    expect(screen.getByTestId("view-state-nothing-found")).toHaveTextContent("ABSENT");
   });
 
   it("diagnostics names security patterns", () => {
