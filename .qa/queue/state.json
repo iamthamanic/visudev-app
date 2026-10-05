@@ -3,7 +3,7 @@
   "repo": "iamthamanic/visudev-app",
   "activeIssue": 395,
   "featureSlug": "data-lineage-model",
-  "phase": "claim",
+  "phase": "commit",
   "branch": "feat/395-data-lineage-model",
   "prUrl": null,
   "paused": false,
@@ -133,6 +133,6 @@
   "lastErrorCount": 0,
   "currentIssue": 395,
   "lastCompletedIssue": 394,
-  "notes": "Merged #394 via PR #416; next #395 DataLineage",
-  "updatedAt": "2026-10-05T11:27:19.000Z"
+  "notes": "Shipping #395 DataLineage model",
+  "updatedAt": "2026-10-05T11:31:51.000Z"
 }
