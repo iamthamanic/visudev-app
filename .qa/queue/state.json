@@ -33,6 +33,7 @@
     348,
     349,
     350,
+    374,
     375,
     376,
     377,
@@ -80,6 +81,7 @@
     348,
     349,
     350,
+    374,
     375,
     376,
     377,
@@ -135,7 +137,8 @@
   "lastError": null,
   "lastErrorCount": 0,
   "currentIssue": null,
-  "lastCompletedIssue": 396,
-  "notes": "Queue empty \u2014 Product Readiness epic streak complete through #396",
-  "updatedAt": "2026-10-05T11:49:20.000Z"
+  "lastCompletedIssue": 374,
+  "notes": "Epic #374 closed \u2014 Product Readiness children #375\u2013#396 done; V1 CI green",
+  "updatedAt": "2026-10-05T12:07:02.000Z",
+  "milestoneFilter": null
 }
