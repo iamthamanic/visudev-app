@@ -66,6 +66,18 @@ export function EvolutionInspector({
                   <dt>Entfernt</dt>
                   <dd>{diff?.removedNodeIds.length ?? 0}</dd>
                 </div>
+                <div className={styles.detailRow}>
+                  <dt>Relationen neu</dt>
+                  <dd>{diff?.addedRelationIds?.length ?? 0}</dd>
+                </div>
+                <div className={styles.detailRow}>
+                  <dt>Relationen geändert</dt>
+                  <dd>{diff?.changedRelationIds?.length ?? 0}</dd>
+                </div>
+                <div className={styles.detailRow}>
+                  <dt>Relationen entfernt</dt>
+                  <dd>{diff?.removedRelationIds?.length ?? 0}</dd>
+                </div>
               </dl>
             ),
           },

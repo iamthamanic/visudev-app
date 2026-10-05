@@ -14,6 +14,7 @@ import { EvolutionSnapshotCards } from "./evolution/EvolutionSnapshotCards.js";
 import { EvolutionSubTabs } from "./evolution/EvolutionSubTabs.js";
 import { type EvolutionTabId } from "./evolution/evolution-tabs.js";
 import { EvolutionBranchCompare } from "./evolution/EvolutionBranchCompare.js";
+import { EvolutionCommitDiff } from "./evolution/EvolutionCommitDiff.js";
 import { findSnapshot } from "./evolution/_diff.js";
 import { useEvolutionViewState } from "./evolution/useEvolutionViewState.js";
 import { hasSemanticHistoryCompare } from "../../../../shared/semantic-history.js";
@@ -114,6 +115,12 @@ export function EvolutionView({
               benötigt. Git-Commits allein ersetzen keine Snapshot-Vergleiche.
             </p>
           ) : null}
+          {diff?.comparable === false ? (
+            <p className={styles.hint} data-testid="evolution-snapshot-incompatible">
+              {diff.incompatibleReason ||
+                "Diese Snapshots sind inkompatibel und werden nicht verglichen."}
+            </p>
+          ) : null}
           <EvolutionMetricsRow
             diff={diff}
             gitSummary={gitSummary}
@@ -130,7 +137,7 @@ export function EvolutionView({
                 gitLoadError={gitLoadError}
                 baseSnapshotId={baseSnapshotId}
                 targetSnapshotId={targetSnapshotId}
-                identical={diff?.identical ?? false}
+                identical={diff?.comparable !== false && (diff?.identical ?? false)}
                 condensed={diff?.condensed ?? false}
                 onSelectBase={setBaseSnapshotId}
                 onSelectTarget={setTargetSnapshotId}
@@ -138,7 +145,11 @@ export function EvolutionView({
             }
             canvas={
               <div className={styles.canvasWrap}>
-                {hasDiffNodes ? (
+                {diff?.comparable === false ? (
+                  <div className={styles.filteredCanvasEmpty}>
+                    <p>Kein Vergleich — Snapshots sind inkompatibel.</p>
+                  </div>
+                ) : hasDiffNodes ? (
                   <Suspense fallback={<p className={styles.loading}>Graph wird geladen...</p>}>
                     <GraphCanvas
                       nodes={projection?.nodes ?? []}
@@ -167,6 +178,12 @@ export function EvolutionView({
             }
           />
         </>
+      ) : activeTab === "commit-diff" ? (
+        <EvolutionCommitDiff
+          projectId={projectId}
+          gitSummary={gitSummary}
+          preferredHeadSha={selectedCommitSha}
+        />
       ) : activeTab === "branch-compare" ? (
         <EvolutionBranchCompare
           projectId={projectId}

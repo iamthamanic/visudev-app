@@ -6,6 +6,11 @@
 import type { Hono } from "hono";
 import type { GitSummaryService } from "../services/git-summary.service.js";
 import { readBranchDiff, gitBranchDiffErrorStatus } from "../lib/git-branch-diff.js";
+import {
+  gitCommitDiffErrorStatus,
+  looksLikeCommitSha,
+  readCommitDiff,
+} from "../lib/git-commit-diff.js";
 import { checkRateLimit } from "../lib/simple-rate-limit.js";
 import { fail, getErrorStatus, ok } from "./http.js";
 
@@ -74,21 +79,31 @@ export function registerGitRoutes(app: Hono, gitSummaryService: GitSummaryServic
         return fail(c, "GIT_DIFF_FAILED", "Project has no local path", 400);
       }
 
-      const diff = await readBranchDiff(project.localPath, base, head);
+      const diff =
+        looksLikeCommitSha(base) && looksLikeCommitSha(head)
+          ? await readCommitDiff(project.localPath, base, head)
+          : await readBranchDiff(project.localPath, base, head);
       return ok(c, diff);
     } catch (error) {
-      const validationStatus = gitBranchDiffErrorStatus(error);
+      const validationStatus =
+        gitCommitDiffErrorStatus(error) === 400
+          ? 400
+          : gitBranchDiffErrorStatus(error) === 400
+            ? 400
+            : 500;
       const status = validationStatus === 400 ? 400 : getErrorStatus(error, 500);
       const message =
-        error instanceof Error && error.message.startsWith("Branch not found")
+        error instanceof Error &&
+        (error.message.startsWith("Branch not found") ||
+          error.message.startsWith("Commit not found") ||
+          error.message === "Invalid branch name" ||
+          error.message === "Invalid commit SHA")
           ? error.message
-          : error instanceof Error && error.message === "Invalid branch name"
-            ? error.message
-            : status === 404
-              ? "Project not found"
-              : status === 429
-                ? "Too many git diff requests"
-                : "Failed to compute git diff";
+          : status === 404
+            ? "Project not found"
+            : status === 429
+              ? "Too many git diff requests"
+              : "Failed to compute git diff";
       return fail(c, "GIT_DIFF_FAILED", message, status);
     }
   });

@@ -12,7 +12,7 @@ V1 surfaces hide unfinished work; browser console errors / React duplicate keys 
 - [ ] Real visual audit writes `browser-console-assertions.json` and throws on failure
 - [ ] Atlas glow-plate keys are unique (no label-only collisions)
 - [ ] Infra: no fake “Physische Topologie folgt” / “Logs anzeigen” stubs
-- [ ] Evolution: Commit Diff / Working Tree tabs absent until implemented
+- [ ] Evolution: Working Tree tab absent until implemented (Commit Diff shipped in PR-20)
 - [ ] Diagnostics: no “Ausnahmen verwalten” placeholder
 - [ ] AppFlow preview hints distinguish Local vs Docker vs central
 

@@ -2,8 +2,8 @@
   "version": 2,
   "repo": "iamthamanic/visudev-app",
   "activeIssue": 394,
-  "featureSlug": "evolution-semantic-history",
-  "phase": "claim",
+  "featureSlug": "evolution-complete",
+  "phase": "implement",
   "branch": "feat/394-evolution-semantic-history",
   "prUrl": null,
   "paused": false,
@@ -132,5 +132,5 @@
   "currentIssue": 394,
   "lastCompletedIssue": 393,
   "notes": "Merged #393 via PR #415; next #394 Evolution semantic history",
-  "updatedAt": "2026-10-04T22:51:13.000Z"
+  "updatedAt": "2026-10-05T11:19:33.000Z"
 }
