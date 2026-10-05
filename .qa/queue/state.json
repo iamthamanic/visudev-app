@@ -1,16 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 396,
-  "featureSlug": "data-lineage-ui",
-  "phase": "commit",
-  "branch": "feat/396-data-lineage-ui",
+  "activeIssue": null,
+  "featureSlug": null,
+  "phase": "idle",
+  "branch": null,
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
-  "queue": [
-    396
-  ],
+  "queue": [],
   "completedIssues": [
     321,
     322,
@@ -55,7 +53,8 @@
     392,
     393,
     394,
-    395
+    395,
+    396
   ],
   "mergedIssues": [
     321,
@@ -101,7 +100,8 @@
     392,
     393,
     394,
-    395
+    395,
+    396
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
@@ -114,7 +114,8 @@
     "392": "https://github.com/iamthamanic/visudev-app/pull/414",
     "393": "https://github.com/iamthamanic/visudev-app/pull/415",
     "394": "https://github.com/iamthamanic/visudev-app/pull/416",
-    "395": "https://github.com/iamthamanic/visudev-app/pull/417"
+    "395": "https://github.com/iamthamanic/visudev-app/pull/417",
+    "396": "https://github.com/iamthamanic/visudev-app/pull/418"
   },
   "retries": {
     "implement": 0,
@@ -133,8 +134,8 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": 396,
-  "lastCompletedIssue": 395,
-  "notes": "Shipping #396 data-lineage-ui",
-  "updatedAt": "2026-10-05T11:45:16.000Z"
+  "currentIssue": null,
+  "lastCompletedIssue": 396,
+  "notes": "Queue empty \u2014 Product Readiness epic streak complete through #396",
+  "updatedAt": "2026-10-05T11:49:20.000Z"
 }
