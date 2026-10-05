@@ -14,7 +14,7 @@ import fs from "node:fs";
 import http from "node:http";
 import net from "node:net";
 import { homedir } from "node:os";
-import path, { join } from "node:path";
+import path from "node:path";
 import {
   getWorkspaceDir,
   getLocalWorkspaceOverride,
@@ -1935,7 +1935,7 @@ async function handleBrowseLocalPath(req, res, url) {
     send(res, access.statusCode, { success: false, error: access.error });
     return;
   }
-  const startDir = url.searchParams.get("startDir")?.trim() || join(homedir(), "Projects");
+  const startDir = url.searchParams.get("startDir")?.trim() || homedir();
   const picked = await pickNativeFolder({ defaultPath: startDir });
   if (picked.cancelled) {
     send(res, 200, { success: true, cancelled: true });
