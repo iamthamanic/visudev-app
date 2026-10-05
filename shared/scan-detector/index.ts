@@ -337,6 +337,16 @@ export type {
   LegacyErdTable,
 } from "../data-graph.types.js";
 
+export type {
+  DataLineageGraph,
+  DataLineageLayer,
+  DataLineagePath,
+  LineageEntityRef,
+  LineageHop,
+  LineageHopEvidence,
+  LineagePathStatus,
+} from "../data-lineage.types.js";
+
 /** SDE-13 — versioned snapshots, cache, incremental analysis */
 export type {
   DetectorDependencyRule,
@@ -399,3 +409,6 @@ export {
   type LocalGithubParityInput,
   type LocalGithubParityResult,
 } from "./application/local-github-parity.js";
+
+/** PR-21 — Evidence-backed cross-layer DataLineage */
+export { buildDataLineage, type BuildDataLineageInput } from "./application/build-data-lineage.js";
