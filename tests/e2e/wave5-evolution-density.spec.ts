@@ -23,7 +23,7 @@ test.describe("Wave 5 evolution density", () => {
     expect(await page.getByTestId("evolution-snapshot-thumb").count()).toBeGreaterThanOrEqual(5);
 
     await expect(page.getByTestId("evolution-changes-grid")).toBeVisible();
-    expect(await page.getByTestId("evolution-changes-column").count()).toBe(4);
+    expect(await page.getByTestId("evolution-changes-column").count()).toBe(5);
     expect(await page.getByTestId("evolution-metric-card").count()).toBeGreaterThanOrEqual(6);
   });
 });

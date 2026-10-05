@@ -9,4 +9,5 @@
 - **paused:** false
 
 ## Resume brief
+
 Implement Evolution persistent semantic history + real commit diff. Do not invent fake diffs. Keep UI Deutsch. After ship continue #395–#396.
