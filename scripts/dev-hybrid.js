@@ -13,7 +13,7 @@ const {
   healthUrlForSupabase,
 } = require("./lib/hybrid-dev-orchestrator");
 const { ensureLocalDemoUserFromStatus } = require("./lib/seed-demo-user");
-const { LOCAL_DEMO_AUTH_EMAIL, LOCAL_DEMO_AUTH_PASSWORD } = require("./lib/local-demo-user");
+const { LOCAL_DEMO_AUTH_EMAIL, resolveLocalDemoAuthPassword } = require("./lib/local-demo-user");
 
 const ROOT = path.join(__dirname, "..");
 
@@ -54,7 +54,14 @@ async function main() {
           ? `[dev-hybrid] Demo-User angelegt: ${LOCAL_DEMO_AUTH_EMAIL}`
           : `[dev-hybrid] Demo-User bereit: ${LOCAL_DEMO_AUTH_EMAIL}`,
       );
-      console.log(`[dev-hybrid] Login: ${LOCAL_DEMO_AUTH_EMAIL} / ${LOCAL_DEMO_AUTH_PASSWORD}`);
+      const demoPassword = resolveLocalDemoAuthPassword();
+      if (demoPassword) {
+        console.log(`[dev-hybrid] Login: ${LOCAL_DEMO_AUTH_EMAIL} (Passwort via Env gesetzt)`);
+      } else {
+        console.log(
+          `[dev-hybrid] Demo-Login ohne Passwort-Env — setze LOCAL_DEMO_AUTH_PASSWORD für Auto-Login.`,
+        );
+      }
     }
   }
 

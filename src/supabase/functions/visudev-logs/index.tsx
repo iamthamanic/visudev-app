@@ -74,7 +74,7 @@ app.use("*", async (c, next) => {
   if (userId === null) {
     return c.json({ success: false, error: "Forbidden" }, 403);
   }
-  if (ownerId != null && userId !== ownerId) {
+  if (ownerId == null || ownerId === "" || userId !== ownerId) {
     return c.json({ success: false, error: "Forbidden" }, 403);
   }
   return next();

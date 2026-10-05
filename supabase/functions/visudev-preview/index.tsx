@@ -166,7 +166,7 @@ app.post("/preview/start", async (c) => {
       | Record<string, unknown>
       | null;
     const ownerId = project?.ownerId as string | undefined;
-    if (ownerId != null && ownerId !== auth.user.id) {
+    if (ownerId == null || ownerId === "" || ownerId !== auth.user.id) {
       return c.json(
         { success: false, error: "Forbidden (not project owner)" },
         403,

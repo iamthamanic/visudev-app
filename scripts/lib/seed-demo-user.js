@@ -4,7 +4,7 @@
  */
 const {
   LOCAL_DEMO_AUTH_EMAIL,
-  LOCAL_DEMO_AUTH_PASSWORD,
+  resolveLocalDemoAuthPassword,
   serviceRoleKeyFromStatus,
 } = require("./local-demo-user");
 const { isLocalSupabaseUrl } = require("./supabase-local");
@@ -14,11 +14,17 @@ const { isLocalSupabaseUrl } = require("./supabase-local");
  */
 async function ensureLocalDemoUser(options) {
   const email = options.email ?? LOCAL_DEMO_AUTH_EMAIL;
-  const password = options.password ?? LOCAL_DEMO_AUTH_PASSWORD;
+  const password = options.password ?? resolveLocalDemoAuthPassword();
   const fetchFn = options.fetchFn ?? fetch;
 
   if (!isLocalSupabaseUrl(options.apiUrl)) {
     return { ok: false, error: "Demo-User wird nur für lokale Supabase-URLs angelegt." };
+  }
+  if (!password) {
+    return {
+      ok: false,
+      error: "Demo-Passwort fehlt. Setze LOCAL_DEMO_AUTH_PASSWORD oder VITE_DEMO_AUTH_PASSWORD.",
+    };
   }
   if (!options.serviceRoleKey?.trim()) {
     return { ok: false, error: "SERVICE_ROLE_KEY fehlt in supabase status." };

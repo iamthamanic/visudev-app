@@ -26,7 +26,10 @@ export class LegacyAppflowRunnerProvider implements AnalysisProvider {
   readonly id = "legacy-appflow-runner";
   readonly name = "Legacy Appflow Runner";
 
-  constructor(private readonly runnerUrl: string) {}
+  constructor(
+    private readonly runnerUrl: string,
+    private readonly runnerSecret = "",
+  ) {}
 
   async analyzeProject(input: AnalyzeProjectInput): Promise<LocalEngineAnalysisResult> {
     const localPath = input.localPath ?? input.project.localPath;
@@ -43,9 +46,13 @@ export class LegacyAppflowRunnerProvider implements AnalysisProvider {
       };
     }
 
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (this.runnerSecret) {
+      headers["X-VisuDev-Runner-Secret"] = this.runnerSecret;
+    }
     const response = await fetch(`${this.runnerUrl.replace(/\/$/, "")}/appflow/analyze`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({
         projectId: input.projectId,
         localPath,
