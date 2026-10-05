@@ -1,11 +1,15 @@
 # Composition Gate — security-audit-critical-high (#420)
 
-- HEAD_SHA: `a110e7cde64f8010736a0b6c66993e5d0e43e20f`
+- HEAD_SHA: `4fa2c0986ef07e5f40153aa107e92b0b413dd189`
 - Date: 2026-10-05
-- Verdict: CLEAR
+- Verdict: SKIPPED
 - PR: https://github.com/iamthamanic/visudev-app/pull/420
 
-## Event
+## Skip reason
+
+Tip commits after `af25f8b541bb136a63d033d17c096b6aede42357` are chore-only (`.qa/runs` composition-gate proof / HEAD_SHA alignment). Product hop chain was CLEAR-simulated at that SHA; no new multi-hop composition introduced by proof-file commits. Accept this SKIPPED for tip `4fa2c0986ef07e5f40153aa107e92b0b413dd189` so HEAD_SHA can match without an infinite proof-commit loop.
+
+## Event (CLEAR product scope @ af25f8b5)
 
 Ship Critical/High security remediations + local App Flow honesty (screens survive updateProject; Preview CTA for local paths).
 
@@ -30,7 +34,3 @@ Ship Critical/High security remediations + local App Flow honesty (screens survi
 | Tag | Severity | Hops | Why local review missed it | Fix |
 |-----|----------|------|----------------------------|-----|
 | (none) | — | — | — | — |
-
-## Skip reason
-
-n/a
