@@ -62,6 +62,7 @@ export class LocalPreviewRunnerProvider implements PreviewProvider {
   constructor(
     private readonly runnerUrl: string,
     private readonly storageDir: string,
+    private readonly runnerSecret = "",
   ) {}
 
   private mappingPath(projectId: string): string {
@@ -80,10 +81,27 @@ export class LocalPreviewRunnerProvider implements PreviewProvider {
     return error;
   }
 
+  private mergeRunnerHeaders(init?: RequestInit): Record<string, string> {
+    const headers: Record<string, string> = {};
+    const raw = init?.headers;
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      for (const [key, value] of Object.entries(raw as Record<string, string>)) {
+        if (typeof value === "string") headers[key] = value;
+      }
+    }
+    if (this.runnerSecret) {
+      headers["X-VisuDev-Runner-Secret"] = this.runnerSecret;
+    }
+    return headers;
+  }
+
   private async runnerFetch(pathname: string, init?: RequestInit): Promise<Response> {
     const base = this.runnerUrl.replace(/\/$/, "");
     try {
-      return await fetch(`${base}${pathname}`, init);
+      return await fetch(`${base}${pathname}`, {
+        ...init,
+        headers: this.mergeRunnerHeaders(init),
+      });
     } catch {
       throw new Error(`Preview Runner is not reachable at ${base}`);
     }

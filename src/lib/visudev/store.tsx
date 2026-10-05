@@ -221,6 +221,8 @@ export function VisudevProvider({ children }: { children: ReactNode }) {
   const updateProject = useCallback(async (project: Project) => {
     const client = getVisuDevClient();
     if (isLocalVisuDevMode()) {
+      // Local Engine stores project metadata only — screens/flows/analysis live in
+      // appflow/blueprint caches + client state. Never replace UI state with empty arrays.
       const updated = await client.updateProject(project.id, {
         name: project.name,
         localPath: project.local_path ?? null,
@@ -230,8 +232,22 @@ export function VisudevProvider({ children }: { children: ReactNode }) {
       const normalized = normalizeProject(
         updated as unknown as Record<string, unknown> & { id: string },
       );
-      setProjects((prev) => prev.map((p) => (p.id === normalized.id ? normalized : p)));
-      setActiveProjectState((current) => (current?.id === normalized.id ? normalized : current));
+      const merged: Project = {
+        ...normalized,
+        screens: project.screens,
+        flows: project.flows,
+        lastAnalyzedCommitSha: project.lastAnalyzedCommitSha ?? normalized.lastAnalyzedCommitSha,
+        analysisGraph: project.analysisGraph ?? normalized.analysisGraph,
+        analysisQuality: project.analysisQuality ?? normalized.analysisQuality,
+        analysisRuntime: project.analysisRuntime ?? normalized.analysisRuntime,
+        analysisEscalations: project.analysisEscalations ?? normalized.analysisEscalations,
+        previewUrl: project.previewUrl ?? normalized.previewUrl,
+        previewStatus: project.previewStatus ?? normalized.previewStatus,
+        deployed_url: project.deployed_url ?? normalized.deployed_url,
+        preview_mode: project.preview_mode ?? normalized.preview_mode,
+      };
+      setProjects((prev) => prev.map((p) => (p.id === merged.id ? merged : p)));
+      setActiveProjectState((current) => (current?.id === merged.id ? merged : current));
       return;
     }
 
@@ -265,176 +281,8 @@ export function VisudevProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (scanType === "all" && isLocalVisuDevMode()) {
-        const scanId = crypto.randomUUID();
-        const timestamp = new Date().toISOString();
-        const makeScanLog = (
-          message: string,
-          logType: StepLogEntry["type"] = "info",
-        ): StepLogEntry => ({
-          time: new Date().toISOString(),
-          message,
-          type: logType,
-        });
-        const appendScanLog = (message: string, logType: StepLogEntry["type"] = "info") => {
-          setScans((prev) =>
-            prev.map((scan) =>
-              scan.id === scanId
-                ? {
-                    ...scan,
-                    logs: [...(scan.logs ?? []), makeScanLog(message, logType)],
-                  }
-                : scan,
-            ),
-          );
-        };
-
-        setScanStatuses((prev) => ({
-          ...prev,
-          blueprint: { status: "running", progress: 10, message: "Blueprint wird gestartet …" },
-          appflow: { status: "running", progress: 10, message: "Wartet auf Blueprint …" },
-          data: { status: "running", progress: 10, message: "Wartet auf App Flow …" },
-        }));
-        setScans((prev) => [
-          ...prev,
-          {
-            id: scanId,
-            projectId: activeProject.id,
-            scanType: "all",
-            status: "running",
-            progress: 10,
-            startedAt: timestamp,
-            logs: [makeScanLog("Gesamt-Scan gestartet (Blueprint → App Flow → Data)", "info")],
-          },
-        ]);
-
-        try {
-          const client = getVisuDevClient();
-          const started = await client.startAnalysis(activeProject.id, {
-            scanType: "all",
-            localPath: activeProject.local_path,
-          });
-          appendScanLog("Local Engine orchestriert alle Scans …", "info");
-
-          const deadline = Date.now() + 480_000;
-          let terminal = false;
-          while (Date.now() < deadline) {
-            const status = await client.getAnalysisStatus(activeProject.id, started.runId);
-            if (status.children) {
-              for (const child of status.children) {
-                const progress =
-                  child.status === "success" || child.status === "partial"
-                    ? 100
-                    : child.status === "running"
-                      ? 60
-                      : child.status === "failed"
-                        ? 0
-                        : 20;
-                const messageByType = {
-                  blueprint: "Blueprint",
-                  appflow: "App Flow",
-                  data: "Data",
-                } as const;
-                setScanStatuses((prev) => ({
-                  ...prev,
-                  [child.scanType]: {
-                    status:
-                      child.status === "success" || child.status === "partial"
-                        ? "completed"
-                        : child.status === "failed"
-                          ? "failed"
-                          : "running",
-                    progress,
-                    message:
-                      child.status === "failed"
-                        ? (child.error?.message ??
-                          `${messageByType[child.scanType]} fehlgeschlagen`)
-                        : `${messageByType[child.scanType]}: ${child.status}`,
-                    error: child.error?.message,
-                  },
-                }));
-              }
-            }
-
-            if (status.status === "success" || status.status === "partial") {
-              const result = await client.getAnalysisResult(activeProject.id, started.runId);
-              if (result.kind === "all") {
-                if (result.children.blueprint) {
-                  appendScanLog(
-                    `Blueprint: ${result.children.blueprint.summary.routesDetected} Routes, ${result.children.blueprint.summary.findings} Findings.`,
-                    "success",
-                  );
-                }
-                if (result.children.appflow) {
-                  appendScanLog("App Flow abgeschlossen — Runtime-Crawl wird geprüft …", "info");
-                  await runLocalAppflowCrawlIfNeeded(
-                    activeProject,
-                    result.children.appflow,
-                    appendScanLog,
-                    updateProject,
-                    client,
-                  );
-                }
-                if (result.children.data) {
-                  appendScanLog(
-                    `Data: ${result.children.data.summary.tablesDetected} Tabellen, ${result.children.data.summary.columnsDetected} Spalten.`,
-                    "success",
-                  );
-                }
-                appendScanLog("Gesamt-Scan abgeschlossen.", "success");
-              }
-              terminal = true;
-              break;
-            }
-            if (status.status === "failed") {
-              throw new VisuDevApiError(
-                status.error?.message ?? "All-scan failed",
-                status.error?.code ?? "ALL_SCAN_FAILED",
-                "local",
-              );
-            }
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-          }
-          if (!terminal) {
-            throw new Error("All-scan timed out.");
-          }
-
-          setScans((prev) =>
-            prev.map((scan) =>
-              scan.id === scanId
-                ? {
-                    ...scan,
-                    status: "completed",
-                    progress: 100,
-                    completedAt: new Date().toISOString(),
-                  }
-                : scan,
-            ),
-          );
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          appendScanLog(message, "error");
-          setScanStatuses((prev) => ({
-            ...prev,
-            blueprint: { ...prev.blueprint, status: "failed", error: message },
-            appflow: { ...prev.appflow, status: "failed", error: message },
-            data: { ...prev.data, status: "failed", error: message },
-          }));
-          setScans((prev) =>
-            prev.map((scan) =>
-              scan.id === scanId
-                ? {
-                    ...scan,
-                    status: "failed",
-                    progress: 0,
-                    completedAt: new Date().toISOString(),
-                  }
-                : scan,
-            ),
-          );
-        }
-        return;
-      }
+      // Local Gesamt-Scan: sequential App Flow → crawl → Blueprint → Data
+      // (engine scanType=all previously merged stale runtime-crawl into Blueprint).
 
       const scanTypes =
         scanType === "all" ? (["appflow", "blueprint", "data"] as const) : [scanType];

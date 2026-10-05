@@ -105,7 +105,10 @@ export class AnalysisService {
     this.readAnalysisOrigin = deps?.readAnalysisOrigin ?? readAnalysisOrigin;
     this.defaultBlueprintProviderId = resolveBlueprintProviderId(config);
 
-    const legacyBlueprintProvider = new LegacyVisuDevAnalysisProvider(runnerUrl);
+    const legacyBlueprintProvider = new LegacyVisuDevAnalysisProvider(
+      runnerUrl,
+      config.runnerSecret,
+    );
     const autoguideProvider = new AutoGuideAnalysisProvider({
       autoguideRoot: config.autoguideRoot,
       sourceSubdir: config.autoguideSourceDir,
@@ -117,7 +120,7 @@ export class AnalysisService {
     ]);
 
     this.analysisProviders = new Map<string, AnalysisProvider>([
-      ["legacy-appflow-runner", new LegacyAppflowRunnerProvider(runnerUrl)],
+      ["legacy-appflow-runner", new LegacyAppflowRunnerProvider(runnerUrl, config.runnerSecret)],
       ["local-data-introspection", new LocalDataIntrospectionProvider()],
     ]);
     if (config.autoguideStub) {

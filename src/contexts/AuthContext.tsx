@@ -7,7 +7,11 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { supabase } from "../lib/supabase/client";
 import { supabaseUrl } from "../utils/supabase/info";
-import { createGuestUser, shouldUseGuestMode } from "../lib/visudev/guest-mode";
+import {
+  createGuestUser,
+  ensureLocalGuestToken,
+  shouldUseGuestMode,
+} from "../lib/visudev/guest-mode";
 import type { Session, User } from "@jsr/supabase__supabase-js";
 import { AuthContext } from "./authContextRef";
 import type { AuthContextValue } from "./authContextRef";
@@ -62,6 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const safetyTimer = window.setTimeout(() => {
       if (!cancelled) setLoading(false);
     }, safetyMs);
+
+    void ensureLocalGuestToken();
 
     supabase.auth
       .getSession()

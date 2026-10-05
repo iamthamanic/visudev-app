@@ -96,8 +96,12 @@ export function CanvasToolbar({
               data-testid="appflow-exploration-status"
               title={`Exploration: ${analysisSummary.coverage.barrierLabelDe}; Frontier-Seeds ${analysisSummary.coverage.frontierSeedCount}; Runtime-verified ${analysisSummary.coverage.screenVerification.runtimeVerified}; Static ${analysisSummary.coverage.screenVerification.staticOnly}; Konflikte ${analysisSummary.coverage.screenVerification.conflicted}`}
             >
-              {analysisSummary.coverage.status === "COMPLETE" ? "COMPLETE" : "PARTIAL"} ·{" "}
-              {analysisSummary.coverage.barrierLabelDe}
+              {analysisSummary.coverage.status === "COMPLETE"
+                ? "COMPLETE"
+                : analysisSummary.coverage.status === "UNKNOWN"
+                  ? "UNGEKLÄRT"
+                  : "PARTIAL"}{" "}
+              · {analysisSummary.coverage.barrierLabelDe}
             </span>
           )}
         </div>

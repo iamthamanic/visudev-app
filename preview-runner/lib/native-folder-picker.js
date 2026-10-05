@@ -3,6 +3,7 @@
  * Location: preview-runner/lib/native-folder-picker.js
  */
 
+import { existsSync } from "node:fs";
 import { execFile } from "node:child_process";
 import { homedir, platform } from "node:os";
 import { promisify } from "node:util";
@@ -13,8 +14,25 @@ function escapeAppleScriptString(value) {
   return String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
+/** Prefer an existing directory; never pass a missing path into the OS dialog. */
+function resolvePickerStartDir(defaultPath) {
+  const trimmed = defaultPath?.trim() || "";
+  if (trimmed && existsSync(trimmed)) return trimmed;
+  const home = homedir();
+  return existsSync(home) ? home : trimmed || home;
+}
+
+function isUserCancelError(error) {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    /\(-128\)/.test(message) ||
+    /user canceled/i.test(message) ||
+    /benutzer abgebrochen/i.test(message)
+  );
+}
+
 async function pickMacFolder(defaultPath) {
-  const start = defaultPath?.trim() || homedir();
+  const start = resolvePickerStartDir(defaultPath);
   const script = `POSIX path of (choose folder with prompt "Projektordner wählen" default location POSIX file "${escapeAppleScriptString(start)}")`;
   try {
     const { stdout } = await execFileAsync("osascript", ["-e", script], {
@@ -28,15 +46,14 @@ async function pickMacFolder(defaultPath) {
     }
     return { path: picked };
   } catch (error) {
-    const code = error && typeof error === "object" && "code" in error ? error.code : null;
-    if (code === 1) return { cancelled: true };
+    if (isUserCancelError(error)) return { cancelled: true };
     const message = error instanceof Error ? error.message : String(error);
     return { error: message };
   }
 }
 
 async function pickLinuxFolder(defaultPath) {
-  const start = defaultPath?.trim() || homedir();
+  const start = resolvePickerStartDir(defaultPath);
   try {
     const { stdout } = await execFileAsync(
       "zenity",
@@ -47,6 +64,7 @@ async function pickLinuxFolder(defaultPath) {
     if (!picked) return { cancelled: true };
     return { path: picked };
   } catch (error) {
+    if (isUserCancelError(error)) return { cancelled: true };
     const code = error && typeof error === "object" && "code" in error ? error.code : null;
     if (code === 1) return { cancelled: true };
     return {

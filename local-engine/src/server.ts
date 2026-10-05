@@ -50,6 +50,7 @@ export async function createApp(config: EngineConfig = getEngineConfig()) {
   const previewProvider = new LocalPreviewRunnerProvider(
     config.previewRunnerUrl,
     config.storageDir,
+    config.runnerSecret,
   );
   const projectService = new ProjectService(config.storageDir, previewProvider);
   await projectService.init();
@@ -71,12 +72,49 @@ export async function createApp(config: EngineConfig = getEngineConfig()) {
     cors({
       origin: (origin) => {
         if (!origin) return config.allowedOrigins[0] ?? "http://localhost:3005";
-        return config.allowedOrigins.includes(origin) ? origin : config.allowedOrigins[0];
+        return config.allowedOrigins.includes(origin) ? origin : null;
       },
       allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-      allowHeaders: ["Content-Type", "Authorization"],
+      allowHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-VisuDev-Engine-Secret",
+        "X-VisuDev-Guest",
+        "X-VisuDev-Guest-Token",
+      ],
     }),
   );
+
+  if (config.engineSecret) {
+    app.use("*", async (c, next) => {
+      if (c.req.path === "/health" || c.req.path === "/api/health") {
+        await next();
+        return;
+      }
+      const provided = c.req.header("X-VisuDev-Engine-Secret")?.trim() ?? "";
+      if (provided !== config.engineSecret) {
+        return c.json({ success: false, error: "Missing or invalid engine secret." }, 401);
+      }
+      await next();
+    });
+  }
+
+  // Guest token is only served when explicitly enabled; engine binds loopback by default.
+  // Disabled → HTTP 200 + success:false (not 404): Chromium logs failed fetches as console.error
+  // and would trip Product Readiness console gate even when the client handles the miss.
+  app.get("/api/local-guest-token", (c) => {
+    if (!config.allowGuest || !config.localGuestToken) {
+      return c.json({
+        success: false,
+        error: "Guest mode disabled. Set VISUDEV_ALLOW_GUEST=1 and VISUDEV_LOCAL_GUEST_TOKEN.",
+        data: { enabled: false },
+      });
+    }
+    return c.json({
+      success: true,
+      data: { token: config.localGuestToken, enabled: true },
+    });
+  });
 
   registerHealthRoutes(app, config);
   registerProjectRoutes(app, projectService);

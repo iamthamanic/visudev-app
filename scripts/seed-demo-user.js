@@ -6,7 +6,7 @@
  */
 const { createSupabaseStatusClient } = require("./lib/hybrid-supabase-status");
 const { ensureLocalDemoUserFromStatus } = require("./lib/seed-demo-user");
-const { LOCAL_DEMO_AUTH_EMAIL, LOCAL_DEMO_AUTH_PASSWORD } = require("./lib/local-demo-user");
+const { LOCAL_DEMO_AUTH_EMAIL, resolveLocalDemoAuthPassword } = require("./lib/local-demo-user");
 
 function fail(message, code = 1) {
   console.error(`[seed-demo-user] ${message}`);
@@ -34,8 +34,11 @@ async function main() {
       ? `[seed-demo-user] Demo-User angelegt: ${seed.email}`
       : `[seed-demo-user] Demo-User existiert bereits: ${seed.email}`,
   );
+  const password = resolveLocalDemoAuthPassword();
   console.log(`  E-Mail:   ${LOCAL_DEMO_AUTH_EMAIL}`);
-  console.log(`  Passwort: ${LOCAL_DEMO_AUTH_PASSWORD}`);
+  console.log(
+    `  Passwort: ${password ? "(gesetzt via Env)" : "(fehlt — LOCAL_DEMO_AUTH_PASSWORD)"}`,
+  );
 }
 
 main().catch((err) => {

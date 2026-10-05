@@ -58,11 +58,25 @@ const RUNNER_PORT_CANDIDATES = [PORT, 4100, 4110, 4120, 4130, 4140];
 
 const AUTO_REFRESH_INTERVAL_MS = Number(process.env.AUTO_REFRESH_INTERVAL_MS) || 60_000;
 const GITHUB_WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET || "";
+/** Optional shared secret for analyze/browse write surfaces (header X-VisuDev-Runner-Secret). */
+const RUNNER_SECRET = (process.env.VISUDEV_RUNNER_SECRET || "").trim();
 const PREVIEW_PORT_MIN = Number(process.env.PREVIEW_PORT_MIN) || 4001;
 const PREVIEW_PORT_MAX = Number(process.env.PREVIEW_PORT_MAX) || 4099;
 const PREVIEW_BASE_URL = process.env.PREVIEW_BASE_URL || "";
 const PREVIEW_PUBLIC_ORIGIN = process.env.PREVIEW_PUBLIC_ORIGIN || "";
 const PREVIEW_BIND_HOST = process.env.PREVIEW_BIND_HOST || "127.0.0.1";
+const DEFAULT_CORS_ORIGINS = [
+  "http://localhost:3005",
+  "http://127.0.0.1:3005",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+];
+const ALLOWED_CORS_ORIGINS = (
+  process.env.VISUDEV_ALLOWED_ORIGINS?.trim() || DEFAULT_CORS_ORIGINS.join(",")
+)
+  .split(",")
+  .map((entry) => entry.trim())
+  .filter(Boolean);
 const SIMULATE_DELAY_MS = Number(process.env.SIMULATE_DELAY_MS) || 3000;
 /** Stub explicitly requested (no clone/build/start, placeholder page only). */
 const USE_STUB =
@@ -806,10 +820,10 @@ function hasActiveProjectRuns(projectId) {
 function resolveProjectTokenForStart(projectId, requestToken) {
   const activeTokens = collectActiveProjectTokens(projectId);
   if (activeTokens.length === 0) {
-    return {
-      ok: true,
-      token: requestToken || generateProjectToken(),
-    };
+    if (requestToken) {
+      return { ok: true, token: requestToken, issuedNew: false };
+    }
+    return { ok: true, token: generateProjectToken(), issuedNew: true };
   }
   if (activeTokens.length > 1) {
     return {
@@ -819,19 +833,21 @@ function resolveProjectTokenForStart(projectId, requestToken) {
     };
   }
   const projectToken = activeTokens[0];
-  if (requestToken && requestToken === projectToken) {
-    return { ok: true, token: projectToken };
+  if (!requestToken) {
+    return {
+      ok: false,
+      statusCode: 401,
+      error: "Missing project token. Restart preview from the app or stop the project run first.",
+    };
   }
-  if (requestToken && requestToken !== projectToken) {
+  if (requestToken !== projectToken) {
     return {
       ok: false,
       statusCode: 403,
       error: "Project token mismatch.",
     };
   }
-  // UX recovery: if browser storage lost the token (e.g. origin switch localhost<->127.0.0.1),
-  // allow start to re-attach to the single active project token.
-  return { ok: true, token: projectToken };
+  return { ok: true, token: projectToken, issuedNew: false };
 }
 
 function ensureRunAccess(run, requestToken) {
@@ -1827,27 +1843,98 @@ function parseBody(req) {
   });
 }
 
+/** @type {import("node:http").IncomingMessage | null} */
+let currentReq = null;
+
+function resolveCorsOrigin(req) {
+  const origin = typeof req?.headers?.origin === "string" ? req.headers.origin.trim() : "";
+  if (!origin) return ALLOWED_CORS_ORIGINS[0] ?? "http://localhost:3005";
+  if (ALLOWED_CORS_ORIGINS.includes(origin)) return origin;
+  return null;
+}
+
+function corsHeaders(req) {
+  const allowed = resolveCorsOrigin(req);
+  if (!allowed) return {};
+  return {
+    "Access-Control-Allow-Origin": allowed,
+    Vary: "Origin",
+  };
+}
+
 function send(res, statusCode, data, extraHeaders = {}) {
   res.writeHead(statusCode, {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
+    ...corsHeaders(currentReq),
     ...extraHeaders,
   });
   res.end(JSON.stringify(data));
 }
 
-function corsPreflight(res) {
+function corsPreflight(req, res) {
+  const allowed = resolveCorsOrigin(req);
+  if (!allowed) {
+    res.writeHead(403, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ success: false, error: "Origin not allowed" }));
+    return;
+  }
   res.writeHead(204, {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Origin": allowed,
+    Vary: "Origin",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers":
-      "Content-Type, Authorization, X-VisuDev-Project-Token, X-VisuDev-Guest",
+      "Content-Type, Authorization, X-VisuDev-Project-Token, X-VisuDev-Guest, X-VisuDev-Guest-Token, X-VisuDev-Runner-Secret",
     "Access-Control-Max-Age": "600",
   });
   res.end();
 }
 
+function isLoopbackRequest(req) {
+  const raw =
+    req.socket?.remoteAddress ||
+    req.connection?.remoteAddress ||
+    req.headers["x-forwarded-for"] ||
+    "";
+  const address = String(Array.isArray(raw) ? raw[0] : raw)
+    .split(",")[0]
+    .trim()
+    .replace(/^::ffff:/, "");
+  return address === "127.0.0.1" || address === "::1" || address === "localhost";
+}
+
+function readRunnerSecretFromRequest(req) {
+  const raw =
+    req.headers["x-visudev-runner-secret"] ?? req.headers["X-VisuDev-Runner-Secret"] ?? "";
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  return typeof value === "string" ? value.trim() : "";
+}
+
+/** Analyze/browse: require runner secret when configured, otherwise loopback only. */
+function ensureLocalRunnerAccess(req) {
+  if (RUNNER_SECRET) {
+    const provided = readRunnerSecretFromRequest(req);
+    if (!provided || provided !== RUNNER_SECRET) {
+      return { ok: false, statusCode: 401, error: "Missing or invalid runner secret." };
+    }
+    return { ok: true };
+  }
+  if (!isLoopbackRequest(req)) {
+    return {
+      ok: false,
+      statusCode: 403,
+      error:
+        "Local analyze/browse allowed from loopback only. Set VISUDEV_RUNNER_SECRET for remote access.",
+    };
+  }
+  return { ok: true };
+}
+
 async function handleBrowseLocalPath(req, res, url) {
+  const access = ensureLocalRunnerAccess(req);
+  if (!access.ok) {
+    send(res, access.statusCode, { success: false, error: access.error });
+    return;
+  }
   const startDir = url.searchParams.get("startDir")?.trim() || homedir();
   const picked = await pickNativeFolder({ defaultPath: startDir });
   if (picked.cancelled) {
@@ -1940,7 +2027,7 @@ async function handleStart(req, res, _url) {
     send(res, 200, {
       success: true,
       runId: selectedRunId,
-      projectToken: tokenResult.token,
+      ...(tokenResult.issuedNew ? { projectToken: tokenResult.token } : {}),
       status: selectedRun.status,
       reusedExistingRun: true,
       previewUrl: selectedRun.previewUrl ?? undefined,
@@ -2043,7 +2130,7 @@ async function handleStart(req, res, _url) {
   send(res, 200, {
     success: true,
     runId,
-    projectToken: tokenResult.token,
+    ...(tokenResult.issuedNew ? { projectToken: tokenResult.token } : {}),
     status: "starting",
     reusedExistingRun: false,
   });
@@ -2521,20 +2608,26 @@ async function handleCrawl(req, res, url) {
 
 /** GitHub Webhook: on push, find runs for repo+branch and auto-refresh (pull + rebuild + restart). */
 function handleWebhookGitHub(req, res, rawBody) {
+  if (!GITHUB_WEBHOOK_SECRET) {
+    send(res, 503, {
+      success: false,
+      error: "Webhook disabled: set GITHUB_WEBHOOK_SECRET to enable signature-verified delivery.",
+    });
+    return;
+  }
   const sig = req.headers["x-hub-signature-256"];
-  if (GITHUB_WEBHOOK_SECRET && sig) {
-    const hmac = crypto.createHmac("sha256", GITHUB_WEBHOOK_SECRET);
-    hmac.update(rawBody);
-    const expected = "sha256=" + hmac.digest("hex");
-    if (
-      expected.length !== sig.length ||
-      !crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(sig))
-    ) {
-      send(res, 401, { error: "Invalid signature" });
-      return;
-    }
-  } else if (GITHUB_WEBHOOK_SECRET && !sig) {
+  if (!sig || typeof sig !== "string") {
     send(res, 401, { error: "Missing X-Hub-Signature-256" });
+    return;
+  }
+  const hmac = crypto.createHmac("sha256", GITHUB_WEBHOOK_SECRET);
+  hmac.update(rawBody);
+  const expected = "sha256=" + hmac.digest("hex");
+  if (
+    expected.length !== sig.length ||
+    !crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(sig))
+  ) {
+    send(res, 401, { error: "Invalid signature" });
     return;
   }
 
@@ -2594,6 +2687,11 @@ function readRawBody(req) {
 }
 
 async function handleBlueprintAnalyze(req, res) {
+  const access = ensureLocalRunnerAccess(req);
+  if (!access.ok) {
+    send(res, access.statusCode, { success: false, error: access.error });
+    return;
+  }
   let body;
   try {
     body = await parseBody(req);
@@ -2639,6 +2737,11 @@ async function handleBlueprintAnalyze(req, res) {
 }
 
 async function handleAppflowAnalyze(req, res) {
+  const access = ensureLocalRunnerAccess(req);
+  if (!access.ok) {
+    send(res, access.statusCode, { success: false, error: access.error });
+    return;
+  }
   let body;
   try {
     body = await parseBody(req);
@@ -2689,8 +2792,17 @@ async function handleAppflowAnalyze(req, res) {
 }
 
 const server = http.createServer(async (req, res) => {
+  currentReq = req;
+  try {
+    await handleHttpRequest(req, res);
+  } finally {
+    currentReq = null;
+  }
+});
+
+async function handleHttpRequest(req, res) {
   if (req.method === "OPTIONS") {
-    corsPreflight(res);
+    corsPreflight(req, res);
     return;
   }
 
@@ -2846,7 +2958,7 @@ const server = http.createServer(async (req, res) => {
       error: e instanceof Error ? e.message : "Internal error",
     });
   }
-});
+}
 
 findFreeRunnerPort().then((actualPort) => {
   if (actualPort == null) {
@@ -2897,9 +3009,16 @@ findFreeRunnerPort().then((actualPort) => {
       );
     }
     if (GITHUB_WEBHOOK_SECRET) {
-      console.log(`  GitHub Webhook: POST /webhook/github (Signature verified)`);
+      console.log(`  GitHub Webhook: POST /webhook/github (signature required)`);
     } else {
-      console.log(`  GitHub Webhook: POST /webhook/github (set GITHUB_WEBHOOK_SECRET to verify)`);
+      console.log(`  GitHub Webhook: disabled until GITHUB_WEBHOOK_SECRET is set`);
+    }
+    if (RUNNER_SECRET) {
+      console.log(`  Runner secret: required for analyze/browse (X-VisuDev-Runner-Secret)`);
+    } else {
+      console.log(
+        `  Runner analyze/browse: loopback-only (set VISUDEV_RUNNER_SECRET to allow remote)`,
+      );
     }
     startAutoRefresh();
   });

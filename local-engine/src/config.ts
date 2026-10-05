@@ -26,9 +26,26 @@ export function resolveStorageDir(value?: string): string {
   return trimmed;
 }
 
+function assertLoopbackHost(host: string): void {
+  const normalized = host.trim().toLowerCase();
+  const allowNonLoopback = process.env.VISUDEV_ENGINE_ALLOW_NON_LOOPBACK === "1";
+  if (allowNonLoopback) return;
+  if (
+    normalized === "0.0.0.0" ||
+    normalized === "::" ||
+    normalized === "[::]" ||
+    normalized === "*"
+  ) {
+    throw new Error(
+      `VISUDEV_ENGINE_HOST=${host} binds all interfaces. Use 127.0.0.1 (default) or set VISUDEV_ENGINE_ALLOW_NON_LOOPBACK=1 explicitly.`,
+    );
+  }
+}
+
 export function getEngineConfig() {
   const port = Number(process.env.VISUDEV_ENGINE_PORT) || DEFAULT_ENGINE_PORT;
   const host = process.env.VISUDEV_ENGINE_HOST?.trim() || "127.0.0.1";
+  assertLoopbackHost(host);
   const storageDir = resolveStorageDir(process.env.VISUDEV_STORAGE_DIR);
   const previewRunnerUrl =
     process.env.VISUDEV_PREVIEW_RUNNER_URL?.trim() || DEFAULT_PREVIEW_RUNNER_URL;
@@ -36,6 +53,10 @@ export function getEngineConfig() {
     .split(",")
     .map((entry) => entry.trim())
     .filter(Boolean);
+  const runnerSecret = process.env.VISUDEV_RUNNER_SECRET?.trim() || "";
+  const engineSecret = process.env.VISUDEV_ENGINE_SECRET?.trim() || "";
+  const allowGuest = process.env.VISUDEV_ALLOW_GUEST === "1";
+  const localGuestToken = process.env.VISUDEV_LOCAL_GUEST_TOKEN?.trim() || "";
 
   const analysisProvider =
     process.env.VISUDEV_ANALYSIS_PROVIDER?.trim() || "legacy-blueprint-runner";
@@ -50,6 +71,10 @@ export function getEngineConfig() {
     storageDir,
     previewRunnerUrl,
     allowedOrigins,
+    runnerSecret,
+    engineSecret,
+    allowGuest,
+    localGuestToken,
     analysisProvider,
     autoguideRoot: autoguideRoot || undefined,
     autoguideSourceDir,

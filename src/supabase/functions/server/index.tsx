@@ -119,7 +119,9 @@ async function requireProjectOwner(
   const ownerId = project.ownerId;
   const userId = await getUserIdOptional(c);
   if (userId === null) return { ok: false, status: 403 };
-  if (ownerId != null && userId !== ownerId) return { ok: false, status: 403 };
+  if (ownerId == null || ownerId === "" || userId !== ownerId) {
+    return { ok: false, status: 403 };
+  }
   return { ok: true, project };
 }
 
@@ -155,9 +157,7 @@ app.get("/projects", async (c) => {
     }
     let projects = await kv.getByPrefix("project:");
     projects = projects.filter(
-      (p) =>
-        (p as ProjectRecord).ownerId == null ||
-        (p as ProjectRecord).ownerId === userId,
+      (p) => (p as ProjectRecord).ownerId === userId,
     );
     return c.json({ success: true, data: projects });
   } catch (error) {

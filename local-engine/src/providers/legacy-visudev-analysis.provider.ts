@@ -103,7 +103,10 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
   readonly id: BlueprintAnalysisProviderId = "legacy-blueprint-runner";
   readonly name = "Legacy Blueprint Runner";
 
-  constructor(private readonly runnerUrl: string) {}
+  constructor(
+    private readonly runnerUrl: string,
+    private readonly runnerSecret = "",
+  ) {}
 
   async scanProject(input: BlueprintProviderInput): Promise<RawBlueprintScan> {
     const localPath = input.localPath ?? input.project.localPath;
@@ -113,9 +116,13 @@ export class LegacyVisuDevAnalysisProvider implements BlueprintProvider {
       });
     }
 
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (this.runnerSecret) {
+      headers["X-VisuDev-Runner-Secret"] = this.runnerSecret;
+    }
     const response = await fetch(`${this.runnerUrl.replace(/\/$/, "")}/blueprint/analyze`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({
         projectId: input.projectId,
         localPath,

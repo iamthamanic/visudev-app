@@ -13,10 +13,15 @@ export function registerLocalPathRoutes(app: Hono, config: EngineConfig): void {
     const startDir = c.req.query("startDir")?.trim();
     const qs = startDir ? `?startDir=${encodeURIComponent(startDir)}` : "";
 
+    const headers: Record<string, string> = {};
+    if (config.runnerSecret) {
+      headers["X-VisuDev-Runner-Secret"] = config.runnerSecret;
+    }
     let response: Response;
     try {
       response = await fetch(
         `${config.previewRunnerUrl.replace(/\/$/, "")}/browse-local-path${qs}`,
+        { headers },
       );
     } catch {
       return fail(

@@ -5,13 +5,19 @@
  * Location: src/modules/blueprint/components/AccessControlMatrix.tsx
  */
 
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import type {
   AccessControlMatrixCell,
   AccessControlMatrixRow,
   AccessControlStatus,
 } from "../../../lib/visudev/access-control-types";
 import { accessControlStatusSymbol } from "../../../lib/visudev/access-control-types";
+import tooltipStyles from "../../../components/ui/Tooltip.module.css";
 import type { MatrixControlColumn } from "./diagnostics/access-control-matrix-columns.js";
+import {
+  MATRIX_HEADER_LABELS,
+  MATRIX_HEADER_TOOLTIPS,
+} from "./diagnostics/access-control-matrix-columns.js";
 import { StatusBadge } from "./ui/StatusBadge.js";
 import styles from "../styles/SecurityMatrix.module.css";
 
@@ -46,6 +52,42 @@ function overallBadge(status: AccessControlStatus): {
 
 function cellStatus(cell: AccessControlMatrixCell | undefined): AccessControlStatus {
   return cell?.status ?? "unverified";
+}
+
+/** Short accessible name + explained tooltip (no native title, no aria-label override). */
+function HeaderCell({
+  headerKey,
+  align = "center",
+}: {
+  headerKey: keyof typeof MATRIX_HEADER_LABELS;
+  align?: "left" | "center";
+}) {
+  const label = MATRIX_HEADER_LABELS[headerKey];
+  const tip = MATRIX_HEADER_TOOLTIPS[headerKey];
+  return (
+    <th className={align === "left" ? styles.thLeft : undefined}>
+      <TooltipPrimitive.Provider delayDuration={250}>
+        <TooltipPrimitive.Root>
+          <TooltipPrimitive.Trigger asChild>
+            <span className={styles.thHint} tabIndex={0}>
+              {label}
+            </span>
+          </TooltipPrimitive.Trigger>
+          <TooltipPrimitive.Portal>
+            <TooltipPrimitive.Content
+              className={tooltipStyles.content}
+              side="top"
+              sideOffset={8}
+              collisionPadding={8}
+            >
+              {tip}
+              <TooltipPrimitive.Arrow className={tooltipStyles.arrow} />
+            </TooltipPrimitive.Content>
+          </TooltipPrimitive.Portal>
+        </TooltipPrimitive.Root>
+      </TooltipPrimitive.Provider>
+    </th>
+  );
 }
 
 function ControlCell({
@@ -92,17 +134,17 @@ export function AccessControlMatrix({
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Route</th>
-            <th>AuthN</th>
-            <th>AuthZ</th>
-            <th>Scope</th>
-            <th>Tenant</th>
-            <th>Ownership</th>
-            <th>Validation</th>
-            <th>Rate Limit</th>
-            <th>Audit</th>
-            <th>Findings</th>
-            <th>Status</th>
+            <HeaderCell headerKey="route" align="left" />
+            <HeaderCell headerKey="authentication" />
+            <HeaderCell headerKey="authorization" />
+            <HeaderCell headerKey="resourceScope" />
+            <HeaderCell headerKey="tenantIsolation" />
+            <HeaderCell headerKey="ownership" />
+            <HeaderCell headerKey="validation" />
+            <HeaderCell headerKey="rateLimit" />
+            <HeaderCell headerKey="audit" />
+            <HeaderCell headerKey="findings" />
+            <HeaderCell headerKey="status" />
           </tr>
         </thead>
         <tbody>

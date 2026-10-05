@@ -30,6 +30,10 @@ export function LocalPathPicker({ id, value, onChange, onPathPicked }: LocalPath
           startDir: value.trim() || undefined,
         });
         if (result.cancelled) return;
+        if (!result.path) {
+          toast.error("Ordner konnte nicht gewählt werden.");
+          return;
+        }
         onChange(result.path);
         onPathPicked?.(result.path);
         return;
@@ -43,6 +47,9 @@ export function LocalPathPicker({ id, value, onChange, onPathPicked }: LocalPath
       }
       onChange(result.path);
       onPathPicked?.(result.path);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(message || "Ordner konnte nicht gewählt werden.");
     } finally {
       setPicking(false);
     }

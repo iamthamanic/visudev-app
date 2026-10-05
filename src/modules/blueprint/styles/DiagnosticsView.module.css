@@ -9,12 +9,16 @@
 .subTabs {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.375rem;
-  padding: var(--space-md) var(--space-md) 0;
+  padding: var(--space-md);
   border-bottom: 1px solid var(--color-border);
 }
 
 .subTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   padding: 0.4rem 0.85rem;
   border: 1px solid var(--color-border);
   border-radius: 9999px;
@@ -26,6 +30,12 @@
     border-color 0.15s ease,
     color 0.15s ease,
     box-shadow 0.15s ease;
+}
+
+.subTabIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
 }
 
 .subTabActive {
@@ -413,7 +423,7 @@
 
 @media (max-width: 960px) {
   .subTabs {
-    padding-bottom: var(--space-md);
+    padding: var(--space-sm) var(--space-md) var(--space-md);
   }
 }
 

@@ -22,6 +22,22 @@
   text-transform: uppercase;
 }
 
+.thLeft {
+  text-align: left;
+}
+
+.thHint {
+  border-bottom: 1px dotted color-mix(in srgb, var(--color-muted-foreground) 55%, transparent);
+  cursor: help;
+  outline: none;
+}
+
+.thHint:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
 .table th,
 .table td {
   border-bottom: 1px solid var(--color-border);

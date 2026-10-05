@@ -5,9 +5,10 @@
 
 import type { AnalysisStatus, SupportedScanType } from "../types/api.types.js";
 
+/** App Flow first so runtime-crawl can land before Blueprint merges it. */
 export const ALL_SCAN_SEQUENCE: readonly SupportedScanType[] = [
-  "blueprint",
   "appflow",
+  "blueprint",
   "data",
 ] as const;
 

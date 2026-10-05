@@ -117,6 +117,7 @@ async function resolveRequestUserId(c: Context): Promise<string | null> {
   const jwtUserId = await getUserIdOptional(c);
   if (jwtUserId) return jwtUserId;
   if (!isSupabaseLocalDockerStack()) return null;
+  if (Deno.env.get("VISUDEV_ALLOW_GUEST")?.trim() !== "1") return null;
   const guestToken = Deno.env.get("VISUDEV_LOCAL_GUEST_TOKEN")?.trim();
   if (!guestToken) return null;
   const guestHeader = c.req.header("X-VisuDev-Guest")?.trim().toLowerCase();
@@ -143,7 +144,7 @@ app.use("*", async (c, next) => {
   if (userId === null) {
     return c.json({ success: false, error: "Forbidden" }, 403);
   }
-  if (ownerId != null && userId !== ownerId) {
+  if (ownerId == null || ownerId === "" || userId !== ownerId) {
     return c.json({ success: false, error: "Forbidden" }, 403);
   }
   return next();

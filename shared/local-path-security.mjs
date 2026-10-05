@@ -2,24 +2,54 @@
  * Shared path jail for local workspaces — absolute paths only, under allowed roots.
  * Location: shared/local-path-security.mjs
  * Used by: preview-runner, local-engine
+ *
+ * Default roots (when VISUDEV_ALLOWED_LOCAL_ROOTS unset): ~/.visudev and common
+ * project folders under $HOME — not the entire home directory.
  */
 
 import { existsSync, realpathSync, statSync } from "node:fs";
 import { homedir } from "node:os";
-import { isAbsolute, resolve } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
+
+function defaultAllowedRootCandidates() {
+  const home = homedir();
+  return [
+    join(home, ".visudev"),
+    join(home, "Projects"),
+    join(home, "Developer"),
+    join(home, "repos"),
+    join(home, "code"),
+    join(home, "src"),
+    join(home, "Desktop"),
+    join(home, "Documents"),
+  ];
+}
 
 function resolveAllowedRoots() {
   const raw = process.env.VISUDEV_ALLOWED_LOCAL_ROOTS?.trim();
-  const candidates = raw ? raw.split(",") : [homedir()];
+  const candidates = raw ? raw.split(",") : defaultAllowedRootCandidates();
   const roots = [];
   for (const entry of candidates) {
     const trimmed = entry.trim();
     if (!trimmed) continue;
     try {
-      roots.push(realpathSync(resolve(trimmed)));
+      const absolute = resolve(trimmed);
+      if (!existsSync(absolute)) continue;
+      roots.push(realpathSync(absolute));
     } catch (error) {
       const message = error instanceof Error ? error.message : "read failed";
       console.warn("[local-path-security] skip invalid root:", message);
+    }
+  }
+  // Explicit VISUDEV_ALLOWED_LOCAL_ROOTS stays fail-closed. Unset defaults may miss
+  // ~/Projects etc. on CI/minimal hosts — fall back to $HOME only then.
+  if (roots.length === 0 && !raw) {
+    try {
+      const home = homedir();
+      if (existsSync(home)) roots.push(realpathSync(home));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "read failed";
+      console.warn("[local-path-security] home fallback failed:", message);
     }
   }
   return roots;
@@ -67,7 +97,11 @@ export function resolveValidatedLocalPath(rawPath) {
 
   const allowedRoots = resolveAllowedRoots();
   if (allowedRoots.length === 0) {
-    return { ok: false, error: "No allowed local path roots configured" };
+    return {
+      ok: false,
+      error:
+        "No allowed local path roots configured. Set VISUDEV_ALLOWED_LOCAL_ROOTS to a comma-separated list of absolute directories.",
+    };
   }
   const permitted = allowedRoots.some((root) => isUnderRoot(resolved, root));
   if (!permitted) {
