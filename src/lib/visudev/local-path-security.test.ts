@@ -36,14 +36,16 @@ describe("resolveValidatedLocalPath", () => {
   });
 
   it("rejects a home temp dir when not under allowed roots", () => {
+    const allowedRoot = mkdtempSync(join(homedir(), "visudev-local-path-allowed-"));
     const dir = mkdtempSync(join(homedir(), "visudev-local-path-denied-"));
-    process.env.VISUDEV_ALLOWED_LOCAL_ROOTS = join(homedir(), ".visudev");
+    process.env.VISUDEV_ALLOWED_LOCAL_ROOTS = allowedRoot;
     try {
       const result = resolveValidatedLocalPath(dir);
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error).toContain("outside allowed roots");
     } finally {
       rmSync(dir, { recursive: true, force: true });
+      rmSync(allowedRoot, { recursive: true, force: true });
     }
   });
 });

@@ -41,6 +41,17 @@ function resolveAllowedRoots() {
       console.warn("[local-path-security] skip invalid root:", message);
     }
   }
+  // Explicit VISUDEV_ALLOWED_LOCAL_ROOTS stays fail-closed. Unset defaults may miss
+  // ~/Projects etc. on CI/minimal hosts — fall back to $HOME only then.
+  if (roots.length === 0 && !raw) {
+    try {
+      const home = homedir();
+      if (existsSync(home)) roots.push(realpathSync(home));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "read failed";
+      console.warn("[local-path-security] home fallback failed:", message);
+    }
+  }
   return roots;
 }
 

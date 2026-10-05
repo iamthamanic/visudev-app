@@ -221,6 +221,8 @@ export function VisudevProvider({ children }: { children: ReactNode }) {
   const updateProject = useCallback(async (project: Project) => {
     const client = getVisuDevClient();
     if (isLocalVisuDevMode()) {
+      // Local Engine stores project metadata only — screens/flows/analysis live in
+      // appflow/blueprint caches + client state. Never replace UI state with empty arrays.
       const updated = await client.updateProject(project.id, {
         name: project.name,
         localPath: project.local_path ?? null,
@@ -230,8 +232,22 @@ export function VisudevProvider({ children }: { children: ReactNode }) {
       const normalized = normalizeProject(
         updated as unknown as Record<string, unknown> & { id: string },
       );
-      setProjects((prev) => prev.map((p) => (p.id === normalized.id ? normalized : p)));
-      setActiveProjectState((current) => (current?.id === normalized.id ? normalized : current));
+      const merged: Project = {
+        ...normalized,
+        screens: project.screens,
+        flows: project.flows,
+        lastAnalyzedCommitSha: project.lastAnalyzedCommitSha ?? normalized.lastAnalyzedCommitSha,
+        analysisGraph: project.analysisGraph ?? normalized.analysisGraph,
+        analysisQuality: project.analysisQuality ?? normalized.analysisQuality,
+        analysisRuntime: project.analysisRuntime ?? normalized.analysisRuntime,
+        analysisEscalations: project.analysisEscalations ?? normalized.analysisEscalations,
+        previewUrl: project.previewUrl ?? normalized.previewUrl,
+        previewStatus: project.previewStatus ?? normalized.previewStatus,
+        deployed_url: project.deployed_url ?? normalized.deployed_url,
+        preview_mode: project.preview_mode ?? normalized.preview_mode,
+      };
+      setProjects((prev) => prev.map((p) => (p.id === merged.id ? merged : p)));
+      setActiveProjectState((current) => (current?.id === merged.id ? merged : current));
       return;
     }
 

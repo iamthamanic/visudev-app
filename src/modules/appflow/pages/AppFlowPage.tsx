@@ -137,6 +137,7 @@ export function AppFlowPage({ projectId, githubRepo, githubBranch }: AppFlowPage
     localScanBlocked,
   ]);
 
+  // Hydrate screens/flows from Local Engine cache (engine project record has no screens).
   useEffect(() => {
     if (!isLocalVisuDevMode() || !activeProject?.id || activeProject.id !== projectId) return;
     if (activeProject.screens.length > 0) return;
@@ -153,13 +154,18 @@ export function AppFlowPage({ projectId, githubRepo, githubBranch }: AppFlowPage
         analysisQuality: latest.quality as typeof activeProject.analysisQuality,
         analysisRuntime: latest.runtime as typeof activeProject.analysisRuntime,
       });
-    })().catch(() => {
-      // ignore hydration errors; user can rescan manually
+    })().catch((error) => {
+      console.warn(
+        "[AppFlow] hydrate from appflow/latest failed",
+        error instanceof Error ? error.message : error,
+      );
     });
     return () => {
       cancelled = true;
     };
-  }, [activeProject, projectId, updateProject]);
+    // Only re-run when project identity / empty screens change — not on every activeProject field.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional narrow deps
+  }, [activeProject?.id, activeProject?.screens?.length, projectId, updateProject]);
 
   // Zuerst Runner ermitteln (4000, 4100, …), danach Preview-Status – sonst erscheint „nicht erreichbar“, obwohl Runner läuft
   useEffect(() => {
@@ -522,7 +528,9 @@ export function AppFlowPage({ projectId, githubRepo, githubBranch }: AppFlowPage
             <div>
               <p className={styles.statusTitle}>Code wird analysiert...</p>
               <p className={styles.statusMeta}>
-                Repo: {githubRepo || "unknown"} @ {githubBranch || "main"}
+                {activeProject.local_path
+                  ? `Lokal: ${activeProject.local_path}`
+                  : `Repo: ${githubRepo || "unknown"} @ ${githubBranch || "main"}`}
               </p>
             </div>
           </div>
@@ -841,9 +849,11 @@ export function AppFlowPage({ projectId, githubRepo, githubBranch }: AppFlowPage
                 <div className={styles.liveAppPlaceholder}>
                   <p className={styles.emptyTitle}>Live App</p>
                   <p className={styles.emptyHint}>
-                    Die App aus dem Repo wird automatisch gestartet. Falls nicht, unten starten.
+                    {activeProject?.local_path
+                      ? "Die lokale App wird automatisch gestartet. Falls nicht, unten starten."
+                      : "Die App aus dem Repo wird automatisch gestartet. Falls nicht, unten starten."}
                   </p>
-                  {activeProject?.github_repo ? (
+                  {hasPreviewSource(activeProject) ? (
                     <button
                       type="button"
                       onClick={() => handlePreviewStart("start")}
@@ -863,7 +873,9 @@ export function AppFlowPage({ projectId, githubRepo, githubBranch }: AppFlowPage
                     </button>
                   ) : (
                     <p className={styles.emptyHint}>
-                      Verbinde ein GitHub-Repo in Settings → Projekt-Anbindungen.
+                      {isLocalVisuDevMode()
+                        ? "Wähle einen lokalen Projektordner unter Projekte, dann Preview starten."
+                        : "Verbinde ein GitHub-Repo in Settings → Projekt-Anbindungen."}
                     </p>
                   )}
                 </div>
