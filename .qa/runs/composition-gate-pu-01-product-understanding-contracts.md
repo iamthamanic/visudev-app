@@ -1,15 +1,14 @@
 # Composition Gate — pu-01-product-understanding-contracts (#422)
 
-- HEAD_SHA: `a06bf56d6badd22c7b905db92e8dc8c8b0ed2ab4`
+- HEAD_SHA: `9724d4f0dada3fcb18744bb6dd4454d6ca3710be`
 - Date: 2026-10-05
 - Verdict: SKIPPED
-- PR: pending-push
 
 ## Skip reason
 
-Single-hop types-only deliverable: no producer→UI runtime path yet. ProductUnderstandingModel is a contract shell for PU-02+ builders; N-actors / concurrent-consumer simulations do not apply until a builder emits the model into a view.
+Types-only single-hop deliverable (no producer→UI runtime path yet). ProductUnderstandingModel is a contract shell for PU-02+ builders. Tip SHA recorded at push time for bookkeeping.
 
-## Event (future chain documented)
+## Event (future chain)
 
 Analysis Truth → ProductUnderstanding builder (PU-02+) → Views
 
