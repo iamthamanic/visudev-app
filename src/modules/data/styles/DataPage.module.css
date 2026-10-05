@@ -315,6 +315,151 @@
   word-break: break-word;
 }
 
+.lineageRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lineageToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.lineageStats {
+  color: var(--color-muted-foreground);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.lineageSearch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.lineageSearchLabel {
+  color: var(--color-muted-foreground);
+  font-size: 0.75rem;
+}
+
+.lineageSearchInput {
+  background-color: var(--color-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-foreground);
+  font-size: 0.8125rem;
+  padding: 0.4rem 0.5rem;
+}
+
+.lineagePathList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lineagePath {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.7rem;
+}
+
+.lineagePathHeader {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.lineagePathId {
+  color: var(--color-muted-foreground);
+  font-size: 0.7rem;
+}
+
+.lineageBadge {
+  background-color: var(--color-muted);
+  border-radius: var(--radius-sm);
+  color: var(--color-foreground);
+  font-size: 0.7rem;
+  padding: 0.1rem 0.35rem;
+  white-space: nowrap;
+}
+
+.lineageBadgeOk {
+  background-color: var(--color-info-soft);
+  color: var(--color-info);
+}
+
+.lineageBadgeWarn {
+  background-color: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.lineageBadgeMute {
+  opacity: 0.85;
+}
+
+.lineageTruncation {
+  color: var(--color-muted-foreground);
+  font-size: 0.75rem;
+  margin: 0.4rem 0 0;
+}
+
+.lineageHopList {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.lineageHop {
+  border-top: 1px solid var(--color-border);
+  padding: 0.45rem 0;
+}
+
+.lineageHopTitle {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.lineageHopMeta {
+  color: var(--color-muted-foreground);
+  font-size: 0.75rem;
+  margin: 0.2rem 0 0;
+}
+
+.lineageEvidenceList {
+  color: var(--color-muted-foreground);
+  font-size: 0.75rem;
+  margin: 0.35rem 0 0;
+  padding-left: 1rem;
+}
+
+.lineageEvidencePath {
+  display: block;
+  font-size: 0.7rem;
+  margin-top: 0.15rem;
+}
+
+.lineageMore {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-foreground);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.lineageMore:hover {
+  background-color: var(--color-muted);
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

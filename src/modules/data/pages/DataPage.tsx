@@ -9,6 +9,8 @@ import clsx from "clsx";
 import { useVisudev } from "../../../lib/visudev/store";
 import { getVisuDevClient, isLocalVisuDevMode } from "../../../lib/visudev-api";
 import { api } from "../../../utils/api";
+import { DataLineagePanel } from "../components/DataLineagePanel";
+import { useDataLineage } from "../hooks/useDataLineage";
 import { useERD } from "../hooks/useERD";
 import type { ERDTableNode } from "../types";
 import styles from "../styles/DataPage.module.css";
@@ -27,9 +29,15 @@ function getTables(erd: Record<string, unknown> | null): ERDTableNode[] {
 export function DataPage({ projectId }: DataPageProps) {
   const { activeProject, scanStatuses, startScan } = useVisudev();
   const { erd, loading: erdLoading, error: erdError, refresh: refreshERD } = useERD(projectId);
+  const {
+    lineage,
+    loading: lineageLoading,
+    error: lineageError,
+    hasSoftwareGraph,
+  } = useDataLineage(projectId, erd);
   const [isRescan, setIsRescan] = useState(false);
   const [selectedTable, setSelectedTable] = useState<ERDTableNode | null>(null);
-  const [detailTab, setDetailTab] = useState<"columns" | "rls" | "sample">("columns");
+  const [detailTab, setDetailTab] = useState<"columns" | "rls" | "sample" | "lineage">("columns");
   const localScanBlocked = isLocalVisuDevMode() && !activeProject?.local_path;
 
   const handleRescan = useCallback(async () => {
@@ -221,7 +229,7 @@ export function DataPage({ projectId }: DataPageProps) {
                   </button>
                 </div>
                 <div className={styles.panelTabs} role="tablist">
-                  {(["columns", "rls", "sample"] as const).map((tab) => (
+                  {(["columns", "rls", "sample", "lineage"] as const).map((tab) => (
                     <button
                       key={tab}
                       type="button"
@@ -233,6 +241,7 @@ export function DataPage({ projectId }: DataPageProps) {
                       {tab === "columns" && "Columns"}
                       {tab === "rls" && "RLS"}
                       {tab === "sample" && "Sample"}
+                      {tab === "lineage" && "Lineage"}
                     </button>
                   ))}
                 </div>
@@ -281,6 +290,17 @@ export function DataPage({ projectId }: DataPageProps) {
                       ) : (
                         <p className={styles.emptyHint}>Keine Beispieldaten.</p>
                       )}
+                    </div>
+                  )}
+                  {detailTab === "lineage" && (
+                    <div className={styles.tabContent}>
+                      <DataLineagePanel
+                        table={selectedTable}
+                        lineage={lineage}
+                        loading={lineageLoading}
+                        error={lineageError}
+                        hasSoftwareGraph={hasSoftwareGraph}
+                      />
                     </div>
                   )}
                 </div>

@@ -68,6 +68,21 @@ export type {
   LegacyErdSnapshot,
   ResolveDataAnalysisResult,
 } from "./data-analysis";
+export {
+  adaptLegacyScreensToUiGraph,
+  buildDataLineage,
+  softwareGraphToScanFacts,
+} from "./data-lineage";
+export type {
+  BuildDataLineageInput,
+  DataLineageGraph,
+  DataLineageLayer,
+  DataLineagePath,
+  LineageEntityRef,
+  LineageHop,
+  LineageHopEvidence,
+  LineagePathStatus,
+} from "./data-lineage";
 
 let client: VisuDevApiClient | null = null;
 let supabaseClient: SupabaseVisuDevClient | null = null;
