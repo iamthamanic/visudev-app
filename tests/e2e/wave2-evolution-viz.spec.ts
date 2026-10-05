@@ -26,7 +26,7 @@ test.describe("Wave 2 evolution viz parity", () => {
 
     await expect(page.getByTestId("evolution-snapshot-card")).toHaveCount(5);
     expect(await page.getByTestId("evolution-metric-card").count()).toBeGreaterThanOrEqual(6);
-    await expect(page.getByTestId("evolution-changes-column")).toHaveCount(4);
+    await expect(page.getByTestId("evolution-changes-column")).toHaveCount(5);
 
     await page.getByTestId("evolution-timeline-commit").nth(1).click();
     await expect(page.getByTestId("evolution-inspector")).toBeVisible();

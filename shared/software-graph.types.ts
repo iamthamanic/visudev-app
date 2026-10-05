@@ -120,6 +120,10 @@ export interface SoftwareGraphSnapshot {
   dirty?: boolean;
   /** kind:label signatures per node for change detection between snapshots. */
   nodeSignatures?: Record<string, string>;
+  /** kind:source→target signatures per relation (semantic history). */
+  relationSignatures?: Record<string, string>;
+  /** Engine version at capture time — used for compare compatibility. */
+  engineVersion?: string;
 }
 
 export interface SoftwareGraphDiffMetadata {
@@ -128,8 +132,14 @@ export interface SoftwareGraphDiffMetadata {
   addedNodeIds: string[];
   removedNodeIds: string[];
   changedNodeIds: string[];
+  addedRelationIds?: string[];
+  removedRelationIds?: string[];
+  changedRelationIds?: string[];
   identical: boolean;
   condensed: boolean;
+  /** False when engine majors differ — UI must not treat as a silent compare. */
+  comparable?: boolean;
+  incompatibleReason?: string;
 }
 
 export interface SoftwareGraph {

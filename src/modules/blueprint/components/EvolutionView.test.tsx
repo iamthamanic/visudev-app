@@ -92,12 +92,37 @@ describe("EvolutionView", () => {
     expect(screen.getByLabelText("Änderungsübersicht")).toBeInTheDocument();
   });
 
-  it("switches to Branch Compare without unfinished Commit Diff tab", () => {
-    render(<EvolutionView blueprint={graphWithSnapshots} />);
-    expect(screen.queryByRole("tab", { name: "Commit Diff" })).not.toBeInTheDocument();
+  it("exposes Commit Diff and Branch Compare but not Working Tree", () => {
+    render(<EvolutionView blueprint={graphWithSnapshots} projectId="p1" />);
+    expect(screen.getByRole("tab", { name: "Commit Diff" })).toBeInTheDocument();
     expect(screen.queryByRole("tab", { name: "Working Tree" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Commit Diff" }));
+    expect(screen.getByTestId("evolution-commit-diff")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("tab", { name: "Branch Compare" }));
     expect(screen.getByRole("tab", { name: "Branch Compare", selected: true })).toBeInTheDocument();
+  });
+
+  it("surfaces incompatible snapshot compare instead of a silent empty diff", () => {
+    const graph = graphWithSnapshots.graph;
+    if (!graph) throw new Error("fixture graph required");
+    const blueprint: BlueprintData = {
+      ...graphWithSnapshots,
+      graph: {
+        ...graph,
+        snapshots: [
+          {
+            ...(graph.snapshots?.[0] as NonNullable<typeof graph.snapshots>[number]),
+            engineVersion: "1.0.0",
+          },
+          {
+            ...(graph.snapshots?.[1] as NonNullable<typeof graph.snapshots>[number]),
+            engineVersion: "2.0.0",
+          },
+        ],
+      },
+    };
+    render(<EvolutionView blueprint={blueprint} />);
+    expect(screen.getByTestId("evolution-snapshot-incompatible")).toBeInTheDocument();
   });
 
   it("explains the first capture and shows dirty Git provenance", () => {

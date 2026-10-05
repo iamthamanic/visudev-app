@@ -1,10 +1,10 @@
 /**
- * Evolution sub-tab ids — V1 ships only finished surfaces (PR-17).
- * Commit Diff / Working Tree stay out until implemented (no fake tabs).
+ * Evolution sub-tab ids — finished surfaces only (no Working Tree until implemented).
  */
 
 export const EVOLUTION_TABS = [
   { id: "timeline", label: "Timeline" },
+  { id: "commit-diff", label: "Commit Diff" },
   { id: "branch-compare", label: "Branch Compare" },
 ] as const;
 

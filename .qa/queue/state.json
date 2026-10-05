@@ -1,15 +1,14 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 393,
-  "featureSlug": "semantic-llm-interpreter",
+  "activeIssue": 394,
+  "featureSlug": "evolution-complete",
   "phase": "implement",
-  "branch": "feat/393-semantic-llm-interpreter",
+  "branch": "feat/394-evolution-semantic-history",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    393,
     394,
     395,
     396
@@ -55,7 +54,8 @@
     389,
     390,
     391,
-    392
+    392,
+    393
   ],
   "mergedIssues": [
     321,
@@ -98,7 +98,8 @@
     389,
     390,
     391,
-    392
+    392,
+    393
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
@@ -108,7 +109,8 @@
     "389": "https://github.com/iamthamanic/visudev-app/pull/411",
     "390": "https://github.com/iamthamanic/visudev-app/pull/412",
     "391": "https://github.com/iamthamanic/visudev-app/pull/413",
-    "392": "https://github.com/iamthamanic/visudev-app/pull/414"
+    "392": "https://github.com/iamthamanic/visudev-app/pull/414",
+    "393": "https://github.com/iamthamanic/visudev-app/pull/415"
   },
   "retries": {
     "implement": 0,
@@ -127,8 +129,8 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": 393,
-  "lastCompletedIssue": 392,
-  "notes": "Merged #392 via PR #414; next #393",
-  "updatedAt": "2026-10-04T22:37:13.000Z"
+  "currentIssue": 394,
+  "lastCompletedIssue": 393,
+  "notes": "Merged #393 via PR #415; next #394 Evolution semantic history",
+  "updatedAt": "2026-10-05T11:19:33.000Z"
 }

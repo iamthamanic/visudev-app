@@ -194,7 +194,38 @@ export function semanticHistoryToGraphSnapshot(
     dirty: false,
     nodeIds,
     nodeSignatures: { ...history.entitySignatures },
+    relationSignatures: { ...history.relationSignatures },
+    engineVersion: history.engineVersion,
   };
+}
+
+/**
+ * Two snapshots may be compared when engine majors match (or both omit version = legacy).
+ */
+export function areSnapshotsComparable(
+  base: Pick<SoftwareGraphSnapshot, "engineVersion">,
+  target: Pick<SoftwareGraphSnapshot, "engineVersion">,
+): { comparable: boolean; reason?: string } {
+  const baseVersion = String(base.engineVersion || "").trim();
+  const targetVersion = String(target.engineVersion || "").trim();
+  if (!baseVersion && !targetVersion) {
+    return { comparable: true };
+  }
+  if (!baseVersion || !targetVersion) {
+    return {
+      comparable: false,
+      reason: "Snapshots ohne gemeinsame Engine-Version können nicht verglichen werden.",
+    };
+  }
+  const baseMajor = baseVersion.split(".")[0] || baseVersion;
+  const targetMajor = targetVersion.split(".")[0] || targetVersion;
+  if (baseMajor !== targetMajor) {
+    return {
+      comparable: false,
+      reason: `Inkompatible Engine-Versionen (${baseVersion} vs ${targetVersion}).`,
+    };
+  }
+  return { comparable: true };
 }
 
 /**

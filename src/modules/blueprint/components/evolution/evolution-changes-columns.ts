@@ -48,6 +48,22 @@ export function buildEvolutionChangesColumns(
       paths: shortIds(diff?.removedNodeIds, 3),
     },
     {
+      id: "relations",
+      label: "Geänderte Relationen",
+      count:
+        (diff?.addedRelationIds?.length ?? 0) +
+        (diff?.changedRelationIds?.length ?? 0) +
+        (diff?.removedRelationIds?.length ?? 0),
+      paths: shortIds(
+        [
+          ...(diff?.addedRelationIds ?? []),
+          ...(diff?.changedRelationIds ?? []),
+          ...(diff?.removedRelationIds ?? []),
+        ],
+        4,
+      ),
+    },
+    {
       id: "deps",
       label: "Top Dependency-Änderungen",
       count: dependencyPaths.length,

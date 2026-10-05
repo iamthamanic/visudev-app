@@ -4,6 +4,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  areSnapshotsComparable,
   attachHistoricalEngineSnapshots,
   buildSemanticHistoryFromHistoricalRecord,
   buildSemanticHistoryFromSoftwareGraph,
@@ -132,6 +133,25 @@ describe("semantic history", () => {
       engineVersion: "1.0.0",
     });
     expect(diffSemanticHistory(snap, snap).identical).toBe(true);
+  });
+
+  it("marks engine major mismatches as not comparable", () => {
+    expect(
+      areSnapshotsComparable({ engineVersion: "1.2.0" }, { engineVersion: "2.0.0" }).comparable,
+    ).toBe(false);
+    expect(
+      areSnapshotsComparable({ engineVersion: "1.2.0" }, { engineVersion: "1.9.0" }).comparable,
+    ).toBe(true);
+    const ui = semanticHistoryToGraphSnapshot(
+      buildSemanticHistoryFromSoftwareGraph(
+        makeGraph("p1", "2026-01-01T00:00:00.000Z", [
+          { id: "svc-a", kind: "service", label: "Auth" },
+        ]),
+        { key: "k", commitSha: "abc", ref: "main", engineVersion: "1.0.0" },
+      ),
+    );
+    expect(ui.relationSignatures).toBeDefined();
+    expect(ui.engineVersion).toBe("1.0.0");
   });
 
   it("attaches at least two historical engine snapshots onto a graph", () => {
