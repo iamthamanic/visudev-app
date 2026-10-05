@@ -100,19 +100,19 @@ export async function createApp(config: EngineConfig = getEngineConfig()) {
   }
 
   // Guest token is only served when explicitly enabled; engine binds loopback by default.
+  // Disabled → HTTP 200 + success:false (not 404): Chromium logs failed fetches as console.error
+  // and would trip Product Readiness console gate even when the client handles the miss.
   app.get("/api/local-guest-token", (c) => {
     if (!config.allowGuest || !config.localGuestToken) {
-      return c.json(
-        {
-          success: false,
-          error: "Guest mode disabled. Set VISUDEV_ALLOW_GUEST=1 and VISUDEV_LOCAL_GUEST_TOKEN.",
-        },
-        404,
-      );
+      return c.json({
+        success: false,
+        error: "Guest mode disabled. Set VISUDEV_ALLOW_GUEST=1 and VISUDEV_LOCAL_GUEST_TOKEN.",
+        data: { enabled: false },
+      });
     }
     return c.json({
       success: true,
-      data: { token: config.localGuestToken },
+      data: { token: config.localGuestToken, enabled: true },
     });
   });
 
