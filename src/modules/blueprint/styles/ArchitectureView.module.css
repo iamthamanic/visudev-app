@@ -640,9 +640,9 @@
 .partialBanner {
   margin: 0;
   padding: 0.625rem 0.875rem;
-  border: 1px dashed color-mix(in srgb, var(--color-warning, #c9a227) 50%, var(--color-border));
+  border: 1px dashed color-mix(in srgb, var(--color-warning) 50%, var(--color-border));
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--color-warning, #c9a227) 10%, var(--color-card));
+  background: color-mix(in srgb, var(--color-warning) 10%, var(--color-card));
   color: var(--color-foreground);
   font-size: 0.875rem;
 }
@@ -676,8 +676,8 @@
 }
 
 .responsibilityCardSelected {
-  border-color: var(--color-primary, #5b8def);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary, #5b8def) 40%, transparent);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
 .responsibilityKind {
@@ -705,7 +705,7 @@
 
 .boundaryBadge[data-boundary="distributed"],
 .responsibilityCard[data-boundary="distributed"] .boundaryBadge {
-  border-color: color-mix(in srgb, var(--color-warning, #c9a227) 50%, var(--color-border));
+  border-color: color-mix(in srgb, var(--color-warning) 50%, var(--color-border));
 }
 
 .boundaryBadge[data-boundary="unclear"] {

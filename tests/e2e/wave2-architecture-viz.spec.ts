@@ -1,6 +1,6 @@
 /**
- * Wave 2 architecture viz parity gate.
- * Acceptance: .qa/acceptance/wave2-architecture-viz-parity.md
+ * Wave 2 architecture viz parity gate — PU-08 responsibility map + Technik stack.
+ * Acceptance: .qa/acceptance/wave2-architecture-viz-parity.md + #429
  */
 
 import { test, expect } from "@playwright/test";
@@ -15,12 +15,16 @@ test.describe("Wave 2 architecture viz parity", () => {
     await installWave2Mocks(page, PROJECT_ID, "wave2-architecture-1");
   });
 
-  test("layer stack shows 7 cards and inspector on selection", async ({ page }) => {
+  test("responsibility map by default; Technik shows layer stack", async ({ page }) => {
     test.setTimeout(60_000);
     await page.setViewportSize({ width: 1440, height: 900 });
     await openBlueprintView(page, "architecture");
 
-    // RVP-6: each BusinessDomain owns a layer stack; assert across all stacks
+    await expect(page.getByTestId("architecture-responsibility-map")).toBeVisible({
+      timeout: 20000,
+    });
+
+    await page.getByTestId("arch-level-module").click();
     const stacks = page.getByTestId("architecture-layer-stack");
     await expect(stacks.first()).toBeVisible({ timeout: 20000 });
     expect(await stacks.count()).toBeGreaterThanOrEqual(1);
@@ -39,6 +43,7 @@ test.describe("Wave 2 architecture viz parity", () => {
   test("domains mode has no duplicate App.tsx entries", async ({ page }) => {
     test.setTimeout(60_000);
     await openBlueprintView(page, "architecture");
+    await page.getByTestId("arch-level-module").click();
 
     await page.getByRole("tab", { name: "Domains" }).click();
     const appDuplicates = page.locator('[data-testid="domain-module"][data-path*="App.tsx"]');

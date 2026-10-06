@@ -14,11 +14,16 @@ import {
 const PROJECT_ID = "proj-wave3-auto-select";
 
 test.describe("Wave 3 inspector auto-select", () => {
-  test("architecture pre-selects Application Layer", async ({ page }) => {
+  test("architecture pre-selects Application Layer on Technik level", async ({ page }) => {
     test.setTimeout(60_000);
     await seedSupabaseSession(page);
     await installWave2Mocks(page, PROJECT_ID, "wave3-auto-arch");
     await openBlueprintView(page, "architecture");
+
+    await expect(page.getByTestId("architecture-responsibility-map")).toBeVisible({
+      timeout: 20000,
+    });
+    await page.getByTestId("arch-level-module").click();
 
     const appLayer = page.getByRole("button", { name: /Application Layer/i });
     await expect(appLayer).toHaveAttribute("aria-pressed", "true");
