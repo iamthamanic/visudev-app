@@ -1,3 +1,9 @@
+/**
+ * Architecture view — Product Understanding responsibilities by default (PU-08).
+ * Layer/module stacks remain as technical detail levels.
+ * Location: src/modules/blueprint/components/ArchitectureView.tsx
+ */
+
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { BlueprintData, SoftwareGraphNodeKind } from "../types";
 import { BlueprintViewLayout } from "./ui/BlueprintViewLayout.js";
@@ -7,6 +13,7 @@ import { ArchitectureDomainGroups } from "./architecture/ArchitectureDomainGroup
 import { ArchitectureGroupingToggle } from "./architecture/ArchitectureGroupingToggle.js";
 import { ArchitectureInspector } from "./architecture/ArchitectureInspector.js";
 import { ArchitectureLayerStack } from "./architecture/ArchitectureLayerStack.js";
+import { ArchitectureResponsibilityMap } from "./architecture/ArchitectureResponsibilityMap.js";
 import { ArchitectureSemanticKindBar } from "./architecture/ArchitectureSemanticKindBar.js";
 import {
   GROUPING_STACK_KIND,
@@ -20,6 +27,7 @@ import {
 } from "./architecture/build-layer-stack.js";
 import { projectArchitectureGraph } from "./architecture/_projection.js";
 import { resolveArchitectureSemanticModel } from "./architecture/resolve-architecture-semantic-model.js";
+import { resolveArchitectureResponsibilityProjection } from "./architecture/resolve-architecture-product-model.js";
 import {
   ArchitectureLevelNav,
   type ArchitectureLevel,
@@ -42,6 +50,8 @@ const LEVEL_VISIBLE_KINDS: Record<ArchitectureLevel, SoftwareGraphNodeKind[]> = 
   file: ["file", "module", "route", "service"],
 };
 
+const RESPONSIBILITY_LEVELS = new Set<ArchitectureLevel>(["system", "domain", "capability"]);
+
 interface ArchitectureViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
 }
@@ -56,12 +66,14 @@ export function ArchitectureView({
   const [groupingMode, setGroupingMode] = useState<ArchitectureGroupingMode>("layers");
   const [level, setLevel] = useState<ArchitectureLevel>("domain");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedResponsibilityId, setSelectedResponsibilityId] = useState<string | null>(null);
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => new Set());
   const [visibleKinds, setVisibleKinds] = useState<Set<SoftwareGraphNodeKind>>(
     () => new Set(GROUPING_VISIBLE_KINDS.layers),
   );
 
   const graphSnapshotKey = buildGraphSnapshotKey(graph);
+  const showResponsibilityMap = RESPONSIBILITY_LEVELS.has(level);
 
   useEffect(() => {
     setVisibleKinds(new Set(GROUPING_VISIBLE_KINDS[groupingMode]));
@@ -72,9 +84,19 @@ export function ArchitectureView({
 
   useEffect(() => {
     setVisibleKinds(new Set(LEVEL_VISIBLE_KINDS[level]));
+    if (RESPONSIBILITY_LEVELS.has(level)) {
+      setSelectedNodeId(null);
+    } else {
+      setSelectedResponsibilityId(null);
+    }
   }, [level]);
 
   useArchitectureDefaultLayerSelection(graph, groupingMode, setSelectedNodeId, graphSnapshotKey);
+
+  const responsibilityProjection = useMemo(
+    () => resolveArchitectureResponsibilityProjection(blueprint, graph),
+    [blueprint, graph],
+  );
 
   const architectureProjection = useMemo(() => {
     if (!graph) {
@@ -123,6 +145,33 @@ export function ArchitectureView({
     );
   }, [semanticModel, selectedNodeId]);
 
+  const selectedResponsibility = useMemo(() => {
+    if (!responsibilityProjection || !selectedResponsibilityId) return null;
+    return (
+      responsibilityProjection.cards.find((card) => card.id === selectedResponsibilityId) ?? null
+    );
+  }, [responsibilityProjection, selectedResponsibilityId]);
+
+  const responsibilityAreas = useMemo(() => {
+    if (!responsibilityProjection) return [];
+    const byId = new Map(responsibilityProjection.cards.map((card) => [card.id, card]));
+    return responsibilityProjection.primaryAreaIds
+      .map((id) => byId.get(id))
+      .filter((card): card is NonNullable<typeof card> => Boolean(card));
+  }, [responsibilityProjection]);
+
+  const capabilitiesByArea = useMemo(() => {
+    if (!responsibilityProjection) return {};
+    const byId = new Map(responsibilityProjection.cards.map((card) => [card.id, card]));
+    const result: Record<string, typeof responsibilityAreas> = {};
+    for (const area of responsibilityAreas) {
+      result[area.id] = area.childIds
+        .map((id) => byId.get(id))
+        .filter((card): card is NonNullable<typeof card> => Boolean(card));
+    }
+    return result;
+  }, [responsibilityProjection, responsibilityAreas]);
+
   const toggleCollapse = (id: string) => {
     setCollapsedIds((current) => {
       const next = new Set(current);
@@ -165,13 +214,17 @@ export function ArchitectureView({
   const semantic = semanticModel;
   const levelAvailable = {
     system:
+      Boolean(responsibilityProjection?.applications.length) ||
       !semantic ||
       semantic.entities.some((entity) => entity.kind === "application") ||
       graph.nodes.some((node) => node.kind === "application" || node.kind === "organization"),
     domain:
+      Boolean(responsibilityProjection?.primaryAreaIds.length) ||
       Boolean(semantic?.entities.some((entity) => entity.kind === "business-domain")) ||
       graph.nodes.some((node) => node.kind === "domain"),
-    capability: Boolean(semantic?.entities.some((entity) => entity.kind === "capability")),
+    capability:
+      Boolean(responsibilityProjection?.cards.some((card) => card.kind === "capability")) ||
+      Boolean(semantic?.entities.some((entity) => entity.kind === "capability")),
     module:
       graph.nodes.some((node) => node.kind === "module" || node.kind === "service") ||
       Boolean(
@@ -189,26 +242,39 @@ export function ArchitectureView({
 
   const controls = (
     <div className={styles.controlsColumn}>
-      {!showStackInCanvas ? (
+      {!showStackInCanvas && !showResponsibilityMap ? (
         <ArchitectureLayerStack
           cards={stackCards}
           selectedNodeId={selectedNodeId}
           onSelectNode={setSelectedNodeId}
         />
       ) : null}
-      <ArchitectureControls
-        collapsible={architectureProjection.collapsible}
-        collapsedIds={collapsedIds}
-        visibleKinds={visibleKinds}
-        hasVisibleNodes={hasVisibleNodes}
-        onToggleCollapse={toggleCollapse}
-        onToggleKind={toggleKind}
-        onResetFilters={resetFilters}
-      />
+      {!showResponsibilityMap ? (
+        <ArchitectureControls
+          collapsible={architectureProjection.collapsible}
+          collapsedIds={collapsedIds}
+          visibleKinds={visibleKinds}
+          hasVisibleNodes={hasVisibleNodes}
+          onToggleCollapse={toggleCollapse}
+          onToggleKind={toggleKind}
+          onResetFilters={resetFilters}
+        />
+      ) : null}
     </div>
   );
 
-  const canvas = showStackInCanvas ? (
+  const canvas = showResponsibilityMap ? (
+    <div className={styles.stackCanvasWrap}>
+      <ArchitectureResponsibilityMap
+        applications={responsibilityProjection?.applications ?? []}
+        areas={responsibilityAreas}
+        capabilitiesByArea={capabilitiesByArea}
+        selectedId={selectedResponsibilityId}
+        partialReason={responsibilityProjection?.partialReason ?? null}
+        onSelect={setSelectedResponsibilityId}
+      />
+    </div>
+  ) : showStackInCanvas ? (
     <div className={styles.stackCanvasWrap}>
       {groupingMode === "layers" ? (
         <ArchitectureDomainGroups
@@ -246,9 +312,11 @@ export function ArchitectureView({
 
   return (
     <div className={styles.root}>
-      <ArchitectureGroupingToggle mode={groupingMode} onSelectMode={setGroupingMode} />
+      {!showResponsibilityMap ? (
+        <ArchitectureGroupingToggle mode={groupingMode} onSelectMode={setGroupingMode} />
+      ) : null}
       <ArchitectureLevelNav level={level} onChange={setLevel} available={levelAvailable} />
-      <ArchitectureSemanticKindBar summaries={kindSummaries} />
+      {!showResponsibilityMap ? <ArchitectureSemanticKindBar summaries={kindSummaries} /> : null}
 
       <BlueprintViewLayout
         controls={controls}
@@ -256,8 +324,9 @@ export function ArchitectureView({
         inspector={
           <ArchitectureInspector
             graph={graph}
-            node={selectedNode}
-            semanticEntity={selectedSemanticEntity}
+            node={showResponsibilityMap ? null : selectedNode}
+            semanticEntity={showResponsibilityMap ? null : selectedSemanticEntity}
+            responsibility={showResponsibilityMap ? selectedResponsibility : null}
           />
         }
       />

@@ -161,3 +161,10 @@ export {
   type AtlasProductPrimaryKind,
   type ProjectAtlasProductMapOptions,
 } from "./project-atlas-product-map.js";
+
+export {
+  projectArchitectureResponsibilities,
+  type ArchitectureBoundaryState,
+  type ArchitectureResponsibilityCard,
+  type ArchitectureResponsibilityProjection,
+} from "./project-architecture-responsibilities.js";
