@@ -35,6 +35,10 @@ import {
 import { useArchitectureDefaultLayerSelection } from "../hooks/useArchitectureDefaultLayerSelection.js";
 import { buildGraphSnapshotKey } from "../services/graph-snapshot-key.js";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
+import { ProductConceptMissingInView } from "../../../components/ui/ProductConceptMissingInView.js";
+import { useBlueprintProductSelection } from "../context/useBlueprintProductSelection.js";
+import { resolveCrossViewFocus } from "../../../../shared/product-understanding/cross-view-selection.js";
+import { isProductConceptSelectionId } from "../../../../shared/product-understanding/selection.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import styles from "../styles/ArchitectureView.module.css";
 
@@ -63,6 +67,7 @@ export function ArchitectureView({
   onRetry,
 }: ArchitectureViewProps) {
   const graph = blueprint.graph;
+  const { selection, setSelection } = useBlueprintProductSelection();
   const [groupingMode, setGroupingMode] = useState<ArchitectureGroupingMode>("layers");
   const [level, setLevel] = useState<ArchitectureLevel>("domain");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -97,6 +102,25 @@ export function ArchitectureView({
     () => resolveArchitectureResponsibilityProjection(blueprint, graph),
     [blueprint, graph],
   );
+
+  const availableResponsibilityIds = useMemo(
+    () => responsibilityProjection?.cards.map((card) => card.id) ?? [],
+    [responsibilityProjection],
+  );
+
+  const architectureFocus = useMemo(
+    () =>
+      selection
+        ? resolveCrossViewFocus(selection, "architecture", availableResponsibilityIds)
+        : null,
+    [availableResponsibilityIds, selection],
+  );
+
+  useEffect(() => {
+    if (!architectureFocus?.presentInView || !architectureFocus.viewLocalId) return;
+    if (!RESPONSIBILITY_LEVELS.has(level)) setLevel("domain");
+    setSelectedResponsibilityId(architectureFocus.viewLocalId);
+  }, [architectureFocus, level]);
 
   const architectureProjection = useMemo(() => {
     if (!graph) {
@@ -271,7 +295,12 @@ export function ArchitectureView({
         capabilitiesByArea={capabilitiesByArea}
         selectedId={selectedResponsibilityId}
         partialReason={responsibilityProjection?.partialReason ?? null}
-        onSelect={setSelectedResponsibilityId}
+        onSelect={(id) => {
+          setSelectedResponsibilityId(id);
+          if (id && isProductConceptSelectionId(id)) {
+            setSelection(id, null, "architecture");
+          }
+        }}
       />
     </div>
   ) : showStackInCanvas ? (
@@ -312,6 +341,12 @@ export function ArchitectureView({
 
   return (
     <div className={styles.root}>
+      {architectureFocus && !architectureFocus.presentInView && selection ? (
+        <ProductConceptMissingInView
+          selection={selection}
+          messageDe={architectureFocus.messageDe}
+        />
+      ) : null}
       {!showResponsibilityMap ? (
         <ArchitectureGroupingToggle mode={groupingMode} onSelectMode={setGroupingMode} />
       ) : null}

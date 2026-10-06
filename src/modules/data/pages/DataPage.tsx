@@ -14,6 +14,10 @@ import { DataLineagePanel } from "../components/DataLineagePanel";
 import { useDataLineage } from "../hooks/useDataLineage";
 import { useERD } from "../hooks/useERD";
 import { resolveDataInformationFlowProjection } from "../services/resolve-data-product-model";
+import { useProductConceptSelectionUrl } from "../../../hooks/useProductConceptSelectionUrl.js";
+import { ProductConceptMissingInView } from "../../../components/ui/ProductConceptMissingInView.js";
+import { resolveCrossViewFocus } from "../../../../shared/product-understanding/cross-view-selection.js";
+import { isProductConceptSelectionId } from "../../../../shared/product-understanding/selection.js";
 import type { ERDTableNode } from "../types";
 import styles from "../styles/DataPage.module.css";
 
@@ -63,6 +67,7 @@ export function DataPage({ projectId }: DataPageProps) {
   const [selectedTable, setSelectedTable] = useState<ERDTableNode | null>(null);
   const [detailTab, setDetailTab] = useState<"columns" | "rls" | "sample" | "lineage">("columns");
   const localScanBlocked = isLocalVisuDevMode() && !activeProject?.local_path;
+  const { selection, setSelection } = useProductConceptSelectionUrl();
 
   const infoProjection = useMemo(
     () =>
@@ -73,6 +78,16 @@ export function DataPage({ projectId }: DataPageProps) {
         analyzedAt: software?.analyzedAt,
       }),
     [lineage, projectId, software],
+  );
+
+  const dataConceptIds = useMemo(
+    () => infoProjection?.cards.map((card) => card.conceptId) ?? [],
+    [infoProjection],
+  );
+
+  const dataFocus = useMemo(
+    () => (selection ? resolveCrossViewFocus(selection, "data", dataConceptIds) : null),
+    [dataConceptIds, selection],
   );
 
   const handleRescan = useCallback(async () => {
@@ -123,13 +138,23 @@ export function DataPage({ projectId }: DataPageProps) {
   useEffect(() => {
     const cards = infoProjection?.cards ?? [];
     if (cards.length === 0) {
-      setSelectedInfoId(null);
+      if (!selection) setSelectedInfoId(null);
+      return;
+    }
+    if (dataFocus?.presentInView && dataFocus.viewLocalId) {
+      const card = cards.find((item) => item.conceptId === dataFocus.viewLocalId);
+      if (card) {
+        setSelectedInfoId(card.id);
+        return;
+      }
+    }
+    if (selection && dataFocus && !dataFocus.presentInView) {
       return;
     }
     if (!selectedInfoId || !cards.some((card) => card.id === selectedInfoId)) {
       setSelectedInfoId(cards[0]!.id);
     }
-  }, [infoProjection, selectedInfoId]);
+  }, [infoProjection, selectedInfoId, selection, dataFocus]);
 
   const isScanning = scanStatuses.data.status === "running" || isRescan;
   const hasError = scanStatuses.data.status === "failed";
@@ -150,6 +175,9 @@ export function DataPage({ projectId }: DataPageProps) {
 
   return (
     <div className={styles.root} data-testid="data-page">
+      {dataFocus && !dataFocus.presentInView && selection ? (
+        <ProductConceptMissingInView selection={selection} messageDe={dataFocus.messageDe} />
+      ) : null}
       <div className={styles.header}>
         <div className={styles.headerRow}>
           <div>
@@ -263,7 +291,13 @@ export function DataPage({ projectId }: DataPageProps) {
               cards={infoProjection?.cards ?? []}
               selectedId={selectedInfoId}
               partialReason={infoProjection?.partialReason ?? null}
-              onSelect={setSelectedInfoId}
+              onSelect={(cardId) => {
+                setSelectedInfoId(cardId);
+                const card = infoProjection?.cards.find((item) => item.id === cardId);
+                if (card && isProductConceptSelectionId(card.conceptId)) {
+                  setSelection(card.conceptId, null, "data");
+                }
+              }}
               onOpenSchema={openSchemaForKey}
             />
           )

@@ -42,6 +42,10 @@ import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
 import { selectionFromNode } from "../selection.js";
+import { ProductConceptMissingInView } from "../../../components/ui/ProductConceptMissingInView.js";
+import { useBlueprintProductSelection } from "../context/useBlueprintProductSelection.js";
+import { resolveCrossViewFocus } from "../../../../shared/product-understanding/cross-view-selection.js";
+import { isProductConceptSelectionId } from "../../../../shared/product-understanding/selection.js";
 import styles from "../styles/DependenciesView.module.css";
 
 interface DependenciesViewProps extends BlueprintViewScanProps {
@@ -55,6 +59,7 @@ export function DependenciesView({
   onRetry,
 }: DependenciesViewProps) {
   const graph = blueprint.graph;
+  const { selection: productSelection, setSelection } = useBlueprintProductSelection();
   const { searchQuery, searchInputRef, setSearchQuery, resetSearch } = useDependenciesSearch();
   const [layer, setLayer] = useState<DependenciesLayer>("impact");
   const [focusConceptId, setFocusConceptId] = useState<string | null>(null);
@@ -85,6 +90,29 @@ export function DependenciesView({
       }),
     [blueprint, focusConceptId, graph, layer, searchQuery],
   );
+
+  const impactConceptIds = useMemo(() => {
+    const full = resolveDependenciesImpactProjection(blueprint, graph, {
+      focusConceptId: null,
+      searchQuery: undefined,
+    });
+    return full?.nodes.map((node) => node.id) ?? [];
+  }, [blueprint, graph]);
+
+  const dependenciesFocus = useMemo(
+    () =>
+      productSelection
+        ? resolveCrossViewFocus(productSelection, "dependencies", impactConceptIds)
+        : null,
+    [impactConceptIds, productSelection],
+  );
+
+  useEffect(() => {
+    if (!dependenciesFocus?.presentInView || !dependenciesFocus.viewLocalId) return;
+    if (layer !== "impact") setLayer("impact");
+    setFocusConceptId(dependenciesFocus.viewLocalId);
+    setSelectedNodeId(dependenciesFocus.viewLocalId);
+  }, [dependenciesFocus, layer]);
 
   const techBaseProjection = useMemo(() => {
     if (!graph || layer === "impact") return { nodes: [], edges: [], orphanNodeIds: [] };
@@ -240,6 +268,9 @@ export function DependenciesView({
     setSelectedEdgeId(null);
     if (layer === "impact" && nodeId) {
       setFocusConceptId(nodeId);
+      if (isProductConceptSelectionId(nodeId)) {
+        setSelection(nodeId, null, "dependencies");
+      }
     }
   };
 
@@ -301,6 +332,9 @@ export function DependenciesView({
     setSelectedEdgeId(null);
     if (layer === "impact") {
       setFocusConceptId(nodeId);
+      if (isProductConceptSelectionId(nodeId)) {
+        setSelection(nodeId, null, "dependencies");
+      }
       const canvasNode = projection.nodes.find((node) => node.id === nodeId);
       if (canvasNode) {
         setSearchQuery(canvasNode.label);
@@ -315,170 +349,180 @@ export function DependenciesView({
   };
 
   return (
-    <BlueprintViewLayout
-      controls={
-        <div>
-          <DependenciesLayerNav layer={layer} onChange={handleLayerChange} />
-          {layer === "impact" ? (
-            <div className={styles.impactControls} data-testid="dependencies-impact-controls">
-              <p className={styles.impactIntro}>
-                Change Impact: direkte und begrenzt transitive fachliche Auswirkungen.
-              </p>
-              {focusConceptId ? (
+    <>
+      {dependenciesFocus && !dependenciesFocus.presentInView && productSelection ? (
+        <ProductConceptMissingInView
+          selection={productSelection}
+          messageDe={dependenciesFocus.messageDe}
+        />
+      ) : null}
+      <BlueprintViewLayout
+        controls={
+          <div>
+            <DependenciesLayerNav layer={layer} onChange={handleLayerChange} />
+            {layer === "impact" ? (
+              <div className={styles.impactControls} data-testid="dependencies-impact-controls">
+                <p className={styles.impactIntro}>
+                  Change Impact: direkte und begrenzt transitive fachliche Auswirkungen.
+                </p>
+                {focusConceptId ? (
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm mb-2"
+                    data-testid="impact-overview"
+                    onClick={() => {
+                      setFocusConceptId(null);
+                      setSelectedNodeId(null);
+                      setSelectedEdgeId(null);
+                    }}
+                  >
+                    ← Impact-Übersicht
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm mb-2"
-                  data-testid="impact-overview"
-                  onClick={() => {
-                    setFocusConceptId(null);
-                    setSelectedNodeId(null);
-                    setSelectedEdgeId(null);
-                  }}
-                >
-                  ← Impact-Übersicht
-                </button>
-              ) : null}
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm mb-2"
-                data-testid="dependencies-open-technik"
-                onClick={() => handleLayerChange("technik")}
-              >
-                Technik anzeigen
-              </button>
-            </div>
-          ) : (
-            <>
-              {layer === "files" ? (
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-sm mb-2"
+                  data-testid="dependencies-open-technik"
                   onClick={() => handleLayerChange("technik")}
                 >
-                  ← Semantik-Übersicht
+                  Technik anzeigen
                 </button>
-              ) : selectedNodeId?.startsWith("semantic:") ? (
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-sm mb-2"
-                  data-testid="dependencies-drill-down"
-                  onClick={handleDrillIntoSelected}
-                >
-                  Dateien anzeigen
-                </button>
-              ) : null}
-              <DependenciesOverlayToggles
-                activeOverlays={activeOverlays}
-                onToggle={(overlay) => {
-                  setActiveOverlays((current) => {
-                    const next = new Set(current);
-                    if (next.has(overlay)) next.delete(overlay);
-                    else next.add(overlay);
-                    return next;
-                  });
-                  setSelectedEdgeId(null);
-                }}
+              </div>
+            ) : (
+              <>
+                {layer === "files" ? (
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm mb-2"
+                    onClick={() => handleLayerChange("technik")}
+                  >
+                    ← Semantik-Übersicht
+                  </button>
+                ) : selectedNodeId?.startsWith("semantic:") ? (
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm mb-2"
+                    data-testid="dependencies-drill-down"
+                    onClick={handleDrillIntoSelected}
+                  >
+                    Dateien anzeigen
+                  </button>
+                ) : null}
+                <DependenciesOverlayToggles
+                  activeOverlays={activeOverlays}
+                  onToggle={(overlay) => {
+                    setActiveOverlays((current) => {
+                      const next = new Set(current);
+                      if (next.has(overlay)) next.delete(overlay);
+                      else next.add(overlay);
+                      return next;
+                    });
+                    setSelectedEdgeId(null);
+                  }}
+                />
+                <DependenciesControls
+                  visibleEdgeKinds={visibleEdgeKinds}
+                  topDependencies={topDependencies}
+                  showOrphans={showOrphans}
+                  orphanCount={searchedTechProjection.orphanNodeIds.length}
+                  onToggleEdgeKind={toggleEdgeKind}
+                  onToggleOrphans={() => setShowOrphans((current) => !current)}
+                  onResetFilters={resetFilters}
+                />
+              </>
+            )}
+          </div>
+        }
+        canvas={
+          <div className={styles.canvasWrap}>
+            {isPartialScan ? (
+              <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} />
+            ) : null}
+            {layer === "impact" && impactProjection?.partialReason ? (
+              <p className={styles.impactBanner} data-testid="impact-partial-banner">
+                {impactProjection.partialReason}
+              </p>
+            ) : null}
+            {hasVisibleGraph ? (
+              <DependenciesGraphCanvas
+                nodes={projection.nodes}
+                edges={projection.edges}
+                totalNodes={baseProjection.nodes.length}
+                totalEdges={baseProjection.edges.length}
+                orphanCount={projection.orphanNodeIds.length}
+                orphanNodeIds={projection.orphanNodeIds}
+                selectedNodeId={selectedNodeId}
+                highlightedNodeIds={codeSelection?.relatedNodeIds}
+                searchQuery={searchQuery}
+                searchInputRef={searchInputRef}
+                onSearchChange={setSearchQuery}
+                onResetSearch={resetSearch}
+                onNodeSelect={handleNodeSelect}
+                onEdgeSelect={handleEdgeSelect}
+                onMinimapSelect={handleMinimapSelect}
               />
-              <DependenciesControls
-                visibleEdgeKinds={visibleEdgeKinds}
-                topDependencies={topDependencies}
-                showOrphans={showOrphans}
-                orphanCount={searchedTechProjection.orphanNodeIds.length}
-                onToggleEdgeKind={toggleEdgeKind}
-                onToggleOrphans={() => setShowOrphans((current) => !current)}
-                onResetFilters={resetFilters}
-              />
-            </>
-          )}
-        </div>
-      }
-      canvas={
-        <div className={styles.canvasWrap}>
-          {isPartialScan ? <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} /> : null}
-          {layer === "impact" && impactProjection?.partialReason ? (
-            <p className={styles.impactBanner} data-testid="impact-partial-banner">
-              {impactProjection.partialReason}
-            </p>
-          ) : null}
-          {hasVisibleGraph ? (
-            <DependenciesGraphCanvas
+            ) : (
+              <div className={styles.filteredCanvasEmpty} data-testid="dependencies-impact-empty">
+                <p>
+                  {layer === "impact"
+                    ? searchQuery
+                      ? "Keine Produktkonzepte für die aktuelle Suche."
+                      : "Noch keine fachlichen Impact-Beziehungen aus den Scan-Signalen ableitbar. Technik-Topology bleibt unter „Technik“."
+                    : searchQuery
+                      ? "Keine Module für die aktuelle Suche. Passe den Suchbegriff an."
+                      : "Passe die Beziehungstypen an, um Abhängigkeiten anzuzeigen."}
+                </p>
+              </div>
+            )}
+          </div>
+        }
+        inspector={
+          layer === "impact" && impactProjection ? (
+            <DependenciesImpactInspector
+              projection={impactProjection}
               nodes={projection.nodes}
-              edges={projection.edges}
-              totalNodes={baseProjection.nodes.length}
-              totalEdges={baseProjection.edges.length}
-              orphanCount={projection.orphanNodeIds.length}
-              orphanNodeIds={projection.orphanNodeIds}
               selectedNodeId={selectedNodeId}
-              highlightedNodeIds={codeSelection?.relatedNodeIds}
-              searchQuery={searchQuery}
-              searchInputRef={searchInputRef}
-              onSearchChange={setSearchQuery}
-              onResetSearch={resetSearch}
-              onNodeSelect={handleNodeSelect}
-              onEdgeSelect={handleEdgeSelect}
-              onMinimapSelect={handleMinimapSelect}
+              selectedEdgeId={selectedEdgeId}
+              onClearFocus={() => {
+                setFocusConceptId(null);
+                setSelectedNodeId(null);
+                setSelectedEdgeId(null);
+              }}
+              onSelectRelation={(relationId) => {
+                setSelectedEdgeId(relationId);
+                setSelectedNodeId(null);
+              }}
             />
           ) : (
-            <div className={styles.filteredCanvasEmpty} data-testid="dependencies-impact-empty">
-              <p>
-                {layer === "impact"
-                  ? searchQuery
-                    ? "Keine Produktkonzepte für die aktuelle Suche."
-                    : "Noch keine fachlichen Impact-Beziehungen aus den Scan-Signalen ableitbar. Technik-Topology bleibt unter „Technik“."
-                  : searchQuery
-                    ? "Keine Module für die aktuelle Suche. Passe den Suchbegriff an."
-                    : "Passe die Beziehungstypen an, um Abhängigkeiten anzuzeigen."}
-              </p>
-            </div>
-          )}
-        </div>
-      }
-      inspector={
-        layer === "impact" && impactProjection ? (
-          <DependenciesImpactInspector
-            projection={impactProjection}
-            nodes={projection.nodes}
-            selectedNodeId={selectedNodeId}
-            selectedEdgeId={selectedEdgeId}
-            onClearFocus={() => {
-              setFocusConceptId(null);
-              setSelectedNodeId(null);
-              setSelectedEdgeId(null);
-            }}
-            onSelectRelation={(relationId) => {
-              setSelectedEdgeId(relationId);
-              setSelectedNodeId(null);
-            }}
-          />
-        ) : (
-          <DependenciesInspector
-            graph={graph}
-            nodeById={graphIndex?.nodeById ?? new Map()}
-            topDependencies={topDependencies}
-            selectedNode={selectedNode}
-            selectedEdge={selection?.edge ?? null}
-            selectedEvidence={selection?.evidence ?? []}
-            incomingCount={nodeSummary?.incoming ?? 0}
-            outgoingCount={nodeSummary?.outgoing ?? 0}
-            topNodeDependencies={nodeSummary?.neighbors ?? []}
-            codeSelection={codeSelection}
-            codeExcerpt={codeExcerpt}
-            onSelectCodeNode={handleNodeSelect}
-            localPath={
-              typeof blueprint.repo === "string" && !/^https?:\/\//i.test(blueprint.repo)
-                ? blueprint.repo
-                : null
-            }
-            repoUrl={
-              (typeof blueprint.repoUrl === "string" && blueprint.repoUrl) ||
-              (typeof blueprint.repo === "string" &&
-              /^https:\/\/(github\.com|gitlab\.com)\//i.test(blueprint.repo)
-                ? blueprint.repo
-                : null)
-            }
-          />
-        )
-      }
-    />
+            <DependenciesInspector
+              graph={graph}
+              nodeById={graphIndex?.nodeById ?? new Map()}
+              topDependencies={topDependencies}
+              selectedNode={selectedNode}
+              selectedEdge={selection?.edge ?? null}
+              selectedEvidence={selection?.evidence ?? []}
+              incomingCount={nodeSummary?.incoming ?? 0}
+              outgoingCount={nodeSummary?.outgoing ?? 0}
+              topNodeDependencies={nodeSummary?.neighbors ?? []}
+              codeSelection={codeSelection}
+              codeExcerpt={codeExcerpt}
+              onSelectCodeNode={handleNodeSelect}
+              localPath={
+                typeof blueprint.repo === "string" && !/^https?:\/\//i.test(blueprint.repo)
+                  ? blueprint.repo
+                  : null
+              }
+              repoUrl={
+                (typeof blueprint.repoUrl === "string" && blueprint.repoUrl) ||
+                (typeof blueprint.repo === "string" &&
+                /^https:\/\/(github\.com|gitlab\.com)\//i.test(blueprint.repo)
+                  ? blueprint.repo
+                  : null)
+              }
+            />
+          )
+        }
+      />
+    </>
   );
 }

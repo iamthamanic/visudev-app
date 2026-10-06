@@ -17,6 +17,8 @@ import { AtlasTreemap } from "./atlas/AtlasTreemap.js";
 import { useAtlasViewState } from "./atlas/useAtlasViewState.js";
 import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
+import { ProductConceptMissingInView } from "../../../components/ui/ProductConceptMissingInView.js";
+import { useBlueprintProductSelection } from "../context/useBlueprintProductSelection.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import styles from "../styles/AtlasView.module.css";
 
@@ -31,6 +33,7 @@ interface AtlasViewProps extends BlueprintViewScanProps {
 export function AtlasView({ blueprint, scanStatus, scanError, onRetry }: AtlasViewProps) {
   const graph = blueprint.graph;
   const state = useAtlasViewState(graph);
+  const { selection } = useBlueprintProductSelection();
 
   if (!graph) {
     return (
@@ -73,52 +76,59 @@ export function AtlasView({ blueprint, scanStatus, scanError, onRetry }: AtlasVi
   );
 
   return (
-    <BlueprintViewLayout
-      controls={
-        <AtlasControls
-          searchQuery={state.searchQuery}
-          totalNodes={state.projection.totalNodes}
-          visibleNodes={state.projection.visibleNodes}
-          condensed={state.projection.condensed}
-          viewMode={state.viewMode}
-          threeDisabled={state.threeDisabled}
-          nodes={state.projection.nodes}
-          groups={state.visibleGroups}
-          selectedNodeId={state.selectedNodeId}
-          selectedGroupId={state.selectedGroupId}
-          onSearchChange={state.setSearchQuery}
-          onResetSearch={state.resetSearch}
-          onSelectNode={state.handleSelectNode}
-          onSelectGroup={state.handleSelectGroup}
-          onSelectViewMode={state.handleSelectViewMode}
-        />
-      }
-      canvas={
-        <div className={styles.canvasWrap}>
-          {isPartialScan ? <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} /> : null}
-          <AtlasStatsBar stats={atlasStats} />
-          <div className={styles.canvasMain}>{canvasContent}</div>
-          <div className={styles.treemapSlot}>
-            <AtlasTreemap graph={graph} />
-          </div>
-          <AtlasClusterLabels
+    <>
+      {state.conceptMissingInView && selection ? (
+        <ProductConceptMissingInView selection={selection} />
+      ) : null}
+      <BlueprintViewLayout
+        controls={
+          <AtlasControls
+            searchQuery={state.searchQuery}
+            totalNodes={state.projection.totalNodes}
+            visibleNodes={state.projection.visibleNodes}
+            condensed={state.projection.condensed}
+            viewMode={state.viewMode}
+            threeDisabled={state.threeDisabled}
+            nodes={state.projection.nodes}
             groups={state.visibleGroups}
+            selectedNodeId={state.selectedNodeId}
             selectedGroupId={state.selectedGroupId}
+            onSearchChange={state.setSearchQuery}
+            onResetSearch={state.resetSearch}
+            onSelectNode={state.handleSelectNode}
             onSelectGroup={state.handleSelectGroup}
-            coveragePercent={atlasStats.coveragePercent}
+            onSelectViewMode={state.handleSelectViewMode}
           />
-          <AtlasLegend />
-          <AtlasZoomControls />
-        </div>
-      }
-      inspector={
-        <AtlasInspector
-          graph={graph}
-          semanticEntity={state.selectedSemanticEntity}
-          node={state.selectedNode}
-          cluster={state.selectedCluster}
-        />
-      }
-    />
+        }
+        canvas={
+          <div className={styles.canvasWrap}>
+            {isPartialScan ? (
+              <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} />
+            ) : null}
+            <AtlasStatsBar stats={atlasStats} />
+            <div className={styles.canvasMain}>{canvasContent}</div>
+            <div className={styles.treemapSlot}>
+              <AtlasTreemap graph={graph} />
+            </div>
+            <AtlasClusterLabels
+              groups={state.visibleGroups}
+              selectedGroupId={state.selectedGroupId}
+              onSelectGroup={state.handleSelectGroup}
+              coveragePercent={atlasStats.coveragePercent}
+            />
+            <AtlasLegend />
+            <AtlasZoomControls />
+          </div>
+        }
+        inspector={
+          <AtlasInspector
+            graph={graph}
+            semanticEntity={state.selectedSemanticEntity}
+            node={state.selectedNode}
+            cluster={state.selectedCluster}
+          />
+        }
+      />
+    </>
   );
 }

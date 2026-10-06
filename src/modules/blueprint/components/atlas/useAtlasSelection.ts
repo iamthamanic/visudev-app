@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SemanticEntity } from "../../../../../shared/semantic-system-model.types.js";
+import { isProductConceptSelectionId } from "../../../../../shared/product-understanding/selection.js";
 import type { BlueprintData, SoftwareGraphGroup, SoftwareGraphNode } from "../../types";
 import { useAtlasDefaultClusterSelection } from "../../hooks/useAtlasDefaultClusterSelection.js";
+import { useBlueprintProductSelection } from "../../context/useBlueprintProductSelection.js";
+import { resolveCrossViewFocus } from "../../../../../shared/product-understanding/cross-view-selection.js";
 import { findGraphNode } from "./atlas-display.js";
 import type { AtlasProjection } from "./_projection.js";
 
@@ -11,6 +14,7 @@ export interface AtlasSelectionState {
   selectedSemanticEntity: SemanticEntity | null;
   selectedNode: SoftwareGraphNode | null;
   selectedCluster: SoftwareGraphGroup | null;
+  conceptMissingInView: boolean;
   handleSelectNode: (nodeId: string) => void;
   handleSelectGroup: (groupId: string) => void;
 }
@@ -21,14 +25,28 @@ function useSelectionValidity(
   selectedGroupId: string | null,
   setSelectedNodeId: (value: string | null) => void,
   setSelectedGroupId: (value: string | null) => void,
+  persistentConceptId: string | null,
 ): void {
   useEffect(() => {
     const visibleIds = new Set(projection.nodes.map((node) => node.id));
-    if (selectedNodeId && !visibleIds.has(selectedNodeId)) setSelectedNodeId(null);
+    if (
+      selectedNodeId &&
+      !visibleIds.has(selectedNodeId) &&
+      selectedNodeId !== persistentConceptId
+    ) {
+      setSelectedNodeId(null);
+    }
     if (selectedGroupId && !projection.groups.some((group) => group.id === selectedGroupId)) {
       setSelectedGroupId(null);
     }
-  }, [projection, selectedGroupId, selectedNodeId, setSelectedGroupId, setSelectedNodeId]);
+  }, [
+    persistentConceptId,
+    projection,
+    selectedGroupId,
+    selectedNodeId,
+    setSelectedGroupId,
+    setSelectedNodeId,
+  ]);
 }
 
 function useResolvedSelection(
@@ -74,8 +92,28 @@ export function useAtlasSelection(
   projection: AtlasProjection,
   graphSnapshotKey: string,
 ): AtlasSelectionState {
+  const { selection, setSelection } = useBlueprintProductSelection();
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const availableConceptIds = useMemo(
+    () => projection.nodes.map((node) => node.id).filter((id) => isProductConceptSelectionId(id)),
+    [projection.nodes],
+  );
+  const focus = useMemo(
+    () => (selection ? resolveCrossViewFocus(selection, "atlas", availableConceptIds) : null),
+    [availableConceptIds, selection],
+  );
+
+  useEffect(() => {
+    if (!focus?.presentInView || !focus.viewLocalId) return;
+    if (selectedNodeId === focus.viewLocalId) return;
+    const districtGroup = projection.groups.find((group) =>
+      group.nodeIds.includes(focus.viewLocalId!),
+    );
+    setSelectedGroupId(districtGroup?.id ?? null);
+    setSelectedNodeId(focus.viewLocalId);
+  }, [focus, projection.groups, selectedNodeId]);
+
   const resolved = useResolvedSelection(graph, projection, selectedNodeId, selectedGroupId);
   useAtlasDefaultClusterSelection(
     graph,
@@ -92,11 +130,15 @@ export function useAtlasSelection(
     selectedGroupId,
     setSelectedNodeId,
     setSelectedGroupId,
+    selection?.conceptId ?? null,
   );
   const handleSelectNode = (nodeId: string): void => {
     const semantic = projection.semanticEntities.find((item) => item.id === nodeId);
     const districtGroup = projection.groups.find((group) => group.nodeIds.includes(nodeId));
     const preferCluster = semantic?.kind === "business-domain" || semantic?.kind === "capability";
+    if (isProductConceptSelectionId(nodeId)) {
+      setSelection(nodeId, null, "atlas");
+    }
     if (preferCluster && districtGroup) {
       setSelectedGroupId(districtGroup.id);
       setSelectedNodeId(null);
@@ -108,11 +150,15 @@ export function useAtlasSelection(
   const handleSelectGroup = (groupId: string): void => {
     setSelectedGroupId(groupId);
     setSelectedNodeId(null);
+    const group = projection.groups.find((item) => item.id === groupId);
+    const firstConcept = group?.nodeIds.find((id) => isProductConceptSelectionId(id));
+    if (firstConcept) setSelection(firstConcept, null, "atlas");
   };
   return {
     selectedNodeId,
     selectedGroupId,
     ...resolved,
+    conceptMissingInView: Boolean(selection && focus && !focus.presentInView),
     handleSelectNode,
     handleSelectGroup,
   };

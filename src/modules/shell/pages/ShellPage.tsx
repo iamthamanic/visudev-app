@@ -7,6 +7,7 @@ import {
   parseBlueprintViewFromLocation,
   type BlueprintShellViewId,
 } from "../../blueprint";
+import { pathWithCurrentPuQuery } from "../../../hooks/useProductConceptSelectionUrl.js";
 import { RunnersTopBar } from "../components/RunnersTopBar";
 import { Sidebar, type NavItemRect } from "../components/Sidebar";
 import type { ShellScreen } from "../types";
@@ -158,21 +159,28 @@ export function ShellPage() {
     if (window.history?.pushState) window.history.pushState({}, "", path);
   }, []);
 
+  const pushPathPreservingPu = useCallback(
+    (path: string) => {
+      pushPath(pathWithCurrentPuQuery(path));
+    },
+    [pushPath],
+  );
+
   const handleNavigate = useCallback(
     (screen: ShellScreen) => {
       setActiveScreen(screen);
-      pushPath(screenToPath(screen, blueprintView));
+      pushPathPreservingPu(screenToPath(screen, blueprintView));
     },
-    [blueprintView, pushPath],
+    [blueprintView, pushPathPreservingPu],
   );
 
   const handleBlueprintViewSelect = useCallback(
     (view: BlueprintShellViewId) => {
       setBlueprintView(view);
       setActiveScreen("blueprint");
-      pushPath(screenToPath("blueprint", view));
+      pushPathPreservingPu(screenToPath("blueprint", view));
     },
-    [pushPath],
+    [pushPathPreservingPu],
   );
 
   const handleProjectSelect = () => {

@@ -11,6 +11,7 @@ import {
   formatRelativeFreshness,
 } from "../components/blueprint-graph-stats";
 import type { BlueprintShellViewId } from "../blueprint-view-config";
+import { BlueprintProductSelectionProvider } from "../context/BlueprintProductSelectionContext.js";
 import { normalizeBlueprintData } from "../../../lib/visudev/normalize-blueprint";
 import { getProjectSourceMode } from "../../../lib/visudev/project-source";
 import type { BlueprintData } from "../types";
@@ -133,66 +134,68 @@ export function BlueprintPage({ projectId, activeView }: BlueprintPageProps) {
   }, [blueprint?.updatedAt, blueprint?.graph?.analyzedAt, scanCompleted]);
 
   return (
-    <div className={styles.root}>
-      <BlueprintShellHeader
-        projectName={activeProject?.name}
-        branchLabel={branchLabel}
-        scanStatus={effectiveScanStatus}
-        lastScannedLabel={lastScannedLabel}
-        isRescanning={isRescan}
-        notificationCount={notificationCount}
-        onRescan={handleRescan}
-        onExportJson={handleExportJson}
-        rescanDisabled={isScanning}
-      />
+    <BlueprintProductSelectionProvider>
+      <div className={styles.root}>
+        <BlueprintShellHeader
+          projectName={activeProject?.name}
+          branchLabel={branchLabel}
+          scanStatus={effectiveScanStatus}
+          lastScannedLabel={lastScannedLabel}
+          isRescanning={isRescan}
+          notificationCount={notificationCount}
+          onRescan={handleRescan}
+          onExportJson={handleExportJson}
+          rescanDisabled={isScanning}
+        />
 
-      {isScanning ? (
-        <div className={styles.scanProgress}>
-          <div className={`${styles.statusBar} ${styles.statusInfo}`} role="status">
-            <Loader2 className={`${styles.inlineIcon} ${styles.spinner}`} aria-hidden="true" />
-            <div>
-              <p className={styles.statusTitle}>Blueprint wird analysiert...</p>
-              <p className={styles.statusMeta}>
-                {isLocalProject
-                  ? `Lokal: ${activeProject?.local_path ?? "—"}`
-                  : `Repo: ${activeProject?.github_repo ?? "—"} @ ${branchLabel}`}
-              </p>
+        {isScanning ? (
+          <div className={styles.scanProgress}>
+            <div className={`${styles.statusBar} ${styles.statusInfo}`} role="status">
+              <Loader2 className={`${styles.inlineIcon} ${styles.spinner}`} aria-hidden="true" />
+              <div>
+                <p className={styles.statusTitle}>Blueprint wird analysiert...</p>
+                <p className={styles.statusMeta}>
+                  {isLocalProject
+                    ? `Lokal: ${activeProject?.local_path ?? "—"}`
+                    : `Repo: ${activeProject?.github_repo ?? "—"} @ ${branchLabel}`}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
 
-      <div className={styles.content}>
-        <BlueprintViewShell
-          blueprint={
-            blueprint ?? {
-              version: 1,
-              routes: [],
-              securityMatrix: [],
-              findings: [],
-              facts: [],
-              filesAnalyzed: 0,
+        <div className={styles.content}>
+          <BlueprintViewShell
+            blueprint={
+              blueprint ?? {
+                version: 1,
+                routes: [],
+                securityMatrix: [],
+                findings: [],
+                facts: [],
+                filesAnalyzed: 0,
+              }
             }
-          }
-          projectId={projectId}
-          activeView={activeView}
-          projectName={activeProject?.name}
-          branchLabel={activeProject?.github_branch ?? "main"}
-          scanStatus={isScanning ? "running" : hasError ? "failed" : effectiveScanStatus}
-          scanError={scanError ?? blueprintLoadError}
-          onRetry={handleRescan}
-        />
-      </div>
+            projectId={projectId}
+            activeView={activeView}
+            projectName={activeProject?.name}
+            branchLabel={activeProject?.github_branch ?? "main"}
+            scanStatus={isScanning ? "running" : hasError ? "failed" : effectiveScanStatus}
+            scanError={scanError ?? blueprintLoadError}
+            onRetry={handleRescan}
+          />
+        </div>
 
-      {hasData ? (
-        <BlueprintFooterStatusBar
-          stats={graphStats}
-          freshnessLabel={freshnessLabel}
-          onRefresh={handleRescan}
-          refreshDisabled={isScanning}
-          criticalCount={notificationCount}
-        />
-      ) : null}
-    </div>
+        {hasData ? (
+          <BlueprintFooterStatusBar
+            stats={graphStats}
+            freshnessLabel={freshnessLabel}
+            onRefresh={handleRescan}
+            refreshDisabled={isScanning}
+            criticalCount={notificationCount}
+          />
+        ) : null}
+      </div>
+    </BlueprintProductSelectionProvider>
   );
 }

@@ -150,6 +150,19 @@ export {
 } from "./selection.js";
 
 export {
+  CONCEPT_NOT_IN_VIEW_MESSAGE_DE,
+  conceptIdFromExecutionStoryId,
+  executionStoryIdForConcept,
+  listEvidenceNavigationTargets,
+  listSoftwareGraphEvidence,
+  pickPreferredGraphNodeId,
+  resolveCrossViewFocus,
+  type CrossViewFocusResult,
+  type CrossViewSurfaceId,
+  type EvidenceNavigationTarget,
+} from "./cross-view-selection.js";
+
+export {
   buildProductConceptInspectorSections,
   type ProductConceptInspectorSectionData,
 } from "./inspector-sections.js";

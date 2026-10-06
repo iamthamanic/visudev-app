@@ -1,0 +1,20 @@
+.root {
+  margin: 0.75rem 1rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-card) 88%, var(--color-background));
+}
+
+.message {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-foreground);
+}
+
+.meta {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+  word-break: break-all;
+}

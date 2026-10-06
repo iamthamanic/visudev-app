@@ -1,8 +1,9 @@
 /**
  * Blueprint view shell — renders active projection without horizontal tabs (#86).
+ * Shows neutral ProductConcept missing banner when selection is not represented (PU-15).
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GlossaryDrawer } from "../../../components/ui/GlossaryDrawer.js";
 import { ArchitectureView } from "./ArchitectureView";
 import { AtlasView } from "./AtlasView";
@@ -12,6 +13,9 @@ import { DiagnosticsView } from "./DiagnosticsView";
 import { EvolutionView } from "./EvolutionView";
 import { ExecutionView } from "./ExecutionView";
 import { InfrastructureView } from "./InfrastructureView";
+import { ProductConceptMissingInView } from "../../../components/ui/ProductConceptMissingInView.js";
+import { useBlueprintProductSelection } from "../context/useBlueprintProductSelection.js";
+import { resolveCrossViewFocus } from "../../../../shared/product-understanding/cross-view-selection.js";
 import type { BlueprintShellViewId } from "../blueprint-view-config.js";
 import type { BlueprintData } from "../types";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
@@ -36,6 +40,15 @@ export function BlueprintViewShell({
   onRetry,
 }: BlueprintViewShellProps): JSX.Element {
   const [glossaryOpen, setGlossaryOpen] = useState(false);
+  const { selection } = useBlueprintProductSelection();
+
+  const missingFocus = useMemo(() => {
+    if (!selection) return null;
+    if (activeView === "diagnostics") {
+      return resolveCrossViewFocus(selection, "diagnostics", []);
+    }
+    return null;
+  }, [activeView, selection]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -67,6 +80,13 @@ export function BlueprintViewShell({
         branchLabel={branchLabel}
         onOpenGlossary={() => setGlossaryOpen(true)}
       />
+
+      {missingFocus && !missingFocus.presentInView ? (
+        <ProductConceptMissingInView
+          selection={missingFocus.selection}
+          messageDe={missingFocus.messageDe}
+        />
+      ) : null}
 
       <div className={styles.panel}>
         <div
