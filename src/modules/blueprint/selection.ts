@@ -1,5 +1,5 @@
 /**
- * Graph ↔ Code selection mapping (Honest-Core P1-5).
+ * Graph ↔ Code selection mapping (Honest-Core P1-5) + Product Concept selection (PU-04).
  * Location: src/modules/blueprint/selection.ts
  */
 
@@ -10,6 +10,8 @@ export type GraphCodeOrigin = "graph" | "code";
 export const HINT_NO_FILE = "Keine Datei — externer Service";
 export const HINT_UNKNOWN_LINE = "Zeile unbekannt";
 export const HINT_NO_NODE = "Kein Knoten für diese Datei";
+export const HINT_CONCEPT_NOT_IN_VIEW =
+  "Auswahl vorhanden, aber in dieser View nicht direkt abgebildet";
 
 export interface GraphCodeSelection {
   nodeId: string | null;
@@ -19,6 +21,16 @@ export interface GraphCodeSelection {
   relatedNodeIds: string[];
   hint: string | null;
 }
+
+export {
+  createProductConceptSelection,
+  parseProductConceptSelection,
+  productConceptSelectionFromSearchParams,
+  productConceptSelectionToSearchParams,
+  resolveProductConceptSelectionForView,
+  serializeProductConceptSelection,
+  type ProductConceptSelection,
+} from "../../../shared/product-understanding/selection.js";
 
 function readNonEmptyString(value: unknown): string | null {
   if (typeof value !== "string") return null;

@@ -127,3 +127,29 @@ export {
   isProductUnderstandingInterpreterEnabled,
   runProductUnderstandingInterpretation,
 } from "./run-interpretation.js";
+
+export {
+  presentProductConceptExplanation,
+  knowledgeStatusLabelDe,
+  type ExplanationBlock,
+  type ProductConceptExplanationView,
+} from "./explanation-presenter.js";
+
+export {
+  PU_SELECTION_QUERY_CONCEPT,
+  PU_SELECTION_QUERY_EVIDENCE,
+  PU_SELECTION_QUERY_VIEW,
+  createProductConceptSelection,
+  isProductConceptSelectionId,
+  parseProductConceptSelection,
+  productConceptSelectionFromSearchParams,
+  productConceptSelectionToSearchParams,
+  resolveProductConceptSelectionForView,
+  serializeProductConceptSelection,
+  type ProductConceptSelection,
+} from "./selection.js";
+
+export {
+  buildProductConceptInspectorSections,
+  type ProductConceptInspectorSectionData,
+} from "./inspector-sections.js";
