@@ -64,6 +64,16 @@ export function buildHrToolDemoGraph(projectId: string): SoftwareGraph {
       filePath: "src/domain/leave-repository.ts",
       metadata: { durationMs: 55 },
     }),
+    // Corroborate additional product areas (PU-07 Atlas clusters) via domain+module pairs.
+    node("module:people-repo", "module", "PeopleRepository", {
+      filePath: "src/domain/people-repository.ts",
+    }),
+    node("module:payroll-repo", "module", "PayrollRepository", {
+      filePath: "src/domain/payroll-repository.ts",
+    }),
+    node("module:documents-repo", "module", "DocumentsRepository", {
+      filePath: "src/domain/documents-repository.ts",
+    }),
     node("route:leave", "route", "POST /api/leave-requests", {
       filePath: "src/routes/leave.ts",
       line: 12,
