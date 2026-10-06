@@ -74,7 +74,9 @@ const orphanBlueprint: BlueprintData = {
 };
 
 function openTechnik(): void {
-  fireEvent.click(screen.getByTestId("dependencies-layer-technik"));
+  fireEvent.change(screen.getByTestId("dependencies-layer-select"), {
+    target: { value: "technik" },
+  });
 }
 
 describe("DependenciesView", () => {

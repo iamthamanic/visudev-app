@@ -383,6 +383,8 @@ export async function openBlueprintView(page: import("@playwright/test").Page, v
 /** PU-09: Impact is default; Technik exposes relationship chips / overlays / file drill-down. */
 export async function openDependenciesTechnikLayer(page: import("@playwright/test").Page) {
   await expect(page.getByTestId("dependencies-layer-nav")).toBeVisible({ timeout: 20_000 });
-  await page.getByTestId("dependencies-layer-technik").click();
+  const select = page.getByTestId("dependencies-layer-select");
+  await expect(select).toBeVisible();
+  await select.selectOption("technik");
   await expect(page.getByTestId("dependencies-layer-current")).toHaveText("Technik");
 }
