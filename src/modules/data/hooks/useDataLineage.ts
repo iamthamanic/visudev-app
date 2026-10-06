@@ -76,5 +76,5 @@ export function useDataLineage(projectId: string | null, erd: ERDData | null) {
     );
   }, [projectId, software, erd, screens]);
 
-  return { lineage, loading, error, hasSoftwareGraph: Boolean(software) };
+  return { lineage, loading, error, hasSoftwareGraph: Boolean(software), software };
 }

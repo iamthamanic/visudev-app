@@ -190,3 +190,13 @@ export {
   type ExecutionStoryStepView,
   type ExecutionStoryView,
 } from "./project-execution-stories.js";
+
+export {
+  buildProductDataMeanings,
+  projectDataInformationFlow,
+  DATA_INFO_FLOW_MAX,
+  type DataInformationFlowProjection,
+  type InformationFlowCard,
+  type InformationFlowHopView,
+  type InformationFlowRole,
+} from "./project-data-information-flow.js";

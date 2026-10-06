@@ -465,3 +465,107 @@
     transform: rotate(360deg);
   }
 }
+
+/* PU-11 information flow */
+.headerActions {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.layerLabel {
+  margin: 0;
+}
+
+.layerSelect {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-foreground);
+  font-size: 0.8125rem;
+  min-width: 10rem;
+  padding: 0.4rem 0.65rem;
+}
+
+.infoLayout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+}
+
+.infoPartial {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed color-mix(in srgb, var(--color-warning) 45%, var(--color-border));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-warning) 8%, var(--color-card));
+  font-size: 0.8125rem;
+}
+
+.infoGrid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  align-content: start;
+}
+
+.infoCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: left;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card);
+  cursor: pointer;
+  color: var(--color-foreground);
+}
+
+.infoCardActive,
+.infoCard:hover {
+  border-color: var(--color-primary);
+}
+
+.infoCardTitle {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.infoCardMeaning,
+.infoMeaningBody {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted-foreground);
+  line-height: 1.4;
+}
+
+.infoFlowHeading {
+  margin: 1rem 0 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted-foreground);
+}
+
+.infoHopList {
+  margin: 0 0 1rem;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.infoHop {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.8125rem;
+}
+
+@media (max-width: 900px) {
+  .infoLayout {
+    grid-template-columns: 1fr;
+  }
+}
