@@ -8,6 +8,8 @@ import {
   buildDiagnosticsMockBlueprint,
   installWave2Mocks,
   openBlueprintView,
+  openDiagnosticsInspectorTechnik,
+  openDiagnosticsTechnikContext,
   seedSupabaseSession,
 } from "./wave2-test-helpers.js";
 
@@ -30,11 +32,14 @@ test.describe("Wave 2 diagnostics viz parity", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await openBlueprintView(page, "diagnostics");
 
-    const matrix = page.getByTestId("security-matrix");
     const findingsTable = page.getByTestId("findings-table");
-    await expect(matrix).toBeVisible({ timeout: 20000 });
-    await expect(findingsTable).toBeVisible();
+    await expect(findingsTable).toBeVisible({ timeout: 20000 });
     await expect(page.getByTestId("findings-pagination")).toBeVisible();
+    await expect(page.getByTestId("diagnostics-consequence")).toBeVisible();
+
+    await openDiagnosticsTechnikContext(page);
+    const matrix = page.getByTestId("security-matrix");
+    await expect(matrix).toBeVisible({ timeout: 20000 });
 
     // Access Control v2 (VITE_ACCESS_CONTROL_V2): Scope/Tenant/Ownership replace RLS.
     // Legacy matrix no longer shows an RLS column (deprecated; mechanisms live in Inspector).
@@ -53,10 +58,12 @@ test.describe("Wave 2 diagnostics viz parity", () => {
     const tableBox = await findingsTable.boundingBox();
     expect(matrixBox).not.toBeNull();
     expect(tableBox).not.toBeNull();
+    // PU-13: findings lead; Technik matrix is below the findings section.
     if (matrixBox && tableBox) {
-      expect(matrixBox.y).toBeLessThan(tableBox.y);
+      expect(tableBox.y).toBeLessThan(matrixBox.y);
     }
 
+    await openDiagnosticsInspectorTechnik(page);
     await expect(page.getByTestId("problem-inspector-evidence")).toBeVisible({ timeout: 15000 });
 
     await page.getByRole("button", { name: "Als erledigt markieren" }).click();

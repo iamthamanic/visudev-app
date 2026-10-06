@@ -8,6 +8,7 @@ import {
   buildDiagnosticsMockBlueprint,
   installWave2Mocks,
   openBlueprintView,
+  openDiagnosticsTechnikContext,
   seedSupabaseSession,
 } from "./wave2-test-helpers.js";
 
@@ -31,6 +32,7 @@ test.describe("Wave 5 diagnostics filter chrome", () => {
     await expect(page.getByTestId("findings-severity-filter")).toContainText(/Alle Schweregrade/i);
     await expect(page.getByTestId("findings-area-filter")).toContainText(/Alle Bereiche/i);
 
+    await openDiagnosticsTechnikContext(page);
     expect(await page.getByTestId("matrix-status-badge").count()).toBeGreaterThanOrEqual(3);
     await expect(page.getByTestId("matrix-status-badge").first()).toBeVisible();
 
