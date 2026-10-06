@@ -105,3 +105,8 @@ export function coerceProductConceptKind(value: unknown): ProductConceptKind {
 export function assertInterpretedOrUnknownAllowed(status: KnowledgeStatus): boolean {
   return status === "INTERPRETED" || status === "UNKNOWN" || status === "CONFLICTED";
 }
+
+export {
+  buildProductUnderstanding,
+  type BuildProductUnderstandingInput,
+} from "./build-product-understanding.js";
