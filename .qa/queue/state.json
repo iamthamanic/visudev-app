@@ -1,15 +1,15 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 435,
-  "featureSlug": "pu-14-evolution-product-history",
+  "activeIssue": 436,
+  "featureSlug": "pu-15-cross-view-navigation",
   "phase": "commit-pr",
-  "branch": "feat/435-pu-14-evolution-product-history",
+  "branch": "feat/436-pu-15-cross-view-navigation",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    435
+    436
   ],
   "completedIssues": [
     321,
@@ -70,7 +70,8 @@
     431,
     432,
     433,
-    434
+    434,
+    435
   ],
   "mergedIssues": [
     321,
@@ -131,7 +132,8 @@
     431,
     432,
     433,
-    434
+    434,
+    435
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
@@ -158,7 +160,8 @@
     "431": "https://github.com/iamthamanic/visudev-app/pull/447",
     "432": "https://github.com/iamthamanic/visudev-app/pull/448",
     "433": "https://github.com/iamthamanic/visudev-app/pull/449",
-    "434": "https://github.com/iamthamanic/visudev-app/pull/450"
+    "434": "https://github.com/iamthamanic/visudev-app/pull/450",
+    "435": "https://github.com/iamthamanic/visudev-app/pull/451"
   },
   "retries": {
     "implement": 0,
@@ -177,9 +180,9 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": 435,
-  "lastCompletedIssue": 434,
-  "notes": "#434 merged. Shipping #435 PU-14.",
-  "updatedAt": "2026-10-06T17:53:17.000Z",
+  "currentIssue": 436,
+  "lastCompletedIssue": 435,
+  "notes": "PU-15 ready to PR.",
+  "updatedAt": "2026-10-06T18:10:44.000Z",
   "milestoneFilter": null
 }

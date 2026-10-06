@@ -23,6 +23,7 @@ export interface AtlasViewState {
   selectedSemanticEntity: SemanticEntity | null;
   selectedNode: SoftwareGraphNode | null;
   selectedCluster: SoftwareGraphGroup | null;
+  conceptMissingInView: boolean;
   setSearchQuery: (value: string) => void;
   handleSelectNode: (nodeId: string) => void;
   handleSelectGroup: (groupId: string) => void;

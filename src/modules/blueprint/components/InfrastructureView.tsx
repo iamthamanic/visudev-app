@@ -29,6 +29,10 @@ import { resolveInfrastructureSystemTopologyProjection } from "./infrastructure/
 import { infrastructureEmptyCopy } from "./infrastructure/infrastructure-coverage.js";
 import styles from "../styles/InfrastructureView.module.css";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
+import { ProductConceptMissingInView } from "../../../components/ui/ProductConceptMissingInView.js";
+import { useBlueprintProductSelection } from "../context/useBlueprintProductSelection.js";
+import { resolveCrossViewFocus } from "../../../../shared/product-understanding/cross-view-selection.js";
+import { isProductConceptSelectionId } from "../../../../shared/product-understanding/selection.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
 import { ViewState } from "../../../components/ui/ViewState.js";
@@ -46,6 +50,7 @@ export function InfrastructureView({
   onRetry,
 }: InfrastructureViewProps) {
   const graph = blueprint.graph;
+  const { selection, setSelection } = useBlueprintProductSelection();
   const [layer, setLayer] = useState<InfraLayer>("system");
   const [selectedPartId, setSelectedPartId] = useState<string | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -59,6 +64,22 @@ export function InfrastructureView({
     () => resolveInfrastructureSystemTopologyProjection(blueprint, graph),
     [blueprint, graph],
   );
+
+  const infraConceptIds = useMemo(
+    () => systemProjection?.parts.map((part) => part.id) ?? [],
+    [systemProjection],
+  );
+
+  const infrastructureFocus = useMemo(
+    () => (selection ? resolveCrossViewFocus(selection, "infrastructure", infraConceptIds) : null),
+    [infraConceptIds, selection],
+  );
+
+  useEffect(() => {
+    if (!infrastructureFocus?.presentInView || !infrastructureFocus.viewLocalId) return;
+    if (layer !== "system") setLayer("system");
+    setSelectedPartId(infrastructureFocus.viewLocalId);
+  }, [infrastructureFocus, layer]);
 
   const { nodes, edges } = useMemo(() => {
     if (!graph) return { nodes: [], edges: [] };
@@ -130,14 +151,21 @@ export function InfrastructureView({
 
   useEffect(() => {
     if (!systemProjection || systemProjection.parts.length === 0) {
-      setSelectedPartId(null);
+      if (!selection) setSelectedPartId(null);
       return;
     }
     if (selectedPartId && systemProjection.parts.some((part) => part.id === selectedPartId)) {
       return;
     }
+    if (infrastructureFocus?.presentInView && infrastructureFocus.viewLocalId) {
+      setSelectedPartId(infrastructureFocus.viewLocalId);
+      return;
+    }
+    if (selection && !infrastructureFocus?.presentInView) {
+      return;
+    }
     setSelectedPartId(systemProjection.parts[0]?.id ?? null);
-  }, [systemProjection, selectedPartId]);
+  }, [systemProjection, selectedPartId, selection, infrastructureFocus]);
 
   const hasTechnikGraph = Boolean(graph && nodes.length > 0);
   const hasSystemParts = Boolean(systemProjection && systemProjection.parts.length > 0);
@@ -199,32 +227,46 @@ export function InfrastructureView({
 
   if (layer === "system") {
     return (
-      <BlueprintViewLayout
-        controls={
-          <div className={styles.controls}>
-            {layerNav}
-            <p className={styles.topologyMeta}>
-              Purpose-first Systemteile aus Product Understanding. Vendor/Runtime nur bei Evidence.
-            </p>
-          </div>
-        }
-        canvas={
-          <div className={styles.canvasWrap}>
-            {isPartialScan ? (
-              <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} />
-            ) : null}
-            <InfrastructureSystemTopologyView
-              parts={systemProjection?.parts ?? []}
-              connections={systemProjection?.connections ?? []}
-              selectedId={selectedPartId}
-              partialReason={systemProjection?.partialReason ?? null}
-              onSelect={setSelectedPartId}
-              onOpenTechnik={() => setLayer("technik")}
-            />
-          </div>
-        }
-        inspector={null}
-      />
+      <>
+        {infrastructureFocus && !infrastructureFocus.presentInView && selection ? (
+          <ProductConceptMissingInView
+            selection={selection}
+            messageDe={infrastructureFocus.messageDe}
+          />
+        ) : null}
+        <BlueprintViewLayout
+          controls={
+            <div className={styles.controls}>
+              {layerNav}
+              <p className={styles.topologyMeta}>
+                Purpose-first Systemteile aus Product Understanding. Vendor/Runtime nur bei
+                Evidence.
+              </p>
+            </div>
+          }
+          canvas={
+            <div className={styles.canvasWrap}>
+              {isPartialScan ? (
+                <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} />
+              ) : null}
+              <InfrastructureSystemTopologyView
+                parts={systemProjection?.parts ?? []}
+                connections={systemProjection?.connections ?? []}
+                selectedId={selectedPartId}
+                partialReason={systemProjection?.partialReason ?? null}
+                onSelect={(partId) => {
+                  setSelectedPartId(partId);
+                  if (partId && isProductConceptSelectionId(partId)) {
+                    setSelection(partId, null, "infrastructure");
+                  }
+                }}
+                onOpenTechnik={() => setLayer("technik")}
+              />
+            </div>
+          }
+          inspector={null}
+        />
+      </>
     );
   }
 
