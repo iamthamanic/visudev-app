@@ -10,6 +10,7 @@ import {
   installWave2Mocks,
   openBlueprintView,
   openDependenciesTechnikLayer,
+  openInfrastructureTechnikLayer,
   seedSupabaseSession,
 } from "./wave2-test-helpers.js";
 
@@ -56,6 +57,7 @@ async function waitForScanAndEnrichment(page: Page, viewId: string) {
       expect(await page.getByTestId("execution-step-card").count()).toBeGreaterThanOrEqual(6);
       break;
     case "infrastructure":
+      await openInfrastructureTechnikLayer(page);
       expect(await page.getByTestId("infra-topology-node").count()).toBeGreaterThanOrEqual(10);
       break;
     case "atlas":

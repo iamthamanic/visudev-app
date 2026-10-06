@@ -4,7 +4,12 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { installWave2Mocks, openBlueprintView, seedSupabaseSession } from "./wave2-test-helpers.js";
+import {
+  installWave2Mocks,
+  openBlueprintView,
+  openInfrastructureTechnikLayer,
+  seedSupabaseSession,
+} from "./wave2-test-helpers.js";
 
 const EVIDENCE_DIR = ".qa/evidence/wave2-infrastructure-viz";
 const PROJECT_ID = "proj-wave2-infrastructure";
@@ -19,6 +24,9 @@ test.describe("Wave 2 infrastructure viz parity", () => {
     test.setTimeout(60_000);
     await page.setViewportSize({ width: 1440, height: 900 });
     await openBlueprintView(page, "infrastructure");
+
+    await expect(page.getByTestId("infra-system-topology")).toBeVisible();
+    await openInfrastructureTechnikLayer(page);
 
     expect(await page.getByTestId("infra-topology-node").count()).toBeGreaterThanOrEqual(10);
     await expect(page.getByTestId("infra-external-apis")).toBeVisible();

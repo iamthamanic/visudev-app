@@ -1,5 +1,6 @@
 /**
- * InfrastructureView — evidence-first topology with honest empty/coverage states (PR-15).
+ * InfrastructureView — purpose-first system topology by default (PU-12);
+ * existing deployment/runtime topology remains as Technik drill-down.
  * Location: src/modules/blueprint/components/InfrastructureView.tsx
  */
 
@@ -11,6 +12,7 @@ import { BlueprintViewLayout } from "./ui/BlueprintViewLayout.js";
 import { InfrastructureConnectionLegend } from "./infrastructure/InfrastructureConnectionLegend.js";
 import { InfrastructureInspector } from "./infrastructure/InfrastructureInspector.js";
 import { InfrastructureServiceList } from "./infrastructure/InfrastructureServiceList.js";
+import { InfrastructureSystemTopologyView } from "./infrastructure/InfrastructureSystemTopologyView.js";
 import { InfrastructureTopologyDiagram } from "./infrastructure/InfrastructureTopologyDiagram.js";
 import { InfrastructurePhysicalTopology } from "./infrastructure/InfrastructurePhysicalTopology.js";
 import { InfrastructureTopologyFilters } from "./infrastructure/InfrastructureTopologyFilters.js";
@@ -23,12 +25,15 @@ import {
   type TopologyViewFilter,
 } from "./infrastructure/build-topology.js";
 import { projectInfrastructureGraph } from "./infrastructure/_projection.js";
+import { resolveInfrastructureSystemTopologyProjection } from "./infrastructure/resolve-infrastructure-product-model.js";
 import { infrastructureEmptyCopy } from "./infrastructure/infrastructure-coverage.js";
 import styles from "../styles/InfrastructureView.module.css";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
 import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
 import { ViewState } from "../../../components/ui/ViewState.js";
+
+type InfraLayer = "system" | "technik";
 
 interface InfrastructureViewProps extends BlueprintViewScanProps {
   blueprint: BlueprintData;
@@ -41,12 +46,19 @@ export function InfrastructureView({
   onRetry,
 }: InfrastructureViewProps) {
   const graph = blueprint.graph;
+  const [layer, setLayer] = useState<InfraLayer>("system");
+  const [selectedPartId, setSelectedPartId] = useState<string | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const graphSnapshotKey = buildGraphSnapshotKey(graph);
   const [activeEnv, setActiveEnv] = useState<string | null>(null);
   const [activeRegion, setActiveRegion] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<TopologyViewFilter | null>("Logische Topologie");
   const [refreshTick, setRefreshTick] = useState(0);
+
+  const systemProjection = useMemo(
+    () => resolveInfrastructureSystemTopologyProjection(blueprint, graph),
+    [blueprint, graph],
+  );
 
   const { nodes, edges } = useMemo(() => {
     if (!graph) return { nodes: [], edges: [] };
@@ -116,7 +128,21 @@ export function InfrastructureView({
     }
   }, [filteredNodes, selectedNodeId]);
 
-  if (!graph || nodes.length === 0) {
+  useEffect(() => {
+    if (!systemProjection || systemProjection.parts.length === 0) {
+      setSelectedPartId(null);
+      return;
+    }
+    if (selectedPartId && systemProjection.parts.some((part) => part.id === selectedPartId)) {
+      return;
+    }
+    setSelectedPartId(systemProjection.parts[0]?.id ?? null);
+  }, [systemProjection, selectedPartId]);
+
+  const hasTechnikGraph = Boolean(graph && nodes.length > 0);
+  const hasSystemParts = Boolean(systemProjection && systemProjection.parts.length > 0);
+
+  if (!hasTechnikGraph && !hasSystemParts) {
     const scanDone = scanStatus === "completed" || (scanStatus == null && Boolean(graph));
     if (scanDone) {
       const empty = infrastructureEmptyCopy(blueprint, nodes.length);
@@ -144,15 +170,93 @@ export function InfrastructureView({
     );
   }
 
+  const layerNav = (
+    <div className={styles.layerNav} role="tablist" aria-label="Infrastructure-Ebenen">
+      <button
+        type="button"
+        role="tab"
+        className={styles.layerTab}
+        data-active={layer === "system" ? "true" : "false"}
+        aria-selected={layer === "system"}
+        data-testid="infra-layer-system"
+        onClick={() => setLayer("system")}
+      >
+        System
+      </button>
+      <button
+        type="button"
+        role="tab"
+        className={styles.layerTab}
+        data-active={layer === "technik" ? "true" : "false"}
+        aria-selected={layer === "technik"}
+        data-testid="infra-layer-technik"
+        onClick={() => setLayer("technik")}
+      >
+        Technik
+      </button>
+    </div>
+  );
+
+  if (layer === "system") {
+    return (
+      <BlueprintViewLayout
+        controls={
+          <div className={styles.controls}>
+            {layerNav}
+            <p className={styles.topologyMeta}>
+              Purpose-first Systemteile aus Product Understanding. Vendor/Runtime nur bei Evidence.
+            </p>
+          </div>
+        }
+        canvas={
+          <div className={styles.canvasWrap}>
+            {isPartialScan ? (
+              <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} />
+            ) : null}
+            <InfrastructureSystemTopologyView
+              parts={systemProjection?.parts ?? []}
+              connections={systemProjection?.connections ?? []}
+              selectedId={selectedPartId}
+              partialReason={systemProjection?.partialReason ?? null}
+              onSelect={setSelectedPartId}
+              onOpenTechnik={() => setLayer("technik")}
+            />
+          </div>
+        }
+        inspector={null}
+      />
+    );
+  }
+
+  if (!hasTechnikGraph) {
+    return (
+      <BlueprintViewLayout
+        controls={<div className={styles.controls}>{layerNav}</div>}
+        canvas={
+          <div className={styles.systemEmpty} data-testid="infra-technik-empty">
+            <p>Keine technische Topology Evidence. System-Ansicht bleibt verfügbar.</p>
+            <button type="button" className={styles.layerTab} onClick={() => setLayer("system")}>
+              Zurück zu System
+            </button>
+          </div>
+        }
+        inspector={null}
+      />
+    );
+  }
+
   return (
     <BlueprintViewLayout
       controls={
-        <InfrastructureServiceList
-          nodes={filteredNodes}
-          graphNodesById={graphNodesById}
-          selectedNodeId={selectedNodeId}
-          onSelectNode={setSelectedNodeId}
-        />
+        <div className={styles.controls}>
+          {layerNav}
+          <InfrastructureServiceList
+            nodes={filteredNodes}
+            graphNodesById={graphNodesById}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={setSelectedNodeId}
+          />
+        </div>
       }
       canvas={
         <div className={styles.canvasWrap} key={refreshTick}>

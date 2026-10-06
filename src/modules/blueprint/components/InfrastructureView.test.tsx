@@ -5,6 +5,10 @@ import { describe, it, expect } from "vitest";
 import { InfrastructureView } from "./InfrastructureView";
 import type { BlueprintData } from "../types";
 
+function openTechnik(): void {
+  fireEvent.click(screen.getByTestId("infra-layer-technik"));
+}
+
 const graphBlueprint: BlueprintData = {
   version: 1,
   routes: [],
@@ -96,8 +100,16 @@ describe("InfrastructureView", () => {
     expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
+  it("defaults to purpose-first system topology (PU-12)", () => {
+    render(<InfrastructureView blueprint={graphBlueprint} />);
+    expect(screen.getByTestId("infra-system-topology")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-layer-system")).toHaveAttribute("data-active", "true");
+    expect(screen.getAllByTestId("infra-system-part").length).toBeGreaterThan(0);
+  });
+
   it("renders topology diagram with filters and legend", () => {
     render(<InfrastructureView blueprint={graphBlueprint} />);
+    openTechnik();
     const topology = screen.getByLabelText("Infrastruktur-Topologie");
     expect(topology).toBeInTheDocument();
     expect(topology).toHaveTextContent("Internet");
@@ -111,6 +123,7 @@ describe("InfrastructureView", () => {
   });
   it("hides env/region filters when no node carries deployment metadata (P0-2)", () => {
     render(<InfrastructureView blueprint={graphBlueprint} />);
+    openTechnik();
     expect(screen.queryByRole("button", { name: /Produktion/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /eu-central-1/i })).not.toBeInTheDocument();
   });
@@ -128,6 +141,7 @@ describe("InfrastructureView", () => {
       },
     };
     render(<InfrastructureView blueprint={withMeta} />);
+    openTechnik();
     expect(screen.getByRole("button", { name: "prod" })).toBeInTheDocument();
     expect(screen.getByTestId("infra-env-chip")).toHaveTextContent("prod");
     expect(screen.getByRole("button", { name: "eu-central-1" })).toBeInTheDocument();
@@ -135,6 +149,7 @@ describe("InfrastructureView", () => {
 
   it("shows honest runtime empty-state instead of placeholder meters (P0-2)", () => {
     render(<InfrastructureView blueprint={graphBlueprint} />);
+    openTechnik();
     fireEvent.click(screen.getAllByRole("button", { name: /Web App/i })[0]);
     expect(screen.getByText("Übersicht")).toBeInTheDocument();
     expect(screen.getByText("Ressourcen")).toBeInTheDocument();
@@ -166,6 +181,7 @@ describe("InfrastructureView", () => {
       },
     };
     render(<InfrastructureView blueprint={withTelemetry} />);
+    openTechnik();
     fireEvent.click(screen.getAllByRole("button", { name: /Web App/i })[0]);
     expect(screen.getByTestId("infra-resource-cpu")).toBeInTheDocument();
   });
@@ -213,6 +229,7 @@ describe("InfrastructureView", () => {
       },
     };
     render(<InfrastructureView blueprint={withCompose} />);
+    openTechnik();
     const physical = screen.getByRole("button", { name: /Physische Topologie/i });
     expect(physical).not.toBeDisabled();
     expect(screen.getByTestId("infra-env-chip")).toHaveTextContent("shop");
@@ -247,6 +264,7 @@ describe("InfrastructureView", () => {
       },
     };
     render(<InfrastructureView blueprint={withCompose} />);
+    openTechnik();
     fireEvent.click(screen.getByRole("button", { name: /Physische Topologie/i }));
     expect(screen.getByTestId("infra-physical-topology")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "staging" }));

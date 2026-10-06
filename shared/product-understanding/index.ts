@@ -200,3 +200,16 @@ export {
   type InformationFlowHopView,
   type InformationFlowRole,
 } from "./project-data-information-flow.js";
+
+export {
+  classifySystemTopologyRole,
+  projectInfrastructureSystemTopology,
+  INFRA_TOPOLOGY_MAX_PARTS,
+  type InfrastructureSystemTopologyProjection,
+  type ProjectInfrastructureSystemTopologyOptions,
+  type SystemTopologyConnection,
+  type SystemTopologyCoverage,
+  type SystemTopologyPart,
+  type SystemTopologyRole,
+  type SystemTopologyTechnicalDetail,
+} from "./project-infrastructure-topology.js";
