@@ -70,8 +70,7 @@ const PATH_BUILDER_CALL =
 const PATH_BUILDER_DYNAMIC =
   /\b([A-Za-z_][\w]*(?:[Pp]ath|[Rr]oute|[Uu]rl|[Hh]ref|[Nn]av)\w*)\s*\(\s*([A-Za-z_][\w.]*)\s*[,)]/g;
 
-const TEMPLATE_PATH =
-  /`(\/[^`$]*\$\{[^`]+\}[^`]*)`/g;
+const TEMPLATE_PATH = /`(\/[^`$]*\$\{[^`]+\}[^`]*)`/g;
 
 const SWITCH_CASE_RETURN =
   /case\s+["']([^"']{1,80})["']\s*:[\s\S]{0,400}?return\s+<\s*([A-Za-z_][\w]*)/g;

@@ -155,8 +155,8 @@ export function mergeCustomNavigationIntoUiGraph(
     } satisfies UiTransition);
   }
 
-  const routeSurfaceCount = surfaces.filter((s) =>
-    s.kind === "page" || s.kind === "screen" || s.kind === "view" || s.kind === "window"
+  const routeSurfaceCount = surfaces.filter(
+    (s) => s.kind === "page" || s.kind === "screen" || s.kind === "view" || s.kind === "window",
   ).length;
 
   return {
