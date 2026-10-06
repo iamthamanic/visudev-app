@@ -1,14 +1,16 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 430,
-  "featureSlug": "pu-09-dependencies-impact-map",
+  "activeIssue": 433,
+  "featureSlug": "pu-12-infrastructure-topology",
   "phase": "commit",
-  "branch": "feat/430-pu-09-dependencies-impact-map",
+  "branch": "feat/433-pu-12-infrastructure-topology",
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
-  "queue": [],
+  "queue": [
+    433
+  ],
   "completedIssues": [
     321,
     322,
@@ -65,7 +67,8 @@
     428,
     429,
     430,
-    431
+    431,
+    432
   ],
   "mergedIssues": [
     321,
@@ -123,7 +126,8 @@
     428,
     429,
     430,
-    431
+    431,
+    432
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
@@ -147,7 +151,8 @@
     "428": "https://github.com/iamthamanic/visudev-app/pull/444",
     "429": "https://github.com/iamthamanic/visudev-app/pull/445",
     "430": "https://github.com/iamthamanic/visudev-app/pull/446",
-    "431": "https://github.com/iamthamanic/visudev-app/pull/447"
+    "431": "https://github.com/iamthamanic/visudev-app/pull/447",
+    "432": "https://github.com/iamthamanic/visudev-app/pull/448"
   },
   "retries": {
     "implement": 0,
@@ -169,6 +174,6 @@
   "currentIssue": 432,
   "lastCompletedIssue": 429,
   "notes": "#429 merged. Claiming #430 PU-09.",
-  "updatedAt": "2026-10-06T16:47:41.000Z",
+  "updatedAt": "2026-10-06T17:00:36.000Z",
   "milestoneFilter": null
 }
