@@ -240,6 +240,11 @@ export {
   mergeCustomNavigationIntoUiGraph,
 } from "./application/merge-custom-navigation-into-ui-graph.js";
 
+export {
+  normalizeUiTrigger,
+  type NormalizedUiTrigger,
+} from "./application/normalize-ui-trigger.js";
+
 export { projectUiGraphToLegacyScreens } from "./application/project-ui-graph-to-legacy-screens.js";
 
 export {

@@ -10,6 +10,7 @@ import type {
   UiKnowledgeStatus,
   UiTransitionKind,
 } from "../../ui-interaction-graph.types.js";
+import { normalizeUiTrigger } from "./normalize-ui-trigger.js";
 import { projectUiGraphToLegacyScreens } from "./project-ui-graph-to-legacy-screens.js";
 
 export type AppflowProjectionEdgeType =
@@ -36,6 +37,9 @@ export interface AppflowProjectionEdge {
   /** Epistemic status from engine — never inflate to verified. */
   status: UiKnowledgeStatus;
   confidence: number;
+  /** Safe display label for edge controls; "unknown" when no evidenced trigger. */
+  triggerDisplay?: string;
+  triggerUnknown?: boolean;
 }
 
 export interface AppflowProjectionModel {
@@ -109,23 +113,31 @@ export function projectUiGraphToAppflow(graph: UiInteractionGraph): AppflowProje
     const key = `${fromId}\t${toId}\t${type}\t${transition.trigger?.label ?? ""}`;
     if (seen.has(key)) continue;
     seen.add(key);
+    const normalized = normalizeUiTrigger(transition.trigger);
+    const status: UiKnowledgeStatus =
+      type === "navigate"
+        ? transition.status
+        : normalized.isUnknown && transition.status !== "unknown"
+          ? "unknown"
+          : transition.status;
     edges.push({
       fromId,
       toId,
       type,
       targetPath: transition.targetPath,
-      trigger: transition.trigger
-        ? {
-            label: transition.trigger.label,
-            selector: transition.trigger.selector,
-            testId: transition.trigger.testId,
-            file: transition.trigger.filePath,
-            line: transition.trigger.line,
-            confidence: transition.confidence,
-          }
-        : undefined,
-      status: transition.status,
+      trigger: {
+        label: normalized.isUnknown ? undefined : normalized.trigger.label,
+        selector: normalized.trigger.selector,
+        testId: normalized.trigger.testId,
+        file: normalized.trigger.filePath,
+        line: normalized.trigger.line,
+        confidence: transition.confidence,
+      },
+      /** When open/switch/menu has no evidenced control, status stays unknown. */
+      status,
       confidence: transition.confidence,
+      triggerDisplay: normalized.displayLabel,
+      triggerUnknown: normalized.isUnknown,
     });
   }
 

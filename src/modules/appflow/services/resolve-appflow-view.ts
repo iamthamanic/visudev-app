@@ -49,6 +49,8 @@ export function projectionEdgesToGraphEdges(edges: readonly AppflowProjectionEdg
     type: mapProjectionEdgeType(edge.type),
     targetPath: edge.targetPath,
     trigger: edge.trigger,
+    triggerDisplay: edge.triggerDisplay,
+    triggerUnknown: edge.triggerUnknown,
   }));
 }
 
