@@ -61,14 +61,32 @@ export function FlowNodeCard({
     /ECONNREFUSED|Bad Gateway|nicht erreichbar|502|-102|Verbindung verweigert/i.test(reason);
   const isStateNode =
     screen.type === "modal" || screen.type === "tab" || screen.type === "dropdown";
+  const ghostKindLabel =
+    screen.type === "modal"
+      ? "Modal"
+      : screen.type === "tab"
+        ? "Tab"
+        : screen.type === "dropdown"
+          ? "Menü"
+          : "Zustand";
 
   return (
     <div
       className={clsx(
         styles.nodeCard,
+        isStateNode && styles.nodeCardGhost,
         isFocused && styles.nodeCardFocused,
         isDimmed && styles.nodeCardDimmed,
       )}
+      data-ghost-layer={isStateNode ? "true" : undefined}
+      data-parent-screen-id={screen.parentScreenId ?? undefined}
+      aria-label={
+        isStateNode
+          ? `Ghost Layer ${ghostKindLabel}: ${screen.name}${
+              screen.parentScreenId ? ` (Parent ${screen.parentScreenId})` : ""
+            }`
+          : undefined
+      }
       ref={(el) => {
         if (el) {
           el.style.setProperty("--node-left", `${pos.x}px`);
@@ -139,7 +157,11 @@ export function FlowNodeCard({
                 <Menu className={styles.nodeStateIcon} aria-hidden="true" />
               )}
               <span className={styles.nodeStateLabel}>
-                {screen.type === "modal" ? "Modal" : screen.type === "tab" ? "Tab" : "Dropdown"}
+                {screen.type === "modal"
+                  ? "Ghost · Modal"
+                  : screen.type === "tab"
+                    ? "Ghost · Tab"
+                    : "Ghost · Menü"}
               </span>
             </>
           )}

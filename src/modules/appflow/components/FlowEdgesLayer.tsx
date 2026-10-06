@@ -284,12 +284,15 @@ export function FlowEdgesLayer({
                     : "url(#live-arrow-nav)"
               : "url(#live-arrow-call)";
             const triggerLabel =
-              edge.type === "open-modal" ||
+              edge.triggerDisplay ??
+              (edge.type === "open-modal" ||
               edge.type === "close-surface" ||
               edge.type === "switch-tab" ||
               edge.type === "dropdown-action"
-                ? (edge.trigger?.label ?? edge.type)
-                : null;
+                ? (edge.trigger?.label ??
+                  (edge.trigger?.testId ? `testid:${edge.trigger.testId}` : undefined) ??
+                  (edge.triggerUnknown ? "unknown" : edge.type))
+                : (edge.trigger?.label ?? null));
             const title =
               triggerLabel != null
                 ? `${
@@ -299,24 +302,43 @@ export function FlowEdgesLayer({
                         ? "Schließen: "
                         : edge.type === "switch-tab"
                           ? "Tab: "
-                          : "Dropdown: "
+                          : edge.type === "dropdown-action"
+                            ? "Menü: "
+                            : edge.type === "navigate"
+                              ? "Aktion: "
+                              : ""
                   }${triggerLabel}`
                 : edgeMeta?.title;
             const fullTitle =
               edgeMeta?.title && title && edgeMeta.title !== title
                 ? `${title} · ${edgeMeta.title}`
                 : (title ?? edgeMeta?.title);
+            const midX = (rendered.x1 + rendered.x2) / 2;
+            const midY = (rendered.y1 + rendered.y2) / 2;
             return (
-              <path
-                key={`${edge.fromId}-${edge.toId}-${i}`}
-                id={edgeKey}
-                d={rendered.pathD}
-                className={navClass}
-                markerEnd={navMarker}
-                aria-label={fullTitle ?? undefined}
-              >
-                {fullTitle != null ? <title>{fullTitle}</title> : null}
-              </path>
+              <g key={`${edge.fromId}-${edge.toId}-${i}`}>
+                <path
+                  id={edgeKey}
+                  d={rendered.pathD}
+                  className={navClass}
+                  markerEnd={navMarker}
+                  aria-label={fullTitle ?? undefined}
+                >
+                  {fullTitle != null ? <title>{fullTitle}</title> : null}
+                </path>
+                {triggerLabel != null ? (
+                  <text
+                    x={midX}
+                    y={midY - 6}
+                    className={styles.edgeTriggerLabel}
+                    textAnchor="middle"
+                    data-testid="edge-trigger-label"
+                    data-trigger-unknown={edge.triggerUnknown ? "true" : "false"}
+                  >
+                    {triggerLabel}
+                  </text>
+                ) : null}
+              </g>
             );
           })}
           {dotPosition && (

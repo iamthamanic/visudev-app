@@ -373,6 +373,16 @@
   stroke-width: 2.5;
 }
 
+.edgeTriggerLabel {
+  fill: var(--color-foreground);
+  font-size: 11px;
+  font-weight: 500;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--color-background);
+  stroke-width: 3px;
+}
+
 .edgeNavVerified {
   fill: none;
   stroke: var(--color-success);
@@ -479,6 +489,13 @@
 
 .nodeCardFocused {
   box-shadow: 0 0 0 3px var(--color-primary);
+}
+
+.nodeCardGhost {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--color-muted) 88%, transparent);
+  opacity: 0.95;
+  box-shadow: none;
 }
 
 .nodeCardDimmed {

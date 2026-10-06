@@ -27,6 +27,9 @@ export interface GraphEdge {
   targetPath?: string;
   /** For open-modal / switch-tab: trigger label, selector, etc. */
   trigger?: EdgeTrigger;
+  /** Safe UI label for the control that starts this edge. */
+  triggerDisplay?: string;
+  triggerUnknown?: boolean;
 }
 
 /**
@@ -203,6 +206,9 @@ export function buildEdges(screens: Screen[], flows: Flow[]): GraphEdge[] {
         toId: target.id,
         type: st.edgeType,
         trigger: st.trigger,
+        triggerDisplay:
+          st.trigger?.label || st.trigger?.testId || st.trigger?.selector || "unknown",
+        triggerUnknown: !(st.trigger?.label || st.trigger?.testId || st.trigger?.selector),
       });
     });
   });
@@ -313,8 +319,20 @@ export function computePositions(
     stateScreens.filter((s) => !ordered.includes(s)).forEach((s) => ordered.push(s));
     let y = 0;
     ordered.forEach((s) => {
-      pos.set(s.id, { x, y, depth: depths.get(s.id) ?? 0 });
-      y += nodeHeight + vSpacing;
+      const isGhost = s.type === "modal" || s.type === "tab" || s.type === "dropdown";
+      const parentPos = isGhost && s.parentScreenId ? pos.get(s.parentScreenId) : undefined;
+      if (parentPos) {
+        // Ghost layer: offset from parent (still in flow column, parent-bound)
+        pos.set(s.id, {
+          x: parentPos.x + 28,
+          y: parentPos.y + Math.max(y - parentPos.y, nodeHeight * 0.35),
+          depth: depths.get(s.id) ?? 0,
+        });
+        y = Math.max(y, parentPos.y + nodeHeight * 0.35 + nodeHeight + vSpacing);
+      } else {
+        pos.set(s.id, { x, y, depth: depths.get(s.id) ?? 0 });
+        y += nodeHeight + vSpacing;
+      }
     });
     x += nodeWidth + hSpacing;
   });
