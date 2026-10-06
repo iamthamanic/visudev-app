@@ -388,3 +388,10 @@ export async function openDependenciesTechnikLayer(page: import("@playwright/tes
   await select.selectOption("technik");
   await expect(page.getByTestId("dependencies-layer-current")).toHaveText("Technik");
 }
+
+/** PU-12: System topology is default; Technik exposes deployment/runtime topology nodes. */
+export async function openInfrastructureTechnikLayer(page: import("@playwright/test").Page) {
+  await expect(page.getByTestId("infra-layer-technik")).toBeVisible({ timeout: 20_000 });
+  await page.getByTestId("infra-layer-technik").click();
+  await expect(page.getByTestId("infra-layer-technik")).toHaveAttribute("data-active", "true");
+}

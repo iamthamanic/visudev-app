@@ -8,6 +8,7 @@ import {
   buildDiagnosticsMockBlueprint,
   installWave2Mocks,
   openBlueprintView,
+  openInfrastructureTechnikLayer,
   seedSupabaseSession,
 } from "./wave2-test-helpers.js";
 
@@ -48,6 +49,7 @@ test.describe("Wave 3 inspector auto-select", () => {
     await seedSupabaseSession(page);
     await installWave2Mocks(page, PROJECT_ID, "wave3-auto-infra");
     await openBlueprintView(page, "infrastructure");
+    await openInfrastructureTechnikLayer(page);
 
     await expect(
       page

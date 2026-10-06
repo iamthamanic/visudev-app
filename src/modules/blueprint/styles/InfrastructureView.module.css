@@ -569,8 +569,8 @@
 .systemPartial {
   margin: 0;
   padding: 0.5rem 0.75rem;
-  border-left: 3px solid var(--color-warning, #c9a227);
-  background: color-mix(in srgb, var(--color-warning, #c9a227) 12%, transparent);
+  border-left: 3px solid var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
   font-size: 0.8125rem;
 }
 
@@ -599,32 +599,32 @@
 }
 
 .systemCard[data-role="application"] {
-  border-left: 3px solid var(--color-graph-application, var(--color-primary));
+  border-left: 3px solid var(--color-primary);
 }
 
 .systemCard[data-role="client"] {
-  border-left: 3px solid var(--color-graph-runtime, #5b8def);
+  border-left: 3px solid var(--color-graph-runtime);
 }
 
 .systemCard[data-role="backend"] {
-  border-left: 3px solid var(--color-graph-service, #3d9a7a);
+  border-left: 3px solid var(--color-graph-service);
 }
 
 .systemCard[data-role="auth"] {
-  border-left: 3px solid var(--color-graph-security, #c07a3a);
+  border-left: 3px solid var(--color-warning);
 }
 
 .systemCard[data-role="data"],
 .systemCard[data-role="storage"] {
-  border-left: 3px solid var(--color-graph-database, #6b7fd7);
+  border-left: 3px solid var(--color-graph-database);
 }
 
 .systemCard[data-role="ai"] {
-  border-left: 3px solid var(--color-graph-external, #9b6b9e);
+  border-left: 3px solid var(--color-graph-external);
 }
 
 .systemCard[data-role="external"] {
-  border-left: 3px solid var(--color-graph-external, #9b6b9e);
+  border-left: 3px solid var(--color-graph-external);
 }
 
 .systemRole {
