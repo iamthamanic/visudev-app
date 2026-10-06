@@ -1,9 +1,12 @@
+/**
+ * Incomplete engine semanticSystemModel must not crash Architecture PU projection.
+ */
 import { describe, expect, it } from "vitest";
-import { buildHrToolDemoGraph } from "./demo-graph-seed.js";
-import { resolveArchitectureResponsibilityProjection } from "../src/modules/blueprint/components/architecture/resolve-architecture-product-model.js";
-import type { BlueprintData } from "../src/modules/blueprint/types.js";
+import { buildHrToolDemoGraph } from "../../../../../shared/demo-graph-seed.js";
+import type { BlueprintData } from "../../types.js";
+import { resolveArchitectureResponsibilityProjection } from "./resolve-architecture-product-model.js";
 
-describe("throughput smoke", () => {
+describe("resolveArchitectureResponsibilityProjection", () => {
   it("tolerates incomplete engine semantic payloads", () => {
     const graph = buildHrToolDemoGraph("proj-pipeline-honest");
     const blueprint = {
