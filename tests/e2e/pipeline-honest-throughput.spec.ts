@@ -8,6 +8,7 @@ import {
   buildMockBlueprint,
   installWave2Mocks,
   openBlueprintView,
+  openDependenciesTechnikLayer,
   seedSupabaseSession,
 } from "./wave2-test-helpers.js";
 
@@ -110,6 +111,7 @@ test.describe("Pipeline honest throughput visuals", () => {
     test.setTimeout(60_000);
     await page.setViewportSize({ width: 1440, height: 900 });
     await openBlueprintView(page, "dependencies");
+    await openDependenciesTechnikLayer(page);
 
     const overlays = page.getByTestId("dep-overlays");
     await expect(overlays).toBeVisible({ timeout: 20_000 });
@@ -162,6 +164,7 @@ test.describe("Pipeline honest throughput visuals", () => {
   }) => {
     test.setTimeout(60_000);
     await openBlueprintView(page, "dependencies");
+    await openDependenciesTechnikLayer(page);
 
     const inspector = page.getByTestId("dependency-inspector");
     await expect(inspector).toBeVisible({ timeout: 20_000 });

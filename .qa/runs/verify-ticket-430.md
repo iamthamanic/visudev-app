@@ -4,6 +4,7 @@
 - Verdict: PASS
 
 ## Acceptance
+
 - Default Impact layer (not Technik topology) — PASS (DependenciesLayerNav default impact + tests)
 - Direct vs transitive hop labels/kinds + caps — PASS (projection + tests)
 - Plain-language meaning, KnowledgeStatus, why/evidence in inspector — PASS
@@ -11,6 +12,7 @@
 - typed-strict — PASS (no escape hatches in touched files)
 
 ## Checks
+
 - tsc: PASS
 - prettier (touched): PASS
 - eslint (src touched): PASS

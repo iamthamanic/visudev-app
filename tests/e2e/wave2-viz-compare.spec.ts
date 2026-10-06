@@ -9,6 +9,7 @@ import {
   buildDiagnosticsMockBlueprint,
   installWave2Mocks,
   openBlueprintView,
+  openDependenciesTechnikLayer,
   seedSupabaseSession,
 } from "./wave2-test-helpers.js";
 
@@ -46,6 +47,7 @@ async function waitForScanAndEnrichment(page: Page, viewId: string) {
       });
       break;
     case "dependencies":
+      await openDependenciesTechnikLayer(page);
       expect(await page.getByTestId("relationship-chip").count()).toBeGreaterThanOrEqual(5);
       await expect(page.getByTestId("dependency-inspector")).toBeVisible();
       break;

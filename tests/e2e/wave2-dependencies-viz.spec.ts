@@ -4,7 +4,12 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { installWave2Mocks, openBlueprintView, seedSupabaseSession } from "./wave2-test-helpers.js";
+import {
+  installWave2Mocks,
+  openBlueprintView,
+  openDependenciesTechnikLayer,
+  seedSupabaseSession,
+} from "./wave2-test-helpers.js";
 
 const EVIDENCE_DIR = ".qa/evidence/wave2-dependencies-viz";
 const PROJECT_ID = "proj-wave2-dependencies";
@@ -19,6 +24,9 @@ test.describe("Wave 2 dependencies viz parity", () => {
     test.setTimeout(60_000);
     await page.setViewportSize({ width: 1440, height: 900 });
     await openBlueprintView(page, "dependencies");
+
+    await expect(page.getByTestId("dependencies-impact-inspector")).toBeVisible();
+    await openDependenciesTechnikLayer(page);
 
     await expect(page.getByTestId("relationship-chip")).toHaveCount(8);
     await expect(page.getByTestId("edge-label").first()).toBeVisible();
