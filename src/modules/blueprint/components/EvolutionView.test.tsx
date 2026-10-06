@@ -82,12 +82,15 @@ describe("EvolutionView", () => {
     expect(screen.queryByTestId("evolution-tab-working-tree")).not.toBeInTheDocument();
   });
 
-  it("renders timeline tab with snapshot cards and metrics", () => {
+  it("defaults to product history and keeps Technik for git metrics", () => {
     render(<EvolutionView blueprint={graphWithSnapshots} />);
     expect(screen.getByRole("tab", { name: "Timeline", selected: true })).toBeInTheDocument();
+    expect(screen.getByTestId("evolution-layer-product")).toHaveAttribute("data-active", "true");
+    expect(screen.getByTestId("evolution-product-history")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Commit-Timeline")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("evolution-layer-technik"));
     expect(screen.getByText("Evolutions-Metriken")).toBeInTheDocument();
     expect(screen.getByLabelText("Basis")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /scan-2/i })).toBeInTheDocument();
     expect(screen.getByLabelText("Commit-Timeline")).toBeInTheDocument();
     expect(screen.getByLabelText("Änderungsübersicht")).toBeInTheDocument();
   });
@@ -122,6 +125,8 @@ describe("EvolutionView", () => {
       },
     };
     render(<EvolutionView blueprint={blueprint} />);
+    expect(screen.getByTestId("evolution-product-history-incompatible")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("evolution-layer-technik"));
     expect(screen.getByTestId("evolution-snapshot-incompatible")).toBeInTheDocument();
   });
 
@@ -150,12 +155,13 @@ describe("EvolutionView", () => {
 
     render(<EvolutionView blueprint={blueprint} />);
 
+    expect(screen.getByTestId("evolution-semantic-history-empty")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("evolution-layer-technik"));
     expect(
       screen.getByText(
         "Nur ein Zeitpunkt vorhanden. Für einen Vergleich braucht VisuDEV mindestens zwei Analysen. Scanne das Projekt später erneut, dann erscheint hier, was sich verändert hat.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("evolution-semantic-history-empty")).toBeInTheDocument();
     expect(screen.getByTestId("evolution-metrics-no-history")).toBeInTheDocument();
     expect(
       screen.getAllByText("Commit abc12345 · Branch main · ungespeicherte Änderungen").length,

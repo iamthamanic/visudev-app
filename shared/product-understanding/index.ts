@@ -222,3 +222,18 @@ export {
   type DiagnosticsFindingConsequenceInput,
   type DiagnosticsFindingConsequenceView,
 } from "./project-diagnostics-consequences.js";
+
+export {
+  diffProductUnderstandingHistory,
+  mapSignatureKindToEvolutionChangeKind,
+  projectEvolutionProductHistoryFromModels,
+  projectEvolutionProductHistoryFromSnapshots,
+  signaturesFromProductUnderstanding,
+  EVOLUTION_PRODUCT_HISTORY_MAX_ITEMS,
+  type EvolutionChangeAction,
+  type EvolutionChangeKind,
+  type EvolutionProductChangeGroup,
+  type EvolutionProductChangeItem,
+  type EvolutionProductHistoryProjection,
+  type ProductUnderstandingHistorySnapshot,
+} from "./project-evolution-product-history.js";
