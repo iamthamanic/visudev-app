@@ -33,6 +33,7 @@ AppFlow von einer Screen-Sitemap zu einem echten Interaktionsmodell machen, inde
 | 1    | `01-happy-path.png` |
 
 ## Implementation Notes
+
 - `normalizeUiTrigger` redacts secret-like trigger fields; empty → display "unknown".
 - `projectUiGraphToAppflow` sets edge `triggerDisplay` / `triggerUnknown` and downgrades open/switch/menu without trigger to status unknown.
 - `FlowEdgesLayer` renders visible SVG trigger labels; `FlowNodeCard` marks modal/tab/menu as Ghost Layers with parent aria.

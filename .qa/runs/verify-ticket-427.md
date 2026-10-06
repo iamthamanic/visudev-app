@@ -2,6 +2,7 @@
 
 **Verdict:** PASS
 **Checks:**
+
 - vitest normalize-ui-trigger + projection: PASS
 - vitest layout.ghost: PASS
 - vitest ui-interaction-graph regression: PASS
