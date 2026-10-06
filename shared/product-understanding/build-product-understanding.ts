@@ -145,25 +145,27 @@ function collectFromSemantic(
   for (const entity of semantic.entities) {
     const kind = SEMANTIC_KIND_TO_PRODUCT[entity.kind];
     if (!kind) continue;
+    const metadata = entity.metadata ?? {};
+    const evidence = Array.isArray(entity.evidence) ? entity.evidence : [];
+    const confidence = Number.isFinite(entity.confidence) ? entity.confidence : 0.3;
     const candidateKey =
-      (typeof entity.metadata.candidateKey === "string" && entity.metadata.candidateKey) ||
-      entity.label;
-    for (const evidence of entity.evidence) {
+      (typeof metadata.candidateKey === "string" && metadata.candidateKey) || entity.label;
+    for (const item of evidence) {
       pushSignal(map, kind, candidateKey, entity.label, {
         source: "semantic-system-model",
         refId: entity.id,
-        summary: `${entity.kind}:${evidence.refId}`,
-        confidence: entity.confidence,
+        summary: `${entity.kind}:${item.refId}`,
+        confidence,
         knowledgeStatus: coerceKnowledgeStatus(entity.knowledgeStatus),
       });
     }
     // Entity without evidence still records a weak semantic signal (never sole authority).
-    if (entity.evidence.length === 0) {
+    if (evidence.length === 0) {
       pushSignal(map, kind, candidateKey, entity.label, {
         source: "semantic-system-model",
         refId: entity.id,
         summary: `${entity.kind}:no-evidence`,
-        confidence: Math.min(entity.confidence, 0.3),
+        confidence: Math.min(confidence, 0.3),
         knowledgeStatus: "INTERPRETED",
       });
     }

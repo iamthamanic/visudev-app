@@ -24,7 +24,7 @@ test.describe("Wave 2 architecture viz parity", () => {
       timeout: 20000,
     });
 
-    await page.getByTestId("arch-level-module").click();
+    await page.getByTestId("arch-level-select").selectOption("module");
     const stacks = page.getByTestId("architecture-layer-stack");
     await expect(stacks.first()).toBeVisible({ timeout: 20000 });
     expect(await stacks.count()).toBeGreaterThanOrEqual(1);
@@ -43,7 +43,7 @@ test.describe("Wave 2 architecture viz parity", () => {
   test("domains mode has no duplicate App.tsx entries", async ({ page }) => {
     test.setTimeout(60_000);
     await openBlueprintView(page, "architecture");
-    await page.getByTestId("arch-level-module").click();
+    await page.getByTestId("arch-level-select").selectOption("module");
 
     await page.getByRole("tab", { name: "Domains" }).click();
     const appDuplicates = page.locator('[data-testid="domain-module"][data-path*="App.tsx"]');

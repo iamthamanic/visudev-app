@@ -23,7 +23,7 @@ test.describe("Wave 3 inspector auto-select", () => {
     await expect(page.getByTestId("architecture-responsibility-map")).toBeVisible({
       timeout: 20000,
     });
-    await page.getByTestId("arch-level-module").click();
+    await page.getByTestId("arch-level-select").selectOption("module");
 
     const appLayer = page.getByRole("button", { name: /Application Layer/i });
     await expect(appLayer).toHaveAttribute("aria-pressed", "true");
