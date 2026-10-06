@@ -1,11 +1,11 @@
 /**
- * Sidebar controls for AtlasView — search, condensed banner, clusters, node cards.
+ * Sidebar controls for AtlasView — product-domain search, clusters, node cards (PU-07).
+ * 3D city toggle removed from primary Product-Understanding path.
  */
 
 import type { SoftwareGraphGroup } from "../../types";
 import { AtlasClusterChips } from "./AtlasClusterChips.js";
 import { AtlasNodeList } from "./AtlasNodeList.js";
-import { AtlasViewModeToggle } from "./AtlasViewModeToggle.js";
 import type { AtlasViewMode } from "./atlas-view-mode.js";
 import type { GraphCanvasNode } from "../../types";
 import styles from "../../styles/AtlasView.module.css";
@@ -33,8 +33,6 @@ export function AtlasControls({
   totalNodes,
   visibleNodes,
   condensed,
-  viewMode,
-  threeDisabled,
   nodes,
   groups,
   selectedNodeId,
@@ -43,15 +41,12 @@ export function AtlasControls({
   onResetSearch,
   onSelectNode,
   onSelectGroup,
-  onSelectViewMode,
 }: AtlasControlsProps): JSX.Element {
   return (
     <aside className={styles.controls} aria-label="Atlas-Steuerung">
-      <AtlasViewModeToggle
-        mode={viewMode}
-        threeDisabled={threeDisabled}
-        onSelectMode={onSelectViewMode}
-      />
+      <p className={styles.viewModeHint} role="status">
+        Produktlandkarte · 2D
+      </p>
 
       <div className={styles.searchBar}>
         <label className={styles.searchLabel}>
@@ -60,7 +55,7 @@ export function AtlasControls({
             className={styles.searchInput}
             type="search"
             value={searchQuery}
-            placeholder="Label durchsuchen…"
+            placeholder="Produktbereich oder Fähigkeit…"
             onChange={(event) => onSearchChange(event.target.value)}
           />
         </label>
@@ -73,16 +68,16 @@ export function AtlasControls({
 
       {condensed ? (
         <div className={styles.condensedBanner} role="status">
-          <p className={styles.condensedBannerTitle}>Verdichtete Karte</p>
+          <p className={styles.condensedBannerTitle}>Verdichtete Produktlandkarte</p>
           <p className={styles.condensedBannerText}>
-            Große Codebasis — Atlas zeigt Module, Domains und Services (Soft-Limit {visibleNodes}{" "}
-            sichtbar).
+            Atlas zeigt die wichtigsten Anwendungen, Produktbereiche und Fähigkeiten ({visibleNodes}{" "}
+            von {totalNodes} sichtbar).
           </p>
         </div>
       ) : null}
 
       <p className={styles.stat}>
-        {visibleNodes} von {totalNodes} Knoten sichtbar
+        {visibleNodes} von {totalNodes} Produktkonzepte sichtbar
       </p>
 
       <AtlasClusterChips
@@ -93,15 +88,10 @@ export function AtlasControls({
 
       <AtlasNodeList nodes={nodes} selectedNodeId={selectedNodeId} onSelectNode={onSelectNode} />
 
-      {threeDisabled ? (
-        <p className={styles.modeHint}>
-          3D-Stadtmodus ist bei „Bewegung reduzieren“ deaktiviert — 2D bleibt voll nutzbar.
-        </p>
-      ) : (
-        <p className={styles.modeHint}>
-          Wechsle zwischen 2D-Karte und 3D-Stadt. Tastatur: 2D-Button fokussieren und Enter.
-        </p>
-      )}
+      <p className={styles.modeHint}>
+        Technische Module, Services und Dateien erscheinen im Inspektor unter Evidence — nicht auf
+        der Primärkarte.
+      </p>
     </aside>
   );
 }

@@ -222,6 +222,71 @@ describe("buildProductUnderstanding", () => {
     expect(model.concepts.some((concept) => /:src$/.test(concept.id))).toBe(false);
   });
 
+  it("rejects structural folder tokens that previously leaked via loose-key fallback", () => {
+    const structural = ["config", "imports", "layouts", "scripts", "services", "stores", "types"];
+    const model = buildProductUnderstanding({
+      projectId: "struct-leak",
+      analyzedAt: "2026-10-06T00:00:00.000Z",
+      software: emptySoftware(
+        "struct-leak",
+        structural.map((name) => ({
+          id: `n:${name}`,
+          kind: "module",
+          label: name,
+          filePath: `src/${name}`,
+          metadata: {},
+        })),
+      ),
+      semantic: {
+        version: 2,
+        projectId: "struct-leak",
+        analyzedAt: "2026-10-06T00:00:00.000Z",
+        entities: structural.map((name) => ({
+          id: `semantic:business-domain:${name}`,
+          kind: "business-domain" as const,
+          label: name,
+          confidence: 0.8,
+          knowledgeStatus: "SUPPORTED" as const,
+          evidence: [
+            { source: "graph-node" as const, refId: `n:${name}` },
+            { source: "graph-evidence" as const, refId: `ev:${name}` },
+          ],
+          metadata: { candidateKey: name },
+        })),
+        memberships: [],
+        relations: [],
+      },
+      ui: {
+        version: 1,
+        projectId: "struct-leak",
+        analyzedAt: "2026-10-06T00:00:00.000Z",
+        surfaces: structural.map((name) => ({
+          id: `ui:${name}`,
+          kind: "page" as const,
+          label: name,
+          confidence: 0.8,
+          status: "detected" as const,
+          evidenceIds: [`ev:${name}`],
+        })),
+        transitions: [],
+        evidence: [],
+        stats: {
+          surfaceCount: structural.length,
+          transitionCount: 0,
+          routeSurfaceCount: structural.length,
+          stateSurfaceCount: 0,
+          conflictCount: 0,
+          runtimeOnlyCount: 0,
+        },
+      },
+    });
+    for (const name of structural) {
+      expect(model.concepts.some((concept) => concept.id === `pu:product-area:${name}`)).toBe(
+        false,
+      );
+    }
+  });
+
   it("corroborates modular billing from semantic + UI", () => {
     const model = buildProductUnderstanding({
       projectId: "modular",

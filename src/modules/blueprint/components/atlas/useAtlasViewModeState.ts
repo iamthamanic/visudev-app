@@ -1,23 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { AtlasViewMode } from "./atlas-view-mode.js";
-import { usePrefersReducedMotion } from "./usePrefersReducedMotion.js";
 
 export interface AtlasViewModeState {
   viewMode: AtlasViewMode;
+  /** Always true for Product-Understanding Atlas — 3D is not a primary path (PU-07). */
   threeDisabled: boolean;
   handleSelectViewMode: (mode: AtlasViewMode) => void;
 }
 
+/**
+ * Product-Understanding Atlas is 2D-only as the required path.
+ * 3D city mode is retired from the primary UX (code may remain lazy-loadable elsewhere).
+ */
 export function useAtlasViewModeState(): AtlasViewModeState {
-  const threeDisabled = usePrefersReducedMotion();
-  const [viewMode, setViewMode] = useState<AtlasViewMode>(() => (threeDisabled ? "2d" : "3d"));
-
-  useEffect(() => setViewMode(threeDisabled ? "2d" : "3d"), [threeDisabled]);
+  const [viewMode, setViewMode] = useState<AtlasViewMode>("2d");
 
   const handleSelectViewMode = (mode: AtlasViewMode): void => {
-    if (mode === "3d" && threeDisabled) return;
-    setViewMode(mode);
+    // Ignore 3D — Product Understanding Atlas stays fully operable in 2D.
+    if (mode === "3d") return;
+    setViewMode("2d");
   };
 
-  return { viewMode, threeDisabled, handleSelectViewMode };
+  return { viewMode, threeDisabled: true, handleSelectViewMode };
 }

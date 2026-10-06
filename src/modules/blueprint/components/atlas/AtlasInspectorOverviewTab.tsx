@@ -33,9 +33,22 @@ export function AtlasInspectorOverviewTab({
   semanticEntity = null,
 }: AtlasInspectorOverviewTabProps): JSX.Element {
   const label = semanticEntity?.label ?? cluster?.label ?? node?.label ?? "—";
+  const purpose =
+    typeof semanticEntity?.metadata?.purpose === "string"
+      ? semanticEntity.metadata.purpose.trim()
+      : "";
+  const technicalRefs = Array.isArray(semanticEntity?.metadata?.technicalRefs)
+    ? semanticEntity.metadata.technicalRefs.filter(
+        (value): value is string => typeof value === "string",
+      )
+    : [];
   const topDependencies = clusterTopDependencies(graph, node, cluster);
   const typeLabel = semanticEntity
-    ? atlasKindLabel(semanticEntity.kind)
+    ? atlasKindLabel(
+        typeof semanticEntity.metadata?.productKind === "string"
+          ? semanticEntity.metadata.productKind
+          : semanticEntity.kind,
+      )
     : atlasKindLabel(cluster?.kind ?? node?.kind ?? "—");
 
   return (
@@ -55,6 +68,12 @@ export function AtlasInspectorOverviewTab({
           <dt>Typ</dt>
           <dd>{typeLabel}</dd>
         </div>
+        {purpose ? (
+          <div className={styles.detailRow}>
+            <dt>Zweck</dt>
+            <dd>{purpose}</dd>
+          </div>
+        ) : null}
         {cluster ? (
           <div className={styles.detailRow}>
             <dt>Knoten</dt>
@@ -65,6 +84,12 @@ export function AtlasInspectorOverviewTab({
           <div className={styles.detailRow}>
             <dt>Cluster</dt>
             <dd>{nodeGroups.map((group) => group.label).join(", ")}</dd>
+          </div>
+        ) : null}
+        {technicalRefs.length > 0 ? (
+          <div className={styles.detailRow}>
+            <dt>Technische Bezüge</dt>
+            <dd data-testid="atlas-technical-refs">{technicalRefs.join(", ")}</dd>
           </div>
         ) : null}
       </dl>
