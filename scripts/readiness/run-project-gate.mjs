@@ -13,6 +13,7 @@ import { assertEpistemicArtifacts } from "./assert-epistemic-artifacts.mjs";
 import { aggregateProjectVerdict, buildCapabilityReport } from "./capability-status.mjs";
 import { getProject, loadReadinessManifest } from "./load-manifest.mjs";
 import { resolveProjectSource } from "./resolve-project.mjs";
+import { loadCapabilityResultsFromArtifacts } from "./surface-capability-results.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "../..");
@@ -128,27 +129,15 @@ async function main() {
   });
 
   const epistemic = await assertEpistemicArtifacts(outDir);
-  const auditSucceeded = epistemic.passed;
+  const { capabilityResults, surfaces } = await loadCapabilityResultsFromArtifacts(outDir, {
+    includeAppflowData: true,
+  });
 
   const passedRows = buildCapabilityReport(project, {
     sourceAvailable: true,
     runtimeSecretsPresent: Boolean(process.env.VISUDEV_AUDIT_RUNTIME_SECRETS),
     runtimeExecuted: false,
-    capabilityResults: {
-      repositoryScan: auditSucceeded,
-      coverageContract: auditSucceeded,
-      atlas: auditSucceeded,
-      architecture: auditSucceeded,
-      dependencies: auditSucceeded,
-      execution: auditSucceeded,
-      infrastructure: auditSucceeded,
-      diagnostics: auditSucceeded,
-      evidenceLinks: auditSucceeded,
-      knowledgeStatus: auditSucceeded,
-      appflowStatic: null,
-      appflowRuntime: null,
-      data: null,
-    },
+    capabilityResults,
   });
   const aggregate = aggregateProjectVerdict(passedRows, {
     sourceAvailable: true,
@@ -164,6 +153,7 @@ async function main() {
     mode: "full",
     source: resolved,
     capabilities: passedRows,
+    surfaces,
     hardGates: {
       passed: epistemic.passed,
       ...epistemic.hardGates,

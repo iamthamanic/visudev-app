@@ -61,7 +61,11 @@
       "parity": {
         "enabled": true
       },
-      "capabilities": {}
+      "capabilities": {
+        "appflowStatic": "required",
+        "data": "required",
+        "appflowRuntime": "optional"
+      }
     },
     {
       "id": "sagadrive",
@@ -85,7 +89,11 @@
       "parity": {
         "enabled": true
       },
-      "capabilities": {}
+      "capabilities": {
+        "appflowStatic": "required",
+        "data": "required",
+        "appflowRuntime": "optional"
+      }
     },
     {
       "id": "scriptony-multihost",
@@ -109,7 +117,11 @@
       "parity": {
         "enabled": true
       },
-      "capabilities": {}
+      "capabilities": {
+        "appflowStatic": "required",
+        "data": "required",
+        "appflowRuntime": "optional"
+      }
     },
     {
       "id": "hv123-mobile-haba",
@@ -158,5 +170,5 @@
       "capabilities": {}
     }
   ],
-  "_comment": "Product Readiness five golden projects (Epic #374). V1 full certification: hrkoordinator + sagadrive + scriptony-multihost. HABA/Screenator remain identity-resolve until optional sources are available in CI."
+  "_comment": "Product Readiness five golden projects (Epic #374). V1 full certification: hrkoordinator + sagadrive + scriptony-multihost (PU-16: appflowStatic+data required; appflowRuntime optional). HABA/Screenator remain identity-resolve until optional sources are available in CI."
 }

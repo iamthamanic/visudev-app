@@ -4,7 +4,7 @@
  * Location: scripts/readiness/capability-status.mjs
  */
 
-/** @typedef {"PASS" | "FAIL" | "UNAVAILABLE" | "SKIPPED"} CapabilityStatus */
+/** @typedef {"PASS" | "FAIL" | "UNAVAILABLE" | "SKIPPED" | "PARTIAL"} CapabilityStatus */
 /** @typedef {"required" | "optional"} CapabilityRequirement */
 
 /**
@@ -12,7 +12,7 @@
  * @param {{
  *   requirement: CapabilityRequirement,
  *   available: boolean,
- *   passed?: boolean | null,
+ *   passed?: boolean | "partial" | null,
  *   gateMode?: "full" | "resolve",
  * }} input
  * @returns {CapabilityStatus}
@@ -26,6 +26,7 @@ export function resolveCapabilityStatus(input) {
     return "SKIPPED";
   }
   if (passed === true) return "PASS";
+  if (passed === "partial") return "PARTIAL";
   if (passed === false) return "FAIL";
   return requirement === "required" ? "FAIL" : "UNAVAILABLE";
 }
@@ -68,12 +69,20 @@ export function aggregateProjectVerdict(rows, source) {
 
   const failedRequired = rows.filter(
     (row) =>
-      row.requirement === "required" && (row.status === "FAIL" || row.status === "UNAVAILABLE"),
+      row.requirement === "required" &&
+      (row.status === "FAIL" || row.status === "UNAVAILABLE" || row.status === "PARTIAL"),
   );
   if (failedRequired.length > 0) {
     return {
       verdict: "FAIL",
-      reason: `required capabilities not satisfied: ${failedRequired.map((row) => row.key).join(", ")}`,
+      reason: `required surface ${failedRequired[0].key}: ${failedRequired[0].status}${
+        failedRequired.length > 1
+          ? ` (+${failedRequired.length - 1} more: ${failedRequired
+              .slice(1)
+              .map((row) => row.key)
+              .join(", ")})`
+          : ""
+      }`,
     };
   }
 
@@ -102,7 +111,7 @@ export function aggregateProjectVerdict(rows, source) {
  *   sourceAvailable: boolean,
  *   runtimeSecretsPresent?: boolean,
  *   runtimeExecuted?: boolean,
- *   capabilityResults?: Record<string, boolean | null>,
+ *   capabilityResults?: Record<string, boolean | "partial" | null>,
  * }} ctx
  */
 export function buildCapabilityReport(project, ctx) {
