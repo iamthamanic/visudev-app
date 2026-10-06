@@ -171,6 +171,26 @@ describe("capability UNAVAILABLE contract", () => {
     ).toBe("UNAVAILABLE");
   });
 
+  it("treats required PARTIAL as FAIL and names the surface", () => {
+    expect(
+      resolveCapabilityStatus({
+        requirement: "required",
+        available: true,
+        passed: "partial",
+      }),
+    ).toBe("PARTIAL");
+
+    const verdict = aggregateProjectVerdict(
+      [
+        { key: "atlas", requirement: "required", status: "PASS" },
+        { key: "data", requirement: "required", status: "PARTIAL" },
+      ],
+      { sourceAvailable: true, sourceRequired: true },
+    );
+    expect(verdict.verdict).toBe("FAIL");
+    expect(verdict.reason).toMatch(/required surface data: PARTIAL/);
+  });
+
   it("aggregates missing optional local source as UNAVAILABLE not PASS", () => {
     const manifest = loadReadinessManifest();
     const haba = manifest.projects.find((project) => project.id === "hv123-mobile-haba");
@@ -187,6 +207,16 @@ describe("capability UNAVAILABLE contract", () => {
     expect(verdict.verdict).toBe("UNAVAILABLE");
     expect(verdict.verdict).not.toBe("PASS");
     expect(rows.every((row) => row.status !== "PASS")).toBe(true);
+  });
+
+  it("requires appflowStatic + data on comprehension full-tier projects", () => {
+    const manifest = loadReadinessManifest();
+    for (const id of ["hrkoordinator", "sagadrive", "scriptony-multihost"]) {
+      const project = manifest.projects.find((entry) => entry.id === id)!;
+      expect(project.capabilities.appflowStatic).toBe("required");
+      expect(project.capabilities.data).toBe("required");
+      expect(project.capabilities.appflowRuntime).toBe("optional");
+    }
   });
 });
 

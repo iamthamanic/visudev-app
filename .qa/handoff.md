@@ -1,6 +1,6 @@
 # ECC Runner Handoff
 
-- **Last merged:** #435 PU-14 — PR #451 — `db4a14ec`
-- **In progress:** #436 PU-15 · cross-view navigation (commit-pr)
+- **Last merged:** #436 PU-15 — PR #452 — `3dfcb5d1`
+- **In progress:** #437 PU-16 · independent product-understanding gates (implement)
 - **paused:** false
 - **runMode:** loop
