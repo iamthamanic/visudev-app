@@ -5,6 +5,10 @@
  */
 
 import { test, expect } from "@playwright/test";
+import {
+  openDiagnosticsInspectorTechnik,
+  openDiagnosticsTechnikContext,
+} from "./wave2-test-helpers.js";
 
 const EVIDENCE_DIR = ".qa/evidence/blueprint-engine-core";
 
@@ -235,6 +239,7 @@ test.describe("Blueprint Engine Core UI", () => {
       page.locator("header").getByText("Blueprint", { exact: true }).first(),
     ).toBeVisible();
     await expect(page.getByRole("heading", { name: "Diagnosen" })).toBeVisible();
+    await openDiagnosticsTechnikContext(page);
     await expect(page.getByRole("heading", { name: /Sicherheits-Matrix/i })).toBeVisible({
       timeout: 15000,
     });
@@ -277,15 +282,17 @@ test.describe("Blueprint Engine Core UI", () => {
     const inspector = page.getByLabel("Inspektor");
     if (
       !(await inspector
-        .getByText("web-api.validation-before-db-write")
+        .getByTestId("diagnostics-consequence")
         .isVisible()
         .catch(() => false))
     ) {
       await page
-        .getByRole("button", { name: /Runtime Validation fehlt vor DB Write/i })
+        .getByRole("button", { name: /Runtime Validation fehlt vor DB Write|Ungültige Daten/i })
         .first()
         .click();
     }
+    await expect(page.getByTestId("diagnostics-consequence")).toBeVisible({ timeout: 15000 });
+    await openDiagnosticsInspectorTechnik(page);
     await expect(inspector.getByText("web-api.validation-before-db-write")).toBeVisible({
       timeout: 15000,
     });
@@ -316,6 +323,7 @@ test.describe("Blueprint Engine Core UI", () => {
 
     await page.getByRole("button", { name: "Diagnosen", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Diagnosen" })).toBeVisible();
+    await openDiagnosticsTechnikContext(page);
     await expect(page.getByRole("heading", { name: /Sicherheits-Matrix/i })).toBeVisible();
   });
 
