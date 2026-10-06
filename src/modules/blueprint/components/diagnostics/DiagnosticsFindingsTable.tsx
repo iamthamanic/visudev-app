@@ -18,6 +18,7 @@ import { findingAreaLabel } from "./diagnostics-finding-area.js";
 import { SEVERITY_LABELS, severityBadgeVariant } from "./diagnostics-severity.js";
 import { findingLocationLabel } from "./diagnostics-finding-location.js";
 import type { FindingResolutionStatus } from "./finding-resolution.js";
+import { presentDiagnosticsFindingConsequence } from "../../../../../shared/product-understanding/index.js";
 import styles from "../../styles/DiagnosticsView.module.css";
 
 const PAGE_SIZE = 5;
@@ -179,8 +180,11 @@ export function DiagnosticsFindingsTable({
                               onSelectFinding(finding.id === selectedFindingId ? null : finding.id)
                             }
                           >
-                            <code className={styles.findingsRule}>{finding.ruleId}</code>
+                            <span className={styles.findingConsequence}>
+                              {presentDiagnosticsFindingConsequence(finding).consequenceTitle}
+                            </span>
                             <span className={styles.findingMessage}>{finding.message}</span>
+                            <code className={styles.findingsRule}>{finding.ruleId}</code>
                           </button>
                         </td>
                         <td>

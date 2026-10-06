@@ -8,6 +8,7 @@ import {
   buildDiagnosticsMockBlueprint,
   installWave2Mocks,
   openBlueprintView,
+  openDiagnosticsInspectorTechnik,
   openInfrastructureTechnikLayer,
   seedSupabaseSession,
 } from "./wave2-test-helpers.js";
@@ -70,6 +71,8 @@ test.describe("Wave 3 inspector auto-select", () => {
     );
     await openBlueprintView(page, "diagnostics");
 
+    await expect(page.getByTestId("diagnostics-consequence")).toBeVisible({ timeout: 15000 });
+    await openDiagnosticsInspectorTechnik(page);
     await expect(page.getByTestId("problem-inspector-evidence")).toBeVisible({ timeout: 15000 });
     await expect(
       page.getByLabel("Inspektor").getByText("access-control.tenant-isolation-missing"),

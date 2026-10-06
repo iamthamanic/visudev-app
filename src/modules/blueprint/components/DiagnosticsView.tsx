@@ -1,5 +1,5 @@
 /**
- * Blueprint Diagnostics view — Security Matrix, Route Canvas, findings, Problem-Inspektor.
+ * Blueprint Diagnostics view — consequence-first findings (PU-13); matrix/route as context.
  */
 
 import { useMemo, useState } from "react";
@@ -24,6 +24,7 @@ import type { AccessControlControl } from "../../../lib/visudev/access-control-t
 import type { BlueprintData } from "../types";
 import { BlueprintViewStateGate } from "./ui/BlueprintViewStateGate.js";
 import type { BlueprintViewScanProps } from "../blueprint-view-state.js";
+import { TruncationBanner } from "../../../components/ui/TruncationBanner.js";
 import styles from "../styles/DiagnosticsView.module.css";
 
 interface DiagnosticsViewProps extends BlueprintViewScanProps {
@@ -38,6 +39,7 @@ export function DiagnosticsView({
 }: DiagnosticsViewProps) {
   const [activeTab, setActiveTab] = useState<DiagnosticsTabId>("security");
   const [selectedAcColumn, setSelectedAcColumn] = useState<MatrixControlColumn | null>(null);
+  const [showTechnikContext, setShowTechnikContext] = useState(false);
   const {
     routes,
     matrix,
@@ -80,6 +82,13 @@ export function DiagnosticsView({
   const selectedAcControl: AccessControlControl | null = selectedAcColumn
     ? MATRIX_COLUMN_TO_CONTROL[selectedAcColumn]
     : null;
+
+  const filesAnalyzed = blueprint.filesAnalyzed ?? 0;
+  const totalFiles = blueprint.totalFiles ?? null;
+  const isPartialScan =
+    blueprint.graph?.condensed === true ||
+    (totalFiles != null && filesAnalyzed > 0 && filesAnalyzed < totalFiles) ||
+    (blueprint.truncation as { truncated?: boolean } | undefined)?.truncated === true;
 
   const handleSelectRoute = (routeId: string) => {
     setSelectedAcColumn(null);
@@ -127,24 +136,11 @@ export function DiagnosticsView({
         <BlueprintViewLayout
           canvas={
             <div className={styles.securityCanvas}>
-              <section aria-labelledby="matrix-title">
-                <ViewSectionTitle>Sicherheits-Matrix</ViewSectionTitle>
-                {useAccessControlV2 ? (
-                  <AccessControlMatrix
-                    rows={accessControlRows}
-                    selectedRouteId={selectedRouteId}
-                    selectedControl={selectedAcColumn}
-                    onSelectRoute={handleSelectRoute}
-                    onSelectCell={handleSelectAcCell}
-                  />
-                ) : (
-                  <SecurityMatrix
-                    rows={matrix}
-                    selectedRouteId={selectedRouteId}
-                    onSelectRoute={selectRoute}
-                  />
-                )}
-              </section>
+              {isPartialScan ? (
+                <div data-testid="diagnostics-partial-banner">
+                  <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} />
+                </div>
+              ) : null}
               <section aria-label="Findings" className={styles.findingsSection}>
                 <DiagnosticsFindingsTable
                   findings={routeFindings}
@@ -155,7 +151,42 @@ export function DiagnosticsView({
                   resolutionByFindingId={resolutionByFindingId}
                 />
               </section>
-              <RouteBlueprintCanvas route={selectedRoute} />
+              <div className={styles.technikContext}>
+                <button
+                  type="button"
+                  className={styles.techToggle}
+                  data-testid="diagnostics-context-technik"
+                  aria-expanded={showTechnikContext}
+                  onClick={() => setShowTechnikContext((open) => !open)}
+                >
+                  {showTechnikContext
+                    ? "Matrix / Route ausblenden"
+                    : "Matrix / Route (Technik) anzeigen"}
+                </button>
+                {showTechnikContext ? (
+                  <div data-testid="diagnostics-technik-context">
+                    <section aria-labelledby="matrix-title">
+                      <ViewSectionTitle>Sicherheits-Matrix</ViewSectionTitle>
+                      {useAccessControlV2 ? (
+                        <AccessControlMatrix
+                          rows={accessControlRows}
+                          selectedRouteId={selectedRouteId}
+                          selectedControl={selectedAcColumn}
+                          onSelectRoute={handleSelectRoute}
+                          onSelectCell={handleSelectAcCell}
+                        />
+                      ) : (
+                        <SecurityMatrix
+                          rows={matrix}
+                          selectedRouteId={selectedRouteId}
+                          onSelectRoute={selectRoute}
+                        />
+                      )}
+                    </section>
+                    <RouteBlueprintCanvas route={selectedRoute} />
+                  </div>
+                ) : null}
+              </div>
             </div>
           }
           inspector={

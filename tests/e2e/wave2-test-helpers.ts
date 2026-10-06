@@ -395,3 +395,17 @@ export async function openInfrastructureTechnikLayer(page: import("@playwright/t
   await page.getByTestId("infra-layer-technik").click();
   await expect(page.getByTestId("infra-layer-technik")).toHaveAttribute("data-active", "true");
 }
+
+/** PU-13: Findings lead; matrix/security table is Technik context. */
+export async function openDiagnosticsTechnikContext(page: import("@playwright/test").Page) {
+  await expect(page.getByTestId("diagnostics-context-technik")).toBeVisible({ timeout: 20_000 });
+  await page.getByTestId("diagnostics-context-technik").click();
+  await expect(page.getByTestId("diagnostics-technik-context")).toBeVisible();
+}
+
+/** PU-13: Inspector evidence is collapsible under Technik. */
+export async function openDiagnosticsInspectorTechnik(page: import("@playwright/test").Page) {
+  await expect(page.getByTestId("diagnostics-technik-toggle")).toBeVisible({ timeout: 20_000 });
+  await page.getByTestId("diagnostics-technik-toggle").click();
+  await expect(page.getByTestId("diagnostics-technik-panel")).toBeVisible();
+}

@@ -1,9 +1,10 @@
 /**
- * Problem-Inspektor for selected finding — severity, SQL evidence, linked artifacts, actions.
+ * Problem-Inspektor — consequence-first (PU-13), technical evidence as drill-down.
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { BlueprintFinding, CodeFact, RouteBlueprint, SecurityMatrixRow } from "../../types";
+import { presentDiagnosticsFindingConsequence } from "../../../../../shared/product-understanding/index.js";
 import { InspectorPanel } from "../ui/InspectorPanel.js";
 import { StatusBadge } from "../ui/StatusBadge.js";
 import { SEVERITY_LABELS, severityBadgeVariant } from "./diagnostics-severity.js";
@@ -35,6 +36,7 @@ export function DiagnosticsProblemInspector({
   onToggleResolved,
 }: DiagnosticsProblemInspectorProps): JSX.Element {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
+  const [techOpen, setTechOpen] = useState(false);
   const copyResetRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -42,6 +44,10 @@ export function DiagnosticsProblemInspector({
       if (copyResetRef.current) clearTimeout(copyResetRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    setTechOpen(false);
+  }, [finding?.id]);
 
   const evidenceFacts = useMemo(() => {
     if (!finding) return [];
@@ -51,11 +57,16 @@ export function DiagnosticsProblemInspector({
       .filter((fact): fact is CodeFact => fact != null);
   }, [facts, finding]);
 
-  if (!finding) {
+  const consequence = useMemo(
+    () => (finding ? presentDiagnosticsFindingConsequence(finding) : null),
+    [finding],
+  );
+
+  if (!finding || !consequence) {
     return (
       <InspectorPanel
         title="Keine Auswahl"
-        emptyMessage="Wähle ein Finding, um Details und Evidence zu sehen."
+        emptyMessage="Wähle ein Finding, um Konsequenz und Evidence zu sehen."
       />
     );
   }
@@ -80,8 +91,8 @@ export function DiagnosticsProblemInspector({
 
   return (
     <InspectorPanel
-      title={finding.message}
-      subtitle={finding.ruleId}
+      title={consequence.consequenceTitle}
+      subtitle={consequence.confidenceLabel}
       badges={
         <StatusBadge
           variant={severityBadgeVariant(finding.severity)}
@@ -90,54 +101,32 @@ export function DiagnosticsProblemInspector({
       }
       sections={[
         {
-          id: "artifacts",
-          title: "Verknüpfte Artefakte",
+          id: "consequence",
+          title: "Konsequenz",
           content: (
-            <ul className={styles.artifactList}>
-              {route ? (
-                <li>
-                  <span className={styles.artifactLabel}>Route</span>
-                  <a className={styles.artifactLink} href={`#route-${route.id}`}>
-                    {route.method} {route.path}
-                  </a>
-                </li>
-              ) : null}
-              {primaryEvidence ? (
-                <li>
-                  <span className={styles.artifactLabel}>Datei</span>
-                  <a
-                    className={styles.artifactLink}
-                    href={`#file-${primaryEvidence.filePath}-${primaryEvidence.line}`}
-                  >
-                    {primaryEvidence.filePath}:{primaryEvidence.line}
-                  </a>
-                </li>
-              ) : null}
-              {matrixLabel ? (
-                <li>
-                  <span className={styles.artifactLabel}>Matrix</span>
-                  <span className={styles.artifactMeta}>{matrixLabel}</span>
-                </li>
-              ) : null}
-              {!route && !primaryEvidence && !matrixLabel ? (
-                <li className={styles.emptyControls}>Keine Artefakte verknüpft.</li>
-              ) : null}
-            </ul>
+            <div
+              data-testid="diagnostics-consequence"
+              data-confidence={consequence.consequenceConfidence}
+            >
+              <p className={styles.consequenceBody}>{consequence.consequenceTitle}</p>
+            </div>
           ),
         },
         {
-          id: "details",
-          title: "Details",
+          id: "why",
+          title: "Warum relevant",
+          content: <p className={styles.consequenceBody}>{consequence.whyItMatters}</p>,
+        },
+        {
+          id: "observation",
+          title: "Was VisuDev beobachtet",
+          content: <p className={styles.consequenceBody}>{consequence.observation}</p>,
+        },
+        {
+          id: "status",
+          title: "Confidence / Status",
           content: (
             <dl className={styles.detailList}>
-              <div className={styles.detailRow}>
-                <dt>Erwartet</dt>
-                <dd>{finding.expectedState}</dd>
-              </div>
-              <div className={styles.detailRow}>
-                <dt>Gefunden</dt>
-                <dd>{finding.actualState}</dd>
-              </div>
               <div className={styles.detailRow}>
                 <dt>Confidence</dt>
                 <dd>
@@ -147,41 +136,102 @@ export function DiagnosticsProblemInspector({
                   >
                     {formatConfidence(finding.confidence) ?? "unbekannt"}
                   </MetricHint>
+                  <span> · {consequence.confidenceLabel}</span>
                 </dd>
               </div>
-              {finding.remediation ? (
-                <div className={styles.detailRow}>
-                  <dt>Lösung</dt>
-                  <dd>{finding.remediation}</dd>
-                </div>
-              ) : null}
+              <div className={styles.detailRow}>
+                <dt>Bearbeitung</dt>
+                <dd>{resolutionStatus === "resolved" ? "Erledigt" : "Offen"}</dd>
+              </div>
             </dl>
           ),
         },
         {
-          id: "evidence",
-          title: "SQL / Evidence",
-          content:
-            evidenceFacts.length === 0 ? (
-              <p className={styles.emptyControls}>Keine Evidence verknüpft.</p>
-            ) : (
-              <div className={styles.evidenceStack} data-testid="problem-inspector-evidence">
-                {evidenceFacts.map((fact) => (
-                  <div key={fact.id} className={styles.evidenceItem}>
-                    <p className={styles.evidenceMeta}>
-                      {fact.filePath}:{fact.line}
-                    </p>
-                    <pre
-                      className={
-                        isSqlEvidence(fact) ? styles.evidenceSqlBlock : styles.evidenceCodeBlock
-                      }
-                    >
-                      {fact.snippet}
-                    </pre>
-                  </div>
-                ))}
-              </div>
-            ),
+          id: "technik",
+          title: "Technik (Evidence)",
+          content: (
+            <div className={styles.techDrilldown}>
+              <button
+                type="button"
+                className={styles.techToggle}
+                data-testid="diagnostics-technik-toggle"
+                aria-expanded={techOpen}
+                onClick={() => setTechOpen((open) => !open)}
+              >
+                {techOpen ? "Technik ausblenden" : "Regel / Route / Code Evidence zeigen"}
+              </button>
+              {techOpen ? (
+                <div data-testid="diagnostics-technik-panel">
+                  <p className={styles.consequenceMeta}>{consequence.mechanismSummary}</p>
+                  <ul className={styles.artifactList}>
+                    {route ? (
+                      <li>
+                        <span className={styles.artifactLabel}>Route</span>
+                        <a className={styles.artifactLink} href={`#route-${route.id}`}>
+                          {route.method} {route.path}
+                        </a>
+                      </li>
+                    ) : null}
+                    {primaryEvidence ? (
+                      <li>
+                        <span className={styles.artifactLabel}>Datei</span>
+                        <a
+                          className={styles.artifactLink}
+                          href={`#file-${primaryEvidence.filePath}-${primaryEvidence.line}`}
+                        >
+                          {primaryEvidence.filePath}:{primaryEvidence.line}
+                        </a>
+                      </li>
+                    ) : null}
+                    {matrixLabel ? (
+                      <li>
+                        <span className={styles.artifactLabel}>Matrix</span>
+                        <span className={styles.artifactMeta}>{matrixLabel}</span>
+                      </li>
+                    ) : null}
+                  </ul>
+                  <dl className={styles.detailList}>
+                    <div className={styles.detailRow}>
+                      <dt>Erwartet</dt>
+                      <dd>{finding.expectedState}</dd>
+                    </div>
+                    <div className={styles.detailRow}>
+                      <dt>Gefunden</dt>
+                      <dd>{finding.actualState}</dd>
+                    </div>
+                    {consequence.remediation ? (
+                      <div className={styles.detailRow}>
+                        <dt>Mögliche Lösung</dt>
+                        <dd>{consequence.remediation}</dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                  {evidenceFacts.length === 0 ? (
+                    <p className={styles.emptyControls}>Keine Evidence verknüpft.</p>
+                  ) : (
+                    <div className={styles.evidenceStack} data-testid="problem-inspector-evidence">
+                      {evidenceFacts.map((fact) => (
+                        <div key={fact.id} className={styles.evidenceItem}>
+                          <p className={styles.evidenceMeta}>
+                            {fact.filePath}:{fact.line}
+                          </p>
+                          <pre
+                            className={
+                              isSqlEvidence(fact)
+                                ? styles.evidenceSqlBlock
+                                : styles.evidenceCodeBlock
+                            }
+                          >
+                            {fact.snippet}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          ),
         },
         {
           id: "actions",

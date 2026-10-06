@@ -10,6 +10,7 @@ import {
   installWave2Mocks,
   openBlueprintView,
   openDependenciesTechnikLayer,
+  openDiagnosticsTechnikContext,
   openInfrastructureTechnikLayer,
   seedSupabaseSession,
 } from "./wave2-test-helpers.js";
@@ -71,6 +72,7 @@ async function waitForScanAndEnrichment(page: Page, viewId: string) {
       expect(await page.getByTestId("evolution-metric-card").count()).toBeGreaterThanOrEqual(6);
       break;
     case "diagnostics":
+      await openDiagnosticsTechnikContext(page);
       await expect(page.getByTestId("security-matrix")).toBeVisible();
       await expect(page.getByTestId("findings-table")).toBeVisible();
       break;
