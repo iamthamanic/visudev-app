@@ -5,11 +5,26 @@
 
 import clsx from "clsx";
 import type { InformationFlowCard } from "../../../../shared/product-understanding/index.js";
-import {
-  atlasKnowledgeStatusLabel,
-  atlasKnowledgeTone,
-} from "../../blueprint/components/atlas/atlas-knowledge-status.js";
 import styles from "../styles/DataPage.module.css";
+
+const STATUS_LABELS: Record<string, string> = {
+  VERIFIED: "Verifiziert",
+  SUPPORTED: "Gestützt",
+  INTERPRETED: "Interpretiert",
+  UNKNOWN: "Unbekannt",
+  CONFLICTED: "Konflikt",
+};
+
+function statusLabel(status: string | undefined): string {
+  if (!status) return "Unbekannt";
+  return STATUS_LABELS[status] ?? status;
+}
+
+function statusTone(status: string | undefined): "strong" | "weak" | "conflict" {
+  if (status === "CONFLICTED") return "conflict";
+  if (status === "VERIFIED" || status === "SUPPORTED") return "strong";
+  return "weak";
+}
 
 export interface DataInformationFlowViewProps {
   cards: InformationFlowCard[];
@@ -62,8 +77,8 @@ export function DataInformationFlowView({
           >
             <span className={styles.infoCardTitle}>{card.title}</span>
             <span className={styles.infoCardMeaning}>{card.meaning}</span>
-            <span data-tone={atlasKnowledgeTone(card.knowledgeStatus)}>
-              {atlasKnowledgeStatusLabel(card.knowledgeStatus)}
+            <span data-tone={statusTone(card.knowledgeStatus)}>
+              {statusLabel(card.knowledgeStatus)}
               {card.confirmed ? "" : " — nicht bestätigt"}
             </span>
           </button>
@@ -83,7 +98,7 @@ export function DataInformationFlowView({
           <div className={styles.panelContent}>
             <p className={styles.infoMeaningBody}>{selected.meaning}</p>
             <p className={styles.infoCardMeaning}>
-              KnowledgeStatus: {atlasKnowledgeStatusLabel(selected.knowledgeStatus)}
+              KnowledgeStatus: {statusLabel(selected.knowledgeStatus)}
               {selected.confirmed ? "" : " — nicht als bestätigt formulieren"}
             </p>
             {selected.partialReason ? (
@@ -104,8 +119,7 @@ export function DataInformationFlowView({
                   >
                     <strong>{hop.label}</strong>
                     <span>
-                      {atlasKnowledgeStatusLabel(hop.knowledgeStatus)} · Evidence{" "}
-                      {hop.evidenceCount}
+                      {statusLabel(hop.knowledgeStatus)} · Evidence {hop.evidenceCount}
                       {hop.confirmed ? "" : " — unbestätigt"}
                     </span>
                   </li>
