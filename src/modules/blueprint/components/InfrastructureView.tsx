@@ -210,7 +210,9 @@ export function InfrastructureView({
         }
         canvas={
           <div className={styles.canvasWrap}>
-            {isPartialScan ? <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} /> : null}
+            {isPartialScan ? (
+              <TruncationBanner analyzed={filesAnalyzed} total={totalFiles} />
+            ) : null}
             <InfrastructureSystemTopologyView
               parts={systemProjection?.parts ?? []}
               connections={systemProjection?.connections ?? []}

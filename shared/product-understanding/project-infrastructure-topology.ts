@@ -129,9 +129,7 @@ function graphNodeIdsFor(concept: ProductConcept): string[] {
     ...(concept.technicalRefs ?? [])
       .filter((ref) => ref.source === "software-graph")
       .map((ref) => ref.refId),
-    ...concept.evidence
-      .filter((ref) => ref.source === "software-graph")
-      .map((ref) => ref.refId),
+    ...concept.evidence.filter((ref) => ref.source === "software-graph").map((ref) => ref.refId),
   ];
   return [...new Set(ids.filter(Boolean))];
 }
@@ -241,7 +239,8 @@ export function projectInfrastructureSystemTopology(
       parts: [],
       connections: [],
       partial: true,
-      partialReason: "Keine belegten Systemteile — Infrastructure ABSENT für Product Understanding.",
+      partialReason:
+        "Keine belegten Systemteile — Infrastructure ABSENT für Product Understanding.",
       coverage: "absent",
     };
   }
@@ -269,8 +268,7 @@ export function projectInfrastructureSystemTopology(
 
   const connections: SystemTopologyConnection[] = model.relations
     .filter(
-      (relation) =>
-        partIds.has(relation.sourceConceptId) && partIds.has(relation.targetConceptId),
+      (relation) => partIds.has(relation.sourceConceptId) && partIds.has(relation.targetConceptId),
     )
     .map((relation) => {
       const sourceRole = roleById.get(relation.sourceConceptId) ?? "unknown";
@@ -284,8 +282,7 @@ export function projectInfrastructureSystemTopology(
         relationKind: relation.kind,
         knowledgeStatus: relation.knowledgeStatus,
         evidenceCount,
-        confirmed:
-          isAuthoritativeKnowledgeStatus(relation.knowledgeStatus) && evidenceCount > 0,
+        confirmed: isAuthoritativeKnowledgeStatus(relation.knowledgeStatus) && evidenceCount > 0,
       };
     })
     .sort((left, right) => left.id.localeCompare(right.id));

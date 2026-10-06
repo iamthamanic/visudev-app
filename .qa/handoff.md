@@ -4,4 +4,3 @@
 - **In progress:** #433 PU-12 · Rebuild Infrastructure as human-readable system topology (implement)
 - **paused:** false
 - **runMode:** loop
-

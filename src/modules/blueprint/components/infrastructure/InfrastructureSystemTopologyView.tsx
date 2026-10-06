@@ -61,9 +61,7 @@ export function InfrastructureSystemTopologyView({
 }: InfrastructureSystemTopologyViewProps): JSX.Element {
   const partsById = new Map(parts.map((part) => [part.id, part]));
   const selected = parts.find((part) => part.id === selectedId) ?? null;
-  const selectedLinks = selected
-    ? connectionsFor(selected.id, connections, partsById)
-    : [];
+  const selectedLinks = selected ? connectionsFor(selected.id, connections, partsById) : [];
 
   if (parts.length === 0) {
     return (
@@ -126,7 +124,9 @@ export function InfrastructureSystemTopologyView({
 
           <h3 className={styles.systemDetailSubtitle}>Verbindungen</h3>
           {selectedLinks.length === 0 ? (
-            <p className={styles.topologyMeta}>Keine belegten Verbindungen für dieses Systemteil.</p>
+            <p className={styles.topologyMeta}>
+              Keine belegten Verbindungen für dieses Systemteil.
+            </p>
           ) : (
             <ul className={styles.systemLinkList}>
               {selectedLinks.map((link, index) => (
@@ -145,7 +145,9 @@ export function InfrastructureSystemTopologyView({
           {selected.technical ? (
             <ul className={styles.systemTechList} data-testid="infra-system-tech">
               {selected.technical.runtime ? <li>Runtime: {selected.technical.runtime}</li> : null}
-              {selected.technical.provider ? <li>Provider: {selected.technical.provider}</li> : null}
+              {selected.technical.provider ? (
+                <li>Provider: {selected.technical.provider}</li>
+              ) : null}
               {selected.technical.region ? <li>Region: {selected.technical.region}</li> : null}
               {selected.technical.env ? <li>Env: {selected.technical.env}</li> : null}
             </ul>
