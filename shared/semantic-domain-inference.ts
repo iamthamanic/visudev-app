@@ -68,6 +68,12 @@ const STRUCTURAL_DOMAIN_NAMES = new Set([
   "worker",
 ]);
 
+/** True when a token is a technical folder / layer name, not a product domain. */
+export function isStructuralDomainName(raw: string): boolean {
+  const value = raw.trim().toLowerCase();
+  return value.length > 0 && STRUCTURAL_DOMAIN_NAMES.has(value);
+}
+
 const TECHNICAL_SUFFIX =
   /(?:[-_. ]?(?:services?|controllers?|repositor(?:y|ies)|screens?|pages?|stores?|hooks?|handlers?|models?|entit(?:y|ies)|routes?))$/i;
 const NAMED_SEMANTIC_ARTIFACT_SUFFIX =

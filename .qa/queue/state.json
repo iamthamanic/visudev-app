@@ -1,14 +1,16 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": null,
-  "featureSlug": null,
-  "phase": "idle",
-  "branch": null,
-  "prUrl": null,
+  "activeIssue": 428,
+  "featureSlug": "pu-07-atlas-2d-product-domain-map",
+  "phase": "babysit",
+  "branch": "feat/428-pu-07-atlas-2d-product-domain-map",
+  "prUrl": "https://github.com/iamthamanic/visudev-app/pull/444",
   "paused": false,
   "runMode": "loop",
-  "queue": [],
+  "queue": [
+    428
+  ],
   "completedIssues": [
     321,
     322,
@@ -55,7 +57,13 @@
     393,
     394,
     395,
-    396
+    396,
+    422,
+    423,
+    424,
+    425,
+    426,
+    427
   ],
   "mergedIssues": [
     321,
@@ -103,7 +111,13 @@
     393,
     394,
     395,
-    396
+    396,
+    422,
+    423,
+    424,
+    425,
+    426,
+    427
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
@@ -117,7 +131,14 @@
     "393": "https://github.com/iamthamanic/visudev-app/pull/415",
     "394": "https://github.com/iamthamanic/visudev-app/pull/416",
     "395": "https://github.com/iamthamanic/visudev-app/pull/417",
-    "396": "https://github.com/iamthamanic/visudev-app/pull/418"
+    "396": "https://github.com/iamthamanic/visudev-app/pull/418",
+    "422": "https://github.com/iamthamanic/visudev-app/pull/438",
+    "423": "https://github.com/iamthamanic/visudev-app/pull/439",
+    "424": "https://github.com/iamthamanic/visudev-app/pull/440",
+    "425": "https://github.com/iamthamanic/visudev-app/pull/441",
+    "426": "https://github.com/iamthamanic/visudev-app/pull/442",
+    "427": "https://github.com/iamthamanic/visudev-app/pull/443",
+    "428": "https://github.com/iamthamanic/visudev-app/pull/444"
   },
   "retries": {
     "implement": 0,
@@ -136,9 +157,9 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": null,
-  "lastCompletedIssue": 374,
-  "notes": "Epic #374 closed \u2014 Product Readiness children #375\u2013#396 done; V1 CI green",
-  "updatedAt": "2026-10-05T12:07:02.000Z",
+  "currentIssue": 428,
+  "lastCompletedIssue": 427,
+  "notes": "#428 PR #444 babysit",
+  "updatedAt": "2026-10-06T08:13:21.000Z",
   "milestoneFilter": null
 }

@@ -1,5 +1,7 @@
 /**
  * Wire Product Understanding → AtlasProjection (PU-07).
+ * When no corroborated product concepts exist, fall back to the existing semantic
+ * Atlas projection so folder-first projects stay honest (never invent domains).
  * Location: src/modules/blueprint/components/atlas/project-atlas-from-product-understanding.ts
  */
 
@@ -10,10 +12,15 @@ import {
 } from "../../../../../shared/product-understanding/index.js";
 import { getNodeKindColor } from "../infrastructure/_colors.js";
 import type { SoftwareGraph, SoftwareGraphGroup, SoftwareGraphNodeKind } from "../../types";
-import type { AtlasProjection, AtlasProjectionOptions } from "./_projection.js";
+import {
+  projectAtlasSemanticModel,
+  type AtlasProjection,
+  type AtlasProjectionOptions,
+} from "./_projection.js";
 
 /**
- * Build Atlas primary layer exclusively from ProductUnderstanding product semantics.
+ * Build Atlas primary layer from ProductUnderstanding product semantics.
+ * Falls back to semantic overview only when the product map is empty.
  */
 export function projectAtlasFromProductUnderstanding(
   graph: SoftwareGraph,
@@ -29,6 +36,10 @@ export function projectAtlasFromProductUnderstanding(
   const map = projectAtlasProductMap(productModel, {
     searchQuery: options.searchQuery,
   });
+
+  if (map.visibleNodes === 0) {
+    return projectAtlasSemanticModel(graph, semantic, options);
+  }
 
   const nodes = map.nodes.map((node) => ({
     ...node,

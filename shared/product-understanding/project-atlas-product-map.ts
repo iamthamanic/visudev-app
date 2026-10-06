@@ -6,6 +6,7 @@
 
 import type { GraphCanvasEdge, GraphCanvasNode } from "../graph-canvas.types.js";
 import type { SemanticEntity } from "../semantic-system-model.types.js";
+import { isStructuralDomainName } from "../semantic-domain-inference.js";
 import type {
   ProductConcept,
   ProductConceptKind,
@@ -66,6 +67,17 @@ function isPrimary(kind: ProductConceptKind): kind is AtlasProductPrimaryKind {
   return PRIMARY_SET.has(kind);
 }
 
+/** Reject folder-layer labels so Atlas never paints technical clusters as product areas. */
+function isProductFacingLabel(label: string): boolean {
+  const slug = label
+    .trim()
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return Boolean(slug) && !isStructuralDomainName(slug);
+}
+
 function purposeFor(model: ProductUnderstandingModel, concept: ProductConcept): string {
   if (concept.summary?.trim()) return concept.summary.trim().slice(0, 160);
   const view = presentProductConceptExplanation(model, concept.id);
@@ -118,7 +130,9 @@ export function projectAtlasProductMap(
 ): AtlasProductMapProjection {
   const maxNodes = options.maxNodes ?? 40;
   const search = (options.searchQuery ?? "").trim().toLowerCase();
-  const primary = model.concepts.filter((concept) => isPrimary(concept.kind));
+  const primary = model.concepts.filter(
+    (concept) => isPrimary(concept.kind) && isProductFacingLabel(concept.label),
+  );
   const filtered = search
     ? primary.filter(
         (concept) =>

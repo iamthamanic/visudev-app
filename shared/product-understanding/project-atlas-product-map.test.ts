@@ -82,6 +82,24 @@ describe("projectAtlasProductMap", () => {
     );
   });
 
+  it("drops structural folder labels from the Atlas product map", () => {
+    const model = sampleModel();
+    model.concepts.push({
+      id: "pu:product-area:config",
+      kind: "product-area",
+      label: "config",
+      knowledgeStatus: "SUPPORTED",
+      confidence: 0.9,
+      evidence: [
+        { source: "software-graph", refId: "n:config" },
+        { source: "semantic-system-model", refId: "sem:config" },
+      ],
+    });
+    const projection = projectAtlasProductMap(model);
+    expect(projection.nodes.some((node) => node.label.toLowerCase() === "config")).toBe(false);
+    expect(projection.groups.some((group) => group.label.toLowerCase() === "config")).toBe(false);
+  });
+
   it("keeps technical refs off the primary node list but available via adapters", () => {
     const projection = projectAtlasProductMap(sampleModel());
     const billing = projection.semanticEntities.find((e) => e.id === "pu:product-area:billing");

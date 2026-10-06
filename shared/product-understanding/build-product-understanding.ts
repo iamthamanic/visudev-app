@@ -10,7 +10,10 @@ import {
   dominantCanonicalKnowledgeStatus,
   type KnowledgeStatus,
 } from "../scan-detector/epistemic.js";
-import { normalizeBusinessDomainCandidate } from "../semantic-domain-inference.js";
+import {
+  isStructuralDomainName,
+  normalizeBusinessDomainCandidate,
+} from "../semantic-domain-inference.js";
 import type { SemanticEntity, SemanticSystemModel } from "../semantic-system-model.types.js";
 import type { SoftwareGraph } from "../software-graph.types.js";
 import type { UiInteractionGraph } from "../ui-interaction-graph.types.js";
@@ -129,14 +132,9 @@ function normalizeLooseKey(raw: string): string | null {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
   if (!value || value.length < 2) return null;
-  // Single structural tokens alone are never concepts (folder-name trap).
-  if (
-    /^(src|app|api|lib|libs|pages?|screens?|components?|hooks?|utils?|shared|index|main|root)$/.test(
-      value,
-    )
-  ) {
-    return null;
-  }
+  // Structural folder / layer tokens are never product concepts (folder-name trap).
+  if (isStructuralDomainName(value)) return null;
+  if (/^(main)$/.test(value)) return null;
   return value;
 }
 
@@ -250,6 +248,10 @@ function collectFromSoftware(map: Map<string, ConceptCandidate>, software: Softw
       });
     }
     if (node.kind === "domain") {
+      // Folder-layer domain nodes are never product areas (folder-name trap).
+      if (isStructuralDomainName(node.label) || !normalizeBusinessDomainCandidate(node.label)) {
+        continue;
+      }
       pushSignal(map, "product-area", node.label, node.label, {
         source: "software-graph",
         refId: node.id,

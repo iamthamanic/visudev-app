@@ -11,6 +11,7 @@ import type {
   SemanticRelationKind,
   SemanticSystemModel,
 } from "../../../../../shared/semantic-system-model.types.js";
+import { isStructuralDomainName } from "../../../../../shared/semantic-domain-inference.js";
 import { getNodeKindColor } from "../infrastructure/_colors.js";
 import type {
   GraphCanvasEdge,
@@ -225,6 +226,7 @@ function buildGroups(
   const inspectorGroups: SoftwareGraphGroup[] = [];
 
   for (const domain of model.entities.filter((entity) => entity.kind === "business-domain")) {
+    if (isStructuralDomainName(domain.label)) continue;
     const rawIds = new Set(rawMemberships.get(domain.id) ?? []);
     const representativeId = representativeByEntityId.get(domain.id);
     if (representativeId) rawIds.add(representativeId);
@@ -268,6 +270,7 @@ function buildGroups(
     ]);
     for (const entity of selectedEntities) {
       if (!technicalKinds.has(entity.kind)) continue;
+      if (isStructuralDomainName(entity.label)) continue;
       const representativeId = representativeByEntityId.get(entity.id);
       const id = `atlas-tech:${entity.id}`;
       groups.push({
