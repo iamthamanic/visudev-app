@@ -3,9 +3,9 @@
   "repo": "iamthamanic/visudev-app",
   "activeIssue": 429,
   "featureSlug": "pu-08-architecture-responsibilities",
-  "phase": "implement",
+  "phase": "babysit",
   "branch": "feat/429-pu-08-architecture-responsibilities",
-  "prUrl": null,
+  "prUrl": "https://github.com/iamthamanic/visudev-app/pull/445",
   "paused": false,
   "runMode": "loop",
   "queue": [
@@ -140,7 +140,8 @@
     "425": "https://github.com/iamthamanic/visudev-app/pull/441",
     "426": "https://github.com/iamthamanic/visudev-app/pull/442",
     "427": "https://github.com/iamthamanic/visudev-app/pull/443",
-    "428": "https://github.com/iamthamanic/visudev-app/pull/444"
+    "428": "https://github.com/iamthamanic/visudev-app/pull/444",
+    "429": "https://github.com/iamthamanic/visudev-app/pull/445"
   },
   "retries": {
     "implement": 0,
@@ -161,7 +162,7 @@
   "lastErrorCount": 0,
   "currentIssue": 429,
   "lastCompletedIssue": 428,
-  "notes": "#428 merged. Claiming #429 PU-08.",
+  "notes": "#429 PR #445 opened; babysitting CI.",
   "updatedAt": "2026-10-06T08:32:53.000Z",
   "milestoneFilter": null
 }

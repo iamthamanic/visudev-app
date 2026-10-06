@@ -335,7 +335,7 @@ function buildRelations(
   concepts: readonly ProductConcept[],
   semantic: SemanticSystemModel | null | undefined,
 ): ProductRelation[] {
-  if (!semantic) return [];
+  if (!semantic || !Array.isArray(semantic.relations)) return [];
   const bySemanticId = new Map<string, ProductConcept>();
   for (const concept of concepts) {
     for (const ref of concept.evidence) {
