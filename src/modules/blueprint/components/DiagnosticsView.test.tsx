@@ -77,6 +77,14 @@ const blueprint: BlueprintData = {
   ],
 };
 
+function openTechnikContext(): void {
+  fireEvent.click(screen.getByTestId("diagnostics-context-technik"));
+}
+
+function openInspectorTechnik(): void {
+  fireEvent.click(screen.getByTestId("diagnostics-technik-toggle"));
+}
+
 describe("DiagnosticsView", () => {
   beforeEach(() => {
     vi.stubGlobal("navigator", {
@@ -88,13 +96,16 @@ describe("DiagnosticsView", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders Security sub-tab with matrix and findings by default", () => {
+  it("renders Security sub-tab with consequence-first findings by default", () => {
     render(<DiagnosticsView blueprint={blueprint} />);
     expect(screen.getByRole("tab", { name: "Security", selected: true })).toBeInTheDocument();
+    expect(screen.getByTestId("findings-table")).toBeInTheDocument();
+    expect(screen.getAllByText(/Unbefugte könnten/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText("Sicherheits-Matrix")).not.toBeInTheDocument();
+    openTechnikContext();
     expect(screen.getByText("Sicherheits-Matrix")).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: "RLS" })).not.toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "DB" })).toBeInTheDocument();
-    expect(screen.getAllByText("Auth fehlt auf Route").length).toBeGreaterThan(0);
     expect(screen.getByRole("columnheader", { name: "Schwere" })).toBeInTheDocument();
   });
 
@@ -146,6 +157,7 @@ describe("DiagnosticsView", () => {
       ],
     };
     render(<FlaggedDiagnosticsView blueprint={acBlueprint} />);
+    openTechnikContext();
     expect(screen.getByTestId("security-matrix")).toHaveAttribute("data-access-control-v2", "true");
     expect(screen.getByRole("columnheader", { name: "Scope" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Tenant" })).toBeInTheDocument();
@@ -165,6 +177,7 @@ describe("DiagnosticsView", () => {
     }));
     const { DiagnosticsView: FlaggedDiagnosticsView } = await import("./DiagnosticsView");
     render(<FlaggedDiagnosticsView blueprint={blueprint} />);
+    openTechnikContext();
     expect(screen.queryByRole("columnheader", { name: "RLS" })).not.toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "DB" })).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: "Tenant" })).not.toBeInTheDocument();
@@ -173,15 +186,17 @@ describe("DiagnosticsView", () => {
 
   it("opens Problem-Inspektor with artifacts and SQL evidence when selecting a finding", async () => {
     render(<DiagnosticsView blueprint={blueprint} />);
+    expect(await screen.findByTestId("diagnostics-consequence")).toBeInTheDocument();
+    openInspectorTechnik();
     expect(await screen.findByText("Erwartet")).toBeInTheDocument();
     expect(screen.getByText(/getUsers/)).toBeInTheDocument();
-    expect(screen.getByText("Verknüpfte Artefakte")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "GET /users" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "src/routes/users.ts:10" })).toBeInTheDocument();
   });
 
   it("copies evidence from Problem-Inspektor actions", async () => {
     render(<DiagnosticsView blueprint={blueprint} />);
+    openInspectorTechnik();
     fireEvent.click(await screen.findByRole("button", { name: "Evidence kopieren" }));
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       "export async function getUsers() {}",

@@ -213,3 +213,12 @@ export {
   type SystemTopologyRole,
   type SystemTopologyTechnicalDetail,
 } from "./project-infrastructure-topology.js";
+
+export {
+  diagnosticsConsequenceGroupKey,
+  presentDiagnosticsFindingConsequence,
+  presentDiagnosticsFindingConsequences,
+  type DiagnosticsConsequenceConfidence,
+  type DiagnosticsFindingConsequenceInput,
+  type DiagnosticsFindingConsequenceView,
+} from "./project-diagnostics-consequences.js";

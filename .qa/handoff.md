@@ -1,6 +1,6 @@
 # ECC Runner Handoff
 
-- **Last merged:** #432 PU-11 — PR #448 — `a0c62c0d`
-- **In progress:** #433 PU-12 · Rebuild Infrastructure as human-readable system topology (implement)
+- **Last merged:** #433 PU-12 — PR #449 — `18c37791`
+- **In progress:** #434 PU-13 · Make Diagnostics consequence-first (implement)
 - **paused:** false
 - **runMode:** loop

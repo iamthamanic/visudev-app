@@ -8,6 +8,8 @@ import {
   buildDiagnosticsMockBlueprint,
   installWave2Mocks,
   openBlueprintView,
+  openDiagnosticsInspectorTechnik,
+  openDiagnosticsTechnikContext,
   seedSupabaseSession,
 } from "./wave2-test-helpers.js";
 
@@ -25,11 +27,14 @@ test.describe("Wave 3 diagnostics scale", () => {
     );
     await openBlueprintView(page, "diagnostics");
 
-    expect(await page.getByTestId("security-matrix-row").count()).toBeGreaterThanOrEqual(5);
     const pagination = page.getByTestId("findings-pagination");
     await expect(pagination).toBeVisible();
     await expect(pagination).toContainText(/24|von/i);
 
+    await openDiagnosticsTechnikContext(page);
+    expect(await page.getByTestId("security-matrix-row").count()).toBeGreaterThanOrEqual(5);
+
+    await openDiagnosticsInspectorTechnik(page);
     const evidence = page.getByTestId("problem-inspector-evidence");
     await expect(evidence).toBeVisible({ timeout: 15000 });
     await expect(evidence).toContainText(/SELECT|SQL|employees/i);
