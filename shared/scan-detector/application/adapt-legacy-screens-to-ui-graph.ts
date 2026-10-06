@@ -75,16 +75,26 @@ export function adaptLegacyScreensToUiGraph(input: AdaptLegacyScreensInput): UiI
     screenIdToSurfaceId.set(screen.id, id);
     const kind = surfaceKindFromScreenType(screen.type);
     const evidenceId = `ui:ev:static:${screen.id}`;
-    const confidence = kind === "unknown" ? 0.5 : screen.type === "page" ? 0.85 : 0.7;
+    const status = screen.knowledgeStatus ?? "inferred";
+    const confidence =
+      typeof screen.confidence === "number"
+        ? screen.confidence
+        : kind === "unknown" || status === "unknown"
+          ? 0.5
+          : screen.type === "page"
+            ? 0.85
+            : 0.7;
+    const origin = screen.framework === "custom-nav" ? "static" : "heuristic";
 
     evidence.push({
       id: evidenceId,
-      kind: "legacy-screen-heuristic",
-      status: "inferred",
-      origin: "heuristic",
+      kind: screen.framework === "custom-nav" ? "custom-nav-legacy" : "legacy-screen-heuristic",
+      status,
+      origin,
       confidence,
       summary: `Legacy Screen adapter: ${screen.name}`,
       filePath: screen.filePath,
+      line: screen.evidenceLine,
       attributes: {
         legacyScreenId: screen.id,
         legacyType: screen.type ?? null,
@@ -96,7 +106,7 @@ export function adaptLegacyScreensToUiGraph(input: AdaptLegacyScreensInput): UiI
 
     surfaces.push({
       id,
-      kind,
+      kind: status === "unknown" && !screen.path ? "unknown" : kind,
       label: screen.name,
       path: screen.path || undefined,
       stateKey: screen.stateKey,
@@ -105,12 +115,13 @@ export function adaptLegacyScreensToUiGraph(input: AdaptLegacyScreensInput): UiI
         : undefined,
       filePath: screen.filePath,
       framework: screen.framework,
-      status: "inferred",
+      status,
       confidence,
       evidenceIds: [evidenceId],
       attributes: {
         legacyScreenId: screen.id,
         runtimeOnly: false,
+        evidenceLine: screen.evidenceLine ?? null,
       },
     });
   }

@@ -17,8 +17,8 @@ export const WEB_UI_CAPABILITY: DetectorCapability = {
   id: "web-ui-interaction-graph",
   label: "Web UIInteractionGraph",
   family: "ui-interaction",
-  version: "1.0.0",
-  supports: ["react", "next", "nuxt", "web"],
+  version: "1.1.0",
+  supports: ["react", "next", "nuxt", "web", "custom-navigation"],
 };
 
 export interface WebUiDetectorHost {

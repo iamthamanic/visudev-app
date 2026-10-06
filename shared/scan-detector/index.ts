@@ -225,6 +225,21 @@ export {
   type AdaptLegacyScreensInput,
 } from "./application/adapt-legacy-screens-to-ui-graph.js";
 
+export {
+  extractCustomNavigation,
+  type CustomNavFileInput,
+  type CustomNavigationCoverage,
+  type CustomNavigationExtractResult,
+  type CustomNavSource,
+  type CustomNavSurfaceDraft,
+  type CustomNavTransitionDraft,
+} from "./application/extract-custom-navigation.js";
+
+export {
+  customNavigationToLegacyScreens,
+  mergeCustomNavigationIntoUiGraph,
+} from "./application/merge-custom-navigation-into-ui-graph.js";
+
 export { projectUiGraphToLegacyScreens } from "./application/project-ui-graph-to-legacy-screens.js";
 
 export {
