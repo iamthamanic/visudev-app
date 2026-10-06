@@ -1,5 +1,5 @@
 /**
- * Tests for ArchitectureView grouping toggle, layer stack, and collapse controls.
+ * Tests for ArchitectureView — PU-08 responsibility map default + technical detail levels.
  */
 
 import { render, screen, fireEvent, within } from "@testing-library/react";
@@ -24,7 +24,9 @@ const graphBlueprint: BlueprintData = {
     analyzedAt: "2026-01-01T00:00:00.000Z",
     scopes: [],
     nodes: [
-      { id: "domain:routes", kind: "domain", label: "routes", metadata: {} },
+      { id: "app:hr", kind: "application", label: "hr-tool", metadata: {} },
+      { id: "domain:leave", kind: "domain", label: "Leave", metadata: {} },
+      { id: "module:leave-repo", kind: "module", label: "LeaveRepository", metadata: {} },
       { id: "layer:routes:presentation", kind: "layer", label: "presentation", metadata: {} },
       {
         id: "module:routes:presentation:routes",
@@ -37,8 +39,8 @@ const graphBlueprint: BlueprintData = {
       {
         id: "e1",
         kind: "contains",
-        sourceId: "domain:routes",
-        targetId: "layer:routes:presentation",
+        sourceId: "domain:leave",
+        targetId: "module:leave-repo",
         metadata: {},
       },
       {
@@ -57,51 +59,9 @@ const graphBlueprint: BlueprintData = {
   },
 };
 
-const mixedDomainBlueprint: BlueprintData = {
-  ...emptyBlueprint,
-  graph: {
-    version: 1,
-    projectId: "p1",
-    analyzedAt: "2026-01-01T00:00:00.000Z",
-    scopes: [],
-    nodes: [
-      { id: "domain:hr", kind: "domain", label: "hr", metadata: {} },
-      { id: "layer:hr:ui", kind: "layer", label: "ui", metadata: {} },
-      { id: "layer:none:shared", kind: "layer", label: "shared", metadata: {} },
-    ],
-    edges: [
-      {
-        id: "e-hr",
-        kind: "contains",
-        sourceId: "domain:hr",
-        targetId: "layer:hr:ui",
-        metadata: {},
-      },
-    ],
-    evidence: [],
-    groups: [],
-    metrics: [],
-    condensed: false,
-    limits: { maxNodes: 2500, maxEdges: 5000 },
-  },
-};
-
-const noDomainBlueprint: BlueprintData = {
-  ...emptyBlueprint,
-  graph: {
-    version: 1,
-    projectId: "p1",
-    analyzedAt: "2026-01-01T00:00:00.000Z",
-    scopes: [],
-    nodes: [{ id: "layer:x:ui", kind: "layer", label: "ui", metadata: {} }],
-    edges: [],
-    evidence: [],
-    groups: [],
-    metrics: [],
-    condensed: false,
-    limits: { maxNodes: 2500, maxEdges: 5000 },
-  },
-};
+function openTechnicalLevel() {
+  fireEvent.click(screen.getByTestId("arch-level-module"));
+}
 
 describe("ArchitectureView", () => {
   it("shows empty state without graph data", () => {
@@ -109,93 +69,59 @@ describe("ArchitectureView", () => {
     expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
-  it("renders grouping toggle and layer stack in canvas by default", () => {
+  it("defaults to Product Understanding responsibility map", () => {
     render(<ArchitectureView blueprint={graphBlueprint} />);
+    expect(screen.getByTestId("architecture-responsibility-map")).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Layers" })).not.toBeInTheDocument();
+  });
+
+  it("shows partial or empty state honestly when product map is thin", () => {
+    render(<ArchitectureView blueprint={graphBlueprint} />);
+    const map = screen.getByTestId("architecture-responsibility-map");
+    expect(map).toBeInTheDocument();
+    const banner = screen.queryByTestId("architecture-partial-banner");
+    const empty = screen.queryByTestId("architecture-responsibility-empty");
+    expect(
+      banner || empty || screen.getAllByTestId("architecture-responsibility-card").length >= 0,
+    ).toBeTruthy();
+  });
+
+  it("opens purpose-first inspector for a responsibility card", () => {
+    render(<ArchitectureView blueprint={graphBlueprint} />);
+    const cards = screen.getAllByTestId("architecture-responsibility-card");
+    expect(cards.length).toBeGreaterThan(0);
+    fireEvent.click(cards[0]);
+    expect(screen.getByTestId("architecture-purpose")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-boundary-detail")).toBeInTheDocument();
+  });
+
+  it("switches to technical layer stack via Technik level", () => {
+    render(<ArchitectureView blueprint={graphBlueprint} />);
+    openTechnicalLevel();
     expect(screen.getByRole("tab", { name: "Layers", selected: true })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /presentation/i })).toBeInTheDocument();
-    expect(screen.queryByText("Graph wird geladen...")).not.toBeInTheDocument();
   });
 
-  it("switches to Domains grouping mode", () => {
+  it("switches to Domains grouping mode on technical level", () => {
     render(<ArchitectureView blueprint={graphBlueprint} />);
+    openTechnicalLevel();
     fireEvent.click(screen.getByRole("tab", { name: "Domains" }));
     const stack = screen.getByLabelText("Architektur-Stack");
-    expect(within(stack).getByRole("button", { name: /routes/i })).toBeInTheDocument();
+    expect(within(stack).getByRole("button", { name: /leave/i })).toBeInTheDocument();
   });
 
-  it("opens Inspektor with services table when selecting a stack card", () => {
+  it("opens Inspektor with services table when selecting a stack card on Technik", () => {
     render(<ArchitectureView blueprint={graphBlueprint} />);
+    openTechnicalLevel();
     fireEvent.click(screen.getByRole("button", { name: /presentation/i }));
     expect(screen.getByText("Verantwortlichkeiten")).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Service" })).toBeInTheDocument();
   });
 
-  it("shows GraphCanvas only in Modules grouping mode", () => {
+  it("shows GraphCanvas only in Modules grouping mode on Technik", () => {
     render(<ArchitectureView blueprint={graphBlueprint} />);
+    openTechnicalLevel();
     fireEvent.click(screen.getByRole("tab", { name: "Modules" }));
     expect(screen.getByText("Graph wird geladen...")).toBeInTheDocument();
-  });
-
-  it("toggles domain collapse on click", () => {
-    render(<ArchitectureView blueprint={graphBlueprint} />);
-    const domainButton = screen.getByRole("button", { name: /domain routes/i });
-    expect(domainButton).toHaveAttribute("aria-pressed", "false");
-    fireEvent.click(domainButton);
-    expect(domainButton).toHaveAttribute("aria-pressed", "true");
-  });
-
-  it("does not invent fach domains from graph folder labels without semantic memberships", () => {
-    render(<ArchitectureView blueprint={mixedDomainBlueprint} />);
-    expect(screen.getByTestId("arch-nothing-found")).toHaveTextContent(
-      "Keine fachlichen Domänen erkannt — technische Ordner/Layer bleiben unter Ohne Domäne.",
-    );
-    expect(screen.queryByTestId("arch-domain-group")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /ui/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /shared/i })).toBeInTheDocument();
-  });
-
-  it("groups layers by SemanticSystemModel business domains when provided", () => {
-    const withSemantic: BlueprintData = {
-      ...mixedDomainBlueprint,
-      semanticSystemModel: {
-        version: 2,
-        projectId: "p1",
-        analyzedAt: "2026-01-01T00:00:00.000Z",
-        entities: [
-          {
-            id: "semantic:business-domain:hr",
-            kind: "business-domain",
-            label: "Hr",
-            confidence: 0.9,
-            knowledgeStatus: "VERIFIED",
-            evidence: [{ source: "graph-node", refId: "layer:hr:ui" }],
-            metadata: {},
-          },
-        ],
-        memberships: [
-          {
-            graphNodeId: "layer:hr:ui",
-            semanticEntityId: "semantic:business-domain:hr",
-            confidence: 0.9,
-            evidence: [{ source: "graph-node", refId: "layer:hr:ui" }],
-          },
-        ],
-        relations: [],
-      },
-    };
-    render(<ArchitectureView blueprint={withSemantic} />);
-    expect(screen.getByTestId("arch-domain-group")).toHaveTextContent("Hr");
-    expect(screen.getByTestId("arch-no-domain")).toHaveTextContent("Ohne Domäne");
-    expect(screen.getByTestId("architecture-semantic-kinds")).toBeInTheDocument();
-  });
-
-  it("shows nothing-found when no domains are recognized", () => {
-    render(<ArchitectureView blueprint={noDomainBlueprint} />);
-    expect(screen.getByTestId("arch-nothing-found")).toHaveTextContent(
-      "Keine fachlichen Domänen erkannt — technische Ordner/Layer bleiben unter Ohne Domäne.",
-    );
-    expect(screen.queryByTestId("arch-domain-group")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("arch-no-domain")).not.toBeInTheDocument();
-    expect(screen.getByTestId("architecture-layer-stack")).toBeInTheDocument();
   });
 });

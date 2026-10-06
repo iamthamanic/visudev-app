@@ -1,15 +1,15 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 428,
-  "featureSlug": "pu-07-atlas-2d-product-domain-map",
+  "activeIssue": 429,
+  "featureSlug": "pu-08-architecture-responsibilities",
   "phase": "babysit",
-  "branch": "feat/428-pu-07-atlas-2d-product-domain-map",
-  "prUrl": "https://github.com/iamthamanic/visudev-app/pull/444",
+  "branch": "feat/429-pu-08-architecture-responsibilities",
+  "prUrl": "https://github.com/iamthamanic/visudev-app/pull/445",
   "paused": false,
   "runMode": "loop",
   "queue": [
-    428
+    429
   ],
   "completedIssues": [
     321,
@@ -63,7 +63,8 @@
     424,
     425,
     426,
-    427
+    427,
+    428
   ],
   "mergedIssues": [
     321,
@@ -117,7 +118,8 @@
     424,
     425,
     426,
-    427
+    427,
+    428
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
@@ -138,7 +140,8 @@
     "425": "https://github.com/iamthamanic/visudev-app/pull/441",
     "426": "https://github.com/iamthamanic/visudev-app/pull/442",
     "427": "https://github.com/iamthamanic/visudev-app/pull/443",
-    "428": "https://github.com/iamthamanic/visudev-app/pull/444"
+    "428": "https://github.com/iamthamanic/visudev-app/pull/444",
+    "429": "https://github.com/iamthamanic/visudev-app/pull/445"
   },
   "retries": {
     "implement": 0,
@@ -157,9 +160,9 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": 428,
-  "lastCompletedIssue": 427,
-  "notes": "#428 PR #444 babysit",
-  "updatedAt": "2026-10-06T08:13:21.000Z",
+  "currentIssue": 429,
+  "lastCompletedIssue": 428,
+  "notes": "#429 PR #445 opened; babysitting CI.",
+  "updatedAt": "2026-10-06T08:32:53.000Z",
   "milestoneFilter": null
 }

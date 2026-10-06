@@ -3,6 +3,7 @@
  */
 
 import type { SemanticEntity } from "../../../../../shared/semantic-system-model.types.js";
+import type { ArchitectureResponsibilityCard } from "../../../../../shared/product-understanding/index.js";
 import type { SoftwareGraph, SoftwareGraphNode } from "../../types";
 import { formatConfidence } from "../../../../lib/format-confidence.js";
 import { atlasKnowledgeStatusLabel, atlasKnowledgeTone } from "../atlas/atlas-knowledge-status.js";
@@ -44,6 +45,7 @@ interface ArchitectureInspectorProps {
   graph: SoftwareGraph;
   node: SoftwareGraphNode | null;
   semanticEntity?: SemanticEntity | null;
+  responsibility?: ArchitectureResponsibilityCard | null;
 }
 
 interface ServiceRow {
@@ -130,13 +132,80 @@ export function ArchitectureInspector({
   graph,
   node,
   semanticEntity = null,
+  responsibility = null,
 }: ArchitectureInspectorProps): JSX.Element {
-  if (!node && !semanticEntity) {
+  if (!node && !semanticEntity && !responsibility) {
     return (
       <div data-testid="architecture-inspector">
         <InspectorPanel
           title="Keine Auswahl"
-          emptyMessage="Wähle einen Layer, Domain oder Module im Stack."
+          emptyMessage="Wähle einen Produktbereich oder eine Capability."
+        />
+      </div>
+    );
+  }
+
+  if (responsibility) {
+    const techNodes = responsibility.technicalRefIds
+      .map((id) => graph.nodes.find((entry) => entry.id === id))
+      .filter((entry): entry is SoftwareGraphNode => Boolean(entry));
+    return (
+      <div data-testid="architecture-inspector">
+        <InspectorPanel
+          title={responsibility.label}
+          subtitle={
+            responsibility.kind === "product-area"
+              ? "Produktbereich"
+              : responsibility.kind === "capability"
+                ? "Capability"
+                : "Application"
+          }
+          sections={[
+            {
+              id: "purpose",
+              title: "Zweck",
+              content: (
+                <p className={styles.inspectorDescription} data-testid="architecture-purpose">
+                  {responsibility.purpose}
+                </p>
+              ),
+            },
+            {
+              id: "boundary",
+              title: "Grenze",
+              content: (
+                <p
+                  data-testid="architecture-boundary-detail"
+                  data-boundary={responsibility.boundary}
+                >
+                  {responsibility.boundaryLabel}
+                  {responsibility.boundary === "distributed"
+                    ? " — Implementierung liegt über mehrere Systemteile."
+                    : responsibility.boundary === "unclear"
+                      ? " — Kein klarer technischer Owner belegt."
+                      : " — Primäre technische Zuordnung belegt."}
+                </p>
+              ),
+            },
+            {
+              id: "technical",
+              title: "Technische Umsetzung",
+              content:
+                techNodes.length > 0 ? (
+                  <ul className={styles.checklist} data-testid="architecture-tech-drilldown">
+                    {techNodes.map((entry) => (
+                      <li key={entry.id}>
+                        {KIND_LABELS[entry.kind] ?? entry.kind}: {entry.label}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p data-testid="architecture-tech-drilldown-empty">
+                    Keine technischen Artefakte zugeordnet.
+                  </p>
+                ),
+            },
+          ]}
         />
       </div>
     );

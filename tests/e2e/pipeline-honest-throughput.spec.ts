@@ -143,6 +143,9 @@ test.describe("Pipeline honest throughput visuals", () => {
     test.setTimeout(60_000);
     await openBlueprintView(page, "architecture");
 
+    await expect(page.getByTestId("architecture-responsibility-map")).toBeVisible({
+      timeout: 20_000,
+    });
     const select = page.getByTestId("arch-level-select");
     await expect(select).toBeVisible({ timeout: 20_000 });
     await select.selectOption("module");

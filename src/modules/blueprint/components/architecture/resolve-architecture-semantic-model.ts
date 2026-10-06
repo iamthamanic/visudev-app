@@ -18,6 +18,7 @@ function isSemanticSystemModel(value: unknown): value is SemanticSystemModel {
 /**
  * Single semantic authority for ArchitectureView.
  * Product slice must not re-classify domains from folder names.
+ * Incomplete engine payloads fall back to the shared builder.
  */
 export function resolveArchitectureSemanticModel(
   blueprint: BlueprintData,
@@ -26,11 +27,22 @@ export function resolveArchitectureSemanticModel(
   if (!graph) return null;
   if (isSemanticSystemModel(blueprint.semanticSystemModel)) {
     const model = blueprint.semanticSystemModel;
-    // Accept engine payload even if version field omitted; builder fills v2 when missing.
-    if (model.version === 2 || model.entities.some((entity) => "knowledgeStatus" in entity)) {
-      return model;
+    const complete =
+      Array.isArray(model.relations) &&
+      model.entities.every(
+        (entity) =>
+          entity &&
+          typeof entity === "object" &&
+          Array.isArray(entity.evidence) &&
+          entity.metadata != null &&
+          typeof entity.confidence === "number",
+      );
+    if (complete) {
+      if (model.version === 2 || model.entities.some((entity) => "knowledgeStatus" in entity)) {
+        return model;
+      }
+      if (model.entities.length > 0) return model;
     }
-    if (model.entities.length > 0) return model;
   }
   return buildSemanticSystemModel(graph);
 }
