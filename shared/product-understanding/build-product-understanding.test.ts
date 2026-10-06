@@ -269,6 +269,15 @@ describe("buildProductUnderstanding", () => {
           evidenceIds: [`ev:${name}`],
         })),
         transitions: [],
+        evidence: [],
+        stats: {
+          surfaceCount: structural.length,
+          transitionCount: 0,
+          routeSurfaceCount: structural.length,
+          stateSurfaceCount: 0,
+          conflictCount: 0,
+          runtimeOnlyCount: 0,
+        },
       },
     });
     for (const name of structural) {
