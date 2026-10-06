@@ -26,6 +26,7 @@ import type {
   ProductUnderstandingModel,
 } from "../product-understanding.types.js";
 import { PRODUCT_UNDERSTANDING_MODEL_VERSION } from "../product-understanding.types.js";
+import { buildProductUserSystemStories } from "./project-execution-stories.js";
 
 export interface BuildProductUnderstandingInput {
   projectId: string;
@@ -394,9 +395,14 @@ export function buildProductUnderstanding(
     .map((candidate) => toConcept(candidate, candidates))
     .sort((left, right) => compareId(left.id, right.id));
 
-  return {
+  const relations = buildRelations(concepts, input.semantic);
+  const partialModel = {
     ...base,
     concepts,
-    relations: buildRelations(concepts, input.semantic),
+    relations,
+  };
+  return {
+    ...partialModel,
+    stories: buildProductUserSystemStories(partialModel),
   };
 }
