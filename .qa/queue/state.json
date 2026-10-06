@@ -1,15 +1,15 @@
 {
   "version": 2,
   "repo": "iamthamanic/visudev-app",
-  "activeIssue": 429,
-  "featureSlug": "pu-08-architecture-responsibilities",
-  "phase": "babysit",
-  "branch": "feat/429-pu-08-architecture-responsibilities",
-  "prUrl": "https://github.com/iamthamanic/visudev-app/pull/445",
+  "activeIssue": 430,
+  "featureSlug": "pu-09-dependencies-impact-map",
+  "phase": "commit",
+  "branch": "feat/430-pu-09-dependencies-impact-map",
+  "prUrl": null,
   "paused": false,
   "runMode": "loop",
   "queue": [
-    429
+    430
   ],
   "completedIssues": [
     321,
@@ -64,7 +64,8 @@
     425,
     426,
     427,
-    428
+    428,
+    429
   ],
   "mergedIssues": [
     321,
@@ -119,7 +120,8 @@
     425,
     426,
     427,
-    428
+    428,
+    429
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
@@ -160,9 +162,9 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": 429,
-  "lastCompletedIssue": 428,
-  "notes": "#429 PR #445 opened; babysitting CI.",
+  "currentIssue": 430,
+  "lastCompletedIssue": 429,
+  "notes": "#429 merged. Claiming #430 PU-09.",
   "updatedAt": "2026-10-06T08:32:53.000Z",
   "milestoneFilter": null
 }

@@ -1,5 +1,5 @@
 /**
- * Tests for DependenciesView empty state and edge filters.
+ * Tests for DependenciesView — Impact default (PU-09) + Technik drill-down.
  */
 
 import { render, screen, fireEvent, within } from "@testing-library/react";
@@ -73,14 +73,27 @@ const orphanBlueprint: BlueprintData = {
     : undefined,
 };
 
+function openTechnik(): void {
+  fireEvent.click(screen.getByTestId("dependencies-layer-technik"));
+}
+
 describe("DependenciesView", () => {
   it("shows empty state without graph", () => {
     render(<DependenciesView blueprint={emptyBlueprint} />);
     expect(screen.getByTestId("view-state-not-scanned")).toBeInTheDocument();
   });
 
-  it("renders Beziehungstypen relationship chips", () => {
+  it("defaults to Impact layer with impact inspector", () => {
     render(<DependenciesView blueprint={graphBlueprint} />);
+    expect(screen.getByTestId("dependencies-layer-current")).toHaveTextContent("Impact");
+    expect(screen.getByTestId("dependencies-impact-controls")).toBeInTheDocument();
+    expect(screen.getByTestId("dependencies-impact-inspector")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Abhängigkeiten-Steuerung")).not.toBeInTheDocument();
+  });
+
+  it("renders Beziehungstypen relationship chips on Technik", () => {
+    render(<DependenciesView blueprint={graphBlueprint} />);
+    openTechnik();
     const controls = screen.getByLabelText("Abhängigkeiten-Steuerung");
     expect(within(controls).getByRole("button", { name: "Imports" })).toHaveAttribute(
       "aria-pressed",
@@ -94,6 +107,7 @@ describe("DependenciesView", () => {
 
   it("disables relationship chips that have no edges in the current graph (P0-3)", () => {
     render(<DependenciesView blueprint={graphBlueprint} />);
+    openTechnik();
     const controls = screen.getByLabelText("Abhängigkeiten-Steuerung");
     const database = within(controls).getByRole("button", { name: "Database" });
     expect(database).toBeDisabled();
@@ -103,20 +117,23 @@ describe("DependenciesView", () => {
     ).toBeGreaterThan(0);
   });
 
-  it("shows Top Abhängigkeiten counts", () => {
+  it("shows Top Abhängigkeiten counts on Technik", () => {
     render(<DependenciesView blueprint={graphBlueprint} />);
+    openTechnik();
     const controls = screen.getByLabelText("Abhängigkeiten-Steuerung");
     expect(within(controls).getByText("Top Abhängigkeiten")).toBeInTheDocument();
     expect(within(controls).getAllByText("1").length).toBeGreaterThanOrEqual(2);
   });
 
-  it("shows inspector with node details when graph has use-case hub", () => {
+  it("shows inspector with node details when Technik graph has use-case hub", () => {
     render(<DependenciesView blueprint={graphBlueprint} />);
+    openTechnik();
     expect(screen.getByTestId("dependency-inspector")).toBeInTheDocument();
   });
 
   it("keeps isolated nodes when all relationship chips are off", () => {
     render(<DependenciesView blueprint={graphBlueprint} />);
+    openTechnik();
     const controls = screen.getByLabelText("Abhängigkeiten-Steuerung");
     for (const label of [
       "Imports",
@@ -139,27 +156,31 @@ describe("DependenciesView", () => {
 
   it("hides orphan nodes when Isolierte Knoten is off", () => {
     render(<DependenciesView blueprint={orphanBlueprint} />);
+    openTechnik();
     expect(screen.getByTestId("dep-orphan-group")).toHaveTextContent("Ohne Verbindungen (1)");
     fireEvent.click(screen.getByTestId("dep-filter-orphans"));
     expect(screen.queryByTestId("dep-orphan-group")).not.toBeInTheDocument();
     expect(screen.getByText(/2\/3 Knoten sichtbar/i)).toBeInTheDocument();
   });
 
-  it("renders graph search, footer stats, and minimap", () => {
+  it("renders graph search, footer stats, and minimap on Technik", () => {
     render(<DependenciesView blueprint={graphBlueprint} />);
+    openTechnik();
     expect(screen.getByPlaceholderText(/Label oder Modul/i)).toBeInTheDocument();
     expect(screen.getByLabelText("Graph-Statistik")).toBeInTheDocument();
     expect(screen.getByLabelText("Graph-Minimap")).toBeInTheDocument();
     expect(screen.getByText(/2\/2 Knoten sichtbar/i)).toBeInTheDocument();
   });
 
-  it("shows top dependencies in inspector when no edge selected", () => {
+  it("shows top dependencies in inspector when no edge selected on Technik", () => {
     render(<DependenciesView blueprint={graphBlueprint} />);
+    openTechnik();
     expect(screen.getAllByText("Top Abhängigkeiten").length).toBeGreaterThan(0);
   });
 
-  it("filters graph via search input", () => {
+  it("filters graph via search input on Technik", () => {
     render(<DependenciesView blueprint={graphBlueprint} />);
+    openTechnik();
     fireEvent.change(screen.getByPlaceholderText(/Label oder Modul/i), {
       target: { value: "b.ts" },
     });
@@ -194,6 +215,7 @@ describe("DependenciesView", () => {
         : undefined,
     };
     render(<DependenciesView blueprint={linkedBlueprint} />);
+    openTechnik();
     expect(screen.getByTestId("code-highlight")).toHaveTextContent("src/auth.ts:4");
     expect(screen.getByTestId("graph-node-selected")).toHaveTextContent("login");
     fireEvent.click(screen.getByTestId("graph-node-related"));
@@ -203,6 +225,7 @@ describe("DependenciesView", () => {
 
   it("shows an honest hint when the selected node has no file", () => {
     render(<DependenciesView blueprint={graphBlueprint} />);
+    openTechnik();
     expect(screen.getByText("Keine Datei — externer Service")).toBeInTheDocument();
     expect(screen.queryByTestId("code-highlight")).not.toBeInTheDocument();
   });
@@ -227,6 +250,7 @@ describe("DependenciesView", () => {
         : undefined,
     };
     render(<DependenciesView blueprint={fileOnlyBlueprint} />);
+    openTechnik();
     expect(screen.getByTestId("code-highlight")).toHaveTextContent("src/a.ts");
     expect(screen.getByText("Zeile unbekannt")).toBeInTheDocument();
   });

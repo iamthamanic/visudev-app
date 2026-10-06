@@ -168,3 +168,15 @@ export {
   type ArchitectureResponsibilityCard,
   type ArchitectureResponsibilityProjection,
 } from "./project-architecture-responsibilities.js";
+
+export {
+  projectDependenciesImpactMap,
+  IMPACT_MAX_DIRECT,
+  IMPACT_MAX_TRANSITIVE,
+  IMPACT_MAX_OVERVIEW_NODES,
+  IMPACT_TRANSITIVE_DEPTH,
+  type DependenciesImpactMapProjection,
+  type ImpactHop,
+  type ImpactRelationView,
+  type ProjectDependenciesImpactMapOptions,
+} from "./project-dependencies-impact-map.js";
