@@ -110,3 +110,20 @@ export {
   buildProductUnderstanding,
   type BuildProductUnderstandingInput,
 } from "./build-product-understanding.js";
+
+export {
+  PRODUCT_UNDERSTANDING_INTERPRETER_PROMPT_VERSION,
+  buildProductUnderstandingInterpreterInput,
+  createNullProductUnderstandingInterpreter,
+  isAmbiguousProductConcept,
+  mergeProductUnderstandingInterpretations,
+  type ProductUnderstandingAnnotation,
+  type ProductUnderstandingInterpretationResult,
+  type ProductUnderstandingInterpreterInput,
+  type ProductUnderstandingInterpreterPort,
+} from "./interpretation.js";
+
+export {
+  isProductUnderstandingInterpreterEnabled,
+  runProductUnderstandingInterpretation,
+} from "./run-interpretation.js";
