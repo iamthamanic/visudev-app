@@ -23,6 +23,8 @@ describe("throughput smoke", () => {
       graph,
     } as unknown as BlueprintData;
     expect(() => resolveArchitectureResponsibilityProjection(blueprint, graph)).not.toThrow();
-    expect(resolveArchitectureResponsibilityProjection(blueprint, graph)?.cards.length).toBeGreaterThan(0);
+    expect(
+      resolveArchitectureResponsibilityProjection(blueprint, graph)?.cards.length,
+    ).toBeGreaterThan(0);
   });
 });
