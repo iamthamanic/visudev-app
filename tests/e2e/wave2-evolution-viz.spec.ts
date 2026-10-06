@@ -4,7 +4,12 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { installWave2Mocks, openBlueprintView, seedSupabaseSession } from "./wave2-test-helpers.js";
+import {
+  installWave2Mocks,
+  openBlueprintView,
+  openEvolutionTechnikLayer,
+  seedSupabaseSession,
+} from "./wave2-test-helpers.js";
 
 const EVIDENCE_DIR = ".qa/evidence/wave2-evolution-viz";
 const PROJECT_ID = "proj-wave2-evolution";
@@ -20,11 +25,14 @@ test.describe("Wave 2 evolution viz parity", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await openBlueprintView(page, "evolution");
 
+    await expect(page.getByTestId("evolution-layer-product")).toBeVisible({ timeout: 20000 });
+    await expect(page.getByTestId("evolution-snapshot-card")).toHaveCount(5);
+    await openEvolutionTechnikLayer(page);
+
     const timeline = page.getByTestId("evolution-timeline");
     await expect(timeline).toBeVisible({ timeout: 20000 });
     expect(await page.getByTestId("evolution-timeline-commit").count()).toBeGreaterThanOrEqual(3);
 
-    await expect(page.getByTestId("evolution-snapshot-card")).toHaveCount(5);
     expect(await page.getByTestId("evolution-metric-card").count()).toBeGreaterThanOrEqual(6);
     await expect(page.getByTestId("evolution-changes-column")).toHaveCount(5);
 

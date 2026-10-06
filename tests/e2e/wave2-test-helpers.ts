@@ -409,3 +409,10 @@ export async function openDiagnosticsInspectorTechnik(page: import("@playwright/
   await page.getByTestId("diagnostics-technik-toggle").click();
   await expect(page.getByTestId("diagnostics-technik-panel")).toBeVisible();
 }
+
+/** PU-14: Product history is default; Technik exposes git timeline / file columns. */
+export async function openEvolutionTechnikLayer(page: import("@playwright/test").Page) {
+  await expect(page.getByTestId("evolution-layer-technik")).toBeVisible({ timeout: 20_000 });
+  await page.getByTestId("evolution-layer-technik").click();
+  await expect(page.getByTestId("evolution-layer-technik")).toHaveAttribute("data-active", "true");
+}

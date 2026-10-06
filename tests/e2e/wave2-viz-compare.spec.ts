@@ -11,6 +11,7 @@ import {
   openBlueprintView,
   openDependenciesTechnikLayer,
   openDiagnosticsTechnikContext,
+  openEvolutionTechnikLayer,
   openInfrastructureTechnikLayer,
   seedSupabaseSession,
 } from "./wave2-test-helpers.js";
@@ -67,8 +68,9 @@ async function waitForScanAndEnrichment(page: Page, viewId: string) {
       expect(await page.getByTestId("atlas-cluster").count()).toBeGreaterThanOrEqual(3);
       break;
     case "evolution":
-      await expect(page.getByTestId("evolution-timeline")).toBeVisible();
       await expect(page.getByTestId("evolution-snapshot-card")).toHaveCount(5);
+      await openEvolutionTechnikLayer(page);
+      await expect(page.getByTestId("evolution-timeline")).toBeVisible();
       expect(await page.getByTestId("evolution-metric-card").count()).toBeGreaterThanOrEqual(6);
       break;
     case "diagnostics":

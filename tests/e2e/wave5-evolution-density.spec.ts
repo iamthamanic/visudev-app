@@ -4,7 +4,12 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { installWave2Mocks, openBlueprintView, seedSupabaseSession } from "./wave2-test-helpers.js";
+import {
+  installWave2Mocks,
+  openBlueprintView,
+  openEvolutionTechnikLayer,
+  seedSupabaseSession,
+} from "./wave2-test-helpers.js";
 
 const PROJECT_ID = "proj-wave5-evolution";
 
@@ -15,12 +20,13 @@ test.describe("Wave 5 evolution density", () => {
     await installWave2Mocks(page, PROJECT_ID, "wave5-evo-1");
     await openBlueprintView(page, "evolution");
 
+    expect(await page.getByTestId("evolution-snapshot-card").count()).toBeGreaterThanOrEqual(5);
+    expect(await page.getByTestId("evolution-snapshot-thumb").count()).toBeGreaterThanOrEqual(5);
+
+    await openEvolutionTechnikLayer(page);
     await expect(page.getByTestId("evolution-timeline")).toBeVisible();
     expect(await page.getByTestId("evolution-timeline-commit").count()).toBeGreaterThanOrEqual(5);
     await expect(page.getByTestId("evolution-timeline-commit").first()).toContainText(/.+/);
-
-    expect(await page.getByTestId("evolution-snapshot-card").count()).toBeGreaterThanOrEqual(5);
-    expect(await page.getByTestId("evolution-snapshot-thumb").count()).toBeGreaterThanOrEqual(5);
 
     await expect(page.getByTestId("evolution-changes-grid")).toBeVisible();
     expect(await page.getByTestId("evolution-changes-column").count()).toBe(5);
