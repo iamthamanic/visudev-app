@@ -43,6 +43,10 @@ export interface Screen {
   parentPath?: string;
   stateKey?: string;
   stateTargets?: StateTarget[];
+  /** Epistemic status for custom-nav / honest UNKNOWN findings. */
+  knowledgeStatus?: "detected" | "inferred" | "observed" | "verified" | "conflicted" | "unknown";
+  evidenceLine?: number;
+  confidence?: number;
 }
 
 export interface FileContent {

@@ -136,4 +136,9 @@ export interface LegacyScreenLike {
   stateTargets?: LegacyStateTarget[];
   navigatesTo?: string[];
   screenshotUrl?: string;
+  /** Optional epistemic status when producer already classified the finding. */
+  knowledgeStatus?: UiKnowledgeStatus;
+  /** 1-based source line for evidence. */
+  evidenceLine?: number;
+  confidence?: number;
 }

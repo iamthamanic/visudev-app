@@ -1,4 +1,6 @@
 import type { FileContent, Screen } from "../dto/index.ts";
+import { CustomNavigationExtractor } from "./custom-navigation-extractor.ts";
+import type { CustomNavigationCoverage } from "./custom-navigation-extractor.ts";
 import { NavigationLinkExtractor } from "./navigation-link-extractor.ts";
 import { PageLikeExtractor } from "./page-like-extractor.ts";
 import { StateTargetExtractor } from "./state-target-extractor.ts";
@@ -12,15 +14,18 @@ export class ScreenExtractionService {
   private readonly navExtractor: NavigationLinkExtractor;
   private readonly pageLikeExtractor: PageLikeExtractor;
   private readonly stateTargetExtractor: StateTargetExtractor;
+  private readonly customNavigationExtractor: CustomNavigationExtractor;
 
   constructor(
     navExtractor: NavigationLinkExtractor,
     stateTargetExtractor: StateTargetExtractor,
     pageLikeExtractor: PageLikeExtractor,
+    customNavigationExtractor: CustomNavigationExtractor = new CustomNavigationExtractor(),
   ) {
     this.navExtractor = navExtractor;
     this.stateTargetExtractor = stateTargetExtractor;
     this.pageLikeExtractor = pageLikeExtractor;
+    this.customNavigationExtractor = customNavigationExtractor;
   }
 
   public extractNextJsAppRouterScreens(files: FileContent[]): Screen[] {
@@ -813,5 +818,35 @@ export class ScreenExtractionService {
     files: FileContent[],
   ): void {
     this.stateTargetExtractor.extractModalsTabsAndDropdowns(screens, files);
+  }
+
+  /**
+   * Additive custom-navigation pass (route tables, path builders, switch/union).
+   * Merges evidence-backed screens; unknown computed paths keep empty path + UNKNOWN status.
+   */
+  public extractCustomNavigationScreens(
+    screens: Screen[],
+    files: FileContent[],
+  ): CustomNavigationCoverage {
+    const { screens: custom, coverage } = this.customNavigationExtractor.extract(
+      files,
+    );
+    const existingPaths = new Set(
+      screens.map((s) =>
+        (s.path || "").trim().toLowerCase().replace(/\/$/, "") || ""
+      ),
+    );
+    const existingIds = new Set(screens.map((s) => s.id));
+    for (const screen of custom) {
+      if (existingIds.has(screen.id)) continue;
+      const pathNorm = (screen.path || "").trim().toLowerCase().replace(/\/$/, "") ||
+        "";
+      // Unknown (empty path) always merge; resolved paths skip duplicates.
+      if (pathNorm && existingPaths.has(pathNorm)) continue;
+      if (pathNorm) existingPaths.add(pathNorm);
+      existingIds.add(screen.id);
+      screens.push(screen);
+    }
+    return coverage;
   }
 }
