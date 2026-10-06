@@ -20,7 +20,8 @@ export class ScreenExtractionService {
     navExtractor: NavigationLinkExtractor,
     stateTargetExtractor: StateTargetExtractor,
     pageLikeExtractor: PageLikeExtractor,
-    customNavigationExtractor: CustomNavigationExtractor = new CustomNavigationExtractor(),
+    customNavigationExtractor: CustomNavigationExtractor =
+      new CustomNavigationExtractor(),
   ) {
     this.navExtractor = navExtractor;
     this.stateTargetExtractor = stateTargetExtractor;
@@ -828,9 +829,10 @@ export class ScreenExtractionService {
     screens: Screen[],
     files: FileContent[],
   ): CustomNavigationCoverage {
-    const { screens: custom, coverage } = this.customNavigationExtractor.extract(
-      files,
-    );
+    const { screens: custom, coverage } = this.customNavigationExtractor
+      .extract(
+        files,
+      );
     const existingPaths = new Set(
       screens.map((s) =>
         (s.path || "").trim().toLowerCase().replace(/\/$/, "") || ""
@@ -839,7 +841,8 @@ export class ScreenExtractionService {
     const existingIds = new Set(screens.map((s) => s.id));
     for (const screen of custom) {
       if (existingIds.has(screen.id)) continue;
-      const pathNorm = (screen.path || "").trim().toLowerCase().replace(/\/$/, "") ||
+      const pathNorm =
+        (screen.path || "").trim().toLowerCase().replace(/\/$/, "") ||
         "";
       // Unknown (empty path) always merge; resolved paths skip duplicates.
       if (pathNorm && existingPaths.has(pathNorm)) continue;
