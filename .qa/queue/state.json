@@ -8,9 +8,7 @@
   "prUrl": null,
   "paused": false,
   "runMode": "loop",
-  "queue": [
-    431
-  ],
+  "queue": [],
   "completedIssues": [
     321,
     322,
@@ -66,7 +64,8 @@
     427,
     428,
     429,
-    430
+    430,
+    431
   ],
   "mergedIssues": [
     321,
@@ -123,7 +122,8 @@
     427,
     428,
     429,
-    430
+    430,
+    431
   ],
   "prUrls": {
     "385": "https://github.com/iamthamanic/visudev-app/pull/407",
@@ -146,7 +146,8 @@
     "427": "https://github.com/iamthamanic/visudev-app/pull/443",
     "428": "https://github.com/iamthamanic/visudev-app/pull/444",
     "429": "https://github.com/iamthamanic/visudev-app/pull/445",
-    "430": "https://github.com/iamthamanic/visudev-app/pull/446"
+    "430": "https://github.com/iamthamanic/visudev-app/pull/446",
+    "431": "https://github.com/iamthamanic/visudev-app/pull/447"
   },
   "retries": {
     "implement": 0,
@@ -165,9 +166,9 @@
   },
   "lastError": null,
   "lastErrorCount": 0,
-  "currentIssue": 431,
+  "currentIssue": 432,
   "lastCompletedIssue": 429,
   "notes": "#429 merged. Claiming #430 PU-09.",
-  "updatedAt": "2026-10-06T11:29:52.000Z",
+  "updatedAt": "2026-10-06T16:47:41.000Z",
   "milestoneFilter": null
 }

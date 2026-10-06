@@ -27,6 +27,7 @@ import type {
 } from "../product-understanding.types.js";
 import { PRODUCT_UNDERSTANDING_MODEL_VERSION } from "../product-understanding.types.js";
 import { buildProductUserSystemStories } from "./project-execution-stories.js";
+import { buildProductDataMeanings } from "./project-data-information-flow.js";
 
 export interface BuildProductUnderstandingInput {
   projectId: string;
@@ -404,5 +405,6 @@ export function buildProductUnderstanding(
   return {
     ...partialModel,
     stories: buildProductUserSystemStories(partialModel),
+    dataMeanings: buildProductDataMeanings(partialModel),
   };
 }
