@@ -30,6 +30,16 @@
   cursor: not-allowed;
 }
 
+.viewModeHint {
+  margin: 0 0 0.75rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
 .cityCanvasWrap {
   display: flex;
   flex-direction: column;
@@ -212,6 +222,13 @@
 .nodeCardLabel {
   font-size: 0.8125rem;
   font-weight: 600;
+  word-break: break-word;
+}
+
+.nodeCardPurpose {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--color-foreground);
   word-break: break-word;
 }
 

@@ -1,5 +1,6 @@
 /**
- * AtlasView — birds-eye 2D clustered map or optional lazy-loaded 3D city of the SoftwareGraph.
+ * AtlasView — 2D Product-Understanding product-domain map (PU-07).
+ * Primary layer: application / product-area / capability. 3D city is not a required path.
  */
 
 import { lazy, Suspense } from "react";
@@ -21,10 +22,6 @@ import styles from "../styles/AtlasView.module.css";
 
 const GraphCanvas = lazy(() =>
   import("../../../components/GraphCanvas").then((module) => ({ default: module.GraphCanvas })),
-);
-
-const AtlasCityScene = lazy(() =>
-  import("./atlas/AtlasCityScene.js").then((module) => ({ default: module.AtlasCityScene })),
 );
 
 interface AtlasViewProps extends BlueprintViewScanProps {
@@ -59,19 +56,14 @@ export function AtlasView({ blueprint, scanStatus, scanError, onRetry }: AtlasVi
     (blueprint.truncation as { truncated?: boolean } | undefined)?.truncated === true;
 
   const canvasContent = !hasVisibleNodes ? (
-    <div className={styles.filteredCanvasEmpty}>
-      <p>Keine Knoten für die aktuelle Suche. Passe den Suchbegriff an.</p>
+    <div className={styles.filteredCanvasEmpty} data-testid="atlas-product-map-empty">
+      <p>
+        Noch keine Produktbereiche oder Fähigkeiten aus den Scan-Signalen ableitbar. Technische
+        Artefakte erscheinen im Inspektor, sobald Konzepte verfügbar sind.
+      </p>
     </div>
-  ) : state.viewMode === "3d" ? (
-    <Suspense fallback={<p className={styles.loading}>3D-Stadt wird geladen...</p>}>
-      <AtlasCityScene
-        blocks={state.cityBlocks}
-        selectedNodeId={state.selectedNodeId}
-        onSelectNode={state.handleSelectNode}
-      />
-    </Suspense>
   ) : (
-    <Suspense fallback={<p className={styles.loading}>Atlas wird geladen...</p>}>
+    <Suspense fallback={<p className={styles.loading}>Produktlandkarte wird geladen...</p>}>
       <GraphCanvas
         nodes={state.projection.nodes}
         edges={state.projection.edges}

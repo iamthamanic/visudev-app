@@ -7,6 +7,10 @@ export interface GraphCanvasNode {
   semanticKind?: string;
   /** Optional KnowledgeStatus for epistemic UI chrome. */
   knowledgeStatus?: string;
+  /** One-sentence purpose for product-domain Atlas cards (PU-07). */
+  purpose?: string;
+  /** ProductUnderstanding concept kind when projected from PU model. */
+  productKind?: string;
 }
 
 export interface GraphCanvasEdge {

@@ -1,7 +1,11 @@
+/**
+ * Atlas projection hook — Product Understanding product-domain map (PU-07).
+ */
+
 import { useMemo } from "react";
-import { buildSemanticSystemModel } from "../../../../../shared/semantic-system-model.js";
 import type { BlueprintData } from "../../types";
-import { projectAtlasSemanticModel, type AtlasProjection } from "./_projection.js";
+import type { AtlasProjection } from "./_projection.js";
+import { projectAtlasFromProductUnderstanding } from "./project-atlas-from-product-understanding.js";
 
 const EMPTY_PROJECTION: AtlasProjection = {
   nodes: [],
@@ -19,9 +23,8 @@ export function useAtlasProjection(
   graph: BlueprintData["graph"],
   searchQuery: string,
 ): AtlasProjection {
-  const model = useMemo(() => (graph ? buildSemanticSystemModel(graph) : null), [graph]);
   return useMemo(() => {
-    if (!graph || !model) return EMPTY_PROJECTION;
-    return projectAtlasSemanticModel(graph, model, { searchQuery });
-  }, [graph, model, searchQuery]);
+    if (!graph) return EMPTY_PROJECTION;
+    return projectAtlasFromProductUnderstanding(graph, { searchQuery });
+  }, [graph, searchQuery]);
 }

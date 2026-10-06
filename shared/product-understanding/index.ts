@@ -153,3 +153,11 @@ export {
   buildProductConceptInspectorSections,
   type ProductConceptInspectorSectionData,
 } from "./inspector-sections.js";
+
+export {
+  projectAtlasProductMap,
+  ATLAS_PRODUCT_PRIMARY_KINDS,
+  type AtlasProductMapProjection,
+  type AtlasProductPrimaryKind,
+  type ProjectAtlasProductMapOptions,
+} from "./project-atlas-product-map.js";

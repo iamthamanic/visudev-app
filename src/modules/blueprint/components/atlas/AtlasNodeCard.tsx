@@ -1,5 +1,5 @@
 /**
- * Floating node label card for Atlas controls — kind-colored left border + epistemic tone.
+ * Floating node label card for Atlas controls — purpose-first product concepts (PU-07).
  */
 
 import type { GraphCanvasNode } from "../../types";
@@ -14,8 +14,9 @@ export interface AtlasNodeCardProps {
 }
 
 export function AtlasNodeCard({ node, selected, onSelect }: AtlasNodeCardProps): JSX.Element {
-  const kindLabel = atlasKindLabel(node.semanticKind ?? node.kind);
+  const kindLabel = atlasKindLabel(node.productKind ?? node.semanticKind ?? node.kind);
   const tone = atlasKnowledgeTone(node.knowledgeStatus);
+  const purpose = node.purpose?.trim();
   return (
     <button
       type="button"
@@ -23,11 +24,13 @@ export function AtlasNodeCard({ node, selected, onSelect }: AtlasNodeCardProps):
       data-selected={selected ? "true" : "false"}
       data-kind={node.kind}
       data-semantic-kind={node.semanticKind ?? ""}
+      data-product-kind={node.productKind ?? ""}
       data-knowledge-tone={tone}
       aria-pressed={selected}
       onClick={onSelect}
     >
       <span className={styles.nodeCardLabel}>{node.label}</span>
+      {purpose ? <span className={styles.nodeCardPurpose}>{purpose}</span> : null}
       <span className={styles.nodeCardMeta}>
         {kindLabel}
         {node.knowledgeStatus ? (
